@@ -5,56 +5,12 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { session } = await authenticate.admin(request);
 
-  const subscriptionRes = await admin.graphql(`
-    query {
-      appInstallation {
-        activeSubscriptions {
-          id
-          name
-          status
-        }
-      }
-    }
-  `);
-  const subscriptionData = await subscriptionRes.json();
-  const subscriptions = subscriptionData?.data?.appInstallation?.activeSubscriptions || [];
+  console.log("Authenticated shop:", session.shop);
+  console.log("Session scope:", session.scope);
 
-  // ✅ Check by status not name
-  const hasActivePlan = subscriptions.some(s => s.status === "ACTIVE");
-    console.log("Active subscriptions:", subscriptions); // Debug log
-  if (!hasActivePlan) {
-    // ✅ Return flag instead of redirect
-    return { fields: [], noActivePlan: true };
-  }
-  console.log("Pass active subscriptions:", subscriptions); // Debug log
-
-  const res = await admin.graphql(`
-    query {
-      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-        nodes {
-          id
-          name
-          key
-          type { name }
-          namespace
-        }
-      }
-    }
-  `);
-
-  const data = await res.json();
-  const definitions = data?.data?.metafieldDefinitions?.nodes || [];
-  const fields = definitions
-    .filter((f) => f.namespace === "vsn_metafields")
-    .map((f) => ({
-      name: f.name,
-      key: f.key,
-      type: f.type?.name,
-    }));
-
-  return { fields, noActivePlan: false };
+  return { fields: [], noActivePlan: false };
 };
 
 export const action = async ({ request }) => {
