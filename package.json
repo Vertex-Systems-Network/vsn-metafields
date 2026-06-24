@@ -17,20 +17,7 @@
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
-    "typecheck": "react-router typegen && tsc --noEmit",
-
-    "cpanel:build": "react-router build",
-    "cpanel:prisma": "prisma generate && prisma migrate deploy",
-    "cpanel:deploy": "npm run cpanel:build && npm run cpanel:prisma",
-
-    "cpanel:1-install": "npm install --omit=dev",
-    "cpanel:2-prisma-generate": "prisma generate",
-    "cpanel:3-prisma-migrate": "prisma migrate deploy",
-    "cpanel:4-start": "react-router-serve ./build/server/index.js",
-
-    "cpanel:fix-permissions": "chmod +x node_modules/.bin/* node_modules/prisma/build/index.js node_modules/@prisma/client/node_modules/.bin/* 2>/dev/null || true",
-    "cpanel:migrate": "npm run cpanel:fix-permissions && node node_modules/prisma/build/index.js migrate deploy",
-    "cpanel:run-migrate": "node scripts/migrate.mjs"
+    "typecheck": "react-router typegen && tsc --noEmit"
   },
   "type": "module",
   "engines": {
