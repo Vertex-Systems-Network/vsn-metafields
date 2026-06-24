@@ -2,7 +2,7 @@
 
 client_id = "f5266ba8dba403005deb695fedad053a"
 name = "VSN Metafields"
-application_url = "https://vsn-metafields.vertexsystemsnetwork.com"
+application_url = "vsn-metafields-production.up.railway.app"
 embedded = true
 
 [build]
@@ -31,6 +31,6 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://vsn-metafields.vertexsystemsnetwork.com/auth/callback",
-  "https://vsn-metafields.vertexsystemsnetwork.com/auth/shopify/callback"
+  "vsn-metafields-production.up.railway.app/auth/callback",
+  "vsn-metafields-production.up.railway.app/auth/shopify/callback"
 ]
