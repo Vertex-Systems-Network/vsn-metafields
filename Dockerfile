@@ -1,17 +1,19 @@
 FROM node:20-alpine
-RUN apk add --no-cache openssl
 
-EXPOSE 3000
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-ENV NODE_ENV=production
+EXPOSE 3000
 
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma
 
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 COPY . .
+
+ENV NODE_ENV=production
 
 RUN npm run build
 
