@@ -1,211 +1,24 @@
 import { useEffect, useState } from "react";
-import { useLoaderData, useFetcher } from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
 
-  console.log("Authenticated shop:", session.shop);
-  console.log("Session scope:", session.scope);
+  console.log("Index shop:", session.shop);
+  console.log("Index scope:", session.scope);
 
   return {
     shop: session.shop,
   };
 };
 
-export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-
-  const actionType = formData.get("actionType");
-
-  try {
-    // RESET ALL FIELDS
-    if (actionType === "reset_all") {
-      const res = await admin.graphql(`#graphql
-        query {
-          metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-            nodes {
-              id
-              namespace
-              key
-            }
-          }
-        }
-      `);
-
-      const data = await res.json();
-
-      if (data?.errors?.length) {
-        console.error("Reset query errors:", data.errors);
-        return {
-          success: false,
-          error: data.errors[0]?.message || "Failed to fetch metafield definitions.",
-        };
-      }
-
-      const definitions = data?.data?.metafieldDefinitions?.nodes || [];
-
-      const toDelete = definitions.filter(
-        (field) => field.namespace === "vsn_metafields"
-      );
-
-      let deletedCount = 0;
-      const deleteErrors = [];
-
-      for (const field of toDelete) {
-        const deleteRes = await admin.graphql(
-          `#graphql
-          mutation DeleteMetafieldDefinition($id: ID!) {
-            metafieldDefinitionDelete(
-              id: $id,
-              deleteAllAssociatedMetafields: false
-            ) {
-              deletedDefinitionId
-              userErrors {
-                field
-                message
-              }
-            }
-          }`,
-          {
-            variables: {
-              id: field.id,
-            },
-          }
-        );
-
-        const deleteData = await deleteRes.json();
-
-        if (deleteData?.errors?.length) {
-          console.error("Delete GraphQL errors:", deleteData.errors);
-          deleteErrors.push(deleteData.errors[0]?.message);
-          continue;
-        }
-
-        const userErrors =
-          deleteData?.data?.metafieldDefinitionDelete?.userErrors || [];
-
-        if (userErrors.length > 0) {
-          console.error("Delete user errors:", userErrors);
-          deleteErrors.push(userErrors[0]?.message);
-          continue;
-        }
-
-        deletedCount++;
-      }
-
-      if (deleteErrors.length > 0) {
-        return {
-          success: false,
-          error: deleteErrors[0] || "Some fields could not be deleted.",
-        };
-      }
-
-      return {
-        success: true,
-        message: `${deletedCount} metafield definition(s) deleted.`,
-      };
-    }
-
-    // CREATE FIELD
-    const name = formData.get("name");
-    const key = formData.get("key");
-    const type = formData.get("type");
-
-    if (!name || !key || !type) {
-      return {
-        success: false,
-        error: "Missing fields.",
-      };
-    }
-
-    const cleanKey = String(key)
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
-
-    if (!cleanKey) {
-      return {
-        success: false,
-        error: "Invalid field key.",
-      };
-    }
-
-    const mutation = await admin.graphql(
-      `#graphql
-      mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
-        metafieldDefinitionCreate(definition: $definition) {
-          createdDefinition {
-            id
-            name
-            namespace
-            key
-            type {
-              name
-            }
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }`,
-      {
-        variables: {
-          definition: {
-            name: String(name).trim(),
-            namespace: "vsn_metafields",
-            key: cleanKey,
-            type: String(type),
-            ownerType: "PRODUCT",
-          },
-        },
-      }
-    );
-
-    const result = await mutation.json();
-
-    if (result?.errors?.length) {
-      console.error("Create GraphQL errors:", result.errors);
-      return {
-        success: false,
-        error: result.errors[0]?.message || "Failed to create metafield.",
-      };
-    }
-
-    const userErrors =
-      result?.data?.metafieldDefinitionCreate?.userErrors || [];
-
-    if (userErrors.length > 0) {
-      console.error("Create user errors:", userErrors);
-      return {
-        success: false,
-        error: userErrors[0]?.message || "Failed to create metafield.",
-      };
-    }
-
-    return {
-      success: true,
-      message: "Metafield created successfully.",
-      metafield:
-        result?.data?.metafieldDefinitionCreate?.createdDefinition,
-    };
-  } catch (error) {
-    console.error("Action failed:", error);
-
-    return {
-      success: false,
-      error: error?.message || "Something went wrong.",
-    };
-  }
-};
-
 export default function Index() {
   const { shop } = useLoaderData();
+
   const statusFetcher = useFetcher();
+  const fieldsFetcher = useFetcher();
   const actionFetcher = useFetcher();
 
   const [name, setName] = useState("");
@@ -213,18 +26,23 @@ export default function Index() {
   const [type, setType] = useState("single_line_text_field");
 
   useEffect(() => {
-    statusFetcher.load("/app/metafields-status");
+    statusFetcher.load("/app/api/status");
   }, []);
 
   useEffect(() => {
+    if (statusFetcher.data?.hasActivePlan) {
+      fieldsFetcher.load("/app/api/fields");
+    }
+  }, [statusFetcher.data]);
+
+  useEffect(() => {
     if (actionFetcher.data?.success) {
-      statusFetcher.load("/app/metafields-status");
+      fieldsFetcher.load("/app/api/fields");
+      setName("");
+      setKey("");
+      setType("single_line_text_field");
     }
   }, [actionFetcher.data]);
-
-  const isChecking = !statusFetcher.data && statusFetcher.state !== "idle";
-  const hasNotLoadedYet = !statusFetcher.data && statusFetcher.state === "idle";
-  const status = statusFetcher.data;
 
   const typeOptions = [
     { label: "Text (Single Line)", value: "single_line_text_field" },
@@ -237,28 +55,39 @@ export default function Index() {
 
   const handleCreate = () => {
     const formData = new FormData();
+
     formData.set("name", name);
     formData.set("key", key);
     formData.set("type", type);
 
     actionFetcher.submit(formData, {
       method: "post",
+      action: "/app/api/fields",
     });
   };
 
   const handleReset = () => {
-    const formData = new FormData();
-    formData.set("actionType", "reset_all");
-
-    actionFetcher.submit(formData, {
-      method: "post",
+    actionFetcher.submit(null, {
+      method: "delete",
+      action: "/app/api/fields",
     });
   };
 
-  const isLoading = actionFetcher.state !== "idle";
-  const result = actionFetcher.data;
+  const checkingStatus =
+    !statusFetcher.data && statusFetcher.state !== "idle";
 
-  if (hasNotLoadedYet || isChecking) {
+  const loadingFields =
+    statusFetcher.data?.hasActivePlan &&
+    !fieldsFetcher.data &&
+    fieldsFetcher.state !== "idle";
+
+  const isActionLoading = actionFetcher.state !== "idle";
+
+  const status = statusFetcher.data;
+  const fieldsData = fieldsFetcher.data;
+  const actionResult = actionFetcher.data;
+
+  if (checkingStatus || !status) {
     return (
       <s-page heading="VSN Metafields">
         <s-banner tone="info">Checking app status...</s-banner>
@@ -266,17 +95,17 @@ export default function Index() {
     );
   }
 
-  if (status && !status.ok) {
+  if (!status.ok) {
     return (
       <s-page heading="VSN Metafields">
         <s-banner tone="critical">
-          {status.error || "Something went wrong."}
+          {status.error || "Status check failed."}
         </s-banner>
       </s-page>
     );
   }
 
-  if (status && status.hasActivePlan === false) {
+  if (!status.hasActivePlan) {
     return (
       <s-page heading="VSN Metafields">
         <s-banner tone="warning">
@@ -290,16 +119,26 @@ export default function Index() {
     );
   }
 
-  const fields = status?.fields || [];
+  const fields = fieldsData?.fields || [];
 
   return (
     <s-page heading="VSN Metafields">
-      {result?.success && (
-        <s-banner tone="success">{result.message}</s-banner>
+      {actionResult?.success && (
+        <s-banner tone="success">{actionResult.message}</s-banner>
       )}
 
-      {result?.error && (
-        <s-banner tone="critical">{result.error}</s-banner>
+      {actionResult?.error && (
+        <s-banner tone="critical">{actionResult.error}</s-banner>
+      )}
+
+      {fieldsData && !fieldsData.ok && (
+        <s-banner tone="critical">
+          {fieldsData.error || "Failed to load fields."}
+        </s-banner>
+      )}
+
+      {loadingFields && (
+        <s-banner tone="info">Loading registered fields...</s-banner>
       )}
 
       <s-section heading="Create New Field">
@@ -310,7 +149,7 @@ export default function Index() {
             placeholder="e.g. Inspired By"
             autoComplete="off"
             value={name}
-            onInput={(e) => setName(e.target.value)}
+            onInput={(event) => setName(event.target.value)}
           />
 
           <s-text-field
@@ -319,13 +158,13 @@ export default function Index() {
             placeholder="e.g. inspired_by"
             autoComplete="off"
             value={key}
-            onInput={(e) => setKey(e.target.value)}
+            onInput={(event) => setKey(event.target.value)}
           />
 
           <s-select
             label="Field Type"
             value={type}
-            onInput={(e) => setType(e.target.value)}
+            onInput={(event) => setType(event.target.value)}
           >
             {typeOptions.map((option) => (
               <s-option key={option.value} value={option.value}>
@@ -336,7 +175,7 @@ export default function Index() {
 
           <s-button
             variant="primary"
-            loading={isLoading}
+            loading={isActionLoading}
             onClick={handleCreate}
           >
             Create Field
@@ -355,7 +194,11 @@ export default function Index() {
         >
           <s-heading>Registered Fields</s-heading>
 
-          <s-button tone="critical" loading={isLoading} onClick={handleReset}>
+          <s-button
+            tone="critical"
+            loading={isActionLoading}
+            onClick={handleReset}
+          >
             Reset All Fields
           </s-button>
         </div>
@@ -369,11 +212,11 @@ export default function Index() {
             </s-table-header-row>
 
             <s-table-body>
-              {fields.map((f) => (
-                <s-table-row key={f.key}>
-                  <s-table-cell>{f.name}</s-table-cell>
-                  <s-table-cell>{f.key}</s-table-cell>
-                  <s-table-cell>{f.type}</s-table-cell>
+              {fields.map((field) => (
+                <s-table-row key={field.key}>
+                  <s-table-cell>{field.name}</s-table-cell>
+                  <s-table-cell>{field.key}</s-table-cell>
+                  <s-table-cell>{field.type}</s-table-cell>
                 </s-table-row>
               ))}
             </s-table-body>
