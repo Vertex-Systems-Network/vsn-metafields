@@ -14,6 +14,195 @@ export const loader = async ({ request }) => {
   };
 };
 
+export const action = async ({ request }) => {
+  const { admin } = await authenticate.admin(request);
+  const formData = await request.formData();
+
+  const actionType = formData.get("actionType");
+
+  try {
+    // RESET ALL FIELDS
+    if (actionType === "reset_all") {
+      const res = await admin.graphql(`#graphql
+        query {
+          metafieldDefinitions(first: 100, ownerType: PRODUCT) {
+            nodes {
+              id
+              namespace
+              key
+            }
+          }
+        }
+      `);
+
+      const data = await res.json();
+
+      if (data?.errors?.length) {
+        console.error("Reset query errors:", data.errors);
+        return {
+          success: false,
+          error: data.errors[0]?.message || "Failed to fetch metafield definitions.",
+        };
+      }
+
+      const definitions = data?.data?.metafieldDefinitions?.nodes || [];
+
+      const toDelete = definitions.filter(
+        (field) => field.namespace === "vsn_metafields"
+      );
+
+      let deletedCount = 0;
+      const deleteErrors = [];
+
+      for (const field of toDelete) {
+        const deleteRes = await admin.graphql(
+          `#graphql
+          mutation DeleteMetafieldDefinition($id: ID!) {
+            metafieldDefinitionDelete(
+              id: $id,
+              deleteAllAssociatedMetafields: false
+            ) {
+              deletedDefinitionId
+              userErrors {
+                field
+                message
+              }
+            }
+          }`,
+          {
+            variables: {
+              id: field.id,
+            },
+          }
+        );
+
+        const deleteData = await deleteRes.json();
+
+        if (deleteData?.errors?.length) {
+          console.error("Delete GraphQL errors:", deleteData.errors);
+          deleteErrors.push(deleteData.errors[0]?.message);
+          continue;
+        }
+
+        const userErrors =
+          deleteData?.data?.metafieldDefinitionDelete?.userErrors || [];
+
+        if (userErrors.length > 0) {
+          console.error("Delete user errors:", userErrors);
+          deleteErrors.push(userErrors[0]?.message);
+          continue;
+        }
+
+        deletedCount++;
+      }
+
+      if (deleteErrors.length > 0) {
+        return {
+          success: false,
+          error: deleteErrors[0] || "Some fields could not be deleted.",
+        };
+      }
+
+      return {
+        success: true,
+        message: `${deletedCount} metafield definition(s) deleted.`,
+      };
+    }
+
+    // CREATE FIELD
+    const name = formData.get("name");
+    const key = formData.get("key");
+    const type = formData.get("type");
+
+    if (!name || !key || !type) {
+      return {
+        success: false,
+        error: "Missing fields.",
+      };
+    }
+
+    const cleanKey = String(key)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
+
+    if (!cleanKey) {
+      return {
+        success: false,
+        error: "Invalid field key.",
+      };
+    }
+
+    const mutation = await admin.graphql(
+      `#graphql
+      mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
+        metafieldDefinitionCreate(definition: $definition) {
+          createdDefinition {
+            id
+            name
+            namespace
+            key
+            type {
+              name
+            }
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`,
+      {
+        variables: {
+          definition: {
+            name: String(name).trim(),
+            namespace: "vsn_metafields",
+            key: cleanKey,
+            type: String(type),
+            ownerType: "PRODUCT",
+          },
+        },
+      }
+    );
+
+    const result = await mutation.json();
+
+    if (result?.errors?.length) {
+      console.error("Create GraphQL errors:", result.errors);
+      return {
+        success: false,
+        error: result.errors[0]?.message || "Failed to create metafield.",
+      };
+    }
+
+    const userErrors =
+      result?.data?.metafieldDefinitionCreate?.userErrors || [];
+
+    if (userErrors.length > 0) {
+      console.error("Create user errors:", userErrors);
+      return {
+        success: false,
+        error: userErrors[0]?.message || "Failed to create metafield.",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Metafield created successfully.",
+      metafield:
+        result?.data?.metafieldDefinitionCreate?.createdDefinition,
+    };
+  } catch (error) {
+    console.error("Action failed:", error);
+
+    return {
+      success: false,
+      error: error?.message || "Something went wrong.",
+    };
+  }
+};
+
 export default function Index() {
   const { shop } = useLoaderData();
   const statusFetcher = useFetcher();
@@ -24,12 +213,17 @@ export default function Index() {
   const [type, setType] = useState("single_line_text_field");
 
   useEffect(() => {
+    statusFetcher.load("/app/metafields-status");
+  }, []);
+
+  useEffect(() => {
     if (actionFetcher.data?.success) {
       statusFetcher.load("/app/metafields-status");
     }
   }, [actionFetcher.data]);
 
-  const isChecking = statusFetcher.state !== "idle" && !statusFetcher.data;
+  const isChecking = !statusFetcher.data && statusFetcher.state !== "idle";
+  const hasNotLoadedYet = !statusFetcher.data && statusFetcher.state === "idle";
   const status = statusFetcher.data;
 
   const typeOptions = [
@@ -64,7 +258,7 @@ export default function Index() {
   const isLoading = actionFetcher.state !== "idle";
   const result = actionFetcher.data;
 
-  if (isChecking) {
+  if (hasNotLoadedYet || isChecking) {
     return (
       <s-page heading="VSN Metafields">
         <s-banner tone="info">Checking app status...</s-banner>
