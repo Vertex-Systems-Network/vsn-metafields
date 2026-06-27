@@ -5,56 +5,82 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
-  // const subscriptionRes = await admin.graphql(`
-  //   query {
-  //     appInstallation {
-  //       activeSubscriptions {
-  //         id
-  //         name
-  //         status
-  //       }
-  //     }
-  //   }
-  // `);
-  // const subscriptionData = await subscriptionRes.json();
-  // const subscriptions = subscriptionData?.data?.appInstallation?.activeSubscriptions || [];
+  console.log("Authenticated shop:", session.shop);
+  console.log("Session scope:", session.scope);
 
-  // // ✅ Check by status not name
-  // const hasActivePlan = subscriptions.some(s => s.status === "ACTIVE");
-  //   console.log("Active subscriptions:", subscriptions); // Debug log
-  // if (!hasActivePlan) {
-  //   // ✅ Return flag instead of redirect
-  //   return { fields: [], noActivePlan: true };
-  // }
-  //console.log("Pass active subscriptions:", subscriptions); // Debug log
+  try {
+    console.log("Testing subscription query...");
 
-  const res = await admin.graphql(`
-    query {
-      metafieldDefinitions(first: 100, ownerType: PRODUCT) {
-        nodes {
-          id
-          name
-          key
-          type { name }
-          namespace
+    const subscriptionRes = await admin.graphql(`
+      query {
+        appInstallation {
+          activeSubscriptions {
+            id
+            name
+            status
+          }
         }
       }
-    }
-  `);
+    `);
 
-  const data = await res.json();
-  const definitions = data?.data?.metafieldDefinitions?.nodes || [];
-  const fields = definitions
-    .filter((f) => f.namespace === "vsn_metafields")
-    .map((f) => ({
-      name: f.name,
-      key: f.key,
-      type: f.type?.name,
-    }));
+    console.log("Subscription status:", subscriptionRes.status);
 
-  return { fields, noActivePlan: false };
+    const subscriptionData = await subscriptionRes.json();
+    console.log("Subscription data:", JSON.stringify(subscriptionData, null, 2));
+  } catch (error) {
+    console.error("Subscription query failed:", error);
+    return {
+      fields: [],
+      noActivePlan: true,
+      error: "Subscription query failed",
+    };
+  }
+
+  try {
+    console.log("Testing metafieldDefinitions query...");
+
+    const res = await admin.graphql(`
+      query {
+        metafieldDefinitions(first: 100, ownerType: PRODUCT) {
+          nodes {
+            id
+            name
+            key
+            type {
+              name
+            }
+            namespace
+          }
+        }
+      }
+    `);
+
+    console.log("Metafield definitions status:", res.status);
+
+    const data = await res.json();
+    console.log("Metafield definitions data:", JSON.stringify(data, null, 2));
+
+    const definitions = data?.data?.metafieldDefinitions?.nodes || [];
+
+    const fields = definitions
+      .filter((f) => f.namespace === "vsn_metafields")
+      .map((f) => ({
+        name: f.name,
+        key: f.key,
+        type: f.type?.name,
+      }));
+
+    return { fields, noActivePlan: false };
+  } catch (error) {
+    console.error("Metafield definitions query failed:", error);
+    return {
+      fields: [],
+      noActivePlan: false,
+      error: "Metafield definitions query failed",
+    };
+  }
 };
 
 export const action = async ({ request }) => {
