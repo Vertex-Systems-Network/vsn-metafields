@@ -196,12 +196,14 @@ export const action = async ({ request }) => {
 };
 
 export default function Index() {
-  const { fields, noActivePlan } = useLoaderData();
+  const { fields, noActivePlan, error } = useLoaderData();
   const fetcher = useFetcher();
   const [name, setName] = useState("");
   const [key, setKey] = useState("");
   const [type, setType] = useState("single_line_text_field");
 
+  {error && <s-banner tone="critical">{error}</s-banner>}
+  
   if (noActivePlan) {
     console.log("No active plan - showing banner"); // Debug log
     return (
