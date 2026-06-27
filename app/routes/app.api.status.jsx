@@ -1,12 +1,12 @@
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-	const { admin, session } = await authenticate.admin(request);
-
-	console.log("API status shop:", session.shop);
-	console.log("API status scope:", session.scope);
-
 	try {
+		const { admin, session } = await authenticate.admin(request);
+
+		console.log("STATUS API SHOP:", session.shop);
+		console.log("STATUS API SCOPE:", session.scope);
+
 		const subscriptionRes = await admin.graphql(`
       query {
         appInstallation {
@@ -19,18 +19,48 @@ export const loader = async ({ request }) => {
       }
     `);
 
-		const subscriptionData = await subscriptionRes.json();
+		const rawText = await subscriptionRes.text();
 
-		if (subscriptionData?.errors?.length) {
-			console.error("Subscription GraphQL errors:", subscriptionData.errors);
+		console.log("SUBSCRIPTION HTTP STATUS:", subscriptionRes.status);
+		console.log("SUBSCRIPTION RAW RESPONSE:", rawText);
 
+		let subscriptionData;
+
+		try {
+			subscriptionData = JSON.parse(rawText);
+		} catch (parseError) {
 			return Response.json(
 				{
 					ok: false,
 					hasActivePlan: false,
-					error:
-						subscriptionData.errors[0]?.message ||
-						"Subscription query failed.",
+					error: "Subscription response was not valid JSON.",
+					status: subscriptionRes.status,
+					raw: rawText,
+				},
+				{ status: 500 }
+			);
+		}
+
+		if (!subscriptionRes.ok) {
+			return Response.json(
+				{
+					ok: false,
+					hasActivePlan: false,
+					error: "Subscription request failed.",
+					status: subscriptionRes.status,
+					details: subscriptionData,
+				},
+				{ status: subscriptionRes.status }
+			);
+		}
+
+		if (subscriptionData?.errors?.length) {
+			return Response.json(
+				{
+					ok: false,
+					hasActivePlan: false,
+					error: subscriptionData.errors[0]?.message || "Subscription GraphQL error.",
+					details: subscriptionData.errors,
 				},
 				{ status: 500 }
 			);
@@ -50,7 +80,7 @@ export const loader = async ({ request }) => {
 			subscriptions,
 		});
 	} catch (error) {
-		console.error("Status API failed:", error);
+		console.error("STATUS API FAILED:", error);
 
 		return Response.json(
 			{
