@@ -53,16 +53,6 @@ export default function Index() {
     { label: "URL", value: "url" },
   ];
 
-  actionFetcher.submit(formData, {
-    method: "post",
-    action: `/app/api/fields${window.location.search}`,
-  });
-
-  actionFetcher.submit(null, {
-    method: "delete",
-    action: `/app/api/fields${window.location.search}`,
-  });
-
   const handleCreate = () => {
     const formData = new FormData();
 
@@ -72,14 +62,14 @@ export default function Index() {
 
     actionFetcher.submit(formData, {
       method: "post",
-      action: "/app/api/fields",
+      action: `/app/api/fields${window.location.search}`,
     });
   };
 
   const handleReset = () => {
     actionFetcher.submit(null, {
       method: "delete",
-      action: "/app/api/fields",
+      action: `/app/api/fields${window.location.search}`,
     });
   };
 
