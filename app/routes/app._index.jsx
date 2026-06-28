@@ -26,18 +26,18 @@ export default function Index() {
   const [type, setType] = useState("single_line_text_field");
 
   useEffect(() => {
-    statusFetcher.load("/app/api/status");
+    statusFetcher.load(`/app/api/status${window.location.search}`);
   }, []);
 
   useEffect(() => {
     if (statusFetcher.data?.hasActivePlan) {
-      fieldsFetcher.load("/app/api/fields");
+      fieldsFetcher.load(`/app/api/fields${window.location.search}`);
     }
   }, [statusFetcher.data]);
 
   useEffect(() => {
     if (actionFetcher.data?.success) {
-      fieldsFetcher.load("/app/api/fields");
+      fieldsFetcher.load(`/app/api/fields${window.location.search}`);
       setName("");
       setKey("");
       setType("single_line_text_field");
