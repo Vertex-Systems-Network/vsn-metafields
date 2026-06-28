@@ -1,12 +1,15 @@
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+	// Do NOT wrap this in try/catch
+	// authenticate.admin may throw Response/redirect/403 internally
+	const { admin, session } = await authenticate.admin(request);
+
+	console.log("STATUS API AUTH OK");
+	console.log("STATUS API SHOP:", session.shop);
+	console.log("STATUS API SCOPE:", session.scope);
+
 	try {
-		const { admin, session } = await authenticate.admin(request);
-
-		console.log("STATUS API SHOP:", session.shop);
-		console.log("STATUS API SCOPE:", session.scope);
-
 		const subscriptionRes = await admin.graphql(`
       query {
         appInstallation {
@@ -19,26 +22,12 @@ export const loader = async ({ request }) => {
       }
     `);
 
-		const rawText = await subscriptionRes.text();
+		const subscriptionData = await subscriptionRes.json();
 
-		console.log("SUBSCRIPTION HTTP STATUS:", subscriptionRes.status);
-		console.log("SUBSCRIPTION RAW RESPONSE:", rawText);
-
-		let subscriptionData;
-
-		try {
-			subscriptionData = JSON.parse(rawText);
-		} catch {
-			return Response.json(
-				{
-					ok: false,
-					hasActivePlan: false,
-					error: "Subscription response is not valid JSON.",
-					raw: rawText,
-				},
-				{ status: 500 }
-			);
-		}
+		console.log(
+			"SUBSCRIPTION DATA:",
+			JSON.stringify(subscriptionData, null, 2)
+		);
 
 		if (subscriptionData?.errors?.length) {
 			return Response.json(
@@ -68,13 +57,13 @@ export const loader = async ({ request }) => {
 			subscriptions,
 		});
 	} catch (error) {
-		console.error("STATUS API FAILED:", error);
+		console.error("SUBSCRIPTION QUERY FAILED:", error);
 
 		return Response.json(
 			{
 				ok: false,
 				hasActivePlan: false,
-				error: error?.message || String(error),
+				error: error?.message || "Subscription query failed.",
 			},
 			{ status: 500 }
 		);
