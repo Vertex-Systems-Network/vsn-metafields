@@ -1,138 +1,81 @@
-import { authenticate } from "../shopify.server";
-import { redirect } from "react-router";
 import { useLoaderData, useFetcher } from "react-router";
 import { useEffect } from "react";
+import { authenticate } from "../shopify.server";
 
+// ─── Loader: reuse status API logic directly ──────────────────────────────────
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   const res = await admin.graphql(`
-    query {
-      appInstallation {
+    #graphql
+    query GetSubscriptionStatus {
+      currentAppInstallation {
         activeSubscriptions {
           id
           name
           status
+          test
+          currentPeriodEnd
+          trialDays
         }
       }
     }
   `);
 
   const data = await res.json();
-  const subscription = data?.data?.appInstallation?.activeSubscriptions?.[0] || null;
+  const activeSubscriptions = data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
+
+  const validSubscriptions =
+    process.env.NODE_ENV === "production"
+      ? activeSubscriptions.filter((sub) => !sub.test)
+      : activeSubscriptions;
+
+  const subscription = validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
 
   return { subscription };
-}
-
-async function cancelSubscription(admin, id) {
-  const res = await admin.graphql(`
-    mutation {
-      appSubscriptionCancel(
-        id: "${id}"
-        prorate: true
-      ) {
-        userErrors {
-          message
-        }
-        appSubscription {
-          id
-          status
-        }
-      }
-    }
-  `);
-  return await res.json();
-}
-
-export async function action({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const actionType = formData.get("actionType");
-
-  // CANCEL
-  if (actionType === "cancel") {
-    const id = formData.get("id");
-    await cancelSubscription(admin, id);
-    return redirect("/app/packages");
-  }
-
-  // Must return to packages so active badge shows
-  const returnUrl = `${process.env.SHOPIFY_APP_URL}/app`;
-
-  const mutation = await admin.graphql(`
-  mutation {
-    appSubscriptionCreate(
-      name: "pro-plan"
-      returnUrl: "${returnUrl}"
-      test: true
-      trialDays: 15
-      lineItems: [
-        {
-          plan: {
-            appRecurringPricingDetails: {
-              price: {
-                amount: 35
-                currencyCode: USD
-              }
-              interval: EVERY_30_DAYS
-            }
-          }
-        }
-      ]
-    ) {
-      confirmationUrl
-      userErrors {
-        message
-      }
-    }
-  }
-`);
-
-  const result = await mutation.json();
-
-  const errors = result?.data?.appSubscriptionCreate?.userErrors || [];
-  if (errors.length > 0) {
-    return { error: errors[0].message };
-  }
-
-  const confirmationUrl = result?.data?.appSubscriptionCreate?.confirmationUrl;
-
-  if (!confirmationUrl) {
-    return { error: "No confirmation URL returned from Shopify." };
-  }
-
-  // Return URL to frontend — fetcher will handle the redirect
-  return { confirmationUrl };
 }
 
 export default function PackagesPage() {
   const { subscription } = useLoaderData();
   const fetcher = useFetcher();
 
-  const activePlan = subscription?.name;
-  const isProActive = activePlan === "pro-plan";
+  const isProActive = subscription?.name === "pro-plan" && subscription?.status === "ACTIVE";
   const isLoading = fetcher.state !== "idle";
   const result = fetcher.data;
 
-  // When action returns confirmationUrl, redirect the top frame
+  // Redirect to Shopify billing confirmation page
   useEffect(() => {
     if (result?.confirmationUrl) {
-      // Shopify embedded apps need to redirect the parent frame
       window.top.location.href = result.confirmationUrl;
+    }
+  }, [result]);
+
+  // After cancel, reload the page to refresh subscription status
+  useEffect(() => {
+    if (result?.cancelled) {
+      window.location.reload();
     }
   }, [result]);
 
   const handleStartPro = () => {
     const formData = new FormData();
-    formData.set("plan", "PRO");
-    fetcher.submit(formData, { method: "post" });
+    formData.set("actionType", "create");
+    formData.set("plan", "pro-plan");
+    fetcher.submit(formData, {
+      method: "post",
+      action: `/app/api/status${window.location.search}`,
+    });
   };
 
   const handleCancel = () => {
+    if (!confirm("Are you sure you want to cancel your subscription?")) return;
     const formData = new FormData();
     formData.set("actionType", "cancel");
     formData.set("id", subscription?.id);
-    fetcher.submit(formData, { method: "post" });
+    fetcher.submit(formData, {
+      method: "post",
+      action: `/app/api/status${window.location.search}`,
+    });
   };
 
   return (
@@ -143,7 +86,6 @@ export default function PackagesPage() {
       )}
 
       <s-grid gridTemplateColumns="repeat(12, 1fr)" gap="base">
-
         <s-grid-item gridColumn="span 6" gridRow="span 1">
           <s-section>
             <s-box
@@ -160,6 +102,18 @@ export default function PackagesPage() {
                 <s-text>Unlimited products</s-text>
                 <s-text>Priority support</s-text>
 
+                {subscription?.trialDays > 0 && (
+                  <s-text tone="success">
+                    {subscription.trialDays} trial days remaining
+                  </s-text>
+                )}
+
+                {subscription?.currentPeriodEnd && (
+                  <s-text tone="subdued">
+                    Renews: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                  </s-text>
+                )}
+
                 {isProActive ? (
                   <s-stack gap="small">
                     <s-badge tone="success">Active Plan</s-badge>
@@ -168,7 +122,7 @@ export default function PackagesPage() {
                       loading={isLoading}
                       onClick={handleCancel}
                     >
-                      Deactivate
+                      Cancel Subscription
                     </s-button>
                   </s-stack>
                 ) : (
@@ -184,8 +138,8 @@ export default function PackagesPage() {
             </s-box>
           </s-section>
         </s-grid-item>
-
       </s-grid>
+
     </s-page>
   );
 }
