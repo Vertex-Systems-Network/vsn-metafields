@@ -165,7 +165,13 @@ export const action = async ({ request }) => {
 	// ── CREATE ──────────────────────────────────────────────────────────────────
 	if (actionType === "create") {
 		const plan = formData.get("plan") || "pro-plan";
-		const returnUrl = `${process.env.SHOPIFY_APP_URL}/app/packages`;
+
+		// ✅ Preserve host param for proper re-embedding after billing
+		const url = new URL(request.url);
+		const host = url.searchParams.get("host");
+		const shop = url.searchParams.get("shop");
+
+		const returnUrl = `${process.env.SHOPIFY_APP_URL}/app/packages?shop=${shop}&host=${host}`;
 
 		const planConfig = {
 			"pro-plan": {

@@ -4,7 +4,10 @@ import { authenticate } from "../shopify.server";
 
 // ─── Loader: reuse status API logic directly ──────────────────────────────────
 export async function loader({ request }) {
+  // ✅ This handles the charge_id redirect AND re-authenticates properly
   const { admin, session } = await authenticate.admin(request);
+
+  console.log("PACKAGES SHOP:", session?.shop);  // check if null here
 
   const res = await admin.graphql(`
     #graphql
@@ -23,14 +26,18 @@ export async function loader({ request }) {
   `);
 
   const data = await res.json();
-  const activeSubscriptions = data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
+  console.log("PACKAGES SUBSCRIPTION DATA:", JSON.stringify(data, null, 2));
+
+  const activeSubscriptions =
+    data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
   const validSubscriptions =
     process.env.NODE_ENV === "production"
       ? activeSubscriptions.filter((sub) => !sub.test)
       : activeSubscriptions;
 
-  const subscription = validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
+  const subscription =
+    validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
 
   return { subscription };
 }
