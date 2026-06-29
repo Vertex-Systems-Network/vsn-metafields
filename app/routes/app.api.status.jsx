@@ -9,87 +9,75 @@ export const loader = async ({ request }) => {
 
 	try {
 		const subscriptionRes = await admin.graphql(`
-      #graphql
-      query GetSubscriptionStatus {
-        currentAppInstallation {
-          activeSubscriptions {
-            id
-            name
-            status
-            test
-            currentPeriodEnd
-            trialDays
-            lineItems {
-              id
-              plan {
-                pricingDetails {
-                  __typename
-                  ... on AppRecurringPricing {
-                    price {
-                      amount
-                      currencyCode
-                    }
-                    interval
-                  }
-                  ... on AppUsagePricing {
-                    cappedAmount {
-                      amount
-                      currencyCode
-                    }
-                    terms
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `);
+			#graphql
+			query GetSubscriptionStatus {
+				currentAppInstallation {
+					activeSubscriptions {
+						id
+						name
+						status
+						test
+						currentPeriodEnd
+						trialDays
+						lineItems {
+							id
+							plan {
+								pricingDetails {
+									__typename
+									... on AppRecurringPricing {
+										price {
+										amount
+										currencyCode
+										}
+										interval
+									}
+									... on AppUsagePricing {
+										cappedAmount {
+										amount
+										currencyCode
+										}
+										terms
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		`);
 
 		const subscriptionJson = await subscriptionRes.json();
 
-		console.log(
-			"SUBSCRIPTION JSON:",
-			JSON.stringify(subscriptionJson, null, 2)
-		);
+		if (process.env.NODE_ENV !== "production") {
+			console.log("SUBSCRIPTION JSON:", JSON.stringify(subscriptionJson, null, 2));
+		}
 
-		if (subscriptionJson?.errors?.length) {
+		// GraphQL-level errors
+		if (subscriptionJson?.errors) {
+			const errMsg = Array.isArray(subscriptionJson.errors) ? subscriptionJson.errors[0]?.message : subscriptionJson.errors?.message;
+
 			return Response.json(
-				{
-					ok: false,
-					hasActivePlan: false,
-					error:
-						subscriptionJson.errors[0]?.message ||
-						"Subscription GraphQL error.",
-					details: subscriptionJson.errors,
-				},
+				{ ok: false, hasActivePlan: false, error: errMsg || "GraphQL error" },
 				{ status: 500 }
 			);
 		}
 
-		const activeSubscriptions =
-			subscriptionJson?.data?.currentAppInstallation?.activeSubscriptions || [];
+		const activeSubscriptions = subscriptionJson?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
-		// During testing, allow test subscriptions.
-		// In real production, you can filter test subscriptions if needed.
-		const validSubscriptions =
-			process.env.NODE_ENV === "production"
-				? activeSubscriptions.filter((sub) => !sub.test)
-				: activeSubscriptions;
+		const validSubscriptions = process.env.NODE_ENV === "production" ? activeSubscriptions.filter((sub) => !sub.test) : activeSubscriptions;
 
-		const hasActivePlan = validSubscriptions.some(
-			(sub) => sub.status === "ACTIVE"
-		);
+		const hasActivePlan = validSubscriptions.some((sub) => sub.status === "ACTIVE");
 
-		return Response.json({
+		return {
 			ok: true,
 			shop: session.shop,
 			hasActivePlan,
 			subscriptions: validSubscriptions,
-		});
+		};
+
 	} catch (error) {
 		if (error instanceof Response) {
-			const body = await error.clone().text();
+			const body = await error.text().catch(() => "Could not read error body");
 
 			console.error("SUBSCRIPTION RESPONSE STATUS:", error.status);
 			console.error("SUBSCRIPTION RESPONSE BODY:", body);
@@ -98,7 +86,7 @@ export const loader = async ({ request }) => {
 				{
 					ok: false,
 					hasActivePlan: false,
-					error: `Subscription query failed with ${error.status}`,
+					error: `Subscription query failed with status ${error.status}`,
 					body,
 				},
 				{ status: error.status }
