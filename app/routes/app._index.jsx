@@ -5,13 +5,7 @@ import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-
-  console.log("Index shop:", session.shop);
-  console.log("Index scope:", session.scope);
-
-  return {
-    shop: session.shop,
-  };
+  return { shop: session.shop };
 };
 
 export default function Index() {
@@ -25,16 +19,19 @@ export default function Index() {
   const [key, setKey] = useState("");
   const [type, setType] = useState("single_line_text_field");
 
+  // Load status on mount
   useEffect(() => {
     statusFetcher.load(`/app/api/status${window.location.search}`);
   }, []);
 
+  // Load fields once we know there's an active plan
   useEffect(() => {
     if (statusFetcher.data?.hasActivePlan) {
       fieldsFetcher.load(`/app/api/fields${window.location.search}`);
     }
-  }, [statusFetcher.data]);
+  }, [statusFetcher.data?.hasActivePlan]);
 
+  // Reload fields after successful action
   useEffect(() => {
     if (actionFetcher.data?.success) {
       fieldsFetcher.load(`/app/api/fields${window.location.search}`);
@@ -55,11 +52,9 @@ export default function Index() {
 
   const handleCreate = () => {
     const formData = new FormData();
-
     formData.set("name", name);
     formData.set("key", key);
     formData.set("type", type);
-
     actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/fields${window.location.search}`,
@@ -73,21 +68,18 @@ export default function Index() {
     });
   };
 
-  const checkingStatus =
-    !statusFetcher.data && statusFetcher.state !== "idle";
-
-  const loadingFields =
-    statusFetcher.data?.hasActivePlan &&
-    !fieldsFetcher.data &&
-    fieldsFetcher.state !== "idle";
-
   const isActionLoading = actionFetcher.state !== "idle";
+
+  // ✅ Fixed loading states
+  const isFetchingStatus = statusFetcher.state === "loading" || !statusFetcher.data;
+  const isLoadingFields = statusFetcher.data?.hasActivePlan && fieldsFetcher.state === "loading";
 
   const status = statusFetcher.data;
   const fieldsData = fieldsFetcher.data;
   const actionResult = actionFetcher.data;
 
-  if (checkingStatus || !status) {
+  // ✅ Show loader until status is fetched
+  if (isFetchingStatus) {
     return (
       <s-page heading="VSN Metafields">
         <s-banner tone="info">Checking app status...</s-banner>
@@ -126,18 +118,15 @@ export default function Index() {
       {actionResult?.success && (
         <s-banner tone="success">{actionResult.message}</s-banner>
       )}
-
       {actionResult?.error && (
         <s-banner tone="critical">{actionResult.error}</s-banner>
       )}
-
       {fieldsData && !fieldsData.ok && (
         <s-banner tone="critical">
           {fieldsData.error || "Failed to load fields."}
         </s-banner>
       )}
-
-      {loadingFields && (
+      {isLoadingFields && (
         <s-banner tone="info">Loading registered fields...</s-banner>
       )}
 
@@ -151,7 +140,6 @@ export default function Index() {
             value={name}
             onInput={(event) => setName(event.target.value)}
           />
-
           <s-text-field
             label="Field Key"
             name="key"
@@ -160,7 +148,6 @@ export default function Index() {
             value={key}
             onInput={(event) => setKey(event.target.value)}
           />
-
           <s-select
             label="Field Type"
             value={type}
@@ -172,7 +159,6 @@ export default function Index() {
               </s-option>
             ))}
           </s-select>
-
           <s-button
             variant="primary"
             loading={isActionLoading}
@@ -184,21 +170,9 @@ export default function Index() {
       </s-section>
 
       <s-section>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "16px",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <s-heading>Registered Fields</s-heading>
-
-          <s-button
-            tone="critical"
-            loading={isActionLoading}
-            onClick={handleReset}
-          >
+          <s-button tone="critical" loading={isActionLoading} onClick={handleReset}>
             Reset All Fields
           </s-button>
         </div>
@@ -210,7 +184,6 @@ export default function Index() {
               <s-table-header>Key</s-table-header>
               <s-table-header>Type</s-table-header>
             </s-table-header-row>
-
             <s-table-body>
               {fields.map((field) => (
                 <s-table-row key={field.key}>
