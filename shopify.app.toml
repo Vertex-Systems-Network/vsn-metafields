@@ -8,8 +8,6 @@ embedded = true
 [build]
 automatically_update_urls_on_dev = true
 
-use_online_tokens = true
-
 [webhooks]
 api_version = "2026-07"
 
