@@ -4,30 +4,32 @@ import { authenticate } from "../shopify.server";
 
 // ─── Loader: reuse status API logic directly ──────────────────────────────────
 export async function loader({ request }) {
-  // ✅ This handles the charge_id redirect AND re-authenticates properly
+  const url = new URL(request.url);
+  const chargeId = url.searchParams.get("charge_id");
+
+  // authenticate.admin handles the session exchange automatically
   const { admin, session } = await authenticate.admin(request);
 
-  console.log("PACKAGES SHOP:", session?.shop);  // check if null here
+  console.log("PACKAGES SHOP:", session?.shop);
+  console.log("CHARGE ID:", chargeId); // confirm it's being received
+
+  // Small delay if charge_id present — Shopify needs a moment to activate
+  if (chargeId) {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
 
   const res = await admin.graphql(`
     #graphql
-    query GetSubscriptionStatus {
+    query {
       currentAppInstallation {
         activeSubscriptions {
-          id
-          name
-          status
-          test
-          currentPeriodEnd
-          trialDays
+          id name status test currentPeriodEnd trialDays
         }
       }
     }
   `);
 
   const data = await res.json();
-  console.log("PACKAGES SUBSCRIPTION DATA:", JSON.stringify(data, null, 2));
-
   const activeSubscriptions =
     data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
@@ -39,7 +41,9 @@ export async function loader({ request }) {
   const subscription =
     validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
 
-  return { subscription };
+  console.log("PACKAGES SUBSCRIPTION:", subscription);
+
+  return { subscription, chargeId };
 }
 
 export default function PackagesPage() {

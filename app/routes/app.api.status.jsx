@@ -166,12 +166,12 @@ export const action = async ({ request }) => {
 	if (actionType === "create") {
 		const plan = formData.get("plan") || "pro-plan";
 
-		// ✅ Preserve host param for proper re-embedding after billing
 		const url = new URL(request.url);
 		const host = url.searchParams.get("host");
-		const shop = url.searchParams.get("shop");
+		const shop = session.shop;
 
-		const returnUrl = `${process.env.SHOPIFY_APP_URL}/app/packages?shop=${shop}&host=${host}`;
+		// ✅ /app always re-bootstraps auth properly after billing
+		const returnUrl = `${process.env.SHOPIFY_APP_URL}/app?shop=${shop}&host=${host}`;
 
 		const planConfig = {
 			"pro-plan": {

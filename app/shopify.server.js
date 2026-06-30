@@ -27,6 +27,12 @@ const shopify = shopifyApp({
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
   useOnlineTokens: true,
+  hooks: {
+    afterAuth: async ({ session }) => {
+      console.log("AFTER AUTH — shop:", session.shop, "| scope:", session.scope);
+      registerWebhooks({ session }); // re-register webhooks on re-auth
+    },
+  },
   // future: {
   //   expiringOfflineAccessTokens: true,
   // },
