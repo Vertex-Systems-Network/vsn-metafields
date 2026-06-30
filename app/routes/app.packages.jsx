@@ -72,6 +72,12 @@ export default function PackagesPage() {
     const formData = new FormData();
     formData.set("actionType", "create");
     formData.set("plan", "pro-plan");
+
+    // ✅ Pass host from current page URL
+    const params = new URLSearchParams(window.location.search);
+    formData.set("host", params.get("host") ?? "");
+    formData.set("shop", params.get("shop") ?? "");
+
     fetcher.submit(formData, {
       method: "post",
       action: `/app/api/status${window.location.search}`,
