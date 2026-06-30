@@ -113,7 +113,7 @@ export const loader = async ({ request }) => {
 
 // ─── POST: create or cancel subscription ──────────────────────────────────────
 export const action = async ({ request }) => {
-	const { admin } = await authenticate.admin(request);
+	const { admin, session } = await authenticate.admin(request);
 	const formData = await request.formData();
 	const actionType = formData.get("actionType");
 
