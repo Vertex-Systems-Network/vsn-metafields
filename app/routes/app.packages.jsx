@@ -1,9 +1,10 @@
+import { ActionFunctionArgs, LoaderFunction } from 'react-router';
 import { useLoaderData, useFetcher } from "react-router";
 import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 
 // ─── Loader: reuse status API logic directly ──────────────────────────────────
-export async function loader({ request }) {
+export const loader = LoaderFunction = async ({ request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const chargeId = url.searchParams.get("charge_id");
 

@@ -1,7 +1,8 @@
+import { ActionFunctionArgs, LoaderFunction } from 'react-router';
 import { authenticate } from "../shopify.server";
 
 // ─── GET: fetch subscription status ───────────────────────────────────────────
-export const loader = async ({ request }) => {
+export const loader = LoaderFunction = async ({ request }: ActionFunctionArgs) => {
 	const { admin, session } = await authenticate.admin(request);
 
 	console.log("STATUS API AUTH OK");
@@ -112,7 +113,7 @@ export const loader = async ({ request }) => {
 };
 
 // ─── POST: create or cancel subscription ──────────────────────────────────────
-export const action = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
 	const { admin, session } = await authenticate.admin(request);
 	const formData = await request.formData();
 	const actionType = formData.get("actionType");
