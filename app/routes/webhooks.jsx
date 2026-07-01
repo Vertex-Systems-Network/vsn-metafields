@@ -1,26 +1,34 @@
-import { ActionFunctionArgs } from 'react-router';
+import { ActionFunctionArgs, ActionFunction } from "react-router";
+import db from "../db.server";
+import { authenticate } from "~/shopify.server";
 
-import db from '../db.server';
-
-import { authenticate } from '~/shopify.server';
-
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action: ActionFunction = async ({ request }: ActionFunctionArgs) => {
 	const { topic, shop, session } = await authenticate.webhook(request);
 
 	switch (topic) {
-		case 'APP_UNINSTALLED':
-			// Webhook requests can trigger after an app is uninstalled
-			// If the app is already uninstalled, the session may be undefined.
+		case "APP_UNINSTALLED":
 			if (session) {
-				await db.session.deleteMany({ where: { shop } });
+				await db.session.deleteMany({
+					where: { shop },
+				});
 			}
 			break;
-		case 'CUSTOMERS_DATA_REQUEST':
-		case 'CUSTOMERS_REDACT':
-		case 'SHOP_REDACT':
+
+		case "CUSTOMERS_DATA_REQUEST":
+			// TODO: Handle GDPR request
+			break;
+
+		case "CUSTOMERS_REDACT":
+			// TODO: Handle GDPR redaction
+			break;
+
+		case "SHOP_REDACT":
+			// TODO: Handle shop redaction
+			break;
+
 		default:
-			throw new Response('Unhandled webhook topic', { status: 404 });
+			return new Response("Unhandled webhook topic", { status: 404 });
 	}
 
-	throw new Response();
+	return new Response(null, { status: 200 });
 };
