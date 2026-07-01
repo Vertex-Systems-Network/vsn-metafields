@@ -1,9 +1,9 @@
-import { Outlet, useLoaderData, useRouteError, LoaderFunction, ActionFunctionArgs } from "react-router";
+import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
 
-export const loader: LoaderFunction = async ({ request }: ActionFunctionArgs) => {
+export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
   // eslint-disable-next-line no-undef

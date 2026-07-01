@@ -1,5 +1,5 @@
 {
-  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
+  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", ".react-router/types/**/*", "app/routes/app._index.jsx", "app/routes/app.api.fields.jsx", "app/routes/app.api.status.jsx", "app/routes/app.jsx", "app/routes/app.packages.jsx"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "strict": true,
