@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 
 // ─── Loader: reuse status API logic directly ──────────────────────────────────
-export const loader = LoaderFunction = async ({ request }: ActionFunctionArgs) => {
+export const loader: LoaderFunction = async ({ request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const chargeId = url.searchParams.get("charge_id");
 

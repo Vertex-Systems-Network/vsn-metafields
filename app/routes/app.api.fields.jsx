@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunction } from 'react-router';
+import { ActionFunctionArgs, LoaderFunction, ActionFunction } from 'react-router';
 import { authenticate } from "../shopify.server";
 
 const NAMESPACE = "vsn_metafields";
@@ -41,7 +41,7 @@ async function getVsnMetafieldDefinitions(admin) {
 		}));
 }
 
-export const loader = LoaderFunction = async ({ request }: ActionFunctionArgs) => {
+export const loader: LoaderFunction = async ({ request }: ActionFunctionArgs) => {
 	const { admin, session } = await authenticate.admin(request);
 
 	console.log("Fields API shop:", session.shop);
@@ -68,7 +68,7 @@ export const loader = LoaderFunction = async ({ request }: ActionFunctionArgs) =
 	}
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action: ActionFunction = async ({ request }: ActionFunctionArgs) => {
 	const { admin, session } = await authenticate.admin(request);
 
 	console.log("Fields action shop:", session.shop);
