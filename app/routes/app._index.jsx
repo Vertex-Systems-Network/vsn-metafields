@@ -9,7 +9,7 @@ export const loader = async ({ request }) => {
 };
 
 export default function Index() {
-  const { shop } = useLoaderData();
+  const { shop } = useLoaderData(); 
 
   const statusFetcher = useFetcher();
   const fieldsFetcher = useFetcher();
