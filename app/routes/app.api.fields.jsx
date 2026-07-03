@@ -43,8 +43,8 @@ async function getVsnMetafieldDefinitions(admin) {
 export const loader = async ({ request }) => {
 	const { admin, session } = await authenticate.admin(request);
 
-	console.log("Fields API shop:", session.shop);
-	console.log("Fields API scope:", session.scope);
+	//console.log("Fields API shop:", session.shop);
+	//console.log("Fields API scope:", session.scope);
 
 	try {
 		const fields = await getVsnMetafieldDefinitions(admin);
@@ -54,7 +54,7 @@ export const loader = async ({ request }) => {
 			fields,
 		});
 	} catch (error) {
-		console.error("Fields list API failed:", error);
+		//console.error("Fields list API failed:", error);
 
 		return Response.json(
 			{
@@ -70,8 +70,8 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
 	const { admin, session } = await authenticate.admin(request);
 
-	console.log("Fields action shop:", session.shop);
-	console.log("Fields action scope:", session.scope);
+	//console.log("Fields action shop:", session.shop);
+	//console.log("Fields action scope:", session.scope);
 
 	try {
 		const method = request.method.toUpperCase();
@@ -260,7 +260,7 @@ export const action = async ({ request }) => {
 				result?.data?.metafieldDefinitionCreate?.createdDefinition,
 		});
 	} catch (error) {
-		console.error("Fields action API failed:", error);
+		//console.error("Fields action API failed:", error);
 
 		return Response.json(
 			{
