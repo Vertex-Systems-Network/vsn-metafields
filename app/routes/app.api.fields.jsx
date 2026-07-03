@@ -193,31 +193,33 @@ export const action = async ({ request }) => {
 			`#graphql
 			mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
 				metafieldDefinitionCreate(definition: $definition) {
-				createdDefinition {
-					id
-					name
-					namespace
-					key
-					type {
-					name
+					createdDefinition {
+						id
+						name
+						namespace
+						key
+						type {
+						name
+						}
 					}
-				}
-				userErrors {
-					field
-					message
-				}
+					userErrors {
+						field
+						message
+					}
 				}
 			}`,
 			{
 				variables: {
 					definition: {
-						name: cleanName,  // ✅
-						key: cleanKey,    // ✅
+						name: cleanName,
+						key: cleanKey,
 						namespace: NAMESPACE,
 						type,
 						ownerType: "PRODUCT",
 						pin: true,
-						visibleToStorefrontApi: true,
+						access: {
+							storefront: "PUBLIC_READ",
+						},
 					},
 				},
 			}

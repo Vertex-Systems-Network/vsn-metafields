@@ -27,12 +27,18 @@ export const loader = async ({ request }) => {
 
 		const pinRes = await admin.graphql(
 			`#graphql
-      mutation PinField($id: ID!) {
-        metafieldDefinitionUpdate(definition: { id: $id, pin: true }) {
-          updatedDefinition { id key pinnedPosition }
-          userErrors { message }
-        }
-      }`,
+				mutation UpdateField($id: ID!) {
+				metafieldDefinitionUpdate(definition: {
+					id: $id
+					pin: true
+					access: {
+						storefront: PUBLIC_READ
+					}
+				}) {
+					updatedDefinition { id key pinnedPosition }
+					userErrors { message }
+				}
+			}`,
 			{ variables: { id: field.id } }
 		);
 
