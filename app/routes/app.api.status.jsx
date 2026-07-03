@@ -115,6 +115,7 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
 	const { admin, session } = await authenticate.admin(request);
 	const formData = await request.formData();
+	const url = new URL(request.url);
 	const actionType = formData.get("actionType");
 
 	// ── CANCEL ──────────────────────────────────────────────────────────────────
