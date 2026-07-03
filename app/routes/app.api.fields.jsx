@@ -21,7 +21,7 @@ async function getVsnMetafieldDefinitions(admin) {
 
 	const data = await res.json();
 
-	if (data?.errors?.length) {
+	if (data?.errors) {
 		throw new Error(
 			data.errors[0]?.message || "Failed to fetch metafield definitions."
 		);
@@ -211,8 +211,8 @@ export const action = async ({ request }) => {
 			{
 				variables: {
 					definition: {
-						name,
-						key,
+						name: cleanName,  // ✅
+						key: cleanKey,    // ✅
 						namespace: NAMESPACE,
 						type,
 						ownerType: "PRODUCT",
