@@ -85,18 +85,18 @@ export const action = async ({ request }) => {
 			for (const field of fields) {
 				const deleteRes = await admin.graphql(
 					`#graphql
-          mutation DeleteMetafieldDefinition($id: ID!) {
-            metafieldDefinitionDelete(
-              id: $id,
-              deleteAllAssociatedMetafields: false
-            ) {
-              deletedDefinitionId
-              userErrors {
-                field
-                message
-              }
-            }
-          }`,
+						mutation DeleteMetafieldDefinition($id: ID!) {
+							metafieldDefinitionDelete(
+							id: $id,
+							deleteAllAssociatedMetafields: false
+							) {
+							deletedDefinitionId
+							userErrors {
+								field
+								message
+							}
+							}
+						}`,
 					{
 						variables: {
 							id: field.id,
@@ -191,31 +191,33 @@ export const action = async ({ request }) => {
 
 		const mutation = await admin.graphql(
 			`#graphql
-      mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
-        metafieldDefinitionCreate(definition: $definition) {
-          createdDefinition {
-            id
-            name
-            namespace
-            key
-            type {
-              name
-            }
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }`,
+			mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
+				metafieldDefinitionCreate(definition: $definition) {
+				createdDefinition {
+					id
+					name
+					namespace
+					key
+					type {
+					name
+					}
+				}
+				userErrors {
+					field
+					message
+				}
+				}
+			}`,
 			{
 				variables: {
 					definition: {
-						name: cleanName,
+						name,
+						key,
 						namespace: NAMESPACE,
-						key: cleanKey,
-						type: String(type),
+						type,
 						ownerType: "PRODUCT",
+						pin: true,
+						visibleToStorefrontApi: true,
 					},
 				},
 			}
