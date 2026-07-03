@@ -10,14 +10,14 @@ export const loader = async ({ request }) => {
 
   try {
     const deleted = await db.session.deleteMany({});
-    console.log("SESSIONS CLEARED:", deleted.count);
+    //console.log("SESSIONS CLEARED:", deleted.count);
 
     return new Response(
       `All sessions cleared successfully. Total deleted: ${deleted.count}`,
       { status: 200 }
     );
   } catch (error) {
-    console.error("SESSION CLEAR ERROR:", error);
+    //console.error("SESSION CLEAR ERROR:", error);
     return new Response(`Failed to clear sessions: ${error.message}`, {
       status: 500,
     });

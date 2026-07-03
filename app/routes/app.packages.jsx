@@ -10,8 +10,8 @@ export const loader = async ({ request }) => {
   // authenticate.admin handles the session exchange automatically
   const { admin, session } = await authenticate.admin(request);
 
-  console.log("PACKAGES SHOP:", session?.shop);
-  console.log("CHARGE ID:", chargeId); // confirm it's being received
+  //console.log("PACKAGES SHOP:", session?.shop);
+  //console.log("CHARGE ID:", chargeId); // confirm it's being received
 
   // Small delay if charge_id present — Shopify needs a moment to activate
   if (chargeId) {
@@ -41,7 +41,7 @@ export const loader = async ({ request }) => {
   const subscription =
     validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
 
-  console.log("PACKAGES SUBSCRIPTION:", subscription);
+  //console.log("PACKAGES SUBSCRIPTION:", subscription);
 
   return { subscription, chargeId };
 }

@@ -4,9 +4,9 @@ import { authenticate } from "../shopify.server";
 export const loader = async ({ request }) => {
 	const { admin, session } = await authenticate.admin(request);
 
-	console.log("STATUS API AUTH OK");
-	console.log("STATUS API SHOP:", session.shop);
-	console.log("STATUS API SCOPE:", session.scope);
+	//console.log("STATUS API AUTH OK");
+	//console.log("STATUS API SHOP:", session.shop);
+	//console.log("STATUS API SCOPE:", session.scope);
 
 	try {
 		const subscriptionRes = await admin.graphql(`
@@ -49,9 +49,9 @@ export const loader = async ({ request }) => {
 
 		const subscriptionJson = await subscriptionRes.json();
 
-		if (process.env.NODE_ENV !== "production") {
-			console.log("SUBSCRIPTION JSON:", JSON.stringify(subscriptionJson, null, 2));
-		}
+		// if (process.env.NODE_ENV !== "production") {
+		// 	console.log("SUBSCRIPTION JSON:", JSON.stringify(subscriptionJson, null, 2));
+		// }
 
 		if (subscriptionJson?.errors) {
 			const errMsg = Array.isArray(subscriptionJson.errors)
@@ -85,8 +85,8 @@ export const loader = async ({ request }) => {
 	} catch (error) {
 		if (error instanceof Response) {
 			const body = await error.text().catch(() => "Could not read error body");
-			console.error("SUBSCRIPTION RESPONSE STATUS:", error.status);
-			console.error("SUBSCRIPTION RESPONSE BODY:", body);
+			//console.error("SUBSCRIPTION RESPONSE STATUS:", error.status);
+			//console.error("SUBSCRIPTION RESPONSE BODY:", body);
 
 			return Response.json(
 				{
@@ -99,7 +99,7 @@ export const loader = async ({ request }) => {
 			);
 		}
 
-		console.error("SUBSCRIPTION QUERY FAILED:", error);
+		//console.error("SUBSCRIPTION QUERY FAILED:", error);
 		return Response.json(
 			{
 				ok: false,
@@ -158,7 +158,7 @@ export const action = async ({ request }) => {
 			});
 
 		} catch (error) {
-			console.error("CANCEL ERROR:", error);
+			//console.error("CANCEL ERROR:", error);
 			return Response.json({ ok: false, error: "Failed to cancel subscription." }, { status: 500 });
 		}
 	}
@@ -204,7 +204,7 @@ export const action = async ({ request }) => {
 					appSubscriptionCreate(
 						name: $name
 						returnUrl: $returnUrl
-						test: true
+						test: false
 						trialDays: $trialDays
 						lineItems: $lineItems
 					) {
@@ -260,7 +260,7 @@ export const action = async ({ request }) => {
 			return Response.json({ ok: true, confirmationUrl });
 
 		} catch (error) {
-			console.error("CREATE SUBSCRIPTION ERROR:", error);
+			//console.error("CREATE SUBSCRIPTION ERROR:", error);
 			return Response.json({ ok: false, error: "Failed to create subscription." }, { status: 500 });
 		}
 	}
