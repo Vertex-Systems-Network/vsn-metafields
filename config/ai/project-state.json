@@ -4,37 +4,35 @@
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
   "current_work_unit": "ISSUE-41-historical-git-metadata-purge",
-  "last_verified_completion": "PR #39 merged with App Validation and AI Native Quality Gates green; main now also contains the Issue #41 purge runbook and read-only history audit script.",
-  "next_valid_work_unit": "Use the committed Issue #41 runbook and audit script to complete the pre-rewrite maintenance checklist, then schedule the destructive all-ref rewrite only after explicit authorization and ref backup.",
+  "last_verified_completion": "PR #46 merged to main as 4f3dfc1beae9f5ce238fe5de4d3c404eb25268f5 with App Validation and AI Native Quality Gates green; application contract smoke coverage now executes in CI.",
+  "next_valid_work_unit": "Complete the Issue #41 administrator-controlled maintenance window: capture private rollback refs/mirror, retire approved obsolete refs, temporarily adjust the main non-fast-forward ruleset, purge ..git/ from remaining history, restore protection, and fresh-clone validate.",
   "progress": {
     "total_work_units": 4,
     "complete": 3,
-    "in_progress": 1,
-    "blocked": 0,
+    "in_progress": 0,
+    "blocked": 1,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Execute the Issue #41 preflight audit from a fresh administrator-controlled mirror and capture the current ref map outside the repository.",
-    "Complete auth/webhook/billing/metafield smoke coverage and final PHASE-00 backlog classification after history hygiene."
+    "Execute the Issue #41 destructive history-purge maintenance window from an authorized administrator-controlled mirror after private ref capture and write freeze."
   ],
   "outstanding_removals": [
-    "Remove historical ..git/ content from every reachable live branch history; current-tree deletion alone is insufficient."
+    "Remove historical ..git/ content from every intentionally preserved reachable ref; retire obsolete/superseded remote branches before the rewrite where approved."
   ],
   "unresolved_decisions": [
+    "Authorize and perform the Issue #41 repository-administrator maintenance window because active ruleset main blocks non-fast-forward updates and exposes no bypass actor to the connected integration.",
     "Choose a Project Management System or explicitly skip PM integration.",
     "Choose and identity-verify the Development AI agent pool available in the current host.",
-    "Ask the user whether to apply the recommended GitHub Rules policy.",
-    "Resolve capability-dependent GitHub security checks before making them required.",
-    "Authorize the destructive all-ref history rewrite maintenance window for Issue #41 after preflight evidence and rollback backup are complete."
+    "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [
-    "All currently live branch refs descend from the initial commit that contained the accidental ..git/ directory, so unwanted Git metadata remains reachable in repository history."
+    "Historical accidental ..git/ content remains reachable in repository ancestry. The active main ruleset blocks the required non-fast-forward rewrite and the connected integration cannot bypass or mutate that ruleset."
   ],
-  "qa_readiness": "application_ci_green",
-  "security_readiness": "p0_history_rewrite_preflight",
-  "last_reconciled_repository_ref": "d3e5dd9cb5717179e4619ffbcf12c94be061363c",
-  "last_reconciled_at": "2026-09-27T22:03:44+00:00",
-  "notes": "Issue #41 is the active P0. Main contains docs/security/git-history-purge-runbook.md and scripts/security/audit_git_metadata_history.py. Targeted historical checks found no obvious live provider credential signature. The deleted clear-sessions route contained a historical maintenance secret, but that authentication path no longer exists."
+  "qa_readiness": "application_contract_smoke_green",
+  "security_readiness": "p0_history_rewrite_blocked_ruleset",
+  "last_reconciled_repository_ref": "4f3dfc1beae9f5ce238fe5de4d3c404eb25268f5",
+  "last_reconciled_at": "2026-09-27T22:20:00+00:00",
+  "notes": "Application validation now includes non-mutating contract smoke tests for Shopify auth/session storage, API-version alignment, webhook authentication and shop-scoped cleanup, billing mutation guards, metafield reset safety, and destructive-route absence. PHASE-00 is blocked only by Issue #41 history hygiene/admin maintenance."
 }
