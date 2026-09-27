@@ -3,35 +3,38 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
-  "current_work_unit": "ISSUE-11-shopify-security-major-upgrade",
-  "last_verified_completion": "Dependabot generated npm-resolved Shopify 3.0.0 / Shopify API 15.0.0 / session-storage-prisma 11.0.0 upgrade with Node >=22.12 <23; Prisma resolves to 6.19.3 in lockfile.",
-  "next_valid_work_unit": "Obtain executable npm ci + lint + typecheck + build evidence for the Shopify security upgrade branch, then merge if auth/webhook/billing/metafield compatibility is clean.",
+  "current_work_unit": "ISSUE-41-historical-git-metadata-purge",
+  "last_verified_completion": "PR #39 merged with App Validation and AI Native Quality Gates green; main now also contains the Issue #41 purge runbook and read-only history audit script.",
+  "next_valid_work_unit": "Use the committed Issue #41 runbook and audit script to complete the pre-rewrite maintenance checklist, then schedule the destructive all-ref rewrite only after explicit authorization and ref backup.",
   "progress": {
     "total_work_units": 4,
-    "complete": 2,
+    "complete": 3,
     "in_progress": 1,
-    "blocked": 1,
+    "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Execute npm ci, lint, typecheck, build, Prisma generation/migration validation and Shopify auth/webhook/billing/metafield smoke checks on Node 22.12+.",
-    "Restore GitHub Actions runner execution or use another authorized ephemeral build environment for upgrade validation."
+    "Execute the Issue #41 preflight audit from a fresh administrator-controlled mirror and capture the current ref map outside the repository.",
+    "Complete auth/webhook/billing/metafield smoke coverage and final PHASE-00 backlog classification after history hygiene."
   ],
-  "outstanding_removals": [],
+  "outstanding_removals": [
+    "Remove historical ..git/ content from every reachable live branch history; current-tree deletion alone is insufficient."
+  ],
   "unresolved_decisions": [
     "Choose a Project Management System or explicitly skip PM integration.",
     "Choose and identity-verify the Development AI agent pool available in the current host.",
     "Ask the user whether to apply the recommended GitHub Rules policy.",
-    "Resolve capability-dependent GitHub security checks before making them required."
+    "Resolve capability-dependent GitHub security checks before making them required.",
+    "Authorize the destructive all-ref history rewrite maintenance window for Issue #41 after preflight evidence and rollback backup are complete."
   ],
   "critical_defects": [
-    "GitHub Actions AI Native Quality Gates jobs still fail before runner assignment (runner_id 0, zero steps), so CI build/test evidence is unavailable."
+    "All currently live branch refs descend from the initial commit that contained the accidental ..git/ directory, so unwanted Git metadata remains reachable in repository history."
   ],
-  "qa_readiness": "blocked_ci_runner",
-  "security_readiness": "p0_upgrade_prepared_validation_blocked",
-  "last_reconciled_repository_ref": "4330eb2715d42d4afa67a882238473c9b327edf2",
-  "last_reconciled_at": "2026-09-27T21:05:00+00:00",
-  "notes": "Shopify security upgrade is prepared from Dependabot's npm-generated lockfile. Runtime and GraphQL codegen are aligned to ApiVersion.July26. Merge remains gated on executable validation evidence."
+  "qa_readiness": "application_ci_green",
+  "security_readiness": "p0_history_rewrite_preflight",
+  "last_reconciled_repository_ref": "d3e5dd9cb5717179e4619ffbcf12c94be061363c",
+  "last_reconciled_at": "2026-09-27T22:03:44+00:00",
+  "notes": "Issue #41 is the active P0. Main contains docs/security/git-history-purge-runbook.md and scripts/security/audit_git_metadata_history.py. Targeted historical checks found no obvious live provider credential signature. The deleted clear-sessions route contained a historical maintenance secret, but that authentication path no longer exists."
 }
