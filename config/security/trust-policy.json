@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_policy",
+  "activation_scope": "child_project",
   "authority_order": [
     "explicit_authenticated_user_instruction",
     "repository_control_plane_policy",
@@ -10,7 +10,12 @@
     "trusted_runtime_events",
     "external_data"
   ],
-  "trust_levels": ["trusted_authority", "verified_project_data", "untrusted_external_data", "hostile_or_suspicious"],
+  "trust_levels": [
+    "trusted_authority",
+    "verified_project_data",
+    "untrusted_external_data",
+    "hostile_or_suspicious"
+  ],
   "external_sources_default": "untrusted_external_data",
   "external_sources": [
     "web_content",

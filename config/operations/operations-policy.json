@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_operational_configuration",
+  "activation_scope": "child_project",
   "service_objective_template": {
     "service": "",
     "sli": "",
@@ -10,8 +10,17 @@
     "error_budget_policy": null
   },
   "incident_policy": {
-    "severity_levels": ["sev1", "sev2", "sev3", "sev4"],
-    "roles_required_for_major_incident": ["incident_commander", "technical_lead", "communications_owner"],
+    "severity_levels": [
+      "sev1",
+      "sev2",
+      "sev3",
+      "sev4"
+    ],
+    "roles_required_for_major_incident": [
+      "incident_commander",
+      "technical_lead",
+      "communications_owner"
+    ],
     "record_timeline": true,
     "preserve_evidence": true,
     "post_incident_review_required_for_major_incidents": true,

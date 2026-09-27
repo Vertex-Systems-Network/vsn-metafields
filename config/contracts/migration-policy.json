@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_policy",
+  "activation_scope": "child_project",
   "breaking_change_policy": {
     "impact_analysis_required": true,
     "consumer_compatibility_required": true,

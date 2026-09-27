@@ -1,9 +1,23 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
-  "classification_levels": ["public", "internal", "confidential", "restricted", "secret"],
-  "sensitivity_tags": ["pii", "financial", "health", "credentials", "security_sensitive", "regulated", "customer_content"],
+  "status": "pending_project_data_classification",
+  "activation_scope": "child_project",
+  "classification_levels": [
+    "public",
+    "internal",
+    "confidential",
+    "restricted",
+    "secret"
+  ],
+  "sensitivity_tags": [
+    "pii",
+    "financial",
+    "health",
+    "credentials",
+    "security_sensitive",
+    "regulated",
+    "customer_content"
+  ],
   "data_record_template": {
     "id": "DATA-001",
     "name": "",
