@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_design_decision",
+  "activation_scope": "child_project",
   "approved_design": {
     "provider": null,
     "file_id": null,
@@ -21,5 +21,10 @@
     "accessibility_target": "WCAG_2_2_AA_for_web_unless_overridden",
     "design_change_after_approval_requires_impact_analysis": true
   },
-  "traceability_fields": ["design_surface_refs", "component_refs", "visual_evidence_refs", "accessibility_evidence_refs"]
+  "traceability_fields": [
+    "design_surface_refs",
+    "component_refs",
+    "visual_evidence_refs",
+    "accessibility_evidence_refs"
+  ]
 }

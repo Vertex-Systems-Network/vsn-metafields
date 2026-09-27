@@ -1,7 +1,7 @@
 {
   "schema_version": 4,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_policy",
+  "activation_scope": "child_project",
   "protected_control_plane": true,
   "protected_paths": [
     "/.gitignore",

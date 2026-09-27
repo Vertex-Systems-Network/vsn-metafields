@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_project_threat_model",
+  "activation_scope": "child_project",
   "methodology": "project_specific_threat_model_with_OWASP_ASVS_or_equivalent_verification_when_applicable",
   "assets": [],
   "actors": [],

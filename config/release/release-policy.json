@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_environment_configuration",
+  "activation_scope": "child_project",
   "environment_template": {
     "name": "production",
     "deployment_authority": [],

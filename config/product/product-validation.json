@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_user_facing_or_problem_validation_is_material",
+  "status": "pending_applicability_detection",
+  "activation_scope": "child_project",
   "problem_validation": {
     "target_users_or_jobs_to_be_done_required": true,
     "problem_hypotheses_must_separate_evidence_from_assumption": true,
