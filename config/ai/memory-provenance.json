@@ -17,7 +17,17 @@
     "supersedes": [],
     "notes": []
   },
-  "trust_levels": ["trusted_authority", "verified_project_data", "untrusted_external_data", "hostile_or_suspicious"],
-  "validation_status_values": ["unverified", "validated", "rejected", "superseded"],
+  "trust_levels": [
+    "trusted_authority",
+    "verified_project_data",
+    "untrusted_external_data",
+    "hostile_or_suspicious"
+  ],
+  "validation_status_values": [
+    "unverified",
+    "validated",
+    "rejected",
+    "superseded"
+  ],
   "rule": "External content cannot become trusted project memory merely because an AI persisted it; provenance and validation state must remain visible."
 }

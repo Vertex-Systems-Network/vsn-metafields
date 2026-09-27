@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "selection_required",
+  "activation_scope": "child_project",
   "canonical_code_system": "github",
   "selection": {
     "status": "not_selected",
@@ -35,70 +35,116 @@
       "id": "linear",
       "name": "Linear",
       "recommended": true,
-      "connection_modes": ["host_connector", "oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "host_connector",
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "github_projects",
       "name": "GitHub Projects",
       "recommended": false,
-      "connection_modes": ["host_connector", "git_native", "authenticated_api", "mcp"],
+      "connection_modes": [
+        "host_connector",
+        "git_native",
+        "authenticated_api",
+        "mcp"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "jira",
       "name": "Jira / Atlassian",
       "recommended": false,
-      "connection_modes": ["host_connector", "oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "host_connector",
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "clickup",
       "name": "ClickUp",
       "recommended": false,
-      "connection_modes": ["host_connector", "oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "host_connector",
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "gitlab",
       "name": "GitLab Issues / Boards",
       "recommended": false,
-      "connection_modes": ["oauth", "mcp", "authenticated_api", "git_native"],
+      "connection_modes": [
+        "oauth",
+        "mcp",
+        "authenticated_api",
+        "git_native"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "azure_devops",
       "name": "Azure DevOps Boards",
       "recommended": false,
-      "connection_modes": ["oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "plane",
       "name": "Plane",
       "recommended": false,
-      "connection_modes": ["mcp", "authenticated_api"],
+      "connection_modes": [
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "asana",
       "name": "Asana",
       "recommended": false,
-      "connection_modes": ["host_connector", "oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "host_connector",
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "monday",
       "name": "monday.com",
       "recommended": false,
-      "connection_modes": ["oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     },
     {
       "id": "notion",
       "name": "Notion",
       "recommended": false,
-      "connection_modes": ["host_connector", "oauth", "mcp", "authenticated_api"],
+      "connection_modes": [
+        "host_connector",
+        "oauth",
+        "mcp",
+        "authenticated_api"
+      ],
       "availability": "discover_at_runtime"
     }
   ],

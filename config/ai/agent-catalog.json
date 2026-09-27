@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "selection_status": "not_selected",
+  "selection_status": "discovery_required",
   "selection_flow": {
     "preferred_prompt": "Choose Development AI",
     "only_selectable_when_current_host_can_use_agent": true,
@@ -28,7 +28,9 @@
     "worker_agent_ids": []
   },
   "permission_profile_schema": {
-    "allowed_paths": ["**"],
+    "allowed_paths": [
+      "**"
+    ],
     "denied_paths": [],
     "allowed_tools": [],
     "network_policy": "deny_unless_required",
@@ -68,7 +70,9 @@
     "runtime_identity": null,
     "permissions": null,
     "privacy_profile": null,
-    "roles": ["worker"],
+    "roles": [
+      "worker"
+    ],
     "selection_action": "Use Agent Name",
     "connection_or_handoff_method": null,
     "notes": ""

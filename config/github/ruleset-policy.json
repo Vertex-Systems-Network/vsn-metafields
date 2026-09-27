@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_user_decision",
+  "activation_scope": "child_project",
   "template_source_enforcement": "not_applicable",
   "scope": "default_branch_and_coordination_refs",
   "target_branch": "main",
@@ -41,7 +41,10 @@
     ]
   },
   "coordination_ref_policy": {
-    "patterns": ["refs/heads/claims/**", "refs/heads/supervisor/**"],
+    "patterns": [
+      "refs/heads/claims/**",
+      "refs/heads/supervisor/**"
+    ],
     "purpose": "distributed Worker/Supervisor lock namespaces",
     "restrict_create_update_delete_to_trusted_runtime_when_supported": true,
     "normal_worker_direct_mutation_forbidden": true,
@@ -68,5 +71,11 @@
     "Apply only to a child/new project after the user approves the rules setup.",
     "Only require status checks that have actually run successfully in the child repository and are supported by its plan/features.",
     "Control-plane and lock-namespace protection is a security boundary, not a documentation preference."
-  ]
+  ],
+  "setup_state": {
+    "user_decision": null,
+    "application_status": "not_applied",
+    "enforcement_verified": false,
+    "governance_audit_installed": false
+  }
 }

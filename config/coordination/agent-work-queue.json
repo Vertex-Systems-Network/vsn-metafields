@@ -1,7 +1,7 @@
 {
   "schema_version": 4,
   "coordination_mode": "multi_agent",
-  "updated_at": null,
+  "updated_at": "2026-09-27T11:24:00+00:00",
   "slots": [],
   "slot_schema": {
     "id": "SLOT-001",
@@ -15,10 +15,18 @@
     "risk_classification": "normal",
     "delegation_depth": 0,
     "dependencies": [],
-    "eligibility": ["ANY"],
-    "required_roles": ["worker"],
-    "required_capabilities": ["repository_write"],
-    "allowed_paths": ["src/**"],
+    "eligibility": [
+      "ANY"
+    ],
+    "required_roles": [
+      "worker"
+    ],
+    "required_capabilities": [
+      "repository_write"
+    ],
+    "allowed_paths": [
+      "src/**"
+    ],
     "denied_paths": [],
     "allowed_tools": [],
     "network_policy": "project_policy",
@@ -26,8 +34,12 @@
     "pm_scope": "none",
     "secret_scope": "none",
     "deployment_scope": "none",
-    "acceptance_criteria": ["Define concrete acceptance criteria before dispatch."],
-    "required_checks": ["Define concrete verification before dispatch."],
+    "acceptance_criteria": [
+      "Define concrete acceptance criteria before dispatch."
+    ],
+    "required_checks": [
+      "Define concrete verification before dispatch."
+    ],
     "status": "free",
     "claim_ref": null,
     "claim_branch": null,
@@ -66,9 +78,25 @@
     "orphan_ref_requires_recovery_before_reuse": true,
     "lock_namespace_requires_trusted_runtime_protection_when_supported": true
   },
-  "lease_status_values": ["not_acquired", "active", "expired", "released", "revoked", "orphaned", "recovered"],
+  "lease_status_values": [
+    "not_acquired",
+    "active",
+    "expired",
+    "released",
+    "revoked",
+    "orphaned",
+    "recovered"
+  ],
   "status_values": [
-    "free", "claimed", "in_progress", "blocked", "submitted_for_review",
-    "changes_requested", "approved", "merged", "completed", "canceled"
+    "free",
+    "claimed",
+    "in_progress",
+    "blocked",
+    "submitted_for_review",
+    "changes_requested",
+    "approved",
+    "merged",
+    "completed",
+    "canceled"
   ]
 }

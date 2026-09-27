@@ -34,6 +34,6 @@
   "open_required_action_alert_count": 0,
   "last_pm_sync_at": null,
   "last_readme_dashboard_update_at": null,
-  "last_reconciled_main_sha": null,
-  "status": "template_unassigned"
+  "last_reconciled_main_sha": "b36462870009d756d3d68efa324d5e36976c9cbb",
+  "status": "unassigned"
 }

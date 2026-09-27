@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "lifecycle_stage": "not_started",
-  "current_phase": null,
-  "current_module": null,
-  "current_work_unit": null,
+  "lifecycle_stage": "existing_project_assessment",
+  "current_phase": "ADOPTION-BASELINE",
+  "current_module": "EXISTING-SYSTEM-RECONCILIATION",
+  "current_work_unit": "BASELINE-AUDIT-001",
   "last_verified_completion": null,
-  "next_valid_work_unit": null,
+  "next_valid_work_unit": "BASELINE-AUDIT-001",
   "progress": {
     "total_work_units": 0,
     "complete": 0,
@@ -17,11 +17,17 @@
   },
   "outstanding_updates": [],
   "outstanding_removals": [],
-  "unresolved_decisions": [],
+  "unresolved_decisions": [
+    "Complete repository baseline audit and map the existing Shopify implementation into ANPOS phases/modules/work units.",
+    "Choose a Project Management System or explicitly skip PM integration.",
+    "Choose and identity-verify the Development AI agent pool available in the current host.",
+    "Ask the user whether to apply the recommended GitHub Rules policy.",
+    "Resolve capability-dependent GitHub security checks before making them required."
+  ],
   "critical_defects": [],
   "qa_readiness": "not_assessed",
   "security_readiness": "not_assessed",
-  "last_reconciled_repository_ref": null,
-  "last_reconciled_at": null,
-  "notes": "AI must reconcile this file against actual repository/Git/test reality before relying on it."
+  "last_reconciled_repository_ref": "b36462870009d756d3d68efa324d5e36976c9cbb",
+  "last_reconciled_at": "2026-09-27T11:24:00+00:00",
+  "notes": "Existing application predates ANPOS. Zero ANPOS work-unit progress is not zero product implementation; baseline mapping must classify existing features before roadmap percentages are meaningful."
 }
