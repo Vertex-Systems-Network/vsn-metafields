@@ -1,122 +1,113 @@
 import { authenticate } from "../shopify.server";
 
+async function getActiveSubscriptions(admin) {
+  const response = await admin.graphql(`
+    #graphql
+    query GetActiveSubscriptions {
+      currentAppInstallation {
+        activeSubscriptions {
+          id
+          name
+          status
+          test
+          currentPeriodEnd
+          trialDays
+          lineItems {
+            id
+            plan {
+              pricingDetails {
+                __typename
+                ... on AppRecurringPricing {
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  interval
+                }
+                ... on AppUsagePricing {
+                  cappedAmount {
+                    amount
+                    currencyCode
+                  }
+                  terms
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const json = await response.json();
+
+  if (json?.errors?.length) {
+    throw new Error(json.errors[0]?.message || "Subscription query failed.");
+  }
+
+  return json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
+}
+
+function getValidSubscriptions(subscriptions) {
+  return process.env.NODE_ENV === "production"
+    ? subscriptions.filter((subscription) => !subscription.test)
+    : subscriptions;
+}
+
+
 // ─── GET: fetch subscription status ───────────────────────────────────────────
 export const loader = async ({ request }) => {
-	const { admin, session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
-	//console.log("STATUS API AUTH OK");
-	//console.log("STATUS API SHOP:", session.shop);
-	//console.log("STATUS API SCOPE:", session.scope);
+  try {
+    const activeSubscriptions = await getActiveSubscriptions(admin);
+    const validSubscriptions = getValidSubscriptions(activeSubscriptions);
+    const hasActivePlan = validSubscriptions.some(
+      (subscription) => subscription.status === "ACTIVE"
+    );
 
-	try {
-		const subscriptionRes = await admin.graphql(`
-		#graphql
-		query GetSubscriptionStatus {
-			currentAppInstallation {
-				activeSubscriptions {
-					id
-					name
-					status
-					test
-					currentPeriodEnd
-					trialDays
-					lineItems {
-						id
-						plan {
-							pricingDetails {
-								__typename
-								... on AppRecurringPricing {
-									price {
-									amount
-									currencyCode
-									}
-									interval
-								}
-								... on AppUsagePricing {
-									cappedAmount {
-									amount
-									currencyCode
-									}
-									terms
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		`);
+    return Response.json({
+      ok: true,
+      shop: session.shop,
+      hasActivePlan,
+      subscriptions: validSubscriptions,
+    });
+  } catch (error) {
+    if (error instanceof Response) {
+      return Response.json(
+        {
+          ok: false,
+          hasActivePlan: false,
+          error: `Subscription query failed with status ${error.status}`,
+        },
+        { status: error.status }
+      );
+    }
 
-		const subscriptionJson = await subscriptionRes.json();
-
-		// if (process.env.NODE_ENV !== "production") {
-		// 	console.log("SUBSCRIPTION JSON:", JSON.stringify(subscriptionJson, null, 2));
-		// }
-
-		if (subscriptionJson?.errors) {
-			const errMsg = Array.isArray(subscriptionJson.errors)
-				? subscriptionJson.errors[0]?.message
-				: subscriptionJson.errors?.message;
-
-			return Response.json(
-				{ ok: false, hasActivePlan: false, error: errMsg || "GraphQL error" },
-				{ status: 500 }
-			);
-		}
-
-		const activeSubscriptions =
-			subscriptionJson?.data?.currentAppInstallation?.activeSubscriptions ?? [];
-
-		// In dev, include test subscriptions; in prod, exclude them
-		const validSubscriptions =
-			process.env.NODE_ENV === "production"
-				? activeSubscriptions.filter((sub) => !sub.test)
-				: activeSubscriptions;
-
-		const hasActivePlan = validSubscriptions.some((sub) => sub.status === "ACTIVE");
-
-		return Response.json({
-			ok: true,
-			shop: session.shop,
-			hasActivePlan,
-			subscriptions: validSubscriptions,
-		});
-
-	} catch (error) {
-		if (error instanceof Response) {
-			const body = await error.text().catch(() => "Could not read error body");
-			//console.error("SUBSCRIPTION RESPONSE STATUS:", error.status);
-			//console.error("SUBSCRIPTION RESPONSE BODY:", body);
-
-			return Response.json(
-				{
-					ok: false,
-					hasActivePlan: false,
-					error: `Subscription query failed with status ${error.status}`,
-					body,
-				},
-				{ status: error.status }
-			);
-		}
-
-		//console.error("SUBSCRIPTION QUERY FAILED:", error);
-		return Response.json(
-			{
-				ok: false,
-				hasActivePlan: false,
-				error: error?.message || "Subscription query failed.",
-			},
-			{ status: 500 }
-		);
-	}
+    return Response.json(
+      {
+        ok: false,
+        hasActivePlan: false,
+        error: error?.message || "Subscription query failed.",
+      },
+      { status: 500 }
+    );
+  }
 };
 
 // ─── POST: create or cancel subscription ──────────────────────────────────────
 export const action = async ({ request }) => {
-	const { admin, session } = await authenticate.admin(request);
-	const formData = await request.formData();
-	const url = new URL(request.url);
-	const actionType = formData.get("actionType");
+  const { admin, session } = await authenticate.admin(request);
+
+  if (request.method.toUpperCase() !== "POST") {
+    return Response.json(
+      { ok: false, error: "Method not allowed." },
+      { status: 405, headers: { Allow: "POST" } }
+    );
+  }
+
+  const formData = await request.formData();
+  const actionType = formData.get("actionType");
 
 	// ── CANCEL ──────────────────────────────────────────────────────────────────
 	if (actionType === "cancel") {
@@ -126,7 +117,22 @@ export const action = async ({ request }) => {
 			return Response.json({ ok: false, error: "Subscription ID is required." }, { status: 400 });
 		}
 
-		try {
+    try {
+      const validSubscriptions = getValidSubscriptions(
+        await getActiveSubscriptions(admin)
+      );
+      const subscriptionToCancel = validSubscriptions.find(
+        (subscription) =>
+          subscription.id === id && subscription.status === "ACTIVE"
+      );
+
+      if (!subscriptionToCancel) {
+        return Response.json(
+          { ok: false, error: "Active subscription not found." },
+          { status: 404 }
+        );
+      }
+
 			const res = await admin.graphql(
 				`#graphql
 				mutation CancelSubscription($id: ID!) {
@@ -167,13 +173,23 @@ export const action = async ({ request }) => {
 	if (actionType === "create") {
 		const plan = formData.get("plan") || "pro-plan";
 
-		// ✅ Get host from formData (passed from frontend)
-		const host = formData.get("host") || url.searchParams.get("host") || "";
-		const shop = session.shop;
+    const host = String(formData.get("host") || "");
+    const shop = session.shop;
+    const appUrl = process.env.SHOPIFY_APP_URL;
 
-		const returnUrl = host
-			? `${process.env.SHOPIFY_APP_URL}/app?shop=${shop}&host=${host}`
-			: `${process.env.SHOPIFY_APP_URL}/app?shop=${shop}`;
+    if (!appUrl) {
+      return Response.json(
+        { ok: false, error: "Shopify app URL is not configured." },
+        { status: 500 }
+      );
+    }
+
+    const returnUrlObject = new URL("/app", appUrl);
+    returnUrlObject.searchParams.set("shop", shop);
+    if (host) {
+      returnUrlObject.searchParams.set("host", host);
+    }
+    const returnUrl = returnUrlObject.toString();
 
 		const planConfig = {
 			"pro-plan": {
@@ -192,7 +208,26 @@ export const action = async ({ request }) => {
 			return Response.json({ ok: false, error: `Unknown plan: ${plan}` }, { status: 400 });
 		}
 
-		try {
+    try {
+      const validSubscriptions = getValidSubscriptions(
+        await getActiveSubscriptions(admin)
+      );
+      const duplicateActivePlan = validSubscriptions.find(
+        (subscription) =>
+          subscription.status === "ACTIVE" &&
+          subscription.name === selectedPlan.name
+      );
+
+      if (duplicateActivePlan) {
+        return Response.json(
+          {
+            ok: false,
+            error: "This plan is already active for the current shop.",
+          },
+          { status: 409 }
+        );
+      }
+
 			const res = await admin.graphql(
 				`#graphql
 					mutation CreateSubscription(
