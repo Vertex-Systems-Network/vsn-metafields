@@ -62,8 +62,20 @@ export default function Index() {
   };
 
   const handleReset = () => {
-    actionFetcher.submit(null, {
-      method: "delete",
+    if (
+      !window.confirm(
+        "Reset all VSN metafield definitions? Existing product metafield values will not be deleted, but the definitions will be removed."
+      )
+    ) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("actionType", "reset");
+    formData.set("confirm", "RESET_VSN_METAFIELDS");
+
+    actionFetcher.submit(formData, {
+      method: "post",
       action: `/app/api/fields${window.location.search}`,
     });
   };
