@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFetcher, useLoaderData } from "react-router";
+import { useFetcher } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
@@ -9,8 +9,6 @@ export const loader = async ({ request }) => {
 };
 
 export default function Index() {
-  const { shop } = useLoaderData(); 
-
   const statusFetcher = useFetcher();
   const fieldsFetcher = useFetcher();
   const actionFetcher = useFetcher();

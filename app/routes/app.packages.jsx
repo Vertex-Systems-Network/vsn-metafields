@@ -8,7 +8,7 @@ export const loader = async ({ request }) => {
   const chargeId = url.searchParams.get("charge_id");
 
   // authenticate.admin handles the session exchange automatically
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
   //console.log("PACKAGES SHOP:", session?.shop);
   //console.log("CHARGE ID:", chargeId); // confirm it's being received

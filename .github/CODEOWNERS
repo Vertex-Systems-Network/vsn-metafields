@@ -27,6 +27,7 @@
 /DESIGN-DATA-OPERATIONS.md @wpessential
 /AI-NATIVE-PRODUCT-ASSURANCE.md @wpessential
 /AI-NATIVE-GOVERNANCE-ASSURANCE.md @wpessential
+/COMMERCIAL-LICENSING.md @wpessential
 /config/ai/ @wpessential
 /config/coordination/ @wpessential
 /config/protocol/ @wpessential
@@ -36,6 +37,7 @@
 /config/quality/ @wpessential
 /config/runtime/ @wpessential
 /config/release/ @wpessential
+/config/licensing/ @wpessential
 /config/data/ @wpessential
 /config/product/ @wpessential
 /config/assurance/ @wpessential
