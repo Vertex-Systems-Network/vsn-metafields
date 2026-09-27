@@ -12,11 +12,33 @@ const scopes = process.env.SCOPES
   .map((scope) => scope.trim())
   .filter(Boolean);
 
+const customShopDomain = process.env.SHOP_CUSTOM_DOMAIN
+  ?.trim()
+  .replace(/^https?:\/\//, "")
+  .replace(/\/.*$/, "")
+  .replace(/\.$/, "");
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
+}
+
+const domainTransformations = customShopDomain
+  ? [
+      {
+        match: new RegExp(
+          "^([a-zA-Z0-9][a-zA-Z0-9-_]*)\\." +
+            escapeRegExp(customShopDomain) +
+            "$"
+        ),
+        transform: "$1." + customShopDomain,
+      },
+    ]
+  : undefined;
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
-  apiVersion: ApiVersion.October25,
+  apiVersion: ApiVersion.July26,
   scopes,
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
@@ -28,16 +50,11 @@ const shopify = shopifyApp({
       await registerWebhooks({ session });
     },
   },
-  // future: {
-  //   expiringOfflineAccessTokens: true,
-  // },
-  ...(process.env.SHOP_CUSTOM_DOMAIN
-    ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
-    : {}),
+  ...(domainTransformations ? { domainTransformations } : {}),
 });
 
 export default shopify;
-export const apiVersion = ApiVersion.October25;
+export const apiVersion = ApiVersion.July26;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
 export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
