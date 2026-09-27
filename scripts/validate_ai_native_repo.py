@@ -183,7 +183,22 @@ def validate_required_files() -> None:
         "blueprints/plugins/anpos-repository-supervisor/contracts/repository-provider-contract.json",
         "tests/test_repository_supervisor_plugin_blueprint.py", "tests/test_repository_supervisor_production_runtime.py",
     ]
+    instance = load_json("config/protocol/instance.json")
+    is_child = instance.get("instance_status") != "template_source"
+    vendor_only: list[str] = []
+    if is_child:
+        boundary = load_json("config/licensing/vendor-source-boundary.json")
+        raw_vendor_only = boundary.get("vendor_only_paths", [])
+        if isinstance(raw_vendor_only, list):
+            vendor_only = [str(value).rstrip("/") for value in raw_vendor_only if isinstance(value, str)]
+
+    def child_vendor_only(relative: str) -> bool:
+        normalized = relative.rstrip("/")
+        return any(normalized == prefix or normalized.startswith(prefix + "/") for prefix in vendor_only)
+
     for relative in required:
+        if is_child and child_vendor_only(relative):
+            continue
         if not (ROOT / relative).is_file():
             fail(f"missing required protocol/blueprint file: {relative}")
 
