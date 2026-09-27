@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
-  "current_work_unit": "ISSUE-7-webhook-privacy-state",
-  "last_verified_completion": "P0 exposure cleanup merged at 31529dd0f87b189342f87bcdc171341cf4427165; stale combined webhook handler removed at 666d23d97e6c9b63f99186f031327879ad077a7a.",
-  "next_valid_work_unit": "Upgrade affected Shopify React Router dependency with lockfile/peer verification, then align runtime and codegen API versions.",
+  "current_work_unit": "ISSUE-7-child-workflow-hygiene",
+  "last_verified_completion": "P0 exposure cleanup, webhook hardening, and npm dependency monitoring are merged on main.",
+  "next_valid_work_unit": "Remove canonical-source-only active workflows from the child repository, then continue CI infrastructure diagnosis and Shopify dependency upgrade.",
   "progress": {
     "total_work_units": 4,
     "complete": 2,
@@ -33,7 +33,7 @@
   ],
   "qa_readiness": "blocked_ci_runner",
   "security_readiness": "p0_hardening_in_progress",
-  "last_reconciled_repository_ref": "666d23d97e6c9b63f99186f031327879ad077a7a",
-  "last_reconciled_at": "2026-09-27T20:42:00+00:00",
-  "notes": "ANPOS state reconciled against merged repository evidence. The accidentally committed ..git/ tree and destructive clear-sessions endpoint are no longer present on main."
+  "last_reconciled_repository_ref": "551d16e6b7e17a1adc7aac74d11b4a746e21bf16",
+  "last_reconciled_at": "2026-09-27T20:55:00+00:00",
+  "notes": "CI jobs fail before runner assignment; source-only active workflows guarded to the canonical ANPOS repository are being removed from this child repository to reduce dead automation and Dependabot noise."
 }
