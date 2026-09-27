@@ -1,8 +1,7 @@
 import { authenticate } from "../shopify.server";
 
 export const action = async ({ request }) => {
-  const { topic, shop } = await authenticate.webhook(request);
-  console.log(`Received ${topic} webhook for ${shop}`);
-  // We don't store shop data
+  await authenticate.webhook(request);
+  // Shop-scoped session cleanup is handled by the authenticated uninstall webhook.
   return new Response();
 };

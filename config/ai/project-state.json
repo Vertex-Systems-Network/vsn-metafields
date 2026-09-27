@@ -1,21 +1,25 @@
 {
   "schema_version": 1,
-  "lifecycle_stage": "not_started",
-  "current_phase": null,
-  "current_module": null,
-  "current_work_unit": null,
-  "last_verified_completion": null,
-  "next_valid_work_unit": null,
+  "lifecycle_stage": "engineering",
+  "current_phase": "PHASE-00",
+  "current_module": "existing-app-reconciliation-security-baseline",
+  "current_work_unit": "ISSUE-7-webhook-privacy-state",
+  "last_verified_completion": "P0 exposure cleanup merged at 31529dd0f87b189342f87bcdc171341cf4427165; stale combined webhook handler removed at 666d23d97e6c9b63f99186f031327879ad077a7a.",
+  "next_valid_work_unit": "Upgrade affected Shopify React Router dependency with lockfile/peer verification, then align runtime and codegen API versions.",
   "progress": {
-    "total_work_units": 0,
-    "complete": 0,
-    "in_progress": 0,
-    "blocked": 0,
+    "total_work_units": 4,
+    "complete": 2,
+    "in_progress": 1,
+    "blocked": 1,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
-  "outstanding_updates": [],
+  "outstanding_updates": [
+    "Upgrade @shopify/shopify-app-react-router from affected 1.x range to a patched supported release with lockfile regeneration and compatibility checks.",
+    "Align app/shopify.server.js and .graphqlrc.js API versions after the Shopify package upgrade.",
+    "Restore executable CI evidence after GitHub Actions runner startup failure is resolved."
+  ],
   "outstanding_removals": [],
   "unresolved_decisions": [
     "Choose a Project Management System or explicitly skip PM integration.",
@@ -24,11 +28,12 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [
-    "Repository contains committed ..git/ metadata-like directory; classify and remove safely after adoption."
+    "GitHub Actions AI Native Quality Gates jobs currently fail before runner assignment (runner_id 0, zero steps), so CI evidence is unavailable.",
+    "@shopify/shopify-app-react-router is in a published affected pre-2.0.0 security range and requires a controlled package/lockfile upgrade."
   ],
-  "qa_readiness": "not_assessed",
-  "security_readiness": "not_assessed",
-  "last_reconciled_repository_ref": "b36462870009d756d3d68efa324d5e36976c9cbb",
-  "last_reconciled_at": "2026-09-27T12:03:00+00:00",
-  "notes": "AI must reconcile this file against actual repository/Git/test reality before relying on it."
+  "qa_readiness": "blocked_ci_runner",
+  "security_readiness": "p0_hardening_in_progress",
+  "last_reconciled_repository_ref": "666d23d97e6c9b63f99186f031327879ad077a7a",
+  "last_reconciled_at": "2026-09-27T20:42:00+00:00",
+  "notes": "ANPOS state reconciled against merged repository evidence. The accidentally committed ..git/ tree and destructive clear-sessions endpoint are no longer present on main."
 }
