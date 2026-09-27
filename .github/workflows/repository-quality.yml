@@ -49,9 +49,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git show "${BASE_SHA}:scripts/validate_ai_native_repo.py" > scripts/.trusted-base-validator.py
-          python scripts/.trusted-base-validator.py
-          rm -f scripts/.trusted-base-validator.py
+          if git cat-file -e "${BASE_SHA}:scripts/validate_ai_native_repo.py" 2>/dev/null; then
+            git show "${BASE_SHA}:scripts/validate_ai_native_repo.py" > scripts/.trusted-base-validator.py
+            python scripts/.trusted-base-validator.py
+            rm -f scripts/.trusted-base-validator.py
+          else
+            echo 'Base branch predates the ANPOS core validator; current validator and protected review remain required for this adoption.'
+          fi
 
           if git cat-file -e "${BASE_SHA}:scripts/validate_commercial_licensing.py" 2>/dev/null; then
             git show "${BASE_SHA}:scripts/validate_commercial_licensing.py" > scripts/.trusted-base-commercial-validator.py
