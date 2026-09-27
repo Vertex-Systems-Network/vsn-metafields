@@ -183,7 +183,22 @@ def validate_required_files() -> None:
         "blueprints/plugins/anpos-repository-supervisor/contracts/repository-provider-contract.json",
         "tests/test_repository_supervisor_plugin_blueprint.py", "tests/test_repository_supervisor_production_runtime.py",
     ]
+    instance = load_json("config/protocol/instance.json")
+    is_child = instance.get("instance_status") != "template_source"
+    vendor_only: list[str] = []
+    if is_child:
+        boundary = load_json("config/licensing/vendor-source-boundary.json")
+        raw_vendor_only = boundary.get("vendor_only_paths", [])
+        if isinstance(raw_vendor_only, list):
+            vendor_only = [str(value).rstrip("/") for value in raw_vendor_only if isinstance(value, str)]
+
+    def child_vendor_only(relative: str) -> bool:
+        normalized = relative.rstrip("/")
+        return any(normalized == prefix or normalized.startswith(prefix + "/") for prefix in vendor_only)
+
     for relative in required:
+        if is_child and child_vendor_only(relative):
+            continue
         if not (ROOT / relative).is_file():
             fail(f"missing required protocol/blueprint file: {relative}")
 
@@ -239,7 +254,24 @@ def validate_json_schemas() -> None:
         "config/runtime/repository-supervisor-e2e.json": "schemas/repository-supervisor-e2e.schema.json",
         "config/runtime/repository-supervisor-planner.json": "schemas/repository-supervisor-planner.schema.json",
     }
+    protocol_instance = load_json("config/protocol/instance.json")
+    is_child = protocol_instance.get("instance_status") != "template_source"
+    child_vendor_only: list[str] = []
+    if is_child:
+        boundary = load_json("config/licensing/vendor-source-boundary.json")
+        raw_vendor_only = boundary.get("vendor_only_paths", [])
+        if isinstance(raw_vendor_only, list):
+            child_vendor_only = [str(value).rstrip("/") for value in raw_vendor_only if isinstance(value, str)]
+
+    def schema_pair_is_vendor_only(instance_path: str, schema_path: str) -> bool:
+        def matches(relative: str) -> bool:
+            normalized = relative.rstrip("/")
+            return any(normalized == prefix or normalized.startswith(prefix + "/") for prefix in child_vendor_only)
+        return matches(instance_path) or matches(schema_path)
+
     for instance_path, schema_path in mapping.items():
+        if is_child and schema_pair_is_vendor_only(instance_path, schema_path):
+            continue
         schema = load_json(schema_path)
         instance = load_json(instance_path)
         try:

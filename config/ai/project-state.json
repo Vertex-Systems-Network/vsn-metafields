@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
-  "current_work_unit": "ISSUE-7-child-workflow-hygiene",
-  "last_verified_completion": "P0 exposure cleanup, webhook hardening, and npm dependency monitoring are merged on main.",
-  "next_valid_work_unit": "Remove canonical-source-only active workflows from the child repository, then continue CI infrastructure diagnosis and Shopify dependency upgrade.",
+  "current_work_unit": "ISSUE-11-shopify-security-major-upgrade",
+  "last_verified_completion": "Dependabot generated npm-resolved Shopify 3.0.0 / Shopify API 15.0.0 / session-storage-prisma 11.0.0 upgrade with Node >=22.12 <23; Prisma resolves to 6.19.3 in lockfile.",
+  "next_valid_work_unit": "Obtain executable npm ci + lint + typecheck + build evidence for the Shopify security upgrade branch, then merge if auth/webhook/billing/metafield compatibility is clean.",
   "progress": {
     "total_work_units": 4,
     "complete": 2,
@@ -16,9 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Upgrade @shopify/shopify-app-react-router from affected 1.x range to a patched supported release with lockfile regeneration and compatibility checks.",
-    "Align app/shopify.server.js and .graphqlrc.js API versions after the Shopify package upgrade.",
-    "Restore executable CI evidence after GitHub Actions runner startup failure is resolved."
+    "Execute npm ci, lint, typecheck, build, Prisma generation/migration validation and Shopify auth/webhook/billing/metafield smoke checks on Node 22.12+.",
+    "Restore GitHub Actions runner execution or use another authorized ephemeral build environment for upgrade validation."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,12 +27,11 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [
-    "GitHub Actions AI Native Quality Gates jobs currently fail before runner assignment (runner_id 0, zero steps), so CI evidence is unavailable.",
-    "@shopify/shopify-app-react-router is in a published affected pre-2.0.0 security range and requires a controlled package/lockfile upgrade."
+    "GitHub Actions AI Native Quality Gates jobs still fail before runner assignment (runner_id 0, zero steps), so CI build/test evidence is unavailable."
   ],
   "qa_readiness": "blocked_ci_runner",
-  "security_readiness": "p0_hardening_in_progress",
-  "last_reconciled_repository_ref": "551d16e6b7e17a1adc7aac74d11b4a746e21bf16",
-  "last_reconciled_at": "2026-09-27T20:55:00+00:00",
-  "notes": "CI jobs fail before runner assignment; source-only active workflows guarded to the canonical ANPOS repository are being removed from this child repository to reduce dead automation and Dependabot noise."
+  "security_readiness": "p0_upgrade_prepared_validation_blocked",
+  "last_reconciled_repository_ref": "4330eb2715d42d4afa67a882238473c9b327edf2",
+  "last_reconciled_at": "2026-09-27T21:05:00+00:00",
+  "notes": "Shopify security upgrade is prepared from Dependabot's npm-generated lockfile. Runtime and GraphQL codegen are aligned to ApiVersion.July26. Merge remains gated on executable validation evidence."
 }
