@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
+  "status": "required_for_major_module_or_release_review",
   "activation_scope": "child_project",
   "review_dimensions": [
     "correctness_and_acceptance_coverage",

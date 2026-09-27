@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_product_outcomes_are_measurable_and_material",
+  "status": "pending_applicability_detection",
+  "activation_scope": "child_project",
   "metric_examples": [
     "activation",
     "task_completion",

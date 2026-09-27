@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_ai_behavior_materially_affects_users_or_decisions",
+  "status": "pending_high_impact_ai_detection",
+  "activation_scope": "child_project",
   "risk_detection": {
     "detect_high_impact_ai_use": true,
     "record_affected_users_or_populations_when_relevant": true,

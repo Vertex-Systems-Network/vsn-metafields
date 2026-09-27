@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_progressive_delivery_reduces_release_risk",
+  "status": "pending_applicability_detection",
+  "activation_scope": "child_project",
   "supported_strategies": [
     "direct_low_risk_release",
     "preview_or_staging_promotion",
