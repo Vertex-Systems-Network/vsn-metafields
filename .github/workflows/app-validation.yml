@@ -11,6 +11,7 @@ on:
       - "package-lock.json"
       - ".graphqlrc.js"
       - ".github/workflows/app-validation.yml"
+      - "tests/app-contracts.test.mjs"
   workflow_dispatch:
 
 permissions:
@@ -67,6 +68,9 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Contract smoke tests
+        run: npm run test:contracts
 
       - name: Build
         run: npm run build
