@@ -12,10 +12,6 @@ const scopes = process.env.SCOPES
   .map((scope) => scope.trim())
   .filter(Boolean);
 
-console.log("RAW SCOPES ENV:", process.env.SCOPES);
-console.log("PARSED SCOPES:", scopes);
-console.log("SHOPIFY APP URL:", process.env.SHOPIFY_APP_URL);
-console.log("SHOPIFY API KEY:", process.env.SHOPIFY_API_KEY);
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -29,8 +25,7 @@ const shopify = shopifyApp({
   useOnlineTokens: true,
   hooks: {
     afterAuth: async ({ session }) => {
-      console.log("AFTER AUTH — shop:", session.shop, "| scope:", session.scope);
-      registerWebhooks({ session }); // re-register webhooks on re-auth
+      await registerWebhooks({ session });
     },
   },
   // future: {
