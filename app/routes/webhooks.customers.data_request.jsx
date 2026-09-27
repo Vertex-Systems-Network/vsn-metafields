@@ -1,8 +1,7 @@
 import { authenticate } from "../shopify.server";
 
 export const action = async ({ request }) => {
-  const { topic, shop } = await authenticate.webhook(request);
-  console.log(`Received ${topic} webhook for ${shop}`);
-  // We don't store customer data
+  await authenticate.webhook(request);
+  // The app currently stores no customer payload data.
   return new Response();
 };
