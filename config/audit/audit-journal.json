@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_journal",
+  "activation_scope": "child_project",
   "integrity": {
     "mode": "sha256_hash_chain",
     "genesis_hash": null,

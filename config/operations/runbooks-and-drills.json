@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_production_operational_risk_exists",
+  "status": "pending_operational_applicability",
+  "activation_scope": "child_project",
   "runbooks": [],
   "drills": [],
   "runbook_template": {

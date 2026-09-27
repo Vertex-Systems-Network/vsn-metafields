@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "pending_assurance_classification",
+  "activation_scope": "child_project",
   "last_reconciled_at": null,
   "last_reconciled_ref": null,
   "requirements": [

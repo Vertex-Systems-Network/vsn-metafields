@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_public_or_internal_consumers_depend_on_versioned_contracts_or_runtimes",
+  "status": "pending_applicability_detection",
+  "activation_scope": "child_project",
   "supported_versions": [],
   "deprecations": [],
   "deprecation_template": {

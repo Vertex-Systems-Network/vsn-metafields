@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_registry",
+  "activation_scope": "child_project",
   "risks": [],
   "risk_template": {
     "id": "RISK-0001",
@@ -21,8 +21,23 @@
     "accepted_at": null,
     "review_or_expiry_at": null
   },
-  "allowed_categories": ["security", "privacy", "ai", "product", "operational", "financial", "compliance", "architecture"],
-  "allowed_dispositions": ["open", "mitigating", "accepted", "resolved", "expired_acceptance"],
+  "allowed_categories": [
+    "security",
+    "privacy",
+    "ai",
+    "product",
+    "operational",
+    "financial",
+    "compliance",
+    "architecture"
+  ],
+  "allowed_dispositions": [
+    "open",
+    "mitigating",
+    "accepted",
+    "resolved",
+    "expired_acceptance"
+  ],
   "rules": {
     "material_risk_requires_owner": true,
     "risk_acceptance_requires_authenticated_consent_when_policy_requires": true,

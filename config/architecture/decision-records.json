@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "active_registry",
+  "activation_scope": "child_project",
   "decisions": [],
   "decision_template": {
     "id": "ADR-0001",
@@ -20,7 +20,12 @@
     "supersedes": [],
     "superseded_by": null
   },
-  "allowed_statuses": ["proposed", "accepted", "rejected", "superseded"],
+  "allowed_statuses": [
+    "proposed",
+    "accepted",
+    "rejected",
+    "superseded"
+  ],
   "rules": [
     "Accepted material decisions must not be silently reversed.",
     "A replacement decision must preserve supersession traceability.",

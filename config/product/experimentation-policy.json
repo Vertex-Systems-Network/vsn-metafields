@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "optional_child_project_capability",
+  "status": "optional_inactive",
+  "activation_scope": "child_project",
   "experiment_contract": [
     "hypothesis",
     "target_population_or_environment",

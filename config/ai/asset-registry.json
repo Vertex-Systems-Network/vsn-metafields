@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_when_ai_behavior_present",
+  "status": "pending_ai_asset_detection",
+  "activation_scope": "child_project",
   "assets": [],
   "asset_template": {
     "id": "AI-ASSET-0001",
