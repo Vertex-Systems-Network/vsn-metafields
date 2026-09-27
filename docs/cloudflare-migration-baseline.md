@@ -61,7 +61,9 @@ If post-cutover authentication, billing-read, webhook, or embedded-app verificat
 
 ## Security follow-up
 
-`app/routes/clear-sessions.jsx` contains a hard-coded query-string secret. It should be removed or replaced before production Cloudflare cutover. This security repair must not clear production sessions during migration testing.
+The destructive `app/routes/clear-sessions.jsx` endpoint has been removed from the current tree and is no longer an active production path. Historical exposure is tracked separately in Issue #41 and must be resolved by the controlled history-purge process before PHASE-00 closes.
+
+Cloudflare migration validation must never introduce a session-clearing maintenance endpoint or mutate existing paid subscriptions.
 
 ## Tracking
 
