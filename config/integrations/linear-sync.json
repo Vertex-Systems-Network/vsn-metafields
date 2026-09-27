@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "status": "template_blueprint",
+  "status": "not_selected",
   "provider_id": "linear",
   "managed_by": "config/integrations/project-management.json",
   "enabled": false,
@@ -46,6 +46,6 @@
   "last_error": null,
   "last_reconciled_main_sha": null,
   "last_linear_status_update_id": null,
-  "sync_result": "not_selected_template_blueprint",
+  "sync_result": "provider_not_selected",
   "degraded_mode": "If Linear is selected but unavailable, keep GitHub/repository state canonical, mark provider sync degraded, and catch up when connectivity returns."
 }

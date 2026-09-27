@@ -14,7 +14,9 @@
     "main_sha": null,
     "source_review_reference": null,
     "affected_slots": [],
-    "recipients": ["ACTIVE_WORKERS"],
+    "recipients": [
+      "ACTIVE_WORKERS"
+    ],
     "message": "Main advanced. Integrate current main, resolve conflicts, rerun impacted verification, acknowledge this alert, then continue development.",
     "acknowledgements": [],
     "status": "open"
@@ -27,5 +29,11 @@
     "acknowledged_merge_generation": 0,
     "verification_status": "pending"
   },
-  "status_values": ["open", "partially_acknowledged", "acknowledged", "superseded", "closed"]
+  "status_values": [
+    "open",
+    "partially_acknowledged",
+    "acknowledged",
+    "superseded",
+    "closed"
+  ]
 }

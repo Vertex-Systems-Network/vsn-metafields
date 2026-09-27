@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
-  "status": "template_blueprint",
-  "activation_scope": "child_project_only",
+  "status": "installed_pending_verification",
+  "activation_scope": "child_project",
   "apply_to_template_source": false,
   "setup_flow": {
     "install_automatically_in_child_project": true,
@@ -66,5 +66,24 @@
     "github_actions_must_be_pinned_to_full_commit_sha": true,
     "control_plane_validator_changes_require_protected_base_validation_and_independent_review": true
   },
-  "tool_selection_rule": "In the child project, prefer mature actively maintained ecosystem-standard tools. Detect platform capability instead of installing knowingly unsupported checks; record selected tools and rationale after the stack is known."
+  "tool_selection_rule": "In the child project, prefer mature actively maintained ecosystem-standard tools. Detect platform capability instead of installing knowingly unsupported checks; record selected tools and rationale after the stack is known.",
+  "setup_state": {
+    "baseline_files_installed_by_bootstrap": true,
+    "installed_blueprints": [
+      "repository-quality.yml",
+      "technology-update-watch.yml",
+      "innovation-scout.yml",
+      "protocol-update-watch.yml",
+      "dependabot.yml"
+    ],
+    "baseline_verification": "pending_first_child_run",
+    "github_security_capability": "unknown",
+    "capability_dependent_workflows": [
+      "codeql-actions.yml",
+      "dependency-review.yml",
+      "scorecard.yml"
+    ],
+    "capability_resolution": "pending_runtime_detection",
+    "stack_specific_tooling": "awaiting_technology_approval"
+  }
 }
