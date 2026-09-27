@@ -9,6 +9,25 @@ updates:
       timezone: "Etc/UTC"
     open-pull-requests-limit: 10
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-router/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-router"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite-tsconfig-paths"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-import-resolver-typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       shopify:
         patterns:
