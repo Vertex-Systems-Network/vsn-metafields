@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "issue": 4,
+  "environment": "cloudflare-staging",
+  "worker_name": "vsn-metafields-staging",
+  "deploy_mode": "manual_only",
+  "production_routes_allowed": false,
+  "required_secrets": [
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "scope": "github_environment"
+    },
+    {
+      "name": "CLOUDFLARE_ACCOUNT_ID",
+      "scope": "github_environment"
+    },
+    {
+      "name": "DATABASE_URL",
+      "scope": "worker_secret"
+    },
+    {
+      "name": "DIRECT_URL",
+      "scope": "worker_secret"
+    },
+    {
+      "name": "SHOPIFY_API_SECRET",
+      "scope": "worker_secret"
+    }
+  ],
+  "required_variables": [
+    {
+      "name": "SHOPIFY_API_KEY",
+      "scope": "worker_variable"
+    },
+    {
+      "name": "SHOPIFY_APP_URL",
+      "scope": "worker_variable",
+      "constraint": "staging_only"
+    },
+    {
+      "name": "SCOPES",
+      "scope": "worker_variable"
+    }
+  ],
+  "forbidden": {
+    "committed_secret_values": true,
+    "production_shopify_url_mutation": true,
+    "billing_mutation": true,
+    "merchant_reinstall": true,
+    "railway_shutdown": true
+  }
+}
