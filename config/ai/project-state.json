@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
-  "last_verified_completion": "Issue #4 work unit 3/6 complete on PR #72 candidate: full React Router app HTTP boot under workerd, Worker-side PrismaPg + Shopify PrismaSessionStorage round-trip against isolated PostgreSQL, staging binding contract, and manual-only guarded Cloudflare staging deploy workflow are green.",
-  "next_valid_work_unit": "Create and inspect an unreleased Shopify staging app version containing the required webhook subscriptions, release only the staging version after verification, then run webhook delivery validation; keep the 15-day trial check for the final staging deploy.",
+  "last_verified_completion": "Issue #4 work unit 4 staging version creation verified: Shopify Staging Version run 36497144313 created unreleased staging-webhooks-2 from the isolated cloudflare-staging configuration; production Shopify config remained unchanged.",
+  "next_valid_work_unit": "Release only staging-webhooks-2 through the guarded staging release workflow, then validate webhook delivery on Cloudflare staging before any production URL cutover.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,9 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Create a staging App Automation Token and store it as SHOPIFY_APP_AUTOMATION_TOKEN in the cloudflare-staging GitHub environment.",
-    "Run the guarded Shopify Staging Version workflow to create an unreleased staging version with required webhooks.",
-    "Inspect and release only that staging version, then validate webhook delivery.",
+    "Run the guarded Shopify Staging Release workflow for staging-webhooks-2 after repository checks pass.",
+    "Validate staging webhook delivery for app/uninstalled, app/scopes_update, and compliance endpoints.",
     "Perform the final Cloudflare staging deploy and 15-day trial verification last."
   ],
   "outstanding_removals": [],
@@ -29,11 +28,11 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [
-    "Active VSN Metafields Staging version currently shows webhook API version 2026-07 but no webhook subscriptions. A guarded unreleased-version workflow is being added so required app and compliance subscriptions can be validated before release."
+    "The new staging webhook configuration is prepared in unreleased Shopify version staging-webhooks-2; it must be released only to the staging app and webhook delivery validated before production cutover."
   ],
-  "qa_readiness": "staging_auth_sessions_navigation_subscription_read_green_webhook_version_pending",
+  "qa_readiness": "staging_version_created_release_and_webhook_delivery_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "88af4354b45d07973aadf9ca45b346a86c8e5032",
-  "last_reconciled_at": "2026-09-28T15:12:00+00:00",
-  "notes": "PHASE-01 work unit 4 is near closure. Staging auth, request-scoped Prisma sessions, hard-refresh continuity, embedded navigation, and subscription-read path are validated. Screenshot evidence shows active staging version lacks webhook subscriptions. Production Shopify/Railway remains unchanged; 15-day trial verification is intentionally deferred to final staging deploy."
+  "last_reconciled_repository_ref": "087527c07324ed84a8e65dc76cdf76583600223f",
+  "last_reconciled_at": "2026-09-28T23:17:14+00:00",
+  "notes": "PHASE-01 work unit 4 staging version creation is green. Run 36497144313 used shopify.app.cloudflare-staging.toml and created unreleased staging-webhooks-2. A guarded staging-only release workflow is the next gate; production Shopify/Railway remains unchanged and the 15-day trial verification stays deferred until final staging deploy."
 }
