@@ -92,3 +92,21 @@ Work unit 1/6 is complete on the guarded migration branch:
 - PostgreSQL/Prisma session store: unchanged.
 
 The dry-run proves packaging readiness only. It does not certify live database connectivity from Workers; that is the next work unit.
+
+
+## Prisma Worker runtime evidence
+
+Work unit 2/6 is complete on the guarded migration branch:
+
+- Prisma Client / CLI: `6.19.3`;
+- `@prisma/adapter-pg`: `6.19.3`;
+- `pg`: `8.23.0`;
+- Prisma generator: `engineType = "client"` (no Rust query engine);
+- same PostgreSQL datasource and Session schema retained;
+- same Shopify `PrismaSessionStorage(prisma)` integration retained;
+- real CI PostgreSQL store/load/delete session round-trip: pass;
+- Prisma validate + migrate deploy: pass;
+- lint, typecheck, contract smoke, build: pass;
+- Wrangler staging dry-run: pass.
+
+No production database contents or Shopify subscriptions were migrated or mutated. The next milestone is execution inside the actual Workers runtime and staging-only deployment preparation.
