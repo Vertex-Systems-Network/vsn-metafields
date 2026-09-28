@@ -1,0 +1,101 @@
+name: Cloudflare Staging Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY_STAGING_ONLY to deploy the isolated Cloudflare staging Worker"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    if: github.event.inputs.confirm == 'DEPLOY_STAGING_ONLY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-staging
+    env:
+      CI: "true"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SCOPES: ${{ secrets.SCOPES }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Require staging-only credentials and bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in             CLOUDFLARE_API_TOKEN             CLOUDFLARE_ACCOUNT_ID             DATABASE_URL             DIRECT_URL             SHOPIFY_API_SECRET             SHOPIFY_API_KEY             SHOPIFY_APP_URL             SCOPES
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-staging environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          case "$SHOPIFY_APP_URL" in
+            https://vsn-metafields-production.up.railway.app*)
+              echo "Staging deploy must not use the Railway production Shopify URL." >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate migration invariants
+        run: python scripts/cloudflare/validate_staging_contract.py
+
+      - name: Build staging Worker
+        run: npm run build
+
+      - name: Create ephemeral staging secrets file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          payload = {
+              "DATABASE_URL": os.environ["DATABASE_URL"],
+              "DIRECT_URL": os.environ["DIRECT_URL"],
+              "SHOPIFY_API_SECRET": os.environ["SHOPIFY_API_SECRET"],
+          }
+          with open("/tmp/vsn-metafields-staging-secrets.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle)
+          PY
+          chmod 600 /tmp/vsn-metafields-staging-secrets.json
+
+      - name: Deploy isolated Cloudflare staging Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.141.0 deploy             --secrets-file /tmp/vsn-metafields-staging-secrets.json             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"
+
+      - name: Remove ephemeral secrets file
+        if: always()
+        run: rm -f /tmp/vsn-metafields-staging-secrets.json
