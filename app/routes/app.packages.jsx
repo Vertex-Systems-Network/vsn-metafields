@@ -1,6 +1,7 @@
 import { useLoaderData, useFetcher } from "react-router";
 import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
+import { PRO_PLAN } from "../billing-config";
 
 // ─── Loader: reuse status API logic directly ──────────────────────────────────
 export const loader = async ({ request }) => {
@@ -114,7 +115,7 @@ export default function PackagesPage() {
             >
               <s-stack gap="base">
                 <s-text variant="headingMd">Pro Plan</s-text>
-                <s-text>15-day free trial</s-text>
+                <s-text>{PRO_PLAN.trialDays}-day free trial</s-text>
                 <s-text>$35 / month after trial</s-text>
                 <s-text>Unlimited products</s-text>
                 <s-text>Priority support</s-text>
@@ -148,7 +149,7 @@ export default function PackagesPage() {
                     loading={isLoading}
                     onClick={handleStartPro}
                   >
-                    Start 15-Day Trial
+                    Start {PRO_PLAN.trialDays}-Day Trial
                   </s-button>
                 )}
               </s-stack>
