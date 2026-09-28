@@ -52,6 +52,20 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
+test("embedded app navigation stays inside Shopify and preserves auth context", () => {
+  const app = read("app/routes/app.jsx");
+  const index = read("app/routes/app._index.jsx");
+
+  assert.match(app, /useLocation/);
+  assert.match(app, /href={\`\/app\$\{location\.search\}\`}/);
+  assert.match(app, /href={\`\/app\/packages\$\{location\.search\}\`}/);
+
+  assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
+  assert.match(index, /pathname:\s*"\/app\/packages"/);
+  assert.match(index, /search:\s*location\.search/);
+  assert.doesNotMatch(index, /target="_top"/);
+});
+
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
   const wrangler = JSON.parse(read("wrangler.jsonc"));
   const worker = read("workers/app.js");
