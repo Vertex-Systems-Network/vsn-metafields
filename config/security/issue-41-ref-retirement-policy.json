@@ -24,6 +24,11 @@
       "evidence": "default protected branch"
     },
     {
+      "branch": "phase-00/main-purge-mirror-push-fix",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch fixing explicit main push from a mirror clone"
+    },
+    {
       "branch": "phase-00/main-purge-origin-fix",
       "disposition": "retire_after_merge",
       "evidence": "temporary branch fixing purge mirror origin reuse after verified local rewrite"
