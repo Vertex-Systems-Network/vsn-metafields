@@ -78,7 +78,9 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(staging, /compliance_topics = \[ "shop\/redact" \]/);
 
   assert.match(workflow, /SHOPIFY_APP_AUTOMATION_TOKEN/);
+  assert.match(workflow, /--config cloudflare-staging/);
   assert.match(workflow, /--no-release/);
+  assert.doesNotMatch(workflow, /--client-id/);
   assert.match(workflow, /Refusing to create a staging version with the production Shopify client ID/);
 });
 

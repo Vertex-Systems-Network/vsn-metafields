@@ -89,7 +89,6 @@ jobs:
           set -euo pipefail
           npx --yes @shopify/cli@4.8.2 app deploy \
             --config cloudflare-staging \
-            --client-id "$SHOPIFY_API_KEY" \
             --no-release \
             --version "staging-webhooks-${GITHUB_RUN_NUMBER}" \
             --message "Cloudflare staging webhook validation candidate"
