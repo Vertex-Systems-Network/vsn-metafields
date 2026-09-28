@@ -278,3 +278,16 @@ Issue #41 can close only when:
 - GitHub Docs: Removing sensitive data from a repository
 - GitHub Docs: Best practices for preventing data leaks
 - `git-filter-repo` upstream documentation
+
+
+## Repository-native main-only purge execution
+
+Once the repository is back to `main` only, edit ruleset `24085428` narrowly: keep the ruleset active, but temporarily turn off only **Block force pushes** (the `non_fast_forward` rule). Do not disable the whole ruleset.
+
+Then capture the current `main` commit and tree SHA and add this exact Issue #41 comment:
+
+```text
+EXECUTE_ISSUE_41_MAIN_PURGE_V1 main=<40-char-main-sha> tree=<40-char-main-tree-sha>
+```
+
+The purge workflow verifies: zero open PRs, main-only refs, exact commit/tree freeze, active ruleset with `non_fast_forward` absent, then runs pinned `git-filter-repo==2.47.0` in an isolated mirror, requires tree preservation + zero reachable `..git` paths + `git fsck --full`, force-updates only `main`, and fresh-mirror certifies the rewritten remote. Immediately after successful push, restore **Block force pushes** in ruleset `24085428`.

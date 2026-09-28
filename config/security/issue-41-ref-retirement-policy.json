@@ -24,6 +24,11 @@
       "evidence": "default protected branch"
     },
     {
+      "branch": "phase-00/main-history-purge-executor",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch staging the guarded main-only history purge executor; retire immediately after merge"
+    },
+    {
       "branch": "migration/cloudflare-subscription-safe",
       "disposition": "confirm_retire",
       "evidence": "closed/unmerged PR #5; superseded by merged Cloudflare safety baseline #43"
