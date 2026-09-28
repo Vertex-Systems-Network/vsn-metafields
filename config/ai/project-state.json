@@ -3,12 +3,12 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-cloudflare-staging-readiness",
-  "last_verified_completion": "PHASE-00 closed on protected main 36dd19a5068f0fca9638768fc7cfea65b8d2b62a with project-history, app validation, dependency, and security baselines green.",
-  "next_valid_work_unit": "Validate Cloudflare Workers runtime compatibility for the existing Prisma/PostgreSQL session store using a Worker-compatible Prisma driver adapter while preserving the same database and Shopify app identity.",
+  "current_work_unit": "ISSUE-4-prisma-worker-runtime-compatibility",
+  "last_verified_completion": "Issue #4 work unit 1/6 complete on PR #70 candidate: staging-only Wrangler baseline, migration invariants, React Router build, and Cloudflare Worker dry-run all green; production Shopify URLs/billing/database remain unchanged.",
+  "next_valid_work_unit": "Adapt the existing Prisma 6 PostgreSQL runtime to a Cloudflare Workers-compatible driver-adapter path and prove Shopify PrismaSessionStorage works against the same PostgreSQL schema without data migration.",
   "progress": {
     "total_work_units": 6,
-    "complete": 0,
+    "complete": 1,
     "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "phase_01_staging_readiness_in_progress",
+  "qa_readiness": "cloudflare_staging_packaging_green_prisma_runtime_compatibility_next",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
   "last_reconciled_repository_ref": "36dd19a5068f0fca9638768fc7cfea65b8d2b62a",
-  "last_reconciled_at": "2026-09-28T13:55:00+00:00",
-  "notes": "Issue #4 PHASE-01 started. Current milestone adds staging-only Wrangler packaging, machine-enforced migration invariants, and a no-deploy Cloudflare dry-run CI gate. Shopify client_id, Railway production URL, billing mutations, and PostgreSQL/Prisma session store remain unchanged."
+  "last_reconciled_at": "2026-09-28T14:02:00+00:00",
+  "notes": "PHASE-01 work unit 1 is validated: migration invariants, application build, and Wrangler 4.141.0 dry-run pass. No Cloudflare deployment or Shopify production URL mutation occurred. Next unit is Prisma/PostgreSQL Worker runtime compatibility."
 }
