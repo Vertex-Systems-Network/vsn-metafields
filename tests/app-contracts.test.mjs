@@ -45,6 +45,18 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
+test("Cloudflare Worker entry delegates to the React Router server build", () => {
+  const wrangler = JSON.parse(read("wrangler.jsonc"));
+  const worker = read("workers/app.js");
+
+  assert.equal(wrangler.main, "./workers/app.js");
+  assert.match(worker, /createRequestHandler/);
+  assert.match(worker, /\.\.\/build\/server\/index\.js/);
+  assert.match(worker, /export default/);
+  assert.match(worker, /async fetch\(request, env, ctx\)/);
+  assert.match(worker, /cloudflare:\s*\{\s*env,\s*ctx\s*\}/);
+});
+
 test("configured webhooks authenticate and uninstall cleanup is shop-scoped", () => {
   const toml = read("shopify.app.toml");
   const routes = [
