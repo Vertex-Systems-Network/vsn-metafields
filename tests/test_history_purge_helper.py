@@ -10,6 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "scripts" / "security" / "prepare_git_history_purge.py"
+EXPECTED_REPOSITORY = "Vertex-Systems-Network/vsn-metafields"
+EXPECTED_REMOTE = f"https://github.com/{EXPECTED_REPOSITORY}.git"
 
 
 def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -44,7 +46,10 @@ class HistoryPurgeHelperTests(unittest.TestCase):
 
         embedded = self.source / "..git"
         embedded.mkdir()
-        (embedded / "config").write_text("[core]\n\trepositoryformatversion = 0\n", encoding="utf-8")
+        (embedded / "config").write_text(
+            "[core]\n\trepositoryformatversion = 0\n",
+            encoding="utf-8",
+        )
         (self.source / "README.md").write_text("# fixture\n", encoding="utf-8")
 
         self.assertEqual(run("git", "add", ".", cwd=self.source).returncode, 0)
@@ -54,6 +59,20 @@ class HistoryPurgeHelperTests(unittest.TestCase):
 
         clone = run("git", "clone", "--mirror", str(self.source), str(self.mirror))
         self.assertEqual(clone.returncode, 0, clone.stderr)
+        self.assertEqual(
+            run(
+                "git",
+                "remote",
+                "set-url",
+                "origin",
+                EXPECTED_REMOTE,
+                cwd=self.mirror,
+            ).returncode,
+            0,
+        )
+        main = run("git", "rev-parse", "refs/heads/main", cwd=self.mirror)
+        self.assertEqual(main.returncode, 0, main.stderr)
+        self.main_sha = main.stdout.strip()
 
     def tearDown(self) -> None:
         self.tmp.cleanup()
@@ -70,23 +89,59 @@ class HistoryPurgeHelperTests(unittest.TestCase):
         )
 
     def test_preflight_detects_reachable_embedded_git_metadata(self) -> None:
-        proc = self.helper()
+        proc = self.helper("--expected-main", self.main_sha)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("mode=preflight_only", proc.stdout)
         self.assertIn("remote_push_performed=false", proc.stdout)
+        self.assertIn(f"repository={EXPECTED_REPOSITORY}", proc.stdout)
 
-        evidence = json.loads((self.evidence / "pre-rewrite.json").read_text(encoding="utf-8"))
+        evidence = json.loads(
+            (self.evidence / "pre-rewrite.json").read_text(encoding="utf-8")
+        )
         self.assertTrue(evidence["is_bare"])
+        self.assertEqual(evidence["repository"], EXPECTED_REPOSITORY)
+        self.assertEqual(evidence["main_sha"], self.main_sha)
         self.assertGreater(evidence["reachable_embedded_git_metadata_objects"], 0)
         self.assertGreaterEqual(evidence["head_ref_count"], 1)
         self.assertEqual(evidence["tag_ref_count"], 0)
         self.assertIn("..git/config", evidence["sample_embedded_git_metadata_paths"])
 
     def test_rewrite_requires_exact_confirmation_phrase(self) -> None:
-        proc = self.helper("--rewrite")
+        proc = self.helper("--rewrite", "--expected-main", self.main_sha)
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("PURGE_DOT_DOT_GIT_HISTORY", proc.stderr)
         self.assertFalse((self.evidence / "post-rewrite.json").exists())
+
+    def test_rewrite_requires_expected_main(self) -> None:
+        proc = self.helper(
+            "--rewrite",
+            "--confirm",
+            "PURGE_DOT_DOT_GIT_HISTORY",
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("--expected-main", proc.stderr)
+        self.assertFalse((self.evidence / "post-rewrite.json").exists())
+
+    def test_stale_expected_main_is_rejected(self) -> None:
+        proc = self.helper("--expected-main", "0" * 40)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("stale or unexpected mirror", proc.stderr)
+
+    def test_wrong_repository_identity_is_rejected(self) -> None:
+        self.assertEqual(
+            run(
+                "git",
+                "remote",
+                "set-url",
+                "origin",
+                "https://github.com/example/not-vsn-metafields.git",
+                cwd=self.mirror,
+            ).returncode,
+            0,
+        )
+        proc = self.helper()
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("repository identity mismatch", proc.stderr)
 
     def test_non_bare_working_clone_is_rejected(self) -> None:
         proc = run(
