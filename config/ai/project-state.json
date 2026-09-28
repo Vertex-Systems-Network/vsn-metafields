@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
-  "current_work_unit": "PHASE-00-closure-validation",
-  "last_verified_completion": "Issue #41 protected project history rewrite completed: remote main is 408f72980f5b164aabdd6ab7be55028544d1fd51 with application tree 0970bf684fc7b16aebf8a95ac5b5a2458b6a6f0b preserved; main is the sole live branch; ruleset protections are restored.",
-  "next_valid_work_unit": "After this closure validation PR merges and self-cleans, close Issue #41 and PHASE-00, then resume Issue #4 Cloudflare subscription-safe migration.",
+  "current_work_unit": "PHASE-00-CLOSED",
+  "last_verified_completion": "PHASE-00 completed. PR #67 merged to protected main as 028ed6f1b51c33135aefe0504423f615797e59d3; AI Native Quality Gates #146 and App Validation #49 passed; Issue #41 and umbrella Issue #7 are closed; live project branches are main-only; ruleset protections are restored.",
+  "next_valid_work_unit": "Resume Issue #4: Cloudflare subscription-safe migration with Shopify app identity, subscriptions, billing state, and rollback preserved.",
   "progress": {
     "total_work_units": 4,
     "complete": 4,
@@ -18,15 +18,15 @@
   "outstanding_updates": [],
   "outstanding_removals": [],
   "unresolved_decisions": [
-    "Track GitHub-managed refs/pull/* as a platform-side dereference/garbage-collection follow-up; they are not live project branches/tags and cannot be rewritten through normal pushes.",
+    "Issue #68: GitHub-managed refs/pull/* server-side dereference/garbage-collection follow-up; not a PHASE-00 project-ref blocker.",
     "Choose a Project Management System or explicitly skip PM integration.",
     "Choose and identity-verify the Development AI agent pool available in the current host.",
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
   "qa_readiness": "application_contract_smoke_and_full_dependency_high_audit_green",
-  "security_readiness": "p0_project_refs_rewritten_clean_protections_restored_platform_pr_refs_followup",
-  "last_reconciled_repository_ref": "408f72980f5b164aabdd6ab7be55028544d1fd51",
-  "last_reconciled_at": "2026-09-28T13:40:00+00:00",
-  "notes": "Protected project refs are rewritten and main-only. Normal fresh-main-clone cleanliness is now a permanent AI Native Quality Gate. GitHub-managed refs/pull/* retain legacy PR snapshots and are tracked separately as a platform-side follow-up rather than a live project-ref blocker."
+  "security_readiness": "phase_00_security_baseline_green_project_refs_clean_protections_restored",
+  "last_reconciled_repository_ref": "028ed6f1b51c33135aefe0504423f615797e59d3",
+  "last_reconciled_at": "2026-09-28T13:47:00+00:00",
+  "notes": "PHASE-00 is closed. Normal fresh-main-clone history cleanliness and git fsck are permanently enforced by AI Native Quality Gates; App Validation now also runs on protected main pushes. GitHub-managed pull refs are tracked separately in Issue #68."
 }
