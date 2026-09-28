@@ -154,7 +154,7 @@ def refs(repo_dir: Path) -> list[dict[str, str]]:
     return result
 
 
-def repository_summary(repo_dir: Path) -> dict[str, object]:
+def repository_summary(\n    repo_dir: Path,\n    *,\n    verified_repository: str | None = None,\n) -> dict[str, object]:
     is_bare = run(repo_dir, "rev-parse", "--is-bare-repository").stdout.strip()
     if is_bare != "true":
         raise RuntimeError(
