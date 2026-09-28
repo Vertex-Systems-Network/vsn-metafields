@@ -89,7 +89,10 @@ def main() -> int:
     require("routes" not in wrangler and "route" not in wrangler, "production routes are forbidden")
     require("vars" not in wrangler, "committed Wrangler vars are forbidden; use Worker secrets")
 
-    require('provider = "postgresql"' in prisma, "first cutover must keep PostgreSQL")
+    require(
+        re.search(r'provider\s*=\s*"postgresql"', prisma) is not None,
+        "first cutover must keep PostgreSQL",
+    )
     require("PrismaSessionStorage" in shopify_server, "Shopify session storage must remain Prisma")
     require("process.env.DATABASE_URL" in db_server, "database runtime must remain environment-driven")
 
