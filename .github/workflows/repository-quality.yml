@@ -33,6 +33,9 @@ jobs:
       - name: Compile repository scripts
         run: python -m compileall -q scripts
 
+      - name: Test guarded history purge helper
+        run: python -m unittest discover -s tests -p 'test_history_purge_helper.py'
+
       - name: Validate current AI-native state and workflow safety
         run: python scripts/validate_ai_native_repo.py
 
