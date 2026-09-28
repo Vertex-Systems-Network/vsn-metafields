@@ -5,7 +5,7 @@ Safety properties:
 - default mode is read-only preflight;
 - the mirror must resolve to Vertex-Systems-Network/vsn-metafields;
 - evidence is written outside Git history as normal filesystem files;
-- local history rewrite requires an exact confirmation phrase and expected main SHA;
+- local history rewrite requires an exact confirmation phrase, expected main SHA, and an exact approved head/tag allowlist;
 - this tool NEVER pushes or force-pushes any remote ref;
 - no file contents, remote credentials, or secret values are printed.
 
@@ -23,6 +23,7 @@ After repository-admin freeze/ruleset preparation:
       --repo-dir vsn-metafields-purge.git \
       --evidence-dir vsn-metafields-purge-evidence \
       --expected-main <CURRENT_GITHUB_MAIN_SHA> \
+      --approved-head main \
       --rewrite \
       --confirm PURGE_DOT_DOT_GIT_HISTORY
 """
@@ -215,6 +216,42 @@ def require_expected_main(summary: dict[str, object], expected_main: str) -> Non
         )
 
 
+def require_approved_refs(
+    summary: dict[str, object],
+    approved_heads: list[str],
+    approved_tags: list[str],
+) -> None:
+    if not approved_heads:
+        raise RuntimeError(
+            "--rewrite requires at least one --approved-head; normally use "
+            "--approved-head main after obsolete remote branches are retired"
+        )
+
+    actual_heads = {
+        str(row["ref"]).removeprefix("refs/heads/")
+        for row in summary.get("refs", [])
+        if isinstance(row, dict) and str(row.get("ref", "")).startswith("refs/heads/")
+    }
+    actual_tags = {
+        str(row["ref"]).removeprefix("refs/tags/")
+        for row in summary.get("refs", [])
+        if isinstance(row, dict) and str(row.get("ref", "")).startswith("refs/tags/")
+    }
+    expected_heads = set(approved_heads)
+    expected_tags = set(approved_tags)
+
+    if actual_heads != expected_heads or actual_tags != expected_tags:
+        unexpected_heads = sorted(actual_heads - expected_heads)
+        missing_heads = sorted(expected_heads - actual_heads)
+        unexpected_tags = sorted(actual_tags - expected_tags)
+        missing_tags = sorted(expected_tags - actual_tags)
+        raise RuntimeError(
+            "mirror ref set does not match the explicitly approved rewrite scope; "
+            f"unexpected_heads={unexpected_heads}, missing_heads={missing_heads}, "
+            f"unexpected_tags={unexpected_tags}, missing_tags={missing_tags}"
+        )
+
+
 def write_evidence(
     evidence_dir: Path,
     name: str,
@@ -291,6 +328,24 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--approved-head",
+        action="append",
+        default=[],
+        help=(
+            "Repeat for every branch head intentionally preserved in the rewrite. "
+            "The mirror head set must match exactly before --rewrite."
+        ),
+    )
+    parser.add_argument(
+        "--approved-tag",
+        action="append",
+        default=[],
+        help=(
+            "Repeat for every tag intentionally preserved in the rewrite. "
+            "The mirror tag set must match exactly before --rewrite."
+        ),
+    )
+    parser.add_argument(
         "--rewrite",
         action="store_true",
         help="Rewrite the LOCAL MIRROR only. This tool never pushes.",
@@ -338,6 +393,7 @@ def main() -> int:
             f"{CONFIRMATION}"
         )
     require_expected_main(before, args.expected_main)
+    require_approved_refs(before, args.approved_head, args.approved_tag)
 
     if int(before["reachable_embedded_git_metadata_objects"]) == 0:
         print("history_status=already_clean")
