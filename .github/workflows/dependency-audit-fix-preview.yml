@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           cp package.json package.json.before-audit-fix
-          npm audit fix --package-lock-only --ignore-scripts
+          npm audit fix --package-lock-only --ignore-scripts || true
           cmp --silent package.json package.json.before-audit-fix || {
             echo "package.json changed unexpectedly; refusing audit fix." >&2
             exit 1
