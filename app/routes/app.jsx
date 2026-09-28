@@ -2,7 +2,7 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
+import { createPrismaClient } from "../db.server";
 
 function decodeJwtPayload(token) {
   if (!token) return null;
@@ -20,6 +20,8 @@ function decodeJwtPayload(token) {
 }
 
 async function getSessionDiagnostic(shop) {
+  const prisma = createPrismaClient();
+
   try {
     const [shopSessionCount, shopOnlineSessionCount] = await Promise.all([
       prisma.session.count({ where: { shop } }),
@@ -40,6 +42,8 @@ async function getSessionDiagnostic(shop) {
           ? String(error.code)
           : undefined,
     };
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
