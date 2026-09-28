@@ -26,6 +26,38 @@ The current branch snapshots have already been contained by removing `..git/` fr
 6. Do not use `git revert` as a purge mechanism; it leaves the original path in history.
 7. Never merge an old pre-rewrite branch back into rewritten history.
 
+## Guarded automation helper
+
+For Issue #41 maintenance, prefer the committed cross-platform helper over manually typing destructive commands.
+
+### Read-only preflight
+
+```bash
+git clone --mirror https://github.com/Vertex-Systems-Network/vsn-metafields.git vsn-metafields-purge.git
+
+python scripts/security/prepare_git_history_purge.py \
+  --repo-dir vsn-metafields-purge.git \
+  --evidence-dir vsn-metafields-purge-evidence
+```
+
+Default mode is read-only. It requires a bare/mirror clone, records head/tag refs and reachable accidental `..git/` object counts, and writes evidence outside Git history without printing file contents or credential values.
+
+### Confirmed local-mirror rewrite
+
+Only after the repository write freeze, private rollback capture, secret scan, and authorized ruleset maintenance are ready:
+
+```bash
+python scripts/security/prepare_git_history_purge.py \
+  --repo-dir vsn-metafields-purge.git \
+  --evidence-dir vsn-metafields-purge-evidence \
+  --rewrite \
+  --confirm PURGE_DOT_DOT_GIT_HISTORY
+```
+
+The helper requires the exact confirmation phrase, runs `git filter-repo` only against the local mirror, requires zero reachable `..git/` objects afterward, runs `git fsck --full`, and writes post-rewrite evidence.
+
+**The helper never pushes or force-pushes any remote ref.** GitHub ref updates remain a separately reviewed administrator action under Phase E.
+
 ## Phase A — Preflight inventory
 
 Run from a fresh administrator-controlled environment.
