@@ -1,4 +1,5 @@
 import { authenticate } from "../shopify.server";
+import { PRO_PLAN } from "../billing-config";
 
 async function getActiveSubscriptions(admin) {
   const response = await admin.graphql(`
@@ -192,14 +193,7 @@ export const action = async ({ request }) => {
     const returnUrl = returnUrlObject.toString();
 
 		const planConfig = {
-			"pro-plan": {
-				name: "pro-plan",
-				amount: 35,
-				currencyCode: "USD",
-				interval: "EVERY_30_DAYS",
-				trialDays: 15,
-			},
-			// Add more plans here as needed
+			[PRO_PLAN.id]: PRO_PLAN,
 		};
 
 		const selectedPlan = planConfig[plan];
