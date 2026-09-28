@@ -4,10 +4,10 @@
 
 - **Repository:** `Vertex-Systems-Network/vsn-metafields`
 - **Lifecycle:** PHASE-00 — existing app reconciliation & security baseline
-- **Verified main:** `47d3fca9fb8f51fe291c7039e404612888b8c33d`
+- **Verified main:** `7d73caf9b5e7f6d146d2f8135ac25f97e816ea6e`
 - **Application validation:** green — install, Prisma validate/migrate, lint, typecheck, contract smoke tests, build
-- **Dependency security:** production high/critical audit green; full-tree critical audit green
-- **Residual development-tool advisories:** tracked in Issue #54; no forced breaking audit fix used
+- **Dependency security:** production high/critical audit green; full installed tree high/critical audit green
+- **Residual high/critical dependency advisories:** none under the permanent audit gate
 - **ANPOS quality gate:** green
 - **Shopify secure-major upgrade:** complete
 - **Auth/webhook/billing/metafield contract smoke coverage:** complete and enforced in CI
