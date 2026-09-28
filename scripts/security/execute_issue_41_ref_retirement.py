@@ -166,8 +166,8 @@ def load_manifest(path: Path) -> dict[str, object]:
         raise RetirementError("pre_executor_main_tree_sha must be a 40-character SHA")
 
     expected = manifest.get("expected_non_main_heads")
-    if not isinstance(expected, dict) or not expected:
-        raise RetirementError("expected_non_main_heads must be a non-empty object")
+    if not isinstance(expected, dict):
+        raise RetirementError("expected_non_main_heads must be an object")
     if "main" in expected:
         raise RetirementError("main must never appear in expected_non_main_heads")
     if not all(
