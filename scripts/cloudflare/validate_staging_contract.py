@@ -20,6 +20,7 @@ MIGRATION_DOC = ROOT / "docs" / "cloudflare-migration-baseline.md"
 STAGING_BINDINGS = ROOT / "config" / "cloudflare" / "staging-bindings.json"
 GITIGNORE = ROOT / ".gitignore"
 STAGING_DEPLOY_WORKFLOW = ROOT / ".github" / "workflows" / "cloudflare-staging-deploy.yml"
+WORKER_ENTRY = ROOT / "workers" / "app.js"
 
 
 class ValidationError(RuntimeError):
@@ -54,6 +55,7 @@ def main() -> int:
     staging_bindings = load_json(STAGING_BINDINGS)
     gitignore = read(GITIGNORE)
     staging_deploy = read(STAGING_DEPLOY_WORKFLOW)
+    worker_entry = read(WORKER_ENTRY)
 
     require(inv.get("schema_version") == 1, "unsupported migration invariant schema")
     require(inv.get("issue") == 4, "migration invariant must target Issue #4")
@@ -86,9 +88,23 @@ def main() -> int:
         "Cloudflare Worker name must remain staging-only",
     )
     require(
-        wrangler.get("main") == "build/server/index.js",
-        "Wrangler main must target the React Router server build",
+        wrangler.get("main") == "./workers/app.js",
+        "Wrangler main must target the explicit Worker fetch entry",
     )
+    require(
+        'import { createRequestHandler } from "react-router"' in worker_entry,
+        "Worker entry must use React Router createRequestHandler",
+    )
+    require(
+        'import * as build from "../build/server/index.js"' in worker_entry,
+        "Worker entry must delegate to the generated React Router server build",
+    )
+    require("export default" in worker_entry and "async fetch(" in worker_entry, "Worker entry must export a fetch handler")
+    require(
+        "cloudflare: { env, ctx }" in worker_entry,
+        "Worker entry must expose Cloudflare env/context to React Router",
+    )
+
     assets = wrangler.get("assets")
     require(
         isinstance(assets, dict) and assets.get("directory") == "build/client",
