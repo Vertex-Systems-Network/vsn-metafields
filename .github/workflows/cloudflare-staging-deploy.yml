@@ -72,6 +72,12 @@ jobs:
       - name: Validate Shopify production/staging isolation
         run: python scripts/cloudflare/validate_shopify_staging_isolation.py
 
+      - name: Apply staging database migrations
+        run: npx prisma migrate deploy
+
+      - name: Verify staging database migration status
+        run: npx prisma migrate status
+
       - name: Build staging Worker
         run: npm run build
 
