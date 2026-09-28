@@ -256,9 +256,12 @@ def main() -> int:
 
     if args.write_snapshot:
         snapshot_path = Path(args.write_snapshot).expanduser().resolve()
-        if snapshot_path.is_relative_to(Path.cwd().resolve()):
-            # A path inside the repository/working directory is too easy to publish.
-            raise GuardError("freeze snapshot must be stored outside the current working directory")
+        public_repo_root = Path(__file__).resolve().parents[2]
+        if snapshot_path.is_relative_to(public_repo_root) or snapshot_path.is_relative_to(repo_dir):
+            raise GuardError(
+                "freeze snapshot must be stored outside both the public repository "
+                "and the maintenance mirror"
+            )
         write_snapshot(snapshot_path, current)
         print(f"freeze_snapshot_written={snapshot_path}")
 
