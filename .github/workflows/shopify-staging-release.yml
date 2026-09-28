@@ -1,0 +1,130 @@
+name: Shopify Staging Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE_STAGING_WEBHOOKS_2 to release only the verified staging app version"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopify-staging-release
+  cancel-in-progress: false
+
+jobs:
+  release-staging-version:
+    if: github.event.inputs.confirm == 'RELEASE_STAGING_WEBHOOKS_2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-staging
+    env:
+      CI: "true"
+      TARGET_VERSION: "staging-webhooks-2"
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+
+      - name: Require staging-only Shopify credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-staging environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          PROD_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PROD_CLIENT_ID" ]; then
+            echo "Refusing to release staging version with the production Shopify client ID." >&2
+            exit 1
+          fi
+
+      - name: Validate staging Shopify isolation and webhook contract
+        run: python scripts/cloudflare/validate_shopify_staging_isolation.py
+
+      - name: Inject staging client ID into disposable checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("shopify.app.cloudflare-staging.toml")
+          content = path.read_text(encoding="utf-8")
+          placeholder = "__SHOPIFY_STAGING_CLIENT_ID__"
+          if placeholder not in content:
+              raise SystemExit("staging client ID placeholder missing")
+          path.write_text(
+              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Verify unreleased staging version exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list             --config cloudflare-staging             --json > /tmp/shopify-staging-versions.json
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          target = os.environ["TARGET_VERSION"]
+          payload = json.loads(Path("/tmp/shopify-staging-versions.json").read_text(encoding="utf-8"))
+
+          def contains(value):
+              if isinstance(value, dict):
+                  return any(contains(v) for v in value.values())
+              if isinstance(value, list):
+                  return any(contains(v) for v in value)
+              return value == target
+
+          if not contains(payload):
+              raise SystemExit(f"Target staging version not found: {target}")
+          print(f"Verified staging version exists: {target}")
+          PY
+
+      - name: Release verified staging version
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app release             --config cloudflare-staging             --version "$TARGET_VERSION"             --allow-updates
+
+      - name: Verify staging version remains visible after release
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list             --config cloudflare-staging             --json > /tmp/shopify-staging-versions-after.json
+          grep -F "$TARGET_VERSION" /tmp/shopify-staging-versions-after.json >/dev/null
+
+      - name: Confirm production config remains untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- shopify.app.toml
