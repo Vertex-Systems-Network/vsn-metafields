@@ -48,6 +48,24 @@ jobs:
       - name: Test Issue #41 ref-retirement executor
         run: python -m unittest discover -s tests -p 'test_issue_41_ref_retirement_executor.py'
 
+      - name: Verify fresh main clone has clean project history
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/vsn-metafields-fresh
+          git clone --no-tags --single-branch --branch main \
+            "https://github.com/Vertex-Systems-Network/vsn-metafields.git" \
+            /tmp/vsn-metafields-fresh
+
+          if git -C /tmp/vsn-metafields-fresh rev-list --objects --all | \
+              awk 'NF > 1 && ($2 == "..git" || index($2, "..git/") == 1) { print; found=1 } END { exit found ? 0 : 1 }'
+          then
+            echo "Fresh main clone still exposes embedded Git metadata." >&2
+            exit 1
+          fi
+
+          git -C /tmp/vsn-metafields-fresh fsck --full
+
       - name: Validate current AI-native state and workflow safety
         run: python scripts/validate_ai_native_repo.py
 

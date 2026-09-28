@@ -5,7 +5,7 @@
   "execute_confirmation": "RETIRE_ISSUE_41_OBSOLETE_REFS",
   "allowed_actor": "wpessential",
   "ruleset_id": 24085428,
-  "executor_branch": "phase-00/main-purge-mirror-push-fix",
+  "executor_branch": "phase-00/issue-41-closure-validation",
   "category_c_confirmed": [
     "anpos/adopt-existing-vsn-metafields",
     "migration/cloudflare-subscription-safe",
@@ -14,6 +14,6 @@
   ],
   "expected_non_main_heads": {},
   "trigger_comment_prefix": "EXECUTE_ISSUE_41_REF_RETIREMENT_V1",
-  "pre_executor_main_sha": "125ac18613307dc16a66c96778352b43ca6ac1ba",
-  "pre_executor_main_tree_sha": "bdfe19cf3ffb480ab73dfbbbce38fe5a6d344d25"
+  "pre_executor_main_sha": "408f72980f5b164aabdd6ab7be55028544d1fd51",
+  "pre_executor_main_tree_sha": "0970bf684fc7b16aebf8a95ac5b5a2458b6a6f0b"
 }

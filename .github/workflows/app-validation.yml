@@ -12,6 +12,17 @@ on:
       - ".graphqlrc.js"
       - ".github/workflows/app-validation.yml"
       - "tests/app-contracts.test.mjs"
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "prisma/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".graphqlrc.js"
+      - ".github/workflows/app-validation.yml"
+      - "tests/app-contracts.test.mjs"
   workflow_dispatch:
 
 permissions:

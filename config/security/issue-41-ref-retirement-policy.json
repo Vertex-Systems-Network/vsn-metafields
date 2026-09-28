@@ -24,6 +24,11 @@
       "evidence": "default protected branch"
     },
     {
+      "branch": "phase-00/issue-41-closure-validation",
+      "disposition": "retire_after_merge",
+      "evidence": "final protected-PR fresh-clone and app validation checkpoint; retire immediately after merge"
+    },
+    {
       "branch": "phase-00/main-purge-mirror-push-fix",
       "disposition": "retire_after_merge",
       "evidence": "temporary branch fixing explicit main push from a mirror clone"
