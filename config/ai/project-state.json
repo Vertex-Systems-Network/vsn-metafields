@@ -4,7 +4,7 @@
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
   "current_work_unit": "ISSUE-41-historical-git-metadata-purge",
-  "last_verified_completion": "PR #58 merged to main as 6262bbf5f4007124ab764a41e8e90e83a313a1fc after green AI Native Quality Gates; history-purge preparation is repository-bound and stale-main guarded.",
+  "last_verified_completion": "PR #59 merged to main as 6a3f1b49ae60917a2e58c7e4e0301158b750b2f0 with green AI Native Quality Gates; history rewrite now requires an exact approved ref allowlist.",
   "next_valid_work_unit": "Complete the Issue #41 administrator-controlled maintenance window: capture private rollback refs/mirror, retire approved obsolete refs, temporarily adjust the main non-fast-forward ruleset, purge ..git/ from remaining history, restore protection, and fresh-clone validate.",
   "progress": {
     "total_work_units": 4,
@@ -32,7 +32,7 @@
   ],
   "qa_readiness": "application_contract_smoke_and_full_dependency_high_audit_green",
   "security_readiness": "p0_history_rewrite_blocked_ruleset",
-  "last_reconciled_repository_ref": "6262bbf5f4007124ab764a41e8e90e83a313a1fc",
-  "last_reconciled_at": "2026-09-28T12:02:00+00:00",
-  "notes": "Issue #41 remains the sole PHASE-00 P0 blocker. Current hardening also requires the local mirror's full head/tag set to exactly match an explicit approved rewrite allowlist, preventing accidental rewrite of stale or unreviewed branches. Preferred execution remains main-only after private ref capture and obsolete-ref retirement."
+  "last_reconciled_repository_ref": "6a3f1b49ae60917a2e58c7e4e0301158b750b2f0",
+  "last_reconciled_at": "2026-09-28T12:12:00+00:00",
+  "notes": "Issue #41 remains the sole PHASE-00 P0 blocker. Ref-retirement preparation now has a machine-readable branch disposition policy plus a read-only maintenance-mirror guard that rejects branch/tag drift and captures/verifies an external SHA-bound freeze snapshot. Actual branch retirement, ruleset mutation, and history rewrite remain administrator-gated."
 }
