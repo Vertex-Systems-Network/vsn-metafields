@@ -87,7 +87,7 @@ python scripts/security/build_issue_41_maintenance_bundle.py \
   --confirm-retire phase-00/shopify-v3-security-upgrade
 ```
 
-The bundle builder refuses missing/unknown confirmations or any snapshot/policy ref drift. It writes `maintenance-bundle.json`, `maintenance-bundle.sha256`, `ref-retirement-transaction.txt`, and `rollback-ref-map.txt`. Every retirement entry is bound to its frozen expected SHA. The transaction file is deliberately evidence-only and non-executable; an administrator must independently re-check live SHAs before each remote retirement action.
+The bundle builder refuses missing/unknown confirmations or any snapshot/policy ref drift. It writes `maintenance-bundle.json`, `maintenance-bundle.sha256`, `ref-retirement-transaction.txt`, and `rollback-ref-map.txt`. Every retirement entry is bound to its frozen expected SHA, and the bundle also seals the pre-rewrite `main` tree SHA plus the expected post-rewrite head/tag scope. The transaction file is deliberately evidence-only and non-executable; an administrator must independently re-check live SHAs before each remote retirement action.
 
 Also capture the raw ref/path inventory from the same fresh mirror:
 
@@ -186,23 +186,28 @@ Immediately verify:
 git ls-remote origin
 ```
 
-Then make a brand-new clone and check:
+Then make a brand-new **mirror clone** of the rewritten remote and certify it against the pre-rewrite maintenance bundle:
 
 ```bash
-git clone https://github.com/Vertex-Systems-Network/vsn-metafields.git verify-vsn-metafields
-cd verify-vsn-metafields
+git clone --mirror https://github.com/Vertex-Systems-Network/vsn-metafields.git verify-vsn-metafields.git
 
-git rev-list --objects --all | grep -E '(^| )\.\.git(/|$)' && exit 1 || true
-git fsck --full
+python scripts/security/certify_issue_41_post_rewrite.py \
+  --repo-dir verify-vsn-metafields.git \
+  --bundle /private/evidence/vsn-metafields-issue-41-bundle/maintenance-bundle.json \
+  --evidence-dir /private/evidence/vsn-metafields-issue-41-post
 ```
 
-Repository checks after rewrite:
-- `main` contains expected application state;
-- App Validation passes;
-- AI Native Quality Gates pass;
-- current branches/tags match the approved rewritten ref map;
-- Cloudflare migration branch still contains its intended work;
-- no stale pre-rewrite branch is merged back.
+The certifier fails unless:
+- the fresh mirror belongs to exactly `Vertex-Systems-Network/vsn-metafields`;
+- the post-rewrite head/tag set exactly matches the approved scope;
+- `main` is the sole preserved branch under the current policy;
+- the post-rewrite `main` tree SHA exactly equals the pre-rewrite frozen tree SHA;
+- zero reachable `..git` paths remain;
+- `git fsck --full` passes.
+
+Tree-SHA equality is the application-state preservation proof: commit SHAs are expected to change during history rewriting, while the current clean application tree must remain unchanged.
+
+After Git-history certification passes, also perform a normal fresh working clone and run App Validation, AI Native Quality Gates, dependency/security checks, and any deployment smoke checks required before Issue #41 closure. No stale pre-rewrite branch may be merged back.
 
 ## Phase G — GitHub cache / pull-request references
 
