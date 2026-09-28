@@ -1,5 +1,5 @@
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
-import { createPrismaClient } from "./db.server";
+import { createPrismaClient } from "./db.server.js";
 
 const storageOptions = {
   connectionRetries: 1,
