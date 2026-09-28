@@ -112,7 +112,7 @@ jobs:
           }
           trap cleanup EXIT
 
-          for attempt in $(seq 1 60); do
+          for attempt in $(seq 1 20); do
             if ! kill -0 "$pid" 2>/dev/null; then
               cat "$log"
               echo "Wrangler full-app process exited before becoming ready." >&2
@@ -148,7 +148,7 @@ jobs:
           }
           trap cleanup EXIT
 
-          for attempt in $(seq 1 60); do
+          for attempt in $(seq 1 20); do
             if ! kill -0 "$pid" 2>/dev/null; then
               cat "$log"
               echo "Wrangler session-smoke process exited before becoming ready." >&2
