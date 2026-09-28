@@ -5,7 +5,8 @@ This document defines the safety boundary for moving VSN Metafields from Railway
 ## Main anchor
 
 - Repository: `Vertex-Systems-Network/vsn-metafields`
-- Baseline commit: `b36462870009d756d3d68efa324d5e36976c9cbb`
+- Original migration baseline: `b36462870009d756d3d68efa324d5e36976c9cbb`
+- PHASE-01 start anchor: `36dd19a5068f0fca9638768fc7cfea65b8d2b62a`
 - Production host at baseline: `https://vsn-metafields-production.up.railway.app`
 - Shopify distribution: App Store
 - Embedded app: enabled
@@ -59,12 +60,35 @@ Only after staging validation may the Shopify application URL and redirect URLs 
 
 If post-cutover authentication, billing-read, webhook, or embedded-app verification fails, restore the Shopify production URLs to the Railway host. Do not mutate billing records to repair a hosting problem.
 
-## Security follow-up
+## PHASE-01 staging readiness
 
-The destructive `app/routes/clear-sessions.jsx` endpoint has been removed from the current tree and is no longer an active production path. Historical exposure is tracked separately in Issue #41 and must be resolved by the controlled history-purge process before PHASE-00 closes.
+The PHASE-00 security baseline is closed. Issue #41 completed the protected project-history rewrite and the destructive session-clear route remains absent.
 
-Cloudflare migration validation must never introduce a session-clearing maintenance endpoint or mutate existing paid subscriptions.
+Current Cloudflare preparation is deliberately staging-only:
+
+- `wrangler.jsonc` targets `vsn-metafields-staging`;
+- there are no production routes/custom domains in committed Wrangler config;
+- Worker secrets/database URLs are not committed;
+- production Shopify URLs remain on Railway;
+- billing creation/cancellation is forbidden as a staging-validation mechanism;
+- Railway remains the production rollback target.
+
+The first runtime compatibility milestone must keep the existing PostgreSQL database. The current standard Prisma client is not yet treated as Workers-certified; the next work unit must validate a Cloudflare-compatible Prisma PostgreSQL driver-adapter path before any staging deployment.
 
 ## Tracking
 
 GitHub issue: #4
+
+
+## Staging readiness evidence
+
+Work unit 1/6 is complete on the guarded migration branch:
+
+- migration invariant validator: pass;
+- React Router production build: pass;
+- Wrangler `4.141.0` Worker bundle dry-run: pass;
+- Shopify production `client_id` and Railway URLs: unchanged;
+- billing mutation during staging validation: still forbidden;
+- PostgreSQL/Prisma session store: unchanged.
+
+The dry-run proves packaging readiness only. It does not certify live database connectivity from Workers; that is the next work unit.
