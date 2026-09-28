@@ -1,6 +1,19 @@
 name: Cloudflare Staging Deploy
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "prisma/**"
+      - "workers/**"
+      - "package.json"
+      - "package-lock.json"
+      - "wrangler.jsonc"
+      - "vite.config.js"
+      - "tsconfig.json"
+      - ".github/workflows/cloudflare-staging-deploy.yml"
   workflow_dispatch:
     inputs:
       confirm:
@@ -17,7 +30,7 @@ concurrency:
 
 jobs:
   deploy-staging:
-    if: github.event.inputs.confirm == 'DEPLOY_STAGING_ONLY'
+    if: github.event_name == 'push' || github.event.inputs.confirm == 'DEPLOY_STAGING_ONLY'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: cloudflare-staging
