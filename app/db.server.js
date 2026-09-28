@@ -1,21 +1,25 @@
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = global.prisma || new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-  log: ["error"],
-});
+const connectionString = process.env.DATABASE_URL;
 
-// Handle disconnection and reconnect
-prisma.$connect().catch((e) => {
-  console.error("Prisma connection error:", e);
-});
+if (!connectionString) {
+  throw new Error("DATABASE_URL is required for Prisma.");
+}
+
+function createPrismaClient() {
+  const adapter = new PrismaPg({ connectionString });
+
+  return new PrismaClient({
+    adapter,
+    log: ["error"],
+  });
+}
+
+const prisma = globalThis.__vsnPrisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  global.prisma = prisma;
+  globalThis.__vsnPrisma = prisma;
 }
 
 export default prisma;
