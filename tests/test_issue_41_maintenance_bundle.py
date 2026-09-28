@@ -124,6 +124,8 @@ class Issue41MaintenanceBundleTests(unittest.TestCase):
         self.assertFalse(bundle["remote_mutation_performed"])
         self.assertEqual(bundle["main_before_sha"], self.main_sha)
         self.assertEqual(bundle["main_before_tree_sha"], self.main_tree_sha)
+        self.assertEqual(bundle["expected_post_rewrite_heads"], ["main"])
+        self.assertEqual(bundle["expected_post_rewrite_tags"], [])
         self.assertEqual(bundle["confirmed_retire_branches"], ["candidate"])
         self.assertEqual(
             {row["branch"] for row in bundle["preserve_refs"]},
