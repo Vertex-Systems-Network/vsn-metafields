@@ -75,6 +75,20 @@ python scripts/security/verify_ref_retirement_readiness.py \
 
 This first pass is read-only and reports any pending `confirm_retire` branches. After the administrator explicitly approves those candidates, repeat with the corresponding `--confirm-retire <branch>` flags plus `--require-ready`. Immediately before destructive maintenance, use `--verify-snapshot /private/evidence/vsn-metafields-issue-41-freeze.json`; any branch/tag or SHA movement aborts the window. The guard never deletes refs, changes rulesets, pushes, or force-pushes.
 
+After all Category-C confirmations are approved and the freeze snapshot is verified, generate the non-executable SHA-bound administrator maintenance bundle:
+
+```bash
+python scripts/security/build_issue_41_maintenance_bundle.py \
+  --snapshot /private/evidence/vsn-metafields-issue-41-freeze.json \
+  --output-dir /private/evidence/vsn-metafields-issue-41-bundle \
+  --confirm-retire anpos/adopt-existing-vsn-metafields \
+  --confirm-retire migration/cloudflare-subscription-safe \
+  --confirm-retire phase-00/actions-runner-probe \
+  --confirm-retire phase-00/shopify-v3-security-upgrade
+```
+
+The bundle builder refuses missing/unknown confirmations or any snapshot/policy ref drift. It writes `maintenance-bundle.json`, `maintenance-bundle.sha256`, `ref-retirement-transaction.txt`, and `rollback-ref-map.txt`. Every retirement entry is bound to its frozen expected SHA. The transaction file is deliberately evidence-only and non-executable; an administrator must independently re-check live SHAs before each remote retirement action.
+
 Also capture the raw ref/path inventory from the same fresh mirror:
 
 ```bash
