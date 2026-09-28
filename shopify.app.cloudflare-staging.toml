@@ -1,0 +1,48 @@
+# Isolated Shopify configuration for Cloudflare staging validation.
+# Production shopify.app.toml remains the source of truth for the released Railway app.
+#
+# IMPORTANT: Do not deploy/release this configuration to the production Shopify app
+# unless a controlled migration step explicitly authorizes the URL cutover.
+
+client_id = "f5266ba8dba403005deb695fedad053a"
+name = "VSN Metafields - Cloudflare Staging"
+application_url = "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request" ]
+  uri = "/webhooks/customers/data_request"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/redact" ]
+  uri = "/webhooks/customers/redact"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "shop/redact" ]
+  uri = "/webhooks/shop/redact"
+
+[access_scopes]
+scopes = "read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/auth/callback",
+  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/auth/shopify/callback",
+  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/api/auth/callback"
+]
