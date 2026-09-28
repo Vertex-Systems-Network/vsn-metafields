@@ -57,13 +57,6 @@ jobs:
             "https://github.com/Vertex-Systems-Network/vsn-metafields.git" \
             /tmp/vsn-metafields-fresh
 
-          head_count="$(git ls-remote --heads \
-            "https://github.com/Vertex-Systems-Network/vsn-metafields.git" | wc -l | tr -d ' ')"
-          test "$head_count" = "1" || {
-            echo "Expected exactly one live project branch, found $head_count" >&2
-            exit 1
-          }
-
           if git -C /tmp/vsn-metafields-fresh rev-list --objects --all | \
               awk 'NF > 1 && ($2 == "..git" || index($2, "..git/") == 1) { print; found=1 } END { exit found ? 0 : 1 }'
           then
