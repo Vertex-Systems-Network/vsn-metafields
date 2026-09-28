@@ -3,23 +3,26 @@
 
 Safety properties:
 - default mode is read-only preflight;
+- the mirror must resolve to Vertex-Systems-Network/vsn-metafields;
 - evidence is written outside Git history as normal filesystem files;
-- local history rewrite requires an exact confirmation phrase;
+- local history rewrite requires an exact confirmation phrase and expected main SHA;
 - this tool NEVER pushes or force-pushes any remote ref;
-- no file contents or credential values are printed.
+- no file contents, remote credentials, or secret values are printed.
 
 Recommended usage:
 
   git clone --mirror https://github.com/Vertex-Systems-Network/vsn-metafields.git vsn-metafields-purge.git
   python /path/to/prepare_git_history_purge.py \
       --repo-dir vsn-metafields-purge.git \
-      --evidence-dir vsn-metafields-purge-evidence
+      --evidence-dir vsn-metafields-purge-evidence \
+      --expected-main <CURRENT_GITHUB_MAIN_SHA>
 
 After repository-admin freeze/ruleset preparation:
 
   python /path/to/prepare_git_history_purge.py \
       --repo-dir vsn-metafields-purge.git \
       --evidence-dir vsn-metafields-purge-evidence \
+      --expected-main <CURRENT_GITHUB_MAIN_SHA> \
       --rewrite \
       --confirm PURGE_DOT_DOT_GIT_HISTORY
 """
@@ -33,9 +36,11 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 TARGET_PREFIX = "..git"
 CONFIRMATION = "PURGE_DOT_DOT_GIT_HISTORY"
+EXPECTED_REPOSITORY = "Vertex-Systems-Network/vsn-metafields"
 
 
 class GitCommandError(RuntimeError):
@@ -79,6 +84,48 @@ def require_git_filter_repo() -> None:
         )
 
 
+def github_repository_from_remote(remote_url: str) -> str | None:
+    value = remote_url.strip()
+    if value.startswith("git@github.com:"):
+        path = value.removeprefix("git@github.com:")
+    else:
+        parsed = urlparse(value)
+        if parsed.hostname != "github.com":
+            return None
+        path = parsed.path.lstrip("/")
+
+    path = path.rstrip("/")
+    if path.endswith(".git"):
+        path = path[:-4]
+
+    parts = path.split("/")
+    if len(parts) != 2 or not all(parts):
+        return None
+    return f"{parts[0]}/{parts[1]}"
+
+
+def verify_repository_identity(repo_dir: Path) -> str:
+    proc = run(repo_dir, "config", "--get", "remote.origin.url", check=False)
+    if proc.returncode != 0 or not proc.stdout.strip():
+        raise RuntimeError(
+            "mirror has no origin remote; refuse Issue #41 preparation on an "
+            "unidentified repository"
+        )
+
+    repository = github_repository_from_remote(proc.stdout)
+    if repository is None:
+        raise RuntimeError(
+            "origin is not a recognizable github.com repository; refuse Issue #41 "
+            "preparation"
+        )
+    if repository.lower() != EXPECTED_REPOSITORY.lower():
+        raise RuntimeError(
+            "repository identity mismatch: expected "
+            f"{EXPECTED_REPOSITORY}, found {repository}"
+        )
+    return repository
+
+
 def reachable_git_metadata(repo_dir: Path) -> list[tuple[str, str]]:
     output = run(repo_dir, "rev-list", "--objects", "--all").stdout.splitlines()
     matches: list[tuple[str, str]] = []
@@ -114,6 +161,7 @@ def repository_summary(repo_dir: Path) -> dict[str, object]:
             "Issue #41 purge must run from a bare/mirror clone, not a working clone"
         )
 
+    repository = verify_repository_identity(repo_dir)
     symbolic_head = run(
         repo_dir,
         "symbolic-ref",
@@ -122,6 +170,11 @@ def repository_summary(repo_dir: Path) -> dict[str, object]:
         check=False,
     ).stdout.strip()
     head_sha = run(repo_dir, "rev-parse", "HEAD").stdout.strip()
+    main_proc = run(repo_dir, "rev-parse", "refs/heads/main", check=False)
+    if main_proc.returncode != 0 or not main_proc.stdout.strip():
+        raise RuntimeError("mirror does not contain refs/heads/main")
+    main_sha = main_proc.stdout.strip()
+
     ref_rows = refs(repo_dir)
     contaminated = reachable_git_metadata(repo_dir)
     unique_paths = sorted({path for _, path in contaminated})
@@ -129,9 +182,11 @@ def repository_summary(repo_dir: Path) -> dict[str, object]:
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "repo_dir": str(repo_dir.resolve()),
+        "repository": repository,
         "is_bare": True,
         "symbolic_head": symbolic_head or None,
         "head_sha": head_sha,
+        "main_sha": main_sha,
         "head_ref_count": sum(row["ref"].startswith("refs/heads/") for row in ref_rows),
         "tag_ref_count": sum(row["ref"].startswith("refs/tags/") for row in ref_rows),
         "refs": ref_rows,
@@ -139,6 +194,21 @@ def repository_summary(repo_dir: Path) -> dict[str, object]:
         "unique_embedded_git_metadata_paths": len(unique_paths),
         "sample_embedded_git_metadata_paths": unique_paths[:50],
     }
+
+
+def require_expected_main(summary: dict[str, object], expected_main: str) -> None:
+    if not expected_main:
+        raise RuntimeError(
+            "--rewrite requires --expected-main with the current GitHub main SHA "
+            "captured at the maintenance freeze"
+        )
+
+    actual = str(summary["main_sha"])
+    if actual != expected_main:
+        raise RuntimeError(
+            "stale or unexpected mirror: refs/heads/main does not match "
+            f"--expected-main (mirror={actual}, expected={expected_main})"
+        )
 
 
 def write_evidence(
@@ -209,6 +279,14 @@ def parse_args() -> argparse.Namespace:
         help="Filesystem directory for pre/post evidence; do not place it in the public repo",
     )
     parser.add_argument(
+        "--expected-main",
+        default="",
+        help=(
+            "Current GitHub main SHA captured at freeze time. Optional for read-only "
+            "preflight; mandatory for --rewrite."
+        ),
+    )
+    parser.add_argument(
         "--rewrite",
         action="store_true",
         help="Rewrite the LOCAL MIRROR only. This tool never pushes.",
@@ -231,9 +309,13 @@ def main() -> int:
         raise RuntimeError(f"repo directory does not exist: {repo_dir}")
 
     before = repository_summary(repo_dir)
+    if args.expected_main:
+        require_expected_main(before, args.expected_main)
     before_path = write_evidence(evidence_dir, "pre-rewrite.json", before)
 
     print(f"preflight_evidence={before_path}")
+    print(f"repository={before['repository']}")
+    print(f"main_sha={before['main_sha']}")
     print(f"head_ref_count={before['head_ref_count']}")
     print(f"tag_ref_count={before['tag_ref_count']}")
     print(
@@ -251,6 +333,7 @@ def main() -> int:
             "--rewrite requires the exact confirmation phrase "
             f"{CONFIRMATION}"
         )
+    require_expected_main(before, args.expected_main)
 
     if int(before["reachable_embedded_git_metadata_objects"]) == 0:
         print("history_status=already_clean")
