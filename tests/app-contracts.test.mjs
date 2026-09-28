@@ -22,6 +22,29 @@ test("Shopify auth, session storage, and API versions stay aligned", () => {
   assert.match(toml, /api_version\s*=\s*"2026-07"/);
 });
 
+test("Prisma runtime stays Worker-compatible without changing session storage", () => {
+  const db = read("app/db.server.js");
+  const schema = read("prisma/schema.prisma");
+  const shopify = read("app/shopify.server.js");
+  const wrangler = JSON.parse(read("wrangler.jsonc"));
+  const pkg = JSON.parse(read("package.json"));
+
+  assert.match(schema, /engineType\s*=\s*"client"/);
+  assert.match(schema, /provider\s*=\s*"postgresql"/);
+  assert.match(db, /@prisma\/adapter-pg/);
+  assert.match(db, /new PrismaPg\(\{ connectionString \}\)/);
+  assert.match(db, /new PrismaClient\(\{[\s\S]*adapter,/);
+  assert.doesNotMatch(db, /\.\$connect\(/);
+  assert.match(shopify, /new PrismaSessionStorage\(prisma\)/);
+
+  assert.equal(pkg.dependencies["@prisma/client"], "6.19.3");
+  assert.equal(pkg.dependencies["@prisma/adapter-pg"], "6.19.3");
+  assert.equal(pkg.dependencies.pg, "8.23.0");
+  assert.equal(pkg.dependencies.prisma, "6.19.3");
+  assert.equal(pkg.devDependencies["@types/pg"], "8.23.1");
+  assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
+});
+
 test("configured webhooks authenticate and uninstall cleanup is shop-scoped", () => {
   const toml = read("shopify.app.toml");
   const routes = [
