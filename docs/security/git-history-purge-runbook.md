@@ -65,6 +65,20 @@ The helper requires the exact confirmation phrase, an `--expected-main` SHA capt
 
 Run from a fresh administrator-controlled environment.
 
+Before any retirement or ruleset change, validate the fresh mirror against the committed branch-disposition policy and capture the freeze evidence outside both repositories:
+
+```bash
+python scripts/security/verify_ref_retirement_readiness.py \
+  --repo-dir /path/to/vsn-metafields-purge.git \
+  --write-snapshot /private/evidence/vsn-metafields-issue-41-freeze.json
+```
+
+This first pass is read-only and reports any pending `confirm_retire` branches. After the administrator explicitly approves those candidates, repeat with the corresponding `--confirm-retire <branch>` flags plus `--require-ready`. Immediately before destructive maintenance, use `--verify-snapshot /private/evidence/vsn-metafields-issue-41-freeze.json`; any branch/tag or SHA movement aborts the window. The guard never deletes refs, changes rulesets, pushes, or force-pushes.
+
+## Phase A — Preflight inventory
+
+Run from a fresh administrator-controlled environment.
+
 ```bash
 git clone --mirror https://github.com/Vertex-Systems-Network/vsn-metafields.git vsn-metafields-purge.git
 cd vsn-metafields-purge.git
