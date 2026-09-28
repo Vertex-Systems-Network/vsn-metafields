@@ -136,6 +136,7 @@ jobs:
           set -euo pipefail
           gh auth setup-git
           git -C /tmp/vsn-metafields-purge.git remote set-url origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git -C /tmp/vsn-metafields-purge.git config remote.origin.mirror false
           git -C /tmp/vsn-metafields-purge.git push --force origin refs/heads/main:refs/heads/main
 
           remote_sha="$(git ls-remote "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/main | awk '{print $1}')"
