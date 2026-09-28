@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "environment": "cloudflare-staging",
+  "target_version": "staging-webhooks-2",
+  "release_policy": {
+    "allow_updates": true,
+    "allow_deletes": false,
+    "production_identity_forbidden": true
+  },
+  "reason": "Activate the verified staging webhook configuration after isolated Cloudflare runtime deployment."
+}

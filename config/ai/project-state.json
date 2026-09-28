@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
-  "last_verified_completion": "Issue #4 work unit 4 staging version creation verified: Shopify Staging Version run 36497144313 created unreleased staging-webhooks-2 from the isolated cloudflare-staging configuration; production Shopify config remained unchanged.",
-  "next_valid_work_unit": "Release only staging-webhooks-2 through the guarded staging release workflow, then validate webhook delivery on Cloudflare staging before any production URL cutover.",
+  "last_verified_completion": "Issue #4 isolated Cloudflare staging runtime auto-deploy verified on run 36500207757 from protected main fbffc70dbd272c4757be32ba2cc142046b5846c2; migrations, build, secret injection, and Worker deploy completed successfully. Cloudflare Version ID 8bbc8772-6124-4af6-8341-ddc73804b782.",
+  "next_valid_work_unit": "Activate verified Shopify staging version staging-webhooks-2 through the staging-only release request and validate non-destructive compliance webhook delivery; keep production cutover forbidden.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,9 +16,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run the guarded Shopify Staging Release workflow for staging-webhooks-2 after repository checks pass.",
-    "Validate staging webhook delivery for app/uninstalled, app/scopes_update, and compliance endpoints.",
-    "Cloudflare staging runtime deploy is now automatic for protected-main runtime changes; verify the resulting deployment and then validate 5-day trial / $55 billing."
+    "Activate staging-webhooks-2 through the staging-only release request workflow.",
+    "Validate non-destructive compliance webhook delivery on Cloudflare staging.",
+    "Verify staging UI and Shopify billing confirmation reflect the centralized 5-day trial / $55 plan.",
+    "Keep production cutover blocked until staging auth, subscriptions, webhooks, navigation, and billing-read verification are complete."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -30,9 +31,9 @@
   "critical_defects": [
     "The new staging webhook configuration is prepared in unreleased Shopify version staging-webhooks-2; it must be released only to the staging app and webhook delivery validated before production cutover."
   ],
-  "qa_readiness": "staging_version_created_release_and_webhook_delivery_pending",
+  "qa_readiness": "cloudflare_staging_runtime_deployed_shopify_staging_release_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "d98408bd0776c9153a3e3f8b5a2ffdc0a4c7c02b",
-  "last_reconciled_at": "2026-09-28T23:45:00+00:00",
-  "notes": "PHASE-01 work unit 4 staging version creation is green. Run 36497144313 used shopify.app.cloudflare-staging.toml and created unreleased staging-webhooks-2. A guarded staging-only release workflow is the next gate; production Shopify/Railway remains unchanged and the 5-day trial and $55/month billing verification stays deferred until final staging deploy. Safe automation is being added so protected-main runtime changes auto-deploy only to the isolated cloudflare-staging environment; production release remains manually gated."
+  "last_reconciled_repository_ref": "fbffc70dbd272c4757be32ba2cc142046b5846c2",
+  "last_reconciled_at": "2026-09-28T23:52:54+00:00",
+  "notes": "Protected-main runtime changes now auto-deploy only to cloudflare-staging under explicit migration policy. Run 36500207757 deployed the current 5-day/$55 billing runtime successfully. The next gate is a one-time staging-only Shopify version release plus non-destructive compliance webhook delivery checks; production Shopify/Railway remains unchanged."
 }
