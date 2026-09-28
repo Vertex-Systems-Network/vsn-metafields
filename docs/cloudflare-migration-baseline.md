@@ -110,3 +110,20 @@ Work unit 2/6 is complete on the guarded migration branch:
 - Wrangler staging dry-run: pass.
 
 No production database contents or Shopify subscriptions were migrated or mutated. The next milestone is execution inside the actual Workers runtime and staging-only deployment preparation.
+
+
+## Workerd runtime and staging deployment evidence
+
+Work unit 3/6 is complete on the guarded migration branch:
+
+- full built React Router app boots under `wrangler dev` / workerd;
+- HTTP readiness probe returns the expected VSN Metafields application response;
+- isolated Worker-side PrismaPg + Shopify PrismaSessionStorage store/load/delete round-trip passes against ephemeral PostgreSQL;
+- staging bindings are declared without committed secret values;
+- `.wrangler/` and `.dev.vars*` are ignored;
+- staging deployment is manual-only via the `cloudflare-staging` GitHub environment;
+- exact `DEPLOY_STAGING_ONLY` confirmation is required;
+- the deploy workflow refuses the Railway production Shopify URL;
+- no production Shopify URL, billing state, merchant install, database contents, or Railway service is changed.
+
+The next milestone is an isolated Cloudflare staging deployment from protected `main`, followed by Shopify authentication, existing subscription-read, webhook, embedded-navigation, and session-continuity validation.

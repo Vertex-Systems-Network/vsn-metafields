@@ -31,3 +31,7 @@ database.sqlite
 
 # Reject accidentally copied repository metadata
 ..git/
+
+# Cloudflare local/runtime state and secrets
+.wrangler/
+.dev.vars*

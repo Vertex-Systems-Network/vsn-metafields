@@ -3,12 +3,12 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-worker-runtime-smoke-and-staging",
-  "last_verified_completion": "Issue #4 work unit 2/6 complete on PR #71 candidate: Prisma 6.19.3 engine-less client + PrismaPg adapter, same PostgreSQL schema, real Shopify PrismaSessionStorage store/load/delete smoke, App Validation, dependency audit, AI Native Quality Gates, React Router build, and Wrangler dry-run all green.",
-  "next_valid_work_unit": "Run the built app inside the Cloudflare Workers runtime (workerd/Wrangler local) with the PrismaPg path, prove HTTP boot + database/session readiness, then prepare a staging-only deployment with secrets/bindings and no Shopify production URL mutation.",
+  "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
+  "last_verified_completion": "Issue #4 work unit 3/6 complete on PR #72 candidate: full React Router app HTTP boot under workerd, Worker-side PrismaPg + Shopify PrismaSessionStorage round-trip against isolated PostgreSQL, staging binding contract, and manual-only guarded Cloudflare staging deploy workflow are green.",
+  "next_valid_work_unit": "Deploy the isolated Cloudflare staging Worker from protected main using the cloudflare-staging GitHub environment, then validate Shopify auth, existing subscription reads, webhooks, embedded navigation, and PostgreSQL-backed sessions without changing production Shopify URLs.",
   "progress": {
     "total_work_units": 6,
-    "complete": 2,
+    "complete": 3,
     "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run a Worker-runtime HTTP boot smoke with the built React Router bundle.",
-    "Prove PrismaPg/Session storage readiness from the Workers runtime against an isolated PostgreSQL target.",
-    "Prepare Cloudflare staging secrets/bindings and deployment without changing production Shopify URLs."
+    "Configure the GitHub cloudflare-staging environment with Cloudflare account/token, staging Worker secrets, and a non-production SHOPIFY_APP_URL.",
+    "Deploy the isolated staging Worker manually from protected main.",
+    "Validate Shopify auth, subscription reads, webhooks, embedded navigation, and session continuity on staging without billing mutations."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "prisma_worker_adapter_session_roundtrip_green_worker_runtime_smoke_next",
+  "qa_readiness": "workerd_app_and_prisma_session_runtime_green_staging_deploy_next",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "538ab8c70a73bd0c19e43b0c9229641656d0cdc8",
-  "last_reconciled_at": "2026-09-28T14:14:00+00:00",
-  "notes": "PHASE-01 work unit 2 is validated. PrismaPg uses the same DATABASE_URL-backed PostgreSQL schema; Shopify PrismaSessionStorage successfully stores, loads, and deletes a CI session through the adapter. No production DB/schema/subscription/URL cutover occurred."
+  "last_reconciled_repository_ref": "88af4354b45d07973aadf9ca45b346a86c8e5032",
+  "last_reconciled_at": "2026-09-28T15:12:00+00:00",
+  "notes": "PHASE-01 work unit 3 is validated on the PR candidate: workerd boots the full app and independently proves PrismaPg + Shopify session storage against isolated PostgreSQL. Staging deployment remains manual-only and production Shopify URLs/subscriptions/Railway remain unchanged."
 }

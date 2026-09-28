@@ -8,6 +8,8 @@ on:
       - "wrangler.jsonc"
       - "config/cloudflare/**"
       - "scripts/cloudflare/**"
+      - "workers/**"
+      - "tests/cloudflare/**"
       - "docs/cloudflare-migration-baseline.md"
       - "app/db.server.js"
       - "app/shopify.server.js"
@@ -15,6 +17,7 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/cloudflare-staging-readiness.yml"
+      - ".github/workflows/cloudflare-staging-deploy.yml"
   push:
     branches:
       - main
@@ -22,6 +25,8 @@ on:
       - "wrangler.jsonc"
       - "config/cloudflare/**"
       - "scripts/cloudflare/**"
+      - "workers/**"
+      - "tests/cloudflare/**"
       - "docs/cloudflare-migration-baseline.md"
       - "app/db.server.js"
       - "app/shopify.server.js"
@@ -29,6 +34,7 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/cloudflare-staging-readiness.yml"
+      - ".github/workflows/cloudflare-staging-deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,10 +43,36 @@ permissions:
 jobs:
   staging-readiness:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vsn_metafields_cf_ci
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/vsn_metafields_cf_ci
+      SHOPIFY_API_KEY: ci-placeholder
+      SHOPIFY_API_SECRET: ci-placeholder
+      SHOPIFY_APP_URL: http://127.0.0.1:8787
+      SCOPES: read_products,write_products
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vsn_metafields_cf_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d vsn_metafields_cf_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -54,15 +86,19 @@ jobs:
       - name: Validate migration invariants
         run: python scripts/cloudflare/validate_staging_contract.py
 
+      - name: Prepare isolated PostgreSQL schema
+        run: |
+          npx prisma validate
+          npx prisma migrate deploy
+
       - name: Build React Router application
-        env:
-          DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/vsn_metafields
-          DIRECT_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/vsn_metafields
-          SHOPIFY_API_KEY: ci-placeholder
-          SHOPIFY_API_SECRET: ci-placeholder
-          SHOPIFY_APP_URL: https://staging.example.invalid
-          SCOPES: read_products,write_products
         run: npm run build
 
       - name: Cloudflare Worker bundle dry-run
         run: npx --yes wrangler@4.141.0 deploy --dry-run --outdir /tmp/cloudflare-worker-dry-run
+
+      - name: Workerd full app HTTP boot smoke
+        run: node scripts/cloudflare/runtime-smoke.mjs app
+
+      - name: Workerd PrismaPg Shopify session smoke
+        run: node scripts/cloudflare/runtime-smoke.mjs session
