@@ -21,9 +21,34 @@ assert prod["application_url"] == RAILWAY, "production Shopify URL changed"
 assert staging["application_url"] == CLOUDFLARE, "staging Shopify URL changed"
 assert CLOUDFLARE not in PROD.read_text(encoding="utf-8"), "staging URL leaked into production config"
 assert RAILWAY not in STAGING.read_text(encoding="utf-8"), "production URL leaked into staging config"
-assert prod["client_id"] == staging["client_id"], "staging must target the same app identity for controlled validation"
+assert staging["client_id"] == "__SHOPIFY_STAGING_CLIENT_ID__", "staging config must keep the dedicated staging client ID as a CI-injected placeholder"
+assert prod["client_id"] != staging["client_id"], "staging config must not reuse the production app identity"
 assert prod["access_scopes"]["scopes"] == staging["access_scopes"]["scopes"], "scope drift between production and staging"
 assert staging["build"]["automatically_update_urls_on_dev"] is False, "staging config must not auto-update Shopify URLs"
+
+subscriptions = staging["webhooks"].get("subscriptions", [])
+expected_topics = {
+    "app/uninstalled",
+    "app/scopes_update",
+}
+actual_topics = {
+    topic
+    for subscription in subscriptions
+    for topic in subscription.get("topics", [])
+}
+assert expected_topics.issubset(actual_topics), "staging webhook topics missing"
+
+expected_compliance = {
+    "customers/data_request",
+    "customers/redact",
+    "shop/redact",
+}
+actual_compliance = {
+    topic
+    for subscription in subscriptions
+    for topic in subscription.get("compliance_topics", [])
+}
+assert expected_compliance.issubset(actual_compliance), "staging compliance webhooks missing"
 
 for url in staging["auth"]["redirect_urls"]:
     assert url.startswith(CLOUDFLARE + "/"), f"non-staging redirect URL: {url}"

@@ -1,0 +1,101 @@
+name: Shopify Staging Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type CREATE_STAGING_SHOPIFY_VERSION to create an unreleased staging app version"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopify-staging-version
+  cancel-in-progress: false
+
+jobs:
+  create-staging-version:
+    if: github.event.inputs.confirm == 'CREATE_STAGING_SHOPIFY_VERSION'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-staging
+    env:
+      CI: "true"
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+
+      - name: Require staging-only Shopify credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-staging environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          PROD_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PROD_CLIENT_ID" ]; then
+            echo "Refusing to create a staging version with the production Shopify client ID." >&2
+            exit 1
+          fi
+
+      - name: Validate staging Shopify isolation and webhook contract
+        run: python scripts/cloudflare/validate_shopify_staging_isolation.py
+
+      - name: Inject staging client ID into disposable checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("shopify.app.cloudflare-staging.toml")
+          content = path.read_text(encoding="utf-8")
+          placeholder = "__SHOPIFY_STAGING_CLIENT_ID__"
+          if placeholder not in content:
+              raise SystemExit("staging client ID placeholder missing")
+          path.write_text(
+              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Create unreleased Shopify staging version
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app deploy \
+            --config cloudflare-staging \
+            --client-id "$SHOPIFY_API_KEY" \
+            --no-release \
+            --version "staging-webhooks-${GITHUB_RUN_NUMBER}" \
+            --message "Cloudflare staging webhook validation candidate"
+
+      - name: Confirm production config remains untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- shopify.app.toml

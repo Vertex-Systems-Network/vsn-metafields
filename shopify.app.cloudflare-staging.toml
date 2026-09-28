@@ -4,8 +4,8 @@
 # IMPORTANT: Do not deploy/release this configuration to the production Shopify app
 # unless a controlled migration step explicitly authorizes the URL cutover.
 
-client_id = "f5266ba8dba403005deb695fedad053a"
-name = "VSN Metafields - Cloudflare Staging"
+client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
+name = "VSN Metafields Staging"
 application_url = "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev"
 embedded = true
 

@@ -66,6 +66,22 @@ test("embedded app navigation stays inside Shopify and preserves auth context", 
   assert.doesNotMatch(index, /target="_top"/);
 });
 
+test("Shopify staging config uses a dedicated app identity and declares required webhooks", () => {
+  const staging = read("shopify.app.cloudflare-staging.toml");
+  const workflow = read(".github/workflows/shopify-staging-version.yml");
+
+  assert.match(staging, /client_id = "__SHOPIFY_STAGING_CLIENT_ID__"/);
+  assert.match(staging, /topics = \[ "app\/uninstalled" \]/);
+  assert.match(staging, /topics = \[ "app\/scopes_update" \]/);
+  assert.match(staging, /compliance_topics = \[ "customers\/data_request" \]/);
+  assert.match(staging, /compliance_topics = \[ "customers\/redact" \]/);
+  assert.match(staging, /compliance_topics = \[ "shop\/redact" \]/);
+
+  assert.match(workflow, /SHOPIFY_APP_AUTOMATION_TOKEN/);
+  assert.match(workflow, /--no-release/);
+  assert.match(workflow, /Refusing to create a staging version with the production Shopify client ID/);
+});
+
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
   const wrangler = JSON.parse(read("wrangler.jsonc"));
   const worker = read("workers/app.js");
