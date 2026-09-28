@@ -142,15 +142,20 @@ test("configured webhooks authenticate and uninstall cleanup is shop-scoped", ()
   assert.doesNotMatch(uninstall, /deleteMany\(\s*\{\s*\}\s*\)/);
 });
 
-test("Pro billing trial remains fixed at 15 days across API and UI", () => {
+test("Pro billing configuration stays centralized at 5 trial days and $55 across API and UI", () => {
   const billing = read("app/billing-config.js");
   const status = read("app/routes/app.api.status.jsx");
   const packages = read("app/routes/app.packages.jsx");
 
-  assert.match(billing, /trialDays:\s*15/);
+  assert.match(billing, /amount:\s*55/);
+  assert.match(billing, /trialDays:\s*5/);
   assert.match(status, /PRO_PLAN/);
   assert.match(status, /trialDays:\s*selectedPlan\.trialDays/);
+  assert.match(status, /amount:\s*selectedPlan\.amount/);
   assert.match(packages, /PRO_PLAN\.trialDays/);
+  assert.match(packages, /PRO_PLAN\.amount/);
+  assert.doesNotMatch(packages, /\$35\s*\/\s*month/);
+  assert.doesNotMatch(packages, /15-day free trial/);
 });
 
 test("billing mutations require authenticated POST requests and guard active plans", () => {
