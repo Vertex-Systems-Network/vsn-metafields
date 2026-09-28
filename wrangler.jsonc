@@ -8,5 +8,8 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }
