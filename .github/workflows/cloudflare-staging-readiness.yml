@@ -101,7 +101,7 @@ jobs:
           set -euo pipefail
           log=/tmp/vsn-metafields-workerd-app.log
 
-          npx --yes wrangler@4.141.0 dev             --ip 127.0.0.1             --port 8787             --var "DATABASE_URL:$DATABASE_URL"             --var "DIRECT_URL:$DIRECT_URL"             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_API_SECRET:$SHOPIFY_API_SECRET"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"             >"$log" 2>&1 &
+          setsid npx --yes wrangler@4.141.0 dev             --ip 127.0.0.1             --port 8787             --var "DATABASE_URL:$DATABASE_URL"             --var "DIRECT_URL:$DIRECT_URL"             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_API_SECRET:$SHOPIFY_API_SECRET"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"             >"$log" 2>&1 &
           pid=$!
 
           cleanup() {
@@ -137,11 +137,13 @@ jobs:
           set -euo pipefail
           log=/tmp/vsn-metafields-workerd-session.log
 
-          npx --yes wrangler@4.141.0 dev             --config tests/cloudflare/wrangler.session-smoke.jsonc             --ip 127.0.0.1             --port 8788             --var "DATABASE_URL:$DATABASE_URL"             >"$log" 2>&1 &
+          setsid npx --yes wrangler@4.141.0 dev             --config tests/cloudflare/wrangler.session-smoke.jsonc             --ip 127.0.0.1             --port 8788             --var "DATABASE_URL:$DATABASE_URL"             >"$log" 2>&1 &
           pid=$!
 
           cleanup() {
-            kill "$pid" 2>/dev/null || true
+            kill -TERM -- "-$pid" 2>/dev/null || true
+            sleep 1
+            kill -KILL -- "-$pid" 2>/dev/null || true
             wait "$pid" 2>/dev/null || true
           }
           trap cleanup EXIT
