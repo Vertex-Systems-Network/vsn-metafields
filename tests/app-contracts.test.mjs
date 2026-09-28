@@ -57,6 +57,17 @@ test("Cloudflare Worker entry delegates to the React Router server build", () =>
   assert.match(worker, /cloudflare:\s*\{\s*env,\s*ctx\s*\}/);
 });
 
+test("SSR entry stays Web-Streams compatible for Workers and Node 22", () => {
+  const entry = read("app/entry.server.jsx");
+
+  assert.match(entry, /renderToReadableStream/);
+  assert.match(entry, /react-dom\/server\.browser/);
+  assert.doesNotMatch(entry, /renderToPipeableStream/);
+  assert.doesNotMatch(entry, /PassThrough/);
+  assert.doesNotMatch(entry, /@react-router\/node/);
+  assert.match(entry, /new Response\(body,/);
+});
+
 test("configured webhooks authenticate and uninstall cleanup is shop-scoped", () => {
   const toml = read("shopify.app.toml");
   const routes = [
