@@ -38,9 +38,9 @@ Database/session-store migration is explicitly out of scope for the first produc
 - Active subscriptions are queried in `app/routes/app.api.status.jsx`.
 - Subscription creation uses Shopify `appSubscriptionCreate`.
 - Subscription cancellation uses Shopify `appSubscriptionCancel`.
-- The current Pro plan is USD 35 every 30 days with a 15-day trial.
+- The current Pro plan is USD 55 every 30 days with a 5-day trial.
 
-Hosting migration must not alter these billing semantics.
+Hosting migration must not alter these billing semantics. The 5-day / USD 55 change was an independently authorized product change and is not part of the hosting migration mechanism.
 
 ## Production URL cutover guard
 
@@ -121,8 +121,8 @@ Work unit 3/6 is complete on the guarded migration branch:
 - isolated Worker-side PrismaPg + Shopify PrismaSessionStorage store/load/delete round-trip passes against ephemeral PostgreSQL;
 - staging bindings are declared without committed secret values;
 - `.wrangler/` and `.dev.vars*` are ignored;
-- staging deployment is manual-only via the `cloudflare-staging` GitHub environment;
-- exact `DEPLOY_STAGING_ONLY` confirmation is required;
+- staging runtime deployment is automatic only for protected `main` runtime-path changes via the `cloudflare-staging` GitHub environment;
+- manual `DEPLOY_STAGING_ONLY` dispatch remains available as a controlled fallback;
 - the deploy workflow refuses the Railway production Shopify URL;
 - no production Shopify URL, billing state, merchant install, database contents, or Railway service is changed.
 
