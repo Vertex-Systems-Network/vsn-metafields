@@ -217,6 +217,8 @@ def build_bundle(
         "ruleset_id": ruleset_id,
         "main_before_sha": str(heads["main"]),
         "main_before_tree_sha": str(snapshot["main_tree_sha"]),
+        "expected_post_rewrite_heads": ["main"],
+        "expected_post_rewrite_tags": sorted(str(tag) for tag in snapshot["tags"]),
         "preserve_refs": preserve,
         "retire_refs": retire,
         "confirmed_retire_branches": confirmed,
