@@ -89,6 +89,11 @@
       "evidence": "merged PR #44"
     },
     {
+      "branch": "phase-00/issue-41-maintenance-bundle",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch for SHA-bound administrator maintenance bundle tooling; retire after its PR is merged"
+    },
+    {
       "branch": "phase-00/metafield-safety",
       "disposition": "retire",
       "evidence": "merged PR #24"
