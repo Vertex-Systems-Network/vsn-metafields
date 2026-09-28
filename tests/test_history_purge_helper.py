@@ -143,6 +143,27 @@ class HistoryPurgeHelperTests(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("repository identity mismatch", proc.stderr)
 
+    def test_verified_identity_can_be_carried_after_origin_removal(self) -> None:
+        self.assertEqual(
+            run("git", "remote", "remove", "origin", cwd=self.mirror).returncode,
+            0,
+        )
+
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("history_purge_helper", HELPER)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        summary = module.repository_summary(
+            self.mirror,
+            verified_repository=EXPECTED_REPOSITORY,
+        )
+        self.assertEqual(summary["repository"], EXPECTED_REPOSITORY)
+        self.assertEqual(summary["main_sha"], self.main_sha)
+
     def test_non_bare_working_clone_is_rejected(self) -> None:
         proc = run(
             sys.executable,
