@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
-  "last_verified_completion": "Issue #4 isolated Cloudflare staging runtime auto-deploy verified on run 36500207757 from protected main fbffc70dbd272c4757be32ba2cc142046b5846c2; migrations, build, secret injection, and Worker deploy completed successfully. Cloudflare Version ID 8bbc8772-6124-4af6-8341-ddc73804b782.",
-  "next_valid_work_unit": "Activate verified Shopify staging version staging-webhooks-2 through the staging-only release request and validate non-destructive compliance webhook delivery; keep production cutover forbidden.",
+  "last_verified_completion": "Issue #4 PHASE-01 staging release milestone verified: protected-main Cloudflare staging runtime deploy run 36500207757 succeeded at main fbffc70dbd272c4757be32ba2cc142046b5846c2 (Cloudflare Version ID 8bbc8772-6124-4af6-8341-ddc73804b782), and Shopify Staging Release run 36500565113 successfully released exact version staging-webhooks-2, re-verified staging identity/config isolation, passed non-destructive compliance webhook delivery for customers/data_request, customers/redact, and shop/redact, and left production config unchanged.",
+  "next_valid_work_unit": "Perform final staging acceptance verification in the embedded Shopify app: confirm the deployed Packages UI shows a 5-day trial and $55/month, confirm auth/session/subscription-read/navigation remain healthy, and keep production cutover blocked until that evidence is recorded.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,10 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Activate staging-webhooks-2 through the staging-only release request workflow.",
-    "Validate non-destructive compliance webhook delivery on Cloudflare staging.",
-    "Verify staging UI and Shopify billing confirmation reflect the centralized 5-day trial / $55 plan.",
-    "Keep production cutover blocked until staging auth, subscriptions, webhooks, navigation, and billing-read verification are complete."
+    "Verify the embedded staging Packages page shows the centralized 5-day trial and $55/month after the successful Cloudflare deploy.",
+    "Reconfirm staging auth/session continuity, active-subscription read, and embedded navigation after the latest runtime deployment.",
+    "Record final staging acceptance evidence before authorizing any production URL cutover."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,12 +27,10 @@
     "Choose and identity-verify the Development AI agent pool available in the current host.",
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
-  "critical_defects": [
-    "The new staging webhook configuration is prepared in unreleased Shopify version staging-webhooks-2; it must be released only to the staging app and webhook delivery validated before production cutover."
-  ],
-  "qa_readiness": "cloudflare_staging_runtime_deployed_shopify_staging_release_pending",
+  "critical_defects": [],
+  "qa_readiness": "staging_runtime_and_webhooks_green_final_embedded_acceptance_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "fbffc70dbd272c4757be32ba2cc142046b5846c2",
-  "last_reconciled_at": "2026-09-28T23:52:54+00:00",
-  "notes": "Protected-main runtime changes now auto-deploy only to cloudflare-staging under explicit migration policy. Run 36500207757 deployed the current 5-day/$55 billing runtime successfully. The next gate is a one-time staging-only Shopify version release plus non-destructive compliance webhook delivery checks; production Shopify/Railway remains unchanged."
+  "last_reconciled_repository_ref": "c892fe17313afc357faf826026382e4c0d267b02",
+  "last_reconciled_at": "2026-09-28T23:57:00+00:00",
+  "notes": "Cloudflare staging runtime automation and one-time Shopify staging release automation are green. Production Shopify/Railway remains unchanged. Synthetic compliance webhook delivery validates endpoint handling but does not replace a real-event subscription E2E check. Final embedded staging acceptance (including 5-day/$55 UI) remains the only immediate gate before production-cutover planning."
 }
