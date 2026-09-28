@@ -169,9 +169,16 @@ def main() -> int:
         "staging binding contract worker name drifted",
     )
     require(
-        staging_bindings.get("deploy_mode") == "manual_only",
-        "staging deploy must remain manual-only",
+        staging_bindings.get("deploy_mode") == "protected_main_runtime_auto",
+        "staging deploy mode must remain protected-main runtime auto",
     )
+    auto_deploy = staging_bindings.get("auto_deploy")
+    require(isinstance(auto_deploy, dict), "staging auto-deploy contract missing")
+    require(auto_deploy.get("branch") == "main", "staging auto-deploy must target main only")
+    require(auto_deploy.get("runtime_paths_only") is True, "staging auto-deploy must be runtime-path limited")
+    require(auto_deploy.get("environment") == "cloudflare-staging", "staging auto-deploy environment drifted")
+    require(auto_deploy.get("production_routes_allowed") is False, "staging auto-deploy must forbid production routes")
+    require(auto_deploy.get("manual_dispatch_fallback") is True, "staging manual deploy fallback must remain available")
     require(
         staging_bindings.get("production_routes_allowed") is False,
         "staging contract must forbid production routes",
@@ -189,10 +196,14 @@ def main() -> int:
     require(".wrangler/" in gitignore, ".wrangler/ must be ignored")
     require(".dev.vars*" in gitignore, ".dev.vars* must be ignored")
 
-    require("workflow_dispatch:" in staging_deploy, "staging deploy must be manual")
-    require("push:" not in staging_deploy, "staging deploy workflow must not run on push")
+    require("workflow_dispatch:" in staging_deploy, "staging manual deploy fallback missing")
+    require("push:" in staging_deploy, "staging protected-main auto deploy trigger missing")
+    require(re.search(r"branches:\\s*\\n\\s*- main", staging_deploy) is not None, "staging auto deploy must target main only")
+    require('- "app/**"' in staging_deploy, "staging auto deploy must include app runtime path")
+    require('- ".github/workflows/cloudflare-staging-deploy.yml"' in staging_deploy, "staging deploy workflow path must self-trigger validation deploy")
+    require("github.event_name == 'push'" in staging_deploy, "staging deploy push gate missing")
     require("environment: cloudflare-staging" in staging_deploy, "staging deploy environment missing")
-    require("DEPLOY_STAGING_ONLY" in staging_deploy, "staging deploy confirmation gate missing")
+    require("DEPLOY_STAGING_ONLY" in staging_deploy, "staging manual confirmation fallback missing")
     require(
         "https://vsn-metafields-production.up.railway.app" in staging_deploy,
         "staging deploy must explicitly reject the Railway production URL",
@@ -229,7 +240,7 @@ def main() -> int:
     print("database_migration_authorized=false")
     print("prisma_worker_adapter=PrismaPg")
     print("prisma_engine_type=client")
-    print("cloudflare_staging_deploy=manual_only")
+    print("cloudflare_staging_deploy=protected_main_runtime_auto")
     print("cloudflare_staging_secrets=external_only")
     print("railway_rollback_required=true")
     return 0
