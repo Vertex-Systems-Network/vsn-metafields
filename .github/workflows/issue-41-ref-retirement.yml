@@ -1,0 +1,60 @@
+name: Issue 41 Ref Retirement
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  contents: write
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: issue-41-ref-retirement
+  cancel-in-progress: false
+
+jobs:
+  retire-non-main-refs:
+    if: >-
+      github.event.issue.number == 41 &&
+      github.actor == 'wpessential' &&
+      startsWith(github.event.comment.body, 'EXECUTE_ISSUE_41_REF_RETIREMENT_V1 ')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout protected main control plane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Parse exact post-merge freeze anchors
+        id: freeze
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import os
+          import re
+
+          body = os.environ["COMMENT_BODY"].strip()
+          match = re.fullmatch(
+              r"EXECUTE_ISSUE_41_REF_RETIREMENT_V1 "
+              r"main=([0-9a-f]{40}) tree=([0-9a-f]{40})",
+              body,
+          )
+          if not match:
+              raise SystemExit("invalid Issue #41 retirement trigger format")
+          print(f"main={match.group(1)}")
+          print(f"tree={match.group(2)}")
+          PY
+
+      - name: Execute SHA-bound non-main ref retirement
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/security/execute_issue_41_ref_retirement.py             --expected-main "${{ steps.freeze.outputs.main }}"             --expected-main-tree "${{ steps.freeze.outputs.tree }}"             --execute             --confirm RETIRE_ISSUE_41_OBSOLETE_REFS
