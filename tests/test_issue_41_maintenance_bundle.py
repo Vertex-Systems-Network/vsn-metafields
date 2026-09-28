@@ -64,11 +64,13 @@ class Issue41MaintenanceBundleTests(unittest.TestCase):
         self.policy.write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
 
         self.main_sha = "1" * 40
+        self.main_tree_sha = "a" * 40
         snapshot = {
             "schema_version": 1,
             "repository": EXPECTED_REPOSITORY,
             "issue": 41,
             "main_sha": self.main_sha,
+            "main_tree_sha": self.main_tree_sha,
             "heads": {
                 "main": self.main_sha,
                 "merged": "2" * 40,
@@ -121,6 +123,7 @@ class Issue41MaintenanceBundleTests(unittest.TestCase):
         bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
         self.assertFalse(bundle["remote_mutation_performed"])
         self.assertEqual(bundle["main_before_sha"], self.main_sha)
+        self.assertEqual(bundle["main_before_tree_sha"], self.main_tree_sha)
         self.assertEqual(bundle["confirmed_retire_branches"], ["candidate"])
         self.assertEqual(
             {row["branch"] for row in bundle["preserve_refs"]},
@@ -134,6 +137,7 @@ class Issue41MaintenanceBundleTests(unittest.TestCase):
         transaction = transaction_path.read_text(encoding="utf-8")
         self.assertIn("RETIRE refs/heads/candidate EXPECTED_SHA " + "3" * 40, transaction)
         self.assertIn("PRESERVE refs/heads/main EXPECTED_SHA " + self.main_sha, transaction)
+        self.assertIn("main_before_tree_sha=" + self.main_tree_sha, transaction)
         self.assertIn("intentionally non-executable", transaction)
 
         rollback = rollback_path.read_text(encoding="utf-8")
@@ -164,6 +168,15 @@ class Issue41MaintenanceBundleTests(unittest.TestCase):
         proc = self.builder("--confirm-retire", "candidate")
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("main_sha", proc.stderr)
+
+    def test_missing_main_tree_sha_is_rejected(self) -> None:
+        payload = json.loads(self.snapshot.read_text(encoding="utf-8"))
+        payload.pop("main_tree_sha")
+        self.snapshot.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+        proc = self.builder("--confirm-retire", "candidate")
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("main_tree_sha", proc.stderr)
 
     def test_unknown_confirmation_is_rejected(self) -> None:
         proc = self.builder(
