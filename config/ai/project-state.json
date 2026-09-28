@@ -5,7 +5,7 @@
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
   "last_verified_completion": "Issue #4 work unit 3/6 complete on PR #72 candidate: full React Router app HTTP boot under workerd, Worker-side PrismaPg + Shopify PrismaSessionStorage round-trip against isolated PostgreSQL, staging binding contract, and manual-only guarded Cloudflare staging deploy workflow are green.",
-  "next_valid_work_unit": "Deploy the isolated Cloudflare staging Worker from protected main using the cloudflare-staging GitHub environment, then validate Shopify auth, existing subscription reads, webhooks, embedded navigation, and PostgreSQL-backed sessions without changing production Shopify URLs.",
+  "next_valid_work_unit": "Validate the request-scoped Prisma/session-storage fix in CI, merge it if green, redeploy the isolated Cloudflare staging Worker, then repeat Shopify embedded auth/session validation without changing production Shopify URLs.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Configure the GitHub cloudflare-staging environment with Cloudflare account/token, staging Worker secrets, and a non-production SHOPIFY_APP_URL.",
-    "Deploy the isolated staging Worker manually from protected main.",
-    "Validate Shopify auth, subscription reads, webhooks, embedded navigation, and session continuity on staging without billing mutations."
+    "Validate and merge the request-scoped Prisma/session-storage fix for Cloudflare staging.",
+    "Redeploy the isolated staging Worker manually from protected main after the fix is green.",
+    "Re-test Shopify auth, subscription reads, webhooks, embedded navigation, and session continuity on staging without billing mutations."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -27,10 +27,12 @@
     "Choose and identity-verify the Development AI agent pool available in the current host.",
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
-  "critical_defects": [],
-  "qa_readiness": "workerd_app_and_prisma_session_runtime_green_staging_deploy_next",
+  "critical_defects": [
+    "Cloudflare staging auth currently fails because PrismaSessionStorage readiness I/O starts from module scope; request-time DB access succeeds, so the missing-session-table message is a wrapped Worker request-context failure. Request-scoped fix is under validation."
+  ],
+  "qa_readiness": "cloudflare_staging_auth_root_cause_isolated_request_scoped_fix_under_validation",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
   "last_reconciled_repository_ref": "88af4354b45d07973aadf9ca45b346a86c8e5032",
   "last_reconciled_at": "2026-09-28T15:12:00+00:00",
-  "notes": "PHASE-01 work unit 3 is validated on the PR candidate: workerd boots the full app and independently proves PrismaPg + Shopify session storage against isolated PostgreSQL. Staging deployment remains manual-only and production Shopify URLs/subscriptions/Railway remain unchanged."
+  "notes": "PHASE-01 work unit 4 is active. Neon migration is applied and request-time Prisma access is green. Latest staging diagnostics prove Shopify config/token alignment is correct and isolate the remaining failure to module-scoped PrismaSessionStorage readiness I/O under Cloudflare Workers. Production Shopify/Railway remains unchanged."
 }
