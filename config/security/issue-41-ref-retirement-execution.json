@@ -2,12 +2,9 @@
   "schema_version": 1,
   "repository": "Vertex-Systems-Network/vsn-metafields",
   "issue": 41,
-  "trigger_comment": "EXECUTE_ISSUE_41_REF_RETIREMENT_V1",
   "execute_confirmation": "RETIRE_ISSUE_41_OBSOLETE_REFS",
   "allowed_actor": "wpessential",
   "ruleset_id": 24085428,
-  "frozen_main_sha": "aef56ac35867e629af4fccfbc9aaa6f7e846dbbf",
-  "frozen_main_tree_sha": "a75d1b618f013149c3d6b448616f26ee59005223",
   "executor_branch": "phase-00/ref-retirement-executor",
   "category_c_confirmed": [
     "anpos/adopt-existing-vsn-metafields",
@@ -44,5 +41,8 @@
     "railway/fix-deploy-9ac769": "98a6f4e56aa267e6c5d1d4dd5a6b9a511e8d378d",
     "railway/fix-deploy-fdebcf": "dcc79c0f33055952dbc8c33ef305c5e1bd5f6db1",
     "security/git-history-purge-runbook": "4ae0131b7d351656e4b9f3e4548a0ce5966e3608"
-  }
+  },
+  "trigger_comment_prefix": "EXECUTE_ISSUE_41_REF_RETIREMENT_V1",
+  "pre_executor_main_sha": "aef56ac35867e629af4fccfbc9aaa6f7e846dbbf",
+  "pre_executor_main_tree_sha": "a75d1b618f013149c3d6b448616f26ee59005223"
 }
