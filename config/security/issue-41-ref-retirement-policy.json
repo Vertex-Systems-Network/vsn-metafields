@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "repository": "Vertex-Systems-Network/vsn-metafields",
+  "issue": 41,
+  "policy": "retire obsolete/superseded refs after private freeze evidence; preserve main only",
+  "allowed_tags": [],
+  "preferred_post_retirement_heads": [
+    "main"
+  ],
+  "refs": [
+    {
+      "branch": "anpos/adopt-existing-blueprint",
+      "disposition": "retire",
+      "evidence": "merged canonical ANPOS work + containment-only tip"
+    },
+    {
+      "branch": "anpos/adopt-existing-vsn-metafields",
+      "disposition": "confirm_retire",
+      "evidence": "closed/unmerged PR #3; superseded by canonical ANPOS adoption"
+    },
+    {
+      "branch": "main",
+      "disposition": "preserve",
+      "evidence": "default protected branch"
+    },
+    {
+      "branch": "migration/cloudflare-subscription-safe",
+      "disposition": "confirm_retire",
+      "evidence": "closed/unmerged PR #5; superseded by merged Cloudflare safety baseline #43"
+    },
+    {
+      "branch": "migration/cloudflare-subscription-safe-v2",
+      "disposition": "retire",
+      "evidence": "merged PR #43 exact work line"
+    },
+    {
+      "branch": "phase-00/actions-runner-probe",
+      "disposition": "confirm_retire",
+      "evidence": "closed diagnostic PR #18; Actions execution is now established"
+    },
+    {
+      "branch": "phase-00/app-contract-smoke",
+      "disposition": "retire",
+      "evidence": "merged PRs #46 and #47; current branch tip represented on main"
+    },
+    {
+      "branch": "phase-00/billing-safety",
+      "disposition": "retire",
+      "evidence": "merged PR #29"
+    },
+    {
+      "branch": "phase-00/child-workflow-hygiene",
+      "disposition": "retire",
+      "evidence": "merged PR #16"
+    },
+    {
+      "branch": "phase-00/dependabot-major-guardrails",
+      "disposition": "retire",
+      "evidence": "merged PR #31"
+    },
+    {
+      "branch": "phase-00/dependency-hygiene",
+      "disposition": "retire",
+      "evidence": "merged PR #15"
+    },
+    {
+      "branch": "phase-00/dev-tool-advisories",
+      "disposition": "retire",
+      "evidence": "merged PRs #56 and #57; current branch tip represented on main"
+    },
+    {
+      "branch": "phase-00/history-purge-identity-guard",
+      "disposition": "retire",
+      "evidence": "merged PR #58"
+    },
+    {
+      "branch": "phase-00/history-purge-ref-allowlist",
+      "disposition": "retire",
+      "evidence": "merged PR #59"
+    },
+    {
+      "branch": "phase-00/history-ref-inventory",
+      "disposition": "retire",
+      "evidence": "temporary Issue #41 inventory branch"
+    },
+    {
+      "branch": "phase-00/history-rewrite-plan",
+      "disposition": "retire",
+      "evidence": "merged PR #44"
+    },
+    {
+      "branch": "phase-00/metafield-safety",
+      "disposition": "retire",
+      "evidence": "merged PR #24"
+    },
+    {
+      "branch": "phase-00/node22-baseline",
+      "disposition": "retire",
+      "evidence": "merged PR #30"
+    },
+    {
+      "branch": "phase-00/p0-security-baseline",
+      "disposition": "retire",
+      "evidence": "merged PR #12"
+    },
+    {
+      "branch": "phase-00/ref-retirement-readiness-guard",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch for this readiness control; retire only after its PR is merged"
+    },
+    {
+      "branch": "phase-00/shopify-security-upgrade",
+      "disposition": "retire",
+      "evidence": "merged validated secure upgrade PR #39"
+    },
+    {
+      "branch": "phase-00/shopify-v3-security-upgrade",
+      "disposition": "confirm_retire",
+      "evidence": "closed/unmerged PR #40; superseded by validated PR #39"
+    },
+    {
+      "branch": "phase-00/webhook-hardening",
+      "disposition": "retire",
+      "evidence": "merged PR #13"
+    },
+    {
+      "branch": "phase-00/webhook-privacy-state",
+      "disposition": "retire",
+      "evidence": "merged PR #14"
+    },
+    {
+      "branch": "railway/fix-deploy-9ac769",
+      "disposition": "retire",
+      "evidence": "merged Railway fix + containment-only tip"
+    },
+    {
+      "branch": "railway/fix-deploy-fdebcf",
+      "disposition": "retire",
+      "evidence": "merged Railway fix + containment-only tip"
+    },
+    {
+      "branch": "security/git-history-purge-runbook",
+      "disposition": "retire",
+      "evidence": "merged PR #42"
+    }
+  ]
+}
