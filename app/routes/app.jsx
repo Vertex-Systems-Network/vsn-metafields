@@ -4,6 +4,8 @@ import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
+  // eslint-disable-next-line no-undef
+  const env = process.env;
   const url = new URL(request.url);
   const shop = url.searchParams.get("shop") || "unknown";
 
@@ -14,10 +16,10 @@ export const loader = async ({ request }) => {
       event: "shopify-admin-auth-failed",
       route: "/app",
       shop,
-      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-      hasShopifyApiKey: Boolean(process.env.SHOPIFY_API_KEY),
-      hasShopifyApiSecret: Boolean(process.env.SHOPIFY_API_SECRET),
-      hasShopifyAppUrl: Boolean(process.env.SHOPIFY_APP_URL),
+      hasDatabaseUrl: Boolean(env.DATABASE_URL),
+      hasShopifyApiKey: Boolean(env.SHOPIFY_API_KEY),
+      hasShopifyApiSecret: Boolean(env.SHOPIFY_API_SECRET),
+      hasShopifyAppUrl: Boolean(env.SHOPIFY_APP_URL),
       errorName: error instanceof Error ? error.name : typeof error,
       errorMessage: error instanceof Error ? error.message : "non-error thrown",
       errorCause:
@@ -31,7 +33,7 @@ export const loader = async ({ request }) => {
   }
 
   // eslint-disable-next-line no-undef
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  return { apiKey: env.SHOPIFY_API_KEY || "" };
 };
 
 export default function App() {
