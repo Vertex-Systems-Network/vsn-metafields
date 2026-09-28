@@ -3,7 +3,7 @@
   "issue": 4,
   "environment": "cloudflare-staging",
   "worker_name": "vsn-metafields-staging",
-  "deploy_mode": "manual_only",
+  "deploy_mode": "protected_main_runtime_auto",
   "production_routes_allowed": false,
   "required_secrets": [
     {
@@ -48,5 +48,12 @@
     "billing_mutation": true,
     "merchant_reinstall": true,
     "railway_shutdown": true
+  },
+  "auto_deploy": {
+    "branch": "main",
+    "runtime_paths_only": true,
+    "environment": "cloudflare-staging",
+    "production_routes_allowed": false,
+    "manual_dispatch_fallback": true
   }
 }

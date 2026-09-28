@@ -94,6 +94,18 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(releaseWorkflow, /Refusing to release staging version with the production Shopify client ID/);
 });
 
+test("Cloudflare staging deploy stays isolated and auto-deploys only runtime changes", () => {
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(workflow, /push:/);
+  assert.match(workflow, /branches:\s*\n\s*- main/);
+  assert.match(workflow, /- "app\/\*\*"/);
+  assert.match(workflow, /github\.event_name == 'push'/);
+  assert.match(workflow, /environment: cloudflare-staging/);
+  assert.match(workflow, /Staging deploy must not use the Railway production Shopify URL/);
+  assert.doesNotMatch(workflow, /environment:\s*production/);
+});
+
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
   const wrangler = JSON.parse(read("wrangler.jsonc"));
   const worker = read("workers/app.js");

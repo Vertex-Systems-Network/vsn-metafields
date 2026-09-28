@@ -18,7 +18,7 @@
   "outstanding_updates": [
     "Run the guarded Shopify Staging Release workflow for staging-webhooks-2 after repository checks pass.",
     "Validate staging webhook delivery for app/uninstalled, app/scopes_update, and compliance endpoints.",
-    "Perform the final Cloudflare staging deploy and 5-day trial / $55 billing verification last."
+    "Cloudflare staging runtime deploy is now automatic for protected-main runtime changes; verify the resulting deployment and then validate 5-day trial / $55 billing."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -32,7 +32,7 @@
   ],
   "qa_readiness": "staging_version_created_release_and_webhook_delivery_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "fed87d119633fc34fe9d214eec4bdaf83d2f9a6e",
-  "last_reconciled_at": "2026-09-28T23:35:00+00:00",
-  "notes": "PHASE-01 work unit 4 staging version creation is green. Run 36497144313 used shopify.app.cloudflare-staging.toml and created unreleased staging-webhooks-2. A guarded staging-only release workflow is the next gate; production Shopify/Railway remains unchanged and the 5-day trial and $55/month billing verification stays deferred until final staging deploy."
+  "last_reconciled_repository_ref": "d98408bd0776c9153a3e3f8b5a2ffdc0a4c7c02b",
+  "last_reconciled_at": "2026-09-28T23:45:00+00:00",
+  "notes": "PHASE-01 work unit 4 staging version creation is green. Run 36497144313 used shopify.app.cloudflare-staging.toml and created unreleased staging-webhooks-2. A guarded staging-only release workflow is the next gate; production Shopify/Railway remains unchanged and the 5-day trial and $55/month billing verification stays deferred until final staging deploy. Safe automation is being added so protected-main runtime changes auto-deploy only to the isolated cloudflare-staging environment; production release remains manually gated."
 }
