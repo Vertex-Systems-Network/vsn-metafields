@@ -4,8 +4,8 @@
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
   "current_work_unit": "ISSUE-41-historical-git-metadata-purge",
-  "last_verified_completion": "PR #62 merged to main as aef56ac35867e629af4fccfbc9aaa6f7e846dbbf with green AI Native Quality Gates; pre/post tree identity and post-rewrite certification are now enforced.",
-  "next_valid_work_unit": "Complete the Issue #41 administrator-controlled maintenance window: capture private rollback refs/mirror, retire approved obsolete refs, temporarily adjust the main non-fast-forward ruleset, purge ..git/ from remaining history, restore protection, and fresh-clone validate.",
+  "last_verified_completion": "Issue #41 obsolete non-main ref retirement completed successfully; repository was reduced to main only at 3cc8a86dc7082a9d092a2eaa14b4b6ad2b4282d3 with tree 6b2d4fe2dfc7e3fcbbb7e4aae30dd03d3e7d6b5d unchanged.",
+  "next_valid_work_unit": "Merge and self-clean the guarded main-history purge executor, then temporarily disable only non_fast_forward in ruleset 24085428 and execute the exact main/tree-pinned purge trigger.",
   "progress": {
     "total_work_units": 4,
     "complete": 3,
@@ -32,7 +32,7 @@
   ],
   "qa_readiness": "application_contract_smoke_and_full_dependency_high_audit_green",
   "security_readiness": "p0_history_rewrite_blocked_ruleset",
-  "last_reconciled_repository_ref": "aef56ac35867e629af4fccfbc9aaa6f7e846dbbf",
-  "last_reconciled_at": "2026-09-28T12:45:00+00:00",
-  "notes": "Issue #41 remains the sole PHASE-00 P0 blocker. The next maintenance step is now repository-native: a guarded issue_comment workflow can retire only the exact frozen non-main refs after the executor PR merges, while pinning the final protected main commit/tree in the trigger. Main/ruleset/history rewrite remain untouched by that executor."
+  "last_reconciled_repository_ref": "3cc8a86dc7082a9d092a2eaa14b4b6ad2b4282d3",
+  "last_reconciled_at": "2026-09-28T12:55:00+00:00",
+  "notes": "Obsolete refs are retired. Current work stages a main-only purge workflow that reuses the tested local rewrite helper and post-rewrite certifier. The remaining external admin boundary is the narrow temporary removal and restoration of ruleset non_fast_forward protection."
 }
