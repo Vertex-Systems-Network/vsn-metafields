@@ -82,6 +82,16 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(workflow, /--no-release/);
   assert.doesNotMatch(workflow, /--client-id/);
   assert.match(workflow, /Refusing to create a staging version with the production Shopify client ID/);
+
+  const releaseWorkflow = read(".github/workflows/shopify-staging-release.yml");
+  assert.match(releaseWorkflow, /TARGET_VERSION: "staging-webhooks-2"/);
+  assert.match(releaseWorkflow, /RELEASE_STAGING_WEBHOOKS_2/);
+  assert.match(releaseWorkflow, /app versions list/);
+  assert.match(releaseWorkflow, /app release/);
+  assert.match(releaseWorkflow, /--allow-updates/);
+  assert.doesNotMatch(releaseWorkflow, /--allow-deletes/);
+  assert.doesNotMatch(releaseWorkflow, /--client-id/);
+  assert.match(releaseWorkflow, /Refusing to release staging version with the production Shopify client ID/);
 });
 
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
