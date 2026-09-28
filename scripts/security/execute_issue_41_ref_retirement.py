@@ -127,6 +127,17 @@ class GitHubApi:
             )
         return str(merged[0]["head"]["sha"])
 
+    def main_tree_sha(self, commit_sha: str) -> str:
+        data = self.request("GET", f"commits/{commit_sha}")
+        if (
+            not isinstance(data, dict)
+            or not isinstance(data.get("commit"), dict)
+            or not isinstance(data["commit"].get("tree"), dict)
+            or not isinstance(data["commit"]["tree"].get("sha"), str)
+        ):
+            raise RetirementError("unexpected commit response while reading main tree")
+        return str(data["commit"]["tree"]["sha"])
+
     def delete_branch(self, branch: str) -> None:
         encoded = urllib.parse.quote(branch, safe="/")
         self.request(
@@ -147,12 +158,12 @@ def load_manifest(path: Path) -> dict[str, object]:
     if manifest.get("issue") != EXPECTED_ISSUE:
         raise RetirementError("execution manifest issue mismatch")
 
-    main_sha = manifest.get("frozen_main_sha")
-    tree_sha = manifest.get("frozen_main_tree_sha")
-    if not isinstance(main_sha, str) or len(main_sha) != 40:
-        raise RetirementError("frozen_main_sha must be a 40-character SHA")
-    if not isinstance(tree_sha, str) or len(tree_sha) != 40:
-        raise RetirementError("frozen_main_tree_sha must be a 40-character SHA")
+    pre_main_sha = manifest.get("pre_executor_main_sha")
+    pre_tree_sha = manifest.get("pre_executor_main_tree_sha")
+    if not isinstance(pre_main_sha, str) or len(pre_main_sha) != 40:
+        raise RetirementError("pre_executor_main_sha must be a 40-character SHA")
+    if not isinstance(pre_tree_sha, str) or len(pre_tree_sha) != 40:
+        raise RetirementError("pre_executor_main_tree_sha must be a 40-character SHA")
 
     expected = manifest.get("expected_non_main_heads")
     if not isinstance(expected, dict) or not expected:
@@ -182,6 +193,7 @@ def validate_live_state(
     manifest: dict[str, object],
     live_heads: dict[str, str],
     executor_pr_head_sha: str,
+    expected_main_sha: str,
 ) -> list[str]:
     expected = manifest["expected_non_main_heads"]
     assert isinstance(expected, dict)
@@ -189,10 +201,10 @@ def validate_live_state(
 
     if "main" not in live_heads:
         raise RetirementError("main branch is missing")
-    if live_heads["main"] != manifest["frozen_main_sha"]:
+    if live_heads["main"] != expected_main_sha:
         raise RetirementError(
-            "main moved after freeze; stop retirement before any deletion "
-            f"(live={live_heads['main']}, frozen={manifest['frozen_main_sha']})"
+            "main moved after execution freeze; stop retirement before any deletion "
+            f"(live={live_heads['main']}, expected={expected_main_sha})"
         )
 
     expected_names = set(expected) | {executor, "main"}
@@ -231,6 +243,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--token", default=os.environ.get("GH_TOKEN", ""))
     parser.add_argument("--actor", default=os.environ.get("GITHUB_ACTOR", ""))
+    parser.add_argument("--expected-main", required=True)
+    parser.add_argument("--expected-main-tree", required=True)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--confirm", default="")
     return parser.parse_args()
@@ -250,6 +264,8 @@ def main() -> int:
         )
     if not args.token:
         raise RetirementError("GH_TOKEN is required")
+    if len(args.expected_main) != 40 or len(args.expected_main_tree) != 40:
+        raise RetirementError("expected main commit/tree SHAs must be 40 characters")
 
     api = GitHubApi(args.repository, args.token)
     open_prs = api.open_pull_requests()
@@ -268,10 +284,18 @@ def main() -> int:
         manifest,
         live_before,
         executor_pr_head,
+        args.expected_main,
     )
+    live_main_tree = api.main_tree_sha(args.expected_main)
+    if live_main_tree != args.expected_main_tree:
+        raise RetirementError(
+            "main tree changed after execution freeze; "
+            f"live={live_main_tree}, expected={args.expected_main_tree}"
+        )
 
     print(f"repository={args.repository}")
-    print(f"frozen_main_sha={manifest['frozen_main_sha']}")
+    print(f"expected_main_sha={args.expected_main}")
+    print(f"expected_main_tree_sha={args.expected_main_tree}")
     print(f"retire_ref_count={len(retirement_order)}")
     print("main_action=preserve")
     print("ruleset_action=none")
@@ -307,8 +331,10 @@ def main() -> int:
             "post-retirement branch set is not main-only: "
             + json.dumps(live_after, sort_keys=True)
         )
-    if live_after["main"] != manifest["frozen_main_sha"]:
+    if live_after["main"] != args.expected_main:
         raise RetirementError("main changed during non-main ref retirement")
+    if api.main_tree_sha(args.expected_main) != args.expected_main_tree:
+        raise RetirementError("main tree changed during non-main ref retirement")
 
     print("remaining_heads=main")
     print("remote_mutation_performed=true")
