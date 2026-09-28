@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFetcher, useLocation } from "react-router";
+import { Link, useFetcher, useLocation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 
@@ -113,9 +113,9 @@ export default function Index() {
       <s-page heading="VSN Metafields">
         <s-banner tone="warning">
           No active plan found.{" "}
-          <a href={`/app/packages${location.search}`}>
+          <Link to={{ pathname: "/app/packages", search: location.search }}>
             Click here to choose a plan
-          </a>{" "}
+          </Link>{" "}
           and get started.
         </s-banner>
       </s-page>
