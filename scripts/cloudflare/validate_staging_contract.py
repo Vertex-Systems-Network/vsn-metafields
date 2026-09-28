@@ -198,7 +198,7 @@ def main() -> int:
 
     require("workflow_dispatch:" in staging_deploy, "staging manual deploy fallback missing")
     require("push:" in staging_deploy, "staging protected-main auto deploy trigger missing")
-    require(re.search(r"branches:\\s*\\n\\s*- main", staging_deploy) is not None, "staging auto deploy must target main only")
+    require(re.search(r"branches:\s*\n\s*-\s*main", staging_deploy) is not None, "staging auto deploy must target main only")
     require('- "app/**"' in staging_deploy, "staging auto deploy must include app runtime path")
     require('- ".github/workflows/cloudflare-staging-deploy.yml"' in staging_deploy, "staging deploy workflow path must self-trigger validation deploy")
     require("github.event_name == 'push'" in staging_deploy, "staging deploy push gate missing")
