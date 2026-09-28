@@ -14,6 +14,7 @@ WRANGLER = ROOT / "wrangler.jsonc"
 SHOPIFY = ROOT / "shopify.app.toml"
 SHOPIFY_SERVER = ROOT / "app" / "shopify.server.js"
 DB_SERVER = ROOT / "app" / "db.server.js"
+SESSION_STORAGE = ROOT / "app" / "prisma-session-storage.server.js"
 PRISMA = ROOT / "prisma" / "schema.prisma"
 PACKAGE = ROOT / "package.json"
 MIGRATION_DOC = ROOT / "docs" / "cloudflare-migration-baseline.md"
@@ -49,6 +50,7 @@ def main() -> int:
     shopify = read(SHOPIFY)
     shopify_server = read(SHOPIFY_SERVER)
     db_server = read(DB_SERVER)
+    session_storage = read(SESSION_STORAGE)
     prisma = read(PRISMA)
     package = load_json(PACKAGE)
     migration_doc = read(MIGRATION_DOC)
@@ -121,10 +123,24 @@ def main() -> int:
         re.search(r'engineType\s*=\s*"client"', prisma) is not None,
         "Prisma client must stay engine-less for Workers",
     )
-    require("PrismaSessionStorage" in shopify_server, "Shopify session storage must remain Prisma")
+    require(
+        "RequestScopedPrismaSessionStorage" in shopify_server,
+        "Shopify session storage must use the request-scoped Prisma wrapper",
+    )
+    require(
+        "PrismaSessionStorage" in session_storage,
+        "request-scoped wrapper must retain Shopify PrismaSessionStorage",
+    )
+    require(
+        "createPrismaClient()" in session_storage and "$disconnect()" in session_storage,
+        "request-scoped session storage must create and close Prisma per operation",
+    )
     require("process.env.DATABASE_URL" in db_server, "database runtime must remain environment-driven")
     require('import { PrismaPg } from "@prisma/adapter-pg"' in db_server, "PrismaPg adapter is required")
     require("new PrismaPg({ connectionString })" in db_server, "PrismaPg must use DATABASE_URL")
+    require("export function createPrismaClient()" in db_server, "Prisma client must be created by a request-safe factory")
+    require("global.__vsnPrisma" not in db_server, "Worker runtime must not reuse a global Prisma client")
+    require("export default" not in db_server, "Worker runtime must not export a module-scoped Prisma singleton")
     require("new PrismaClient({" in db_server and "adapter," in db_server, "Prisma Client must receive the adapter")
     require(".$connect(" not in db_server, "eager Prisma connection is forbidden in Worker runtime")
 
