@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
 
-import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
-
-import prisma from "../app/db.server.js";
+import { createPrismaClient } from "../app/db.server.js";
+import { RequestScopedPrismaSessionStorage } from "../app/prisma-session-storage.server.js";
 
 const sessionId = "offline_ci-prisma-worker-smoke.myshopify.com";
 const shop = "ci-prisma-worker-smoke.myshopify.com";
 
-const storage = new PrismaSessionStorage(prisma, {
-  connectionRetries: 1,
-  connectionRetryIntervalMs: 10,
-});
+const storage = new RequestScopedPrismaSessionStorage();
 
 const session = {
   id: sessionId,
@@ -39,7 +35,6 @@ const session = {
 
 try {
   assert.equal(await storage.isReady(), true);
-
   assert.equal(await storage.storeSession(session), true);
 
   const loaded = await storage.loadSession(sessionId);
@@ -55,6 +50,10 @@ try {
 
   console.log("prisma_session_storage_adapter_smoke=pass");
 } finally {
-  await prisma.session.deleteMany({ where: { id: sessionId } });
-  await prisma.$disconnect();
+  const prisma = createPrismaClient();
+  try {
+    await prisma.session.deleteMany({ where: { id: sessionId } });
+  } finally {
+    await prisma.$disconnect();
+  }
 }
