@@ -33,11 +33,11 @@ jobs:
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "22.12.0"
+          node-version: "22.13.0"
           cache: npm
 
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
-      - name: Audit full dependency tree for critical vulnerabilities
-        run: npm audit --audit-level=critical
+      - name: Audit full dependency tree for high and critical vulnerabilities
+        run: npm audit --audit-level=high
