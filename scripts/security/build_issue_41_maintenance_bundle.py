@@ -143,6 +143,10 @@ def load_snapshot(path: Path, policy: dict[str, object]) -> dict[str, object]:
     main_sha = heads.get("main")
     if snapshot.get("main_sha") != main_sha:
         raise BundleError("freeze snapshot main_sha does not match heads.main")
+
+    main_tree_sha = snapshot.get("main_tree_sha")
+    if not isinstance(main_tree_sha, str) or len(main_tree_sha) != 40:
+        raise BundleError("freeze snapshot main_tree_sha must be a 40-character SHA")
     return snapshot
 
 
@@ -212,6 +216,7 @@ def build_bundle(
         "policy_sha256": policy_digest,
         "ruleset_id": ruleset_id,
         "main_before_sha": str(heads["main"]),
+        "main_before_tree_sha": str(snapshot["main_tree_sha"]),
         "preserve_refs": preserve,
         "retire_refs": retire,
         "confirmed_retire_branches": confirmed,
@@ -241,6 +246,7 @@ def render_transaction(bundle: dict[str, object]) -> str:
         f"repository={bundle['repository']}",
         f"ruleset_id={bundle['ruleset_id']}",
         f"main_before_sha={bundle['main_before_sha']}",
+        f"main_before_tree_sha={bundle['main_before_tree_sha']}",
         f"snapshot_sha256={bundle['snapshot_sha256']}",
         f"policy_sha256={bundle['policy_sha256']}",
         "",
