@@ -37,10 +37,11 @@ git clone --mirror https://github.com/Vertex-Systems-Network/vsn-metafields.git 
 
 python scripts/security/prepare_git_history_purge.py \
   --repo-dir vsn-metafields-purge.git \
-  --evidence-dir vsn-metafields-purge-evidence
+  --evidence-dir vsn-metafields-purge-evidence \
+  --expected-main <CURRENT_GITHUB_MAIN_SHA>
 ```
 
-Default mode is read-only. It requires a bare/mirror clone, records head/tag refs and reachable accidental `..git/` object counts, and writes evidence outside Git history without printing file contents or credential values.
+Default mode is read-only. It requires a bare/mirror clone whose normalized `origin` is exactly `Vertex-Systems-Network/vsn-metafields`, records head/tag refs and reachable accidental `..git/` object counts, verifies `--expected-main` when supplied, and writes evidence outside Git history without printing remote credentials, file contents, or secret values.
 
 ### Confirmed local-mirror rewrite
 
@@ -50,11 +51,12 @@ Only after the repository write freeze, private rollback capture, secret scan, a
 python scripts/security/prepare_git_history_purge.py \
   --repo-dir vsn-metafields-purge.git \
   --evidence-dir vsn-metafields-purge-evidence \
+  --expected-main <CURRENT_GITHUB_MAIN_SHA> \
   --rewrite \
   --confirm PURGE_DOT_DOT_GIT_HISTORY
 ```
 
-The helper requires the exact confirmation phrase, runs `git filter-repo` only against the local mirror, requires zero reachable `..git/` objects afterward, runs `git fsck --full`, and writes post-rewrite evidence.
+The helper requires the exact confirmation phrase **and** an `--expected-main` SHA captured from GitHub at the maintenance freeze. It refuses a wrong repository identity or stale mirror before rewriting, runs `git filter-repo` only against the local mirror, requires zero reachable `..git/` objects afterward, runs `git fsck --full`, and writes post-rewrite evidence.
 
 **The helper never pushes or force-pushes any remote ref.** GitHub ref updates remain a separately reviewed administrator action under Phase E.
 
