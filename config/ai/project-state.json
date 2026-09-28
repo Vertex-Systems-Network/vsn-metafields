@@ -1,21 +1,25 @@
 {
   "schema_version": 1,
   "lifecycle_stage": "engineering",
-  "current_phase": "PHASE-00",
-  "current_module": "existing-app-reconciliation-security-baseline",
-  "current_work_unit": "PHASE-00-CLOSED",
-  "last_verified_completion": "PHASE-00 completed. PR #67 merged to protected main as 028ed6f1b51c33135aefe0504423f615797e59d3; AI Native Quality Gates #146 and App Validation #49 passed; Issue #41 and umbrella Issue #7 are closed; live project branches are main-only; ruleset protections are restored.",
-  "next_valid_work_unit": "Resume Issue #4: Cloudflare subscription-safe migration with Shopify app identity, subscriptions, billing state, and rollback preserved.",
+  "current_phase": "PHASE-01",
+  "current_module": "cloudflare-subscription-safe-migration",
+  "current_work_unit": "ISSUE-4-cloudflare-staging-readiness",
+  "last_verified_completion": "PHASE-00 closed on protected main 36dd19a5068f0fca9638768fc7cfea65b8d2b62a with project-history, app validation, dependency, and security baselines green.",
+  "next_valid_work_unit": "Validate Cloudflare Workers runtime compatibility for the existing Prisma/PostgreSQL session store using a Worker-compatible Prisma driver adapter while preserving the same database and Shopify app identity.",
   "progress": {
-    "total_work_units": 4,
-    "complete": 4,
-    "in_progress": 0,
+    "total_work_units": 6,
+    "complete": 0,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
-  "outstanding_updates": [],
+  "outstanding_updates": [
+    "Prove the React Router server bundle can be packaged by Wrangler without changing production Shopify URLs.",
+    "Adapt Prisma runtime for Cloudflare Workers without migrating the PostgreSQL data/session store.",
+    "Deploy Cloudflare staging only after dry-run and runtime compatibility gates pass."
+  ],
   "outstanding_removals": [],
   "unresolved_decisions": [
     "Issue #68: GitHub-managed refs/pull/* server-side dereference/garbage-collection follow-up; not a PHASE-00 project-ref blocker.",
@@ -24,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "application_contract_smoke_and_full_dependency_high_audit_green",
-  "security_readiness": "phase_00_security_baseline_green_project_refs_clean_protections_restored",
-  "last_reconciled_repository_ref": "028ed6f1b51c33135aefe0504423f615797e59d3",
-  "last_reconciled_at": "2026-09-28T13:47:00+00:00",
-  "notes": "PHASE-00 is closed. Normal fresh-main-clone history cleanliness and git fsck are permanently enforced by AI Native Quality Gates; App Validation now also runs on protected main pushes. GitHub-managed pull refs are tracked separately in Issue #68."
+  "qa_readiness": "phase_01_staging_readiness_in_progress",
+  "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
+  "last_reconciled_repository_ref": "36dd19a5068f0fca9638768fc7cfea65b8d2b62a",
+  "last_reconciled_at": "2026-09-28T13:55:00+00:00",
+  "notes": "Issue #4 PHASE-01 started. Current milestone adds staging-only Wrangler packaging, machine-enforced migration invariants, and a no-deploy Cloudflare dry-run CI gate. Shopify client_id, Railway production URL, billing mutations, and PostgreSQL/Prisma session store remain unchanged."
 }
