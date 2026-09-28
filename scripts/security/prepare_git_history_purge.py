@@ -343,7 +343,10 @@ def main() -> int:
     require_git_filter_repo()
     rewrite_local_mirror(repo_dir)
 
-    after = repository_summary(repo_dir)
+    after = repository_summary(
+        repo_dir,
+        verified_repository=str(before["repository"]),
+    )
     validate_fsck(repo_dir)
     after_path = write_evidence(evidence_dir, "post-rewrite.json", after)
 
