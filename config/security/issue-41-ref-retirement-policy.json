@@ -24,6 +24,11 @@
       "evidence": "default protected branch"
     },
     {
+      "branch": "phase-00/main-purge-origin-fix",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch fixing purge mirror origin reuse after verified local rewrite"
+    },
+    {
       "branch": "phase-00/main-history-purge-executor",
       "disposition": "retire_after_merge",
       "evidence": "temporary branch staging the guarded main-only history purge executor; retire immediately after merge"
