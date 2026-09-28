@@ -107,7 +107,13 @@ class HistoryPurgeHelperTests(unittest.TestCase):
         self.assertIn("..git/config", evidence["sample_embedded_git_metadata_paths"])
 
     def test_rewrite_requires_exact_confirmation_phrase(self) -> None:
-        proc = self.helper("--rewrite", "--expected-main", self.main_sha)
+        proc = self.helper(
+            "--rewrite",
+            "--expected-main",
+            self.main_sha,
+            "--approved-head",
+            "main",
+        )
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("PURGE_DOT_DOT_GIT_HISTORY", proc.stderr)
         self.assertFalse((self.evidence / "post-rewrite.json").exists())
@@ -121,6 +127,53 @@ class HistoryPurgeHelperTests(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("--expected-main", proc.stderr)
         self.assertFalse((self.evidence / "post-rewrite.json").exists())
+
+    def test_rewrite_requires_explicit_approved_head(self) -> None:
+        proc = self.helper(
+            "--rewrite",
+            "--expected-main",
+            self.main_sha,
+            "--confirm",
+            "PURGE_DOT_DOT_GIT_HISTORY",
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("--approved-head", proc.stderr)
+
+    def test_unexpected_head_blocks_rewrite_scope(self) -> None:
+        self.assertEqual(
+            run(
+                "git",
+                "branch",
+                "extra",
+                self.main_sha,
+                cwd=self.mirror,
+            ).returncode,
+            0,
+        )
+        proc = self.helper(
+            "--rewrite",
+            "--expected-main",
+            self.main_sha,
+            "--approved-head",
+            "main",
+            "--confirm",
+            "PURGE_DOT_DOT_GIT_HISTORY",
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("mirror ref set does not match", proc.stderr)
+        self.assertIn("extra", proc.stderr)
+
+    def test_exact_approved_ref_scope_passes_guard(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("history_purge_helper", HELPER)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        summary = module.repository_summary(self.mirror)
+        module.require_approved_refs(summary, ["main"], [])
 
     def test_stale_expected_main_is_rejected(self) -> None:
         proc = self.helper("--expected-main", "0" * 40)
