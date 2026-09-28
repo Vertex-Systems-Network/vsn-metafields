@@ -116,7 +116,7 @@ export default function PackagesPage() {
               <s-stack gap="base">
                 <s-text variant="headingMd">Pro Plan</s-text>
                 <s-text>{PRO_PLAN.trialDays}-day free trial</s-text>
-                <s-text>$35 / month after trial</s-text>
+                <s-text>${PRO_PLAN.amount} / month after trial</s-text>
                 <s-text>Unlimited products</s-text>
                 <s-text>Priority support</s-text>
 
