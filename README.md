@@ -14,8 +14,8 @@
 - **History-hygiene tooling:** committed — purge runbook, read-only audit script, repository-bound + expected-main + exact-ref-allowlist guarded local-mirror helper, synthetic safety tests, machine-enforced ref-retirement policy + SHA-bound private freeze guard + non-executable administrator maintenance bundle + tree-preserving post-rewrite certifier + SHA-bound non-main ref retirement executor
 - **Active P0 blocker:** none — protected project history rewrite is complete and ruleset protections are restored
 - **PHASE-00 progress:** 100% complete
-- **PHASE-01 progress:** 0/6 work units complete; staging-readiness unit in progress
-- **Active work:** Issue #4 — Cloudflare staging readiness; no production cutover authorized
+- **PHASE-01 progress:** 1/6 work units complete; Prisma Worker runtime compatibility next
+- **Active work:** Issue #4 — Prisma/PostgreSQL Worker runtime compatibility; no production cutover authorized
 
 The protected project history has been rewritten and `main` is the sole live branch. The application tree was preserved exactly across the rewrite. AI Native Quality Gates now perform a normal fresh clone of `main`, require zero reachable accidental `..git/` paths, and run `git fsck --full`. GitHub-managed `refs/pull/*` retain legacy PR snapshots outside normal project branch/tag control; that platform-side dereference/GC item is tracked separately and is not treated as a live project-ref blocker.
 
