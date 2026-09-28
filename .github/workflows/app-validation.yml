@@ -74,6 +74,9 @@ jobs:
       - name: Validate migrations
         run: npx prisma migrate deploy
 
+      - name: PrismaPg Shopify session storage smoke
+        run: node tests/prisma-session-adapter-smoke.mjs
+
       - name: Lint
         run: npm run lint
 

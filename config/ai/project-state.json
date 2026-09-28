@@ -3,12 +3,12 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-prisma-worker-runtime-compatibility",
-  "last_verified_completion": "Issue #4 work unit 1/6 complete on PR #70 candidate: staging-only Wrangler baseline, migration invariants, React Router build, and Cloudflare Worker dry-run all green; production Shopify URLs/billing/database remain unchanged.",
-  "next_valid_work_unit": "Adapt the existing Prisma 6 PostgreSQL runtime to a Cloudflare Workers-compatible driver-adapter path and prove Shopify PrismaSessionStorage works against the same PostgreSQL schema without data migration.",
+  "current_work_unit": "ISSUE-4-worker-runtime-smoke-and-staging",
+  "last_verified_completion": "Issue #4 work unit 2/6 complete on PR #71 candidate: Prisma 6.19.3 engine-less client + PrismaPg adapter, same PostgreSQL schema, real Shopify PrismaSessionStorage store/load/delete smoke, App Validation, dependency audit, AI Native Quality Gates, React Router build, and Wrangler dry-run all green.",
+  "next_valid_work_unit": "Run the built app inside the Cloudflare Workers runtime (workerd/Wrangler local) with the PrismaPg path, prove HTTP boot + database/session readiness, then prepare a staging-only deployment with secrets/bindings and no Shopify production URL mutation.",
   "progress": {
     "total_work_units": 6,
-    "complete": 1,
+    "complete": 2,
     "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Prove the React Router server bundle can be packaged by Wrangler without changing production Shopify URLs.",
-    "Adapt Prisma runtime for Cloudflare Workers without migrating the PostgreSQL data/session store.",
-    "Deploy Cloudflare staging only after dry-run and runtime compatibility gates pass."
+    "Run a Worker-runtime HTTP boot smoke with the built React Router bundle.",
+    "Prove PrismaPg/Session storage readiness from the Workers runtime against an isolated PostgreSQL target.",
+    "Prepare Cloudflare staging secrets/bindings and deployment without changing production Shopify URLs."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "cloudflare_staging_packaging_green_prisma_runtime_compatibility_next",
+  "qa_readiness": "prisma_worker_adapter_session_roundtrip_green_worker_runtime_smoke_next",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "36dd19a5068f0fca9638768fc7cfea65b8d2b62a",
-  "last_reconciled_at": "2026-09-28T14:02:00+00:00",
-  "notes": "PHASE-01 work unit 1 is validated: migration invariants, application build, and Wrangler 4.141.0 dry-run pass. No Cloudflare deployment or Shopify production URL mutation occurred. Next unit is Prisma/PostgreSQL Worker runtime compatibility."
+  "last_reconciled_repository_ref": "538ab8c70a73bd0c19e43b0c9229641656d0cdc8",
+  "last_reconciled_at": "2026-09-28T14:14:00+00:00",
+  "notes": "PHASE-01 work unit 2 is validated. PrismaPg uses the same DATABASE_URL-backed PostgreSQL schema; Shopify PrismaSessionStorage successfully stores, loads, and deletes a CI session through the adapter. No production DB/schema/subscription/URL cutover occurred."
 }

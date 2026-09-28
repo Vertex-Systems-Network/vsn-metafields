@@ -15,6 +15,7 @@ SHOPIFY = ROOT / "shopify.app.toml"
 SHOPIFY_SERVER = ROOT / "app" / "shopify.server.js"
 DB_SERVER = ROOT / "app" / "db.server.js"
 PRISMA = ROOT / "prisma" / "schema.prisma"
+PACKAGE = ROOT / "package.json"
 MIGRATION_DOC = ROOT / "docs" / "cloudflare-migration-baseline.md"
 
 
@@ -45,6 +46,7 @@ def main() -> int:
     shopify_server = read(SHOPIFY_SERVER)
     db_server = read(DB_SERVER)
     prisma = read(PRISMA)
+    package = load_json(PACKAGE)
     migration_doc = read(MIGRATION_DOC)
 
     require(inv.get("schema_version") == 1, "unsupported migration invariant schema")
@@ -93,8 +95,32 @@ def main() -> int:
         re.search(r'provider\s*=\s*"postgresql"', prisma) is not None,
         "first cutover must keep PostgreSQL",
     )
+    require(
+        re.search(r'engineType\s*=\s*"client"', prisma) is not None,
+        "Prisma client must stay engine-less for Workers",
+    )
     require("PrismaSessionStorage" in shopify_server, "Shopify session storage must remain Prisma")
     require("process.env.DATABASE_URL" in db_server, "database runtime must remain environment-driven")
+    require('import { PrismaPg } from "@prisma/adapter-pg"' in db_server, "PrismaPg adapter is required")
+    require("new PrismaPg({ connectionString })" in db_server, "PrismaPg must use DATABASE_URL")
+    require("new PrismaClient({" in db_server and "adapter," in db_server, "Prisma Client must receive the adapter")
+    require(".$connect(" not in db_server, "eager Prisma connection is forbidden in Worker runtime")
+
+    dependencies = package.get("dependencies")
+    dev_dependencies = package.get("devDependencies")
+    require(isinstance(dependencies, dict), "package dependencies missing")
+    require(isinstance(dev_dependencies, dict), "package devDependencies missing")
+    require(dependencies.get("@prisma/client") == "6.19.3", "Prisma Client version drifted")
+    require(dependencies.get("@prisma/adapter-pg") == "6.19.3", "Prisma pg adapter version drifted")
+    require(dependencies.get("pg") == "8.23.0", "pg runtime version drifted")
+    require(dependencies.get("prisma") == "6.19.3", "Prisma CLI version drifted")
+    require(dev_dependencies.get("@types/pg") == "8.23.1", "pg type package version drifted")
+
+    compatibility_flags = wrangler.get("compatibility_flags", [])
+    require(
+        isinstance(compatibility_flags, list) and "nodejs_compat" in compatibility_flags,
+        "Cloudflare Node compatibility must be explicit",
+    )
 
     require(
         "currentAppInstallation.activeSubscriptions" in migration_doc,
@@ -124,6 +150,8 @@ def main() -> int:
     print("production_cutover_authorized=false")
     print("billing_mutation_authorized=false")
     print("database_migration_authorized=false")
+    print("prisma_worker_adapter=PrismaPg")
+    print("prisma_engine_type=client")
     print("railway_rollback_required=true")
     return 0
 
