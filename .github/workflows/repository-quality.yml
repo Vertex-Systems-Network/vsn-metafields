@@ -36,6 +36,9 @@ jobs:
       - name: Test guarded history purge helper
         run: python -m unittest discover -s tests -p 'test_history_purge_helper.py'
 
+      - name: Test Issue #41 ref-retirement readiness guard
+        run: python -m unittest discover -s tests -p 'test_ref_retirement_readiness.py'
+
       - name: Validate current AI-native state and workflow safety
         run: python scripts/validate_ai_native_repo.py
 
