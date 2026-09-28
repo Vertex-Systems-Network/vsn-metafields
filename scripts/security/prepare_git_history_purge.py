@@ -165,7 +165,7 @@ def repository_summary(
             "Issue #41 purge must run from a bare/mirror clone, not a working clone"
         )
 
-    repository = verify_repository_identity(repo_dir)
+    repository = verified_repository or verify_repository_identity(repo_dir)
     symbolic_head = run(
         repo_dir,
         "symbolic-ref",
