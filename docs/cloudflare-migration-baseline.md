@@ -78,3 +78,17 @@ The first runtime compatibility milestone must keep the existing PostgreSQL data
 ## Tracking
 
 GitHub issue: #4
+
+
+## Staging readiness evidence
+
+Work unit 1/6 is complete on the guarded migration branch:
+
+- migration invariant validator: pass;
+- React Router production build: pass;
+- Wrangler `4.141.0` Worker bundle dry-run: pass;
+- Shopify production `client_id` and Railway URLs: unchanged;
+- billing mutation during staging validation: still forbidden;
+- PostgreSQL/Prisma session store: unchanged.
+
+The dry-run proves packaging readiness only. It does not certify live database connectivity from Workers; that is the next work unit.
