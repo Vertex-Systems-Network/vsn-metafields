@@ -110,6 +110,26 @@ Record:
 
 Do not include secret values in the evidence files.
 
+### Repository-native non-main ref retirement executor
+
+After the executor PR is merged and **before** any retirement trigger, capture the new protected `main` commit SHA and tree SHA. The exact Issue #41 comment trigger format is:
+
+```text
+EXECUTE_ISSUE_41_REF_RETIREMENT_V1 main=<40-char-main-sha> tree=<40-char-main-tree-sha>
+```
+
+The workflow runs only for Issue #41 comments from the authorized repository actor and invokes `scripts/security/execute_issue_41_ref_retirement.py`. Execution is fail-closed:
+
+- open pull requests block retirement;
+- every frozen non-main branch SHA must still match;
+- the executor branch must equal the head SHA of its merged PR;
+- the trigger-pinned `main` commit and tree must match live GitHub;
+- `main` is never eligible for deletion or update;
+- each branch is re-read immediately before deletion;
+- the postcondition requires the branch set to be exactly `main`.
+
+The workflow requests only `contents: write`, `pull-requests: read`, and `issues: read`. It does not mutate rulesets and does not rewrite `main` history.
+
 ## Phase B — Freeze and coordination
 
 Before mutation:

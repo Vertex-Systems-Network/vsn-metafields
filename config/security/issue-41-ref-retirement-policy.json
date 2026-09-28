@@ -114,6 +114,11 @@
       "evidence": "temporary branch for Issue #41 post-rewrite certification tooling; retire after its PR is merged"
     },
     {
+      "branch": "phase-00/ref-retirement-executor",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch containing the SHA-bound non-main ref retirement executor; retire after its PR is merged and execution is triggered"
+    },
+    {
       "branch": "phase-00/ref-retirement-readiness-guard",
       "disposition": "retire_after_merge",
       "evidence": "temporary branch for this readiness control; retire only after its PR is merged"
