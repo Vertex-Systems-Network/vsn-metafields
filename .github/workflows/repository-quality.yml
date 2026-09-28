@@ -45,6 +45,9 @@ jobs:
       - name: Test Issue #41 post-rewrite certification
         run: python -m unittest discover -s tests -p 'test_issue_41_post_rewrite_certification.py'
 
+      - name: Test Issue #41 ref-retirement executor
+        run: python -m unittest discover -s tests -p 'test_issue_41_ref_retirement_executor.py'
+
       - name: Validate current AI-native state and workflow safety
         run: python scripts/validate_ai_native_repo.py
 
