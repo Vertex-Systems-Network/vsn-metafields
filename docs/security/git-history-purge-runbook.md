@@ -52,11 +52,12 @@ python scripts/security/prepare_git_history_purge.py \
   --repo-dir vsn-metafields-purge.git \
   --evidence-dir vsn-metafields-purge-evidence \
   --expected-main <CURRENT_GITHUB_MAIN_SHA> \
+  --approved-head main \
   --rewrite \
   --confirm PURGE_DOT_DOT_GIT_HISTORY
 ```
 
-The helper requires the exact confirmation phrase **and** an `--expected-main` SHA captured from GitHub at the maintenance freeze. It refuses a wrong repository identity or stale mirror before rewriting, runs `git filter-repo` only against the local mirror, requires zero reachable `..git/` objects afterward, runs `git fsck --full`, and writes post-rewrite evidence.
+The helper requires the exact confirmation phrase, an `--expected-main` SHA captured from GitHub at the maintenance freeze, and an explicit approved branch/tag allowlist. The mirror's complete head/tag set must match that allowlist exactly before rewriting. For the preferred Issue #41 path, retire obsolete branches first and use `--approved-head main`. It refuses a wrong repository identity, stale mirror, or unexpected ref before rewriting, runs `git filter-repo` only against the local mirror, requires zero reachable `..git/` objects afterward, runs `git fsck --full`, and writes post-rewrite evidence.
 
 **The helper never pushes or force-pushes any remote ref.** GitHub ref updates remain a separately reviewed administrator action under Phase E.
 
