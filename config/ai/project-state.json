@@ -4,7 +4,7 @@
   "current_phase": "PHASE-00",
   "current_module": "existing-app-reconciliation-security-baseline",
   "current_work_unit": "ISSUE-41-historical-git-metadata-purge",
-  "last_verified_completion": "PR #46 merged to main as 4f3dfc1beae9f5ce238fe5de4d3c404eb25268f5 with App Validation and AI Native Quality Gates green; application contract smoke coverage now executes in CI.",
+  "last_verified_completion": "PR #52 merged to main as 47d3fca9fb8f51fe291c7039e404612888b8c33d with production high/critical dependency audit, full-tree critical audit, App Validation, contract smoke tests, build, and ANPOS Quality Gates green.",
   "next_valid_work_unit": "Complete the Issue #41 administrator-controlled maintenance window: capture private rollback refs/mirror, retire approved obsolete refs, temporarily adjust the main non-fast-forward ruleset, purge ..git/ from remaining history, restore protection, and fresh-clone validate.",
   "progress": {
     "total_work_units": 4,
@@ -16,7 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Execute the Issue #41 destructive history-purge maintenance window from an authorized administrator-controlled mirror after private ref capture and write freeze."
+    "Execute the Issue #41 destructive history-purge maintenance window from an authorized administrator-controlled mirror after private ref capture and write freeze.",
+    "Resolve residual development/build-tool high dependency advisories under Issue #54 without npm audit fix --force."
   ],
   "outstanding_removals": [
     "Remove historical ..git/ content from every intentionally preserved reachable ref; retire obsolete/superseded remote branches before the rewrite where approved."
@@ -30,9 +31,9 @@
   "critical_defects": [
     "Historical accidental ..git/ content remains reachable in repository ancestry. The active main ruleset blocks the required non-fast-forward rewrite and the connected integration cannot bypass or mutate that ruleset."
   ],
-  "qa_readiness": "application_contract_smoke_green",
+  "qa_readiness": "application_contract_smoke_and_dependency_audit_green",
   "security_readiness": "p0_history_rewrite_blocked_ruleset",
-  "last_reconciled_repository_ref": "4f3dfc1beae9f5ce238fe5de4d3c404eb25268f5",
-  "last_reconciled_at": "2026-09-27T22:20:00+00:00",
-  "notes": "Application validation now includes non-mutating contract smoke tests for Shopify auth/session storage, API-version alignment, webhook authentication and shop-scoped cleanup, billing mutation guards, metafield reset safety, and destructive-route absence. PHASE-00 is blocked only by Issue #41 history hygiene/admin maintenance."
+  "last_reconciled_repository_ref": "47d3fca9fb8f51fe291c7039e404612888b8c33d",
+  "last_reconciled_at": "2026-09-28T10:20:00+00:00",
+  "notes": "Production dependency high/critical audit is green and full installed tree has no critical advisory under the permanent Dependency Security Audit workflow. Residual development/build-tool high advisories requiring breaking codegen/parser changes are tracked in Issue #54. PHASE-00 P0 closure remains blocked by Issue #41 history hygiene/admin maintenance."
 }
