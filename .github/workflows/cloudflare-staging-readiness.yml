@@ -105,7 +105,9 @@ jobs:
           pid=$!
 
           cleanup() {
-            kill "$pid" 2>/dev/null || true
+            kill -TERM -- "-$pid" 2>/dev/null || true
+            sleep 1
+            kill -KILL -- "-$pid" 2>/dev/null || true
             wait "$pid" 2>/dev/null || true
           }
           trap cleanup EXIT
@@ -117,7 +119,7 @@ jobs:
               exit 1
             fi
 
-            status="$(curl -sS -o /tmp/vsn-home.html -w '%{http_code}' http://127.0.0.1:8787/ || true)"
+            status="$(curl --connect-timeout 2 --max-time 3 -sS -o /tmp/vsn-home.html -w '%{http_code}' http://127.0.0.1:8787/ || true)"
             if [ "$status" = "200" ] && grep -q "VSN Metafields" /tmp/vsn-home.html; then
               echo "workerd_full_app_http_boot=pass"
               exit 0
@@ -151,7 +153,7 @@ jobs:
               exit 1
             fi
 
-            status="$(curl -sS -o /tmp/vsn-session.json -w '%{http_code}' http://127.0.0.1:8788/ || true)"
+            status="$(curl --connect-timeout 2 --max-time 3 -sS -o /tmp/vsn-session.json -w '%{http_code}' http://127.0.0.1:8788/ || true)"
             if [ "$status" = "200" ]; then
               python - <<'PY'
           import json
