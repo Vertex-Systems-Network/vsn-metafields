@@ -17,6 +17,9 @@ DB_SERVER = ROOT / "app" / "db.server.js"
 PRISMA = ROOT / "prisma" / "schema.prisma"
 PACKAGE = ROOT / "package.json"
 MIGRATION_DOC = ROOT / "docs" / "cloudflare-migration-baseline.md"
+STAGING_BINDINGS = ROOT / "config" / "cloudflare" / "staging-bindings.json"
+GITIGNORE = ROOT / ".gitignore"
+STAGING_DEPLOY_WORKFLOW = ROOT / ".github" / "workflows" / "cloudflare-staging-deploy.yml"
 
 
 class ValidationError(RuntimeError):
@@ -48,6 +51,9 @@ def main() -> int:
     prisma = read(PRISMA)
     package = load_json(PACKAGE)
     migration_doc = read(MIGRATION_DOC)
+    staging_bindings = load_json(STAGING_BINDINGS)
+    gitignore = read(GITIGNORE)
+    staging_deploy = read(STAGING_DEPLOY_WORKFLOW)
 
     require(inv.get("schema_version") == 1, "unsupported migration invariant schema")
     require(inv.get("issue") == 4, "migration invariant must target Issue #4")
@@ -123,6 +129,45 @@ def main() -> int:
     )
 
     require(
+        staging_bindings.get("environment") == "cloudflare-staging",
+        "staging binding contract must target cloudflare-staging",
+    )
+    require(
+        staging_bindings.get("worker_name") == "vsn-metafields-staging",
+        "staging binding contract worker name drifted",
+    )
+    require(
+        staging_bindings.get("deploy_mode") == "manual_only",
+        "staging deploy must remain manual-only",
+    )
+    require(
+        staging_bindings.get("production_routes_allowed") is False,
+        "staging contract must forbid production routes",
+    )
+
+    secret_entries = staging_bindings.get("required_secrets")
+    variable_entries = staging_bindings.get("required_variables")
+    require(isinstance(secret_entries, list) and secret_entries, "required staging secrets missing")
+    require(isinstance(variable_entries, list) and variable_entries, "required staging variables missing")
+    for entry in [*secret_entries, *variable_entries]:
+        require(isinstance(entry, dict), "staging binding entry must be an object")
+        require(isinstance(entry.get("name"), str) and entry["name"], "staging binding name missing")
+        require("value" not in entry, f"staging binding must not commit a value: {entry.get('name')}")
+
+    require(".wrangler/" in gitignore, ".wrangler/ must be ignored")
+    require(".dev.vars*" in gitignore, ".dev.vars* must be ignored")
+
+    require("workflow_dispatch:" in staging_deploy, "staging deploy must be manual")
+    require("push:" not in staging_deploy, "staging deploy workflow must not run on push")
+    require("environment: cloudflare-staging" in staging_deploy, "staging deploy environment missing")
+    require("DEPLOY_STAGING_ONLY" in staging_deploy, "staging deploy confirmation gate missing")
+    require(
+        "https://vsn-metafields-production.up.railway.app" in staging_deploy,
+        "staging deploy must explicitly reject the Railway production URL",
+    )
+    require("--secrets-file" in staging_deploy, "staging deploy must upload secrets without committing them")
+
+    require(
         "currentAppInstallation.activeSubscriptions" in migration_doc,
         "migration baseline must preserve Shopify subscription-read source",
     )
@@ -131,7 +176,7 @@ def main() -> int:
         "Railway rollback invariant is missing",
     )
 
-    forbidden_files = [WRANGLER, INVARIANTS]
+    forbidden_files = [WRANGLER, INVARIANTS, STAGING_BINDINGS]
     forbidden_tokens = (
         "SHOPIFY_API_SECRET=",
         "DATABASE_URL=",
@@ -152,6 +197,8 @@ def main() -> int:
     print("database_migration_authorized=false")
     print("prisma_worker_adapter=PrismaPg")
     print("prisma_engine_type=client")
+    print("cloudflare_staging_deploy=manual_only")
+    print("cloudflare_staging_secrets=external_only")
     print("railway_rollback_required=true")
     return 0
 
