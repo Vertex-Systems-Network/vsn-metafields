@@ -109,6 +109,11 @@
       "evidence": "merged PR #12"
     },
     {
+      "branch": "phase-00/post-rewrite-certification",
+      "disposition": "retire_after_merge",
+      "evidence": "temporary branch for Issue #41 post-rewrite certification tooling; retire after its PR is merged"
+    },
+    {
       "branch": "phase-00/ref-retirement-readiness-guard",
       "disposition": "retire_after_merge",
       "evidence": "temporary branch for this readiness control; retire only after its PR is merged"

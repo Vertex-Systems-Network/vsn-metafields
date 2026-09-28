@@ -132,6 +132,14 @@ class RefRetirementReadinessTests(unittest.TestCase):
         self.assertEqual(payload["repository"], EXPECTED_REPOSITORY)
         self.assertEqual(set(payload["heads"]), {"main", "merged", "candidate", "guard"})
         self.assertEqual(payload["tags"], {})
+        main_tree = run(
+            "git",
+            "rev-parse",
+            "refs/heads/main^{tree}",
+            cwd=self.mirror,
+        ).stdout.strip()
+        self.assertEqual(payload["main_tree_sha"], main_tree)
+        self.assertIn(f"main_tree_sha={main_tree}", proc.stdout)
 
     def test_freeze_snapshot_detects_ref_movement(self) -> None:
         first = self.guard(
@@ -156,6 +164,28 @@ class RefRetirementReadinessTests(unittest.TestCase):
         )
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("freeze snapshot mismatch", proc.stderr)
+
+    def test_freeze_snapshot_detects_main_tree_mismatch(self) -> None:
+        first = self.guard(
+            "--confirm-retire",
+            "candidate",
+            "--write-snapshot",
+            str(self.snapshot),
+        )
+        self.assertEqual(first.returncode, 0, first.stderr)
+
+        payload = json.loads(self.snapshot.read_text(encoding="utf-8"))
+        payload["main_tree_sha"] = "0" * 40
+        self.snapshot.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+        proc = self.guard(
+            "--confirm-retire",
+            "candidate",
+            "--verify-snapshot",
+            str(self.snapshot),
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("main_tree_sha", proc.stderr)
 
     def test_unexpected_branch_blocks_readiness(self) -> None:
         main_sha = run("git", "rev-parse", "refs/heads/main", cwd=self.mirror).stdout.strip()

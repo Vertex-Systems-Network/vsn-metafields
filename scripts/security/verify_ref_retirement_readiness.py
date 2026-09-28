@@ -174,12 +174,14 @@ def snapshot_payload(
     policy: dict[str, object],
     heads: dict[str, str],
     tags: dict[str, str],
+    main_tree_sha: str,
 ) -> dict[str, object]:
     return {
         "schema_version": 1,
         "repository": repository,
         "issue": 41,
         "main_sha": heads["main"],
+        "main_tree_sha": main_tree_sha,
         "heads": dict(sorted(heads.items())),
         "tags": dict(sorted(tags.items())),
         "policy_schema_version": policy["schema_version"],
@@ -193,7 +195,15 @@ def write_snapshot(path: Path, payload: dict[str, object]) -> None:
 
 def verify_snapshot(path: Path, current: dict[str, object]) -> None:
     frozen = json.loads(path.read_text(encoding="utf-8"))
-    for key in ("schema_version", "repository", "issue", "main_sha", "heads", "tags"):
+    for key in (
+        "schema_version",
+        "repository",
+        "issue",
+        "main_sha",
+        "main_tree_sha",
+        "heads",
+        "tags",
+    ):
         if frozen.get(key) != current.get(key):
             raise GuardError(f"freeze snapshot mismatch for {key}; stop maintenance")
 
@@ -249,7 +259,15 @@ def main() -> int:
         raise GuardError(f"confirmation supplied for non-confirm_retire branches: {sorted(unknown)}")
     pending = sorted(required - supplied)
 
-    current = snapshot_payload(repository, policy, heads, tags)
+    main_tree_sha = git(
+        repo_dir,
+        "rev-parse",
+        "refs/heads/main^{tree}",
+    ).stdout.strip()
+    if len(main_tree_sha) != 40:
+        raise GuardError("unable to resolve a valid main tree SHA")
+
+    current = snapshot_payload(repository, policy, heads, tags, main_tree_sha)
     if args.verify_snapshot:
         verify_snapshot(Path(args.verify_snapshot).expanduser().resolve(), current)
         print("freeze_snapshot=verified")
@@ -267,6 +285,7 @@ def main() -> int:
 
     print(f"repository={repository}")
     print(f"main_sha={heads['main']}")
+    print(f"main_tree_sha={main_tree_sha}")
     print(f"live_head_count={len(heads)}")
     print(f"live_tag_count={len(tags)}")
     print(f"pending_confirm_retire={','.join(pending) if pending else 'none'}")
