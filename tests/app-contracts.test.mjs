@@ -14,7 +14,11 @@ test("Shopify auth, session storage, and API versions stay aligned", () => {
   const toml = read("shopify.app.toml");
 
   assert.match(shopify, /authPathPrefix:\s*"\/auth"/);
-  assert.match(shopify, /new PrismaSessionStorage\(prisma\)/);
+  assert.match(shopify, /new RequestScopedPrismaSessionStorage\(\)/);
+  const sessionStorage = read("app/prisma-session-storage.server.js");
+  assert.match(sessionStorage, /new PrismaSessionStorage\(prisma, storageOptions\)/);
+  assert.match(sessionStorage, /createPrismaClient\(\)/);
+  assert.match(sessionStorage, /await prisma\.\$disconnect\(\)/);
   assert.match(shopify, /useOnlineTokens:\s*true/);
   assert.match(shopify, /apiVersion:\s*ApiVersion\.July26/);
   assert.match(shopify, /export const authenticate = shopify\.authenticate/);
@@ -32,10 +36,13 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.match(schema, /engineType\s*=\s*"client"/);
   assert.match(schema, /provider\s*=\s*"postgresql"/);
   assert.match(db, /@prisma\/adapter-pg/);
+  assert.match(db, /export function createPrismaClient\(\)/);
   assert.match(db, /new PrismaPg\(\{ connectionString \}\)/);
   assert.match(db, /new PrismaClient\(\{[\s\S]*adapter,/);
   assert.doesNotMatch(db, /\.\$connect\(/);
-  assert.match(shopify, /new PrismaSessionStorage\(prisma\)/);
+  assert.doesNotMatch(db, /global\.__vsnPrisma/);
+  assert.doesNotMatch(db, /export default/);
+  assert.match(shopify, /new RequestScopedPrismaSessionStorage\(\)/);
 
   assert.equal(pkg.dependencies["@prisma/client"], "6.19.3");
   assert.equal(pkg.dependencies["@prisma/adapter-pg"], "6.19.3");
