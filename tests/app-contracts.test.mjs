@@ -494,8 +494,11 @@ test("Neon staging and production identities stay isolated", () => {
   for (const workflow of [migration, deploy, acceptance]) {
     assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
     assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
+    assert.match(workflow, /production_project_provisioned/);
+    assert.match(workflow, /production_endpoint_id/);
     assert.match(workflow, /pooled_id == staging_id/);
-    assert.match(workflow, /production_neon_identity=distinct_from_staging/);
+    assert.match(workflow, /pooled_id != production_id/);
+    assert.match(workflow, /production_neon_identity=certified_and_distinct/);
     assert.match(workflow, /Production DATABASE_URL must use the pooled Neon endpoint/);
     assert.match(workflow, /Production DIRECT_URL must use the direct Neon endpoint/);
   }
