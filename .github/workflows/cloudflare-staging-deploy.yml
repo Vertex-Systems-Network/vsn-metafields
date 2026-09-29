@@ -217,6 +217,7 @@ jobs:
                               "stage": diagnostic.get("stage"),
                               "code": diagnostic.get("code"),
                               "errorName": diagnostic.get("errorName"),
+                              "directProbe": diagnostic.get("directProbe"),
                               "session": diagnostic.get("session"),
                           },
                           sort_keys=True,
