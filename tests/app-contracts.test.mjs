@@ -134,6 +134,11 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
   assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
   assert.match(diagnostic, /currentAppInstallation/);
+  assert.match(diagnostic, /session_store_read_failed/);
+  assert.match(diagnostic, /no_stored_sessions/);
+  assert.match(diagnostic, /offline_session_unavailable/);
+  assert.match(diagnostic, /admin_graphql_request_failed/);
+  assert.match(diagnostic, /admin_graphql_response_error/);
   assert.match(diagnostic, /activeSubscriptions/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
@@ -143,6 +148,8 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(workflow, /staging_offline_session=pass/);
   assert.match(workflow, /staging_admin_graphql=pass/);
   assert.match(workflow, /staging_subscription_read=pass/);
+  assert.match(workflow, /staging_acceptance_http_error=/);
+  assert.match(workflow, /urllib\.error\.HTTPError/);
 });
 
 test("public health contract exposes only deployment-safe plan metadata", () => {
