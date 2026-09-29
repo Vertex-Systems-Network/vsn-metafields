@@ -102,6 +102,28 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.doesNotMatch(releaseWorkflow, /trigger_webhook "app\/scopes_update"/);
 });
 
+test("staging acceptance probe is signed, staging-only, and read-only", () => {
+  const diagnostic = read("app/routes/internal.staging-acceptance.jsx");
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(diagnostic, /EXPECTED_STAGING_APP_URL/);
+  assert.match(diagnostic, /vertex-systems-network\.myshopify\.com/);
+  assert.match(diagnostic, /SIGNATURE_MAX_AGE_SECONDS = 300/);
+  assert.match(diagnostic, /crypto\.subtle\.verify/);
+  assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
+  assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
+  assert.match(diagnostic, /currentAppInstallation/);
+  assert.match(diagnostic, /activeSubscriptions/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
+  assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
+  assert.doesNotMatch(diagnostic, /accessToken/);
+  assert.doesNotMatch(diagnostic, /DATABASE_URL/);
+
+  assert.match(workflow, /staging_offline_session=pass/);
+  assert.match(workflow, /staging_admin_graphql=pass/);
+  assert.match(workflow, /staging_subscription_read=pass/);
+});
+
 test("public health contract exposes only deployment-safe plan metadata", () => {
   const health = read("app/routes/healthz.jsx");
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
