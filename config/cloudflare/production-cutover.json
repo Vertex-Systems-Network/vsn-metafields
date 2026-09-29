@@ -6,7 +6,8 @@
   "production_worker": {
     "name": "vsn-metafields-production",
     "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
-    "public_route_binding": false
+    "public_route_binding": false,
+    "certified_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
   },
   "shopify": {
     "client_id": "f5266ba8dba403005deb695fedad053a",
