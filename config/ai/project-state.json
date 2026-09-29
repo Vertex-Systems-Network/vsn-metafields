@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "API-first diagnosis confirmed Supabase project kqwlohmfyobsdsdekjzl is ACTIVE_HEALTHY with 4 Session rows/4 access tokens and Neon production endpoint ep-flat-mouse-b5z1wu54 is healthy with 0 Session rows. After the awaited-entrypoint fix, workflow 36638708646 failed genuinely with Node exit 13 because source.connect() never settled. Supabase documentation confirms GitHub Actions should use the IPv4 Shared Pooler session-mode endpoint rather than the free-tier IPv6 direct database endpoint.",
-  "next_valid_work_unit": "Merge the canonical Supabase Session Pooler resolver and bounded connection-timeout fix. Rerun Production Session Migration using the existing SUPABASE_SOURCE_DATABASE_URL only as the password source; runtime will rebuild postgresql://postgres.kqwlohmfyobsdsdekjzl@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres, then require actual source/target connection evidence, audited fingerprint checks, transactional copy, digest verification, and Neon API count=4.",
+  "last_verified_completion": "PR #123 merged as 33237ec24ea3b355d23759bae9dcc888d5a034b5 with all required gates green. API counts immediately before rerun remained Supabase 4/4 and Neon 0/0. Rerunning the historical workflow proved GitHub job reruns retain the original workflow YAML, so the new standalone Supabase resolver step was not executed. The latest migration script's 10-second timeout then correctly surfaced the same source connection failure.",
+  "next_valid_work_unit": "Merge in-script canonical Supabase Session Pooler reconstruction so historical workflow reruns cannot bypass the IPv4 source fix. Then rerun the failed job, require source_connection=connected and target_connection=connected, production_session_migration=pass, rows_copied=4, and independently confirm Neon 4/4 before migration certification.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "canonical_supabase_ipv4_session_pooler_fix_pending",
-  "security_readiness": "apis_green_password_reused_canonical_pooler_masked_bounded_connections",
+  "qa_readiness": "in_script_supabase_pooler_fallback_pending_certification",
+  "security_readiness": "canonical_supabase_ipv4_source_internal_tls_verify_full_bounded_connections",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "No Neon Session writes have occurred. The new resolver never logs credentials: it extracts the password from the existing protected secret, safely URL-encodes it, reconstructs the repository-certified ap-southeast-2 Supavisor session-mode URL, masks it, and exports it via GITHUB_ENV. Migration source/target connections now use 10-second connect/query bounds so failures surface deterministically instead of unsettled top-level await."
+  "notes": "GitHub rerun semantics preserve the original workflow definition while checkout ref=main fetches current repository code. Therefore source canonicalization must also live inside migrate-production-sessions.mjs, not only as a new workflow step. The script now reconstructs the certified ap-southeast-2 Session Pooler URL from the existing protected password, uses sslmode=verify-full, and preserves fingerprint/digest gates."
 }

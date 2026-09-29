@@ -3,8 +3,12 @@ import pg from "pg";
 
 const { Client } = pg;
 
-const SOURCE_URL = process.env.SOURCE_DATABASE_URL;
+const RAW_SOURCE_URL = process.env.SOURCE_DATABASE_URL;
 const TARGET_URL = process.env.TARGET_DIRECT_URL;
+const CERTIFIED_SUPABASE_REGION = "ap-southeast-2";
+const CERTIFIED_SUPABASE_SESSION_POOLER_HOST =
+  "aws-0-ap-southeast-2.pooler.supabase.com";
+const CERTIFIED_SUPABASE_SESSION_POOLER_PORT = 5432;
 const CONFIRMATION = process.env.MIGRATION_CONFIRMATION;
 const EXPECTED_SUPABASE_PROJECT_REF = process.env.EXPECTED_SUPABASE_PROJECT_REF;
 const EXPECTED_SOURCE_ID_DIGEST = process.env.EXPECTED_SOURCE_ID_DIGEST;
@@ -41,8 +45,37 @@ function requireSecret(name, value) {
   if (!value) fail(`${name} is required.`);
 }
 
-function assertProviderIdentity() {
-  const source = new URL(SOURCE_URL);
+function canonicalizeSupabaseSourceUrl(rawUrl) {
+  const parsed = new URL(rawUrl);
+
+  if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+    fail("Source database URL must use PostgreSQL.");
+  }
+
+  let password;
+  try {
+    password = decodeURIComponent(parsed.password);
+  } catch {
+    fail("Supabase source database password contains invalid URL encoding.");
+  }
+
+  if (!password) {
+    fail("Supabase source database password is missing.");
+  }
+
+  const username = `postgres.${EXPECTED_SUPABASE_PROJECT_REF}`;
+  const encodedUsername = encodeURIComponent(username);
+  const encodedPassword = encodeURIComponent(password);
+
+  return (
+    `postgresql://${encodedUsername}:${encodedPassword}@` +
+    `${CERTIFIED_SUPABASE_SESSION_POOLER_HOST}:` +
+    `${CERTIFIED_SUPABASE_SESSION_POOLER_PORT}/postgres?sslmode=verify-full`
+  );
+}
+
+function assertProviderIdentity(sourceUrl) {
+  const source = new URL(sourceUrl);
   const target = new URL(TARGET_URL);
 
   const sourceHost = source.hostname.toLowerCase();
@@ -52,8 +85,12 @@ function assertProviderIdentity() {
     fail("EXPECTED_SUPABASE_PROJECT_REF is required.");
   }
 
-  if (!["postgres:", "postgresql:"].includes(source.protocol)) {
-    fail("Source database URL must use PostgreSQL.");
+  if (
+    sourceHost !== CERTIFIED_SUPABASE_SESSION_POOLER_HOST ||
+    source.port !== String(CERTIFIED_SUPABASE_SESSION_POOLER_PORT) ||
+    source.username !== `postgres.${EXPECTED_SUPABASE_PROJECT_REF}`
+  ) {
+    fail("Source database is not using the certified Supabase Session Pooler.");
   }
 
   if (!/(^|\.)neon\.tech$/.test(targetHost)) {
@@ -116,7 +153,7 @@ async function assertSessionSchema(client, label) {
 }
 
 async function main() {
-  requireSecret("SOURCE_DATABASE_URL", SOURCE_URL);
+  requireSecret("SOURCE_DATABASE_URL", RAW_SOURCE_URL);
   requireSecret("TARGET_DIRECT_URL", TARGET_URL);
   requireSecret("EXPECTED_SUPABASE_PROJECT_REF", EXPECTED_SUPABASE_PROJECT_REF);
   requireSecret("EXPECTED_SOURCE_ID_DIGEST", EXPECTED_SOURCE_ID_DIGEST);
@@ -129,10 +166,17 @@ async function main() {
     fail("EXPECTED_SOURCE_SESSION_COUNT must be a positive integer.");
   }
 
-  assertProviderIdentity();
+  const sourceUrl = canonicalizeSupabaseSourceUrl(RAW_SOURCE_URL);
+  assertProviderIdentity(sourceUrl);
+
+  console.log("production_supabase_source=canonical_session_pooler");
+  console.log(`production_supabase_region=${CERTIFIED_SUPABASE_REGION}`);
+  console.log(
+    `production_supabase_pooler_port=${CERTIFIED_SUPABASE_SESSION_POOLER_PORT}`
+  );
 
   const source = new Client({
-    connectionString: SOURCE_URL,
+    connectionString: sourceUrl,
     connectionTimeoutMillis: 10000,
     query_timeout: 10000,
     keepAlive: true,
