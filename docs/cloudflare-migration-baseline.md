@@ -127,3 +127,21 @@ Work unit 3/6 is complete on the guarded migration branch:
 - no production Shopify URL, billing state, merchant install, database contents, or Railway service is changed.
 
 The next milestone is an isolated Cloudflare staging deployment from protected `main`, followed by Shopify authentication, existing subscription-read, webhook, embedded-navigation, and session-continuity validation.
+
+
+## Staging acceptance closure evidence
+
+Work unit 4/6 is complete:
+
+- isolated Cloudflare staging Worker health: pass;
+- billing metadata contract: USD 55 every 30 days with a 5-day trial: pass;
+- dedicated staging Shopify app/store isolation: pass;
+- production Shopify app identity rejected by staging deployment guards: pass;
+- staging store session resolution excludes the production shop: pass;
+- Shopify expiring offline access tokens enabled and fresh staging sessions established: pass;
+- Shopify Admin GraphQL read: pass;
+- `currentAppInstallation.activeSubscriptions` read: pass;
+- active staging subscriptions during acceptance: 0 (no billing mutation was performed);
+- production Railway URL, production app identity, real merchant subscriptions, and Railway rollback service: unchanged.
+
+The next work unit is production release-candidate certification only: intentional development-to-main PR, full CI, production cutover invariant validation, Prisma migration-status checks, build, and Wrangler production dry-run. Actual production Worker deployment and Shopify live URL cutover remain separate manual authorization gates.
