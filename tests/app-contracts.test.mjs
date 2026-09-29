@@ -424,7 +424,10 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.production_project_provisioned, true);
   assert.equal(policy.database.production_endpoint_id, "ep-flat-mouse-b5z1wu54");
   assert.equal(policy.database.provisioning_workflow, "production-neon-provisioning.yml");
-  assert.equal(policy.database.production_schema_provisioned, false);
+  assert.equal(policy.database.production_schema_provisioned, true);
+  assert.equal(policy.database.production_schema_provisioning_run_id, 36635943764);
+  assert.equal(policy.database.production_schema_session_count, 0);
+  assert.equal(policy.database.production_schema_completed_migrations, 1);
   assert.equal(policy.database.require_empty_session_store_before_migration, true);
   assert.equal(policy.database.require_distinct_neon_projects, true);
   assert.equal(policy.rollback.keep_railway_available, true);

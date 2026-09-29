@@ -44,9 +44,12 @@
     "production_endpoint_id": "ep-flat-mouse-b5z1wu54",
     "require_distinct_neon_projects": true,
     "provisioning_workflow": "production-neon-provisioning.yml",
-    "production_schema_provisioned": false,
+    "production_schema_provisioned": true,
     "require_empty_session_store_before_migration": true,
-    "production_project_id": "nameless-breeze-35836648"
+    "production_project_id": "nameless-breeze-35836648",
+    "production_schema_provisioning_run_id": 36635943764,
+    "production_schema_session_count": 0,
+    "production_schema_completed_migrations": 1
   },
   "rollback": {
     "keep_railway_available": true,

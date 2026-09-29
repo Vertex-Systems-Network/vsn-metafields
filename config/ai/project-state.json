@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-provision-certified-neon-schema",
-  "last_verified_completion": "Production Neon identity is certified at project nameless-breeze-35836648 / endpoint ep-flat-mouse-b5z1wu54. Production Neon Provisioning run #1 failed before any database mutation because cloudflare-production had pooled DATABASE_URL but no DIRECT_URL. The workflows now derive and mask the matching direct Neon URL from the certified pooled DATABASE_URL instead of requiring a duplicate secret.",
-  "next_valid_work_unit": "Merge and certify the pooled-to-direct Neon URL resolver change, then rerun Production Neon Provisioning from protected main with production_endpoint_id=ep-flat-mouse-b5z1wu54. Only DATABASE_URL is required for the Neon target; the direct URL is derived and endpoint-verified at runtime. After schema provisioning passes, certify production_schema_provisioned=true before the 4-row Supabase Session migration.",
+  "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
+  "last_verified_completion": "Production Neon Provisioning run 36635943764 completed successfully on protected main f33137832acf822293b5cc641f4248c6457f0059. The pooled DATABASE_URL resolved to certified endpoint ep-flat-mouse-b5z1wu54, the matching direct URL was derived and masked, Prisma schema deployment succeeded, independent Neon verification confirms public.Session exists with 0 rows, and 1 completed Prisma migration is recorded.",
+  "next_valid_work_unit": "Certify production_schema_provisioned=true, then provide the temporary Supabase source connection as cloudflare-production SUPABASE_SOURCE_DATABASE_URL and run Production Session Migration with expected_source_session_count=4. After transactional copy and digest verification pass, certify session_migration_completed=true before Worker deploy/acceptance.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,11 +16,11 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Certify the runtime Neon URL resolver change so production workflows no longer require a duplicate DIRECT_URL secret.",
-    "Rerun Production Neon Provisioning with production_endpoint_id=ep-flat-mouse-b5z1wu54; pooled DATABASE_URL must resolve to that exact endpoint.",
-    "After provisioning passes, certify production_schema_provisioned=true in repository policy.",
-    "Add/confirm SUPABASE_SOURCE_DATABASE_URL for the temporary source and run the guarded 4-row Supabase-to-Neon Session migration.",
-    "After migration passes, certify session_migration_completed=true before Worker deploy/acceptance."
+    "Merge schema provisioning certification for successful run 36635943764.",
+    "Add cloudflare-production SUPABASE_SOURCE_DATABASE_URL for the restored VSN Metafields Supabase source.",
+    "Run Production Session Migration from protected main with confirm=MIGRATE_SUPABASE_SESSIONS_TO_NEON and expected_source_session_count=4.",
+    "After migration passes, independently verify Neon Session count/integrity and certify session_migration_completed=true.",
+    "Only after session certification proceed to isolated production Worker deploy and independent acceptance; Shopify remains on Railway until a separate cutover authorization."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_neon_direct_url_resolver_pending_certification",
-  "security_readiness": "pooled_neon_secret_present_direct_url_derived_masked_endpoint_verified",
+  "qa_readiness": "production_neon_schema_certified_session_migration_pending",
+  "security_readiness": "production_schema_verified_empty_source_copy_transactional_gate_next",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Failed Production Neon Provisioning run 36635179753 stopped at the credential preflight with DIRECT_URL empty; no Prisma migration or production database mutation occurred. DATABASE_URL was present. The new resolver treats DATABASE_URL as the single production Neon credential source, validates the certified pooled endpoint, derives the matching direct hostname, masks the resulting URL, and exports DIRECT_URL/TARGET_DIRECT_URL only through GITHUB_ENV for subsequent guarded steps."
+  "notes": "Successful Production Neon Provisioning run 36635943764 applied the production Prisma schema to certified project nameless-breeze-35836648 / endpoint ep-flat-mouse-b5z1wu54. Neon inspection confirms Session and _prisma_migrations tables, Session count 0, and 1 completed migration. No Shopify cutover, billing mutation, or source Session copy occurred. Supabase remains the temporary authoritative source for exactly 4 production Shopify Session rows."
 }
