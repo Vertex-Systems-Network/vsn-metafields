@@ -31,6 +31,7 @@ jobs:
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
       SCOPES: ${{ secrets.SCOPES }}
+      STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
 
     steps:
       - name: Checkout development source
@@ -63,6 +64,30 @@ jobs:
               print(tomllib.load(handle)["client_id"])
           PY
           )"
+
+          python - <<'PY'
+          import os
+          from urllib.parse import urlparse
+
+          expected = os.environ["STAGING_NEON_ENDPOINT_ID"]
+          database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
+          direct_host = urlparse(os.environ["DIRECT_URL"]).hostname or ""
+
+          if not database_host.endswith(".neon.tech") or not direct_host.endswith(".neon.tech"):
+              raise SystemExit("Staging database URLs must both be Neon PostgreSQL endpoints.")
+
+          pooled_id = database_host.split(".", 1)[0].removesuffix("-pooler")
+          direct_id = direct_host.split(".", 1)[0].removesuffix("-pooler")
+          if pooled_id != expected or direct_id != expected:
+              raise SystemExit("Staging database secrets do not point to the certified staging Neon endpoint.")
+
+          if "-pooler." not in database_host:
+              raise SystemExit("Staging DATABASE_URL must use the pooled Neon endpoint.")
+          if "-pooler." in direct_host:
+              raise SystemExit("Staging DIRECT_URL must use the direct Neon endpoint.")
+
+          print("staging_neon_identity=pass")
+          PY
 
           if [ "$SHOPIFY_API_KEY" = "$PROD_CLIENT_ID" ]; then
             echo "Staging deploy must use the dedicated staging Shopify app identity, not production." >&2
