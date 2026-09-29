@@ -37,6 +37,7 @@ jobs:
       STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
       PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production
       EXPECTED_PRODUCTION_ENDPOINT_ID: ep-flat-mouse-b5z1wu54
+      EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl
 
     steps:
       - name: Checkout protected main

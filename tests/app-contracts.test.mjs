@@ -574,13 +574,17 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(workflow, /TARGET_DIRECT_URL/);
   assert.doesNotMatch(workflow, /SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL/);
   assert.match(workflow, /EXPECTED_SOURCE_SESSION_COUNT/);
+  assert.match(workflow, /EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl/);
   assert.match(workflow, /production_schema_provisioned/);
   assert.match(workflow, /production_session_credentials_logged=false/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
   assert.match(workflow, /production_billing_mutation_performed=false/);
   assert.doesNotMatch(workflow, /appSubscriptionCreate|appSubscriptionCancel|shopify app release/);
 
-  assert.ok(script.includes("supabase\\.(co|com)"));
+  assert.match(script, /EXPECTED_SUPABASE_PROJECT_REF/);
+  assert.match(script, /db\.\$\{EXPECTED_SUPABASE_PROJECT_REF\}\.supabase\.co/);
+  assert.match(script, /pooler\\\.supabase\\\.com/);
+  assert.match(script, /postgres\.\$\{EXPECTED_SUPABASE_PROJECT_REF\}/);
   assert.ok(script.includes("neon\\.tech"));
   assert.match(script, /TARGET_DIRECT_URL must use the direct Neon endpoint/);
   assert.match(script, /begin/);

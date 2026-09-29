@@ -6,6 +6,7 @@ const { Client } = pg;
 const SOURCE_URL = process.env.SOURCE_DATABASE_URL;
 const TARGET_URL = process.env.TARGET_DIRECT_URL;
 const CONFIRMATION = process.env.MIGRATION_CONFIRMATION;
+const EXPECTED_SUPABASE_PROJECT_REF = process.env.EXPECTED_SUPABASE_PROJECT_REF;
 const EXPECTED_SOURCE_COUNT = Number.parseInt(
   process.env.EXPECTED_SOURCE_SESSION_COUNT || "",
   10
@@ -46,8 +47,18 @@ function assertProviderIdentity() {
   const sourceHost = source.hostname.toLowerCase();
   const targetHost = target.hostname.toLowerCase();
 
-  if (!/(^|\.)supabase\.(co|com)$/.test(sourceHost)) {
-    fail("Source database must be a Supabase PostgreSQL endpoint.");
+  if (!EXPECTED_SUPABASE_PROJECT_REF) {
+    fail("EXPECTED_SUPABASE_PROJECT_REF is required.");
+  }
+
+  const directSourceHost = `db.${EXPECTED_SUPABASE_PROJECT_REF}.supabase.co`;
+  const isDirectSource = sourceHost === directSourceHost;
+  const isSharedPooler =
+    /(^|\.)pooler\.supabase\.com$/.test(sourceHost) &&
+    source.username === `postgres.${EXPECTED_SUPABASE_PROJECT_REF}`;
+
+  if (!isDirectSource && !isSharedPooler) {
+    fail("Source database does not match the certified Supabase project.");
   }
 
   if (!/(^|\.)neon\.tech$/.test(targetHost)) {
@@ -112,6 +123,7 @@ async function assertSessionSchema(client, label) {
 async function main() {
   requireSecret("SOURCE_DATABASE_URL", SOURCE_URL);
   requireSecret("TARGET_DIRECT_URL", TARGET_URL);
+  requireSecret("EXPECTED_SUPABASE_PROJECT_REF", EXPECTED_SUPABASE_PROJECT_REF);
 
   if (CONFIRMATION !== "MIGRATE_SUPABASE_SESSIONS_TO_NEON") {
     fail("Migration confirmation gate is not satisfied.");
