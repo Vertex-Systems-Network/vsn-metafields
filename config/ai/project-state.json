@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-provision-isolated-neon-production",
-  "last_verified_completion": "PR #111 merged as 0a5c8b2c0fddfa37aba71972b21a7748f573de76 with all required gates green. The existing Neon endpoint ep-snowy-surf-b3gxl2wf is pinned as staging-only, and production migration/deploy/acceptance now fail closed unless a distinct repository-certified production Neon endpoint is provisioned.",
-  "next_valid_work_unit": "Create a separate Neon project named vsn-metafields-production, set cloudflare-production DATABASE_URL to its pooled URL and DIRECT_URL to its matching direct URL, then run Production Neon Provisioning with the exact ep-... endpoint ID. After the schema/empty-session verification passes, certify that endpoint in repository policy and run the guarded 4-row Supabase-to-Neon Session migration.",
+  "last_verified_completion": "PR #112 merged as ba971edb1dba9cc404e3dc06698922d3f7e281fa with all required gates green. Neon project nameless-breeze-35836648 is verified as vsn-metafields-production; its distinct live endpoint is ep-flat-mouse-b5z1wu54 in aws-us-east-2.",
+  "next_valid_work_unit": "Set cloudflare-production DATABASE_URL to the pooled Neon URL for ep-flat-mouse-b5z1wu54 and DIRECT_URL to the matching direct URL. Then run Production Neon Provisioning from protected main with production_endpoint_id=ep-flat-mouse-b5z1wu54. After the schema/empty-session verification passes, set production_schema_provisioned=true and run the guarded 4-row Supabase-to-Neon Session migration.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,10 +16,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Rename the existing Neon project vsn-metafields to vsn-metafields-staging when its project ID is available; endpoint ep-snowy-surf-b3gxl2wf remains staging-only regardless of display name.",
-    "Create a separate Neon project named vsn-metafields-production and set its pooled DATABASE_URL/direct DIRECT_URL in the cloudflare-production GitHub environment.",
-    "Run Production Neon Provisioning with the new production endpoint ID; verify Prisma schema creation and zero pre-migration Session rows.",
-    "Certify the production endpoint in repository policy, then run the guarded 4-row Supabase-to-Neon production Session migration before Worker prepare/acceptance."
+    "Set cloudflare-production DATABASE_URL to the pooled URL for production endpoint ep-flat-mouse-b5z1wu54.",
+    "Set cloudflare-production DIRECT_URL to the matching direct/non-pooler URL for production endpoint ep-flat-mouse-b5z1wu54.",
+    "Run Production Neon Provisioning with production_endpoint_id=ep-flat-mouse-b5z1wu54; verify clean Prisma schema and zero pre-migration Session rows.",
+    "After provisioning passes, certify production_schema_provisioned=true and run the guarded 4-row Supabase-to-Neon production Session migration."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -30,9 +30,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_neon_provisioning_workflow_ready",
-  "security_readiness": "staging_endpoint_pinned_new_production_schema_must_be_provisioned_and_certified",
+  "qa_readiness": "production_neon_identity_certified_schema_bootstrap_pending",
+  "security_readiness": "production_project_endpoint_certified_schema_required_before_migration_or_worker",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "The production database bootstrap is now a separate manual, protected-main-only workflow. It validates a user-supplied Neon endpoint ID against pooled/direct production secrets, rejects the staging endpoint, requires the target Session store to be empty, applies Prisma migrations, and verifies schema/migration evidence without changing Shopify URLs or billing. Supabase remains the temporary source of exactly 4 production Shopify Session rows."
+  "notes": "The live Neon project identity is now verified independently of staging: project nameless-breeze-35836648 / vsn-metafields-production, endpoint ep-flat-mouse-b5z1wu54, region aws-us-east-2. The existing staging endpoint remains ep-snowy-surf-b3gxl2wf. Session migration, Worker deploy, and production acceptance now additionally fail closed until production_schema_provisioned is certified true after the guarded bootstrap workflow."
 }
