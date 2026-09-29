@@ -252,6 +252,24 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /metafieldDefinitionUpdate/);
 });
 
+test("one-time production prepare deploy cannot authorize Shopify cutover", () => {
+  const workflow = read(".github/workflows/cloudflare-production-deploy.yml");
+  const request = JSON.parse(read("config/cloudflare/production-prepare-request.json"));
+
+  assert.match(workflow, /config\/cloudflare\/production-prepare-request\.json/);
+  assert.match(workflow, /github\.event_name == 'push'/);
+  assert.match(workflow, /shopify_cutover_performed=false/);
+  assert.match(workflow, /prisma migrate status/);
+  assert.doesNotMatch(workflow, /prisma migrate deploy/);
+  assert.doesNotMatch(workflow, /shopify app release/);
+
+  assert.equal(request.action, "deploy_isolated_production_worker_only");
+  assert.equal(request.shopify_cutover_authorized, false);
+  assert.equal(request.billing_mutation_authorized, false);
+  assert.equal(request.database_migration_authorized, false);
+  assert.equal(request.keep_railway_active, true);
+});
+
 test("production cutover certification performs build and Worker dry-run without authorizing release", () => {
   const workflow = read(".github/workflows/production-cutover-contract.yml");
 
