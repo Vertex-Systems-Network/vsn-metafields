@@ -52,15 +52,14 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
-test("embedded app navigation stays client-side and preserves Shopify auth context", () => {
+test("embedded app navigation uses Shopify app-nav links and preserves auth context", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
 
-  assert.match(app, /import \{ Link, Outlet, useLoaderData, useRouteError \} from "react-router"/);
-  assert.match(app, /<Link to="\/app" rel="home">Options<\/Link>/);
-  assert.match(app, /<Link to="\/app\/packages">Packages<\/Link>/);
-  assert.doesNotMatch(app, /<s-link/);
-  assert.doesNotMatch(app, /useLocation/);
+  assert.match(app, /<s-app-nav>/);
+  assert.match(app, /<s-link href="\/app" rel="home">Options<\/s-link>/);
+  assert.match(app, /<s-link href="\/app\/packages">Packages<\/s-link>/);
+  assert.doesNotMatch(app, /<Link to="\/app/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
@@ -218,6 +217,16 @@ test("Pro billing configuration stays centralized at 5 trial days and $55 across
   assert.match(packages, /PRO_PLAN\.amount/);
   assert.doesNotMatch(packages, /\$35\s*\/\s*month/);
   assert.doesNotMatch(packages, /15-day free trial/);
+});
+
+test("packages page avoids duplicate server auth and loads billing status client-side", () => {
+  const packages = read("app/routes/app.packages.jsx");
+
+  assert.doesNotMatch(packages, /export const loader/);
+  assert.doesNotMatch(packages, /authenticate\.admin\(request\)/);
+  assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
+  assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
+  assert.match(packages, /actionFetcher\.submit/);
 });
 
 test("billing mutations require authenticated POST requests and guard active plans", () => {
