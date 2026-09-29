@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Canonicalize the production Supabase source connection for GitHub Actions.
+"""Build bounded, masked production Supabase source candidates for GitHub Actions.
 
-GitHub-hosted runners are IPv4-only for this workflow. The restored Supabase
-project's direct database endpoint is IPv6 on the free tier, so migration reads
-must use the Shared Pooler in session mode.
+The protected SUPABASE_SOURCE_DATABASE_URL remains the credential source. This
+resolver preserves its original route (with TLS normalized) and also derives
+repository-certified Supabase routes for the audited project. The migration
+script probes candidates read-only and accepts a source only after schema,
+row-count, access-token coverage, and Session-ID fingerprint verification.
 
-The existing SUPABASE_SOURCE_DATABASE_URL is treated only as a protected source
-for the database password. Host, username, port, and database are rebuilt from
-repository-certified project identity and region. The derived URL is masked
-before being exported through GITHUB_ENV.
+No password or full connection URL is printed.
 """
 
 from __future__ import annotations
@@ -20,38 +19,57 @@ from urllib.parse import quote, unquote, urlparse, urlunparse
 
 EXPECTED_PROJECT_REF = "kqwlohmfyobsdsdekjzl"
 EXPECTED_REGION = "ap-southeast-2"
-SESSION_POOLER_HOST = "aws-0-ap-southeast-2.pooler.supabase.com"
-SESSION_POOLER_PORT = 5432
-SESSION_DATABASE = "postgres"
+SHARED_POOLER_HOST = "aws-0-ap-southeast-2.pooler.supabase.com"
+DIRECT_HOST = f"db.{EXPECTED_PROJECT_REF}.supabase.co"
+DATABASE = "postgres"
 
 
 def fail(message: str) -> None:
     raise SystemExit(message)
 
 
-def extract_password(connection_url: str) -> str:
+def parse_secret(connection_url: str) -> tuple[str, str, str, int | None, str]:
     parsed = urlparse(connection_url)
     if parsed.scheme not in {"postgres", "postgresql"}:
         fail("SUPABASE_SOURCE_DATABASE_URL must be a PostgreSQL URL.")
-
-    # Use the final @ as the authority delimiter so an accidentally unescaped @
-    # inside the existing password can still be recovered and re-encoded.
     if "@" not in parsed.netloc:
         fail("SUPABASE_SOURCE_DATABASE_URL does not contain database credentials.")
 
-    userinfo = parsed.netloc.rsplit("@", 1)[0]
+    userinfo, authority = parsed.netloc.rsplit("@", 1)
     if ":" not in userinfo:
         fail("SUPABASE_SOURCE_DATABASE_URL does not contain a database password.")
 
-    _, raw_password = userinfo.split(":", 1)
+    raw_username, raw_password = userinfo.split(":", 1)
+    username = unquote(raw_username)
     password = unquote(raw_password)
-
+    if not username:
+        fail("Supabase source database username is empty.")
     if not password:
         fail("Supabase source database password is empty.")
     if re.fullmatch(r"[\[<].*(?:PASSWORD|password).*[\]>]", password):
         fail("Supabase source database password is still a placeholder.")
 
-    return password
+    authority_url = urlparse(f"postgresql://placeholder:placeholder@{authority}")
+    host = authority_url.hostname or ""
+    port = authority_url.port
+    database = parsed.path.lstrip("/") or DATABASE
+    return username, password, host, port, database
+
+
+def build_url(username: str, password: str, host: str, port: int, database: str) -> str:
+    encoded_user = quote(username, safe="")
+    encoded_password = quote(password, safe="")
+    netloc = f"{encoded_user}:{encoded_password}@{host}:{port}"
+    return urlunparse(
+        (
+            "postgresql",
+            netloc,
+            f"/{database}",
+            "",
+            "sslmode=require&uselibpqcompat=true",
+            "",
+        )
+    )
 
 
 def main() -> None:
@@ -69,32 +87,78 @@ def main() -> None:
     if region != EXPECTED_REGION:
         fail("Supabase source region does not match repository certification.")
 
-    password = extract_password(source_url)
-    encoded_password = quote(password, safe="")
-    username = f"postgres.{EXPECTED_PROJECT_REF}"
-    netloc = (
-        f"{username}:{encoded_password}@"
-        f"{SESSION_POOLER_HOST}:{SESSION_POOLER_PORT}"
-    )
-    canonical = urlunparse(
+    original_user, password, original_host, original_port, original_database = parse_secret(source_url)
+
+    candidates = [
         (
-            "postgresql",
-            netloc,
-            f"/{SESSION_DATABASE}",
-            "",
-            "sslmode=require&uselibpqcompat=true",
-            "",
-        )
+            "original_normalized",
+            build_url(
+                original_user,
+                password,
+                original_host,
+                original_port or 5432,
+                original_database,
+            ),
+        ),
+        (
+            "dedicated_pooler",
+            build_url("postgres", password, DIRECT_HOST, 6543, DATABASE),
+        ),
+        (
+            "shared_transaction_pooler",
+            build_url(
+                f"postgres.{EXPECTED_PROJECT_REF}",
+                password,
+                SHARED_POOLER_HOST,
+                6543,
+                DATABASE,
+            ),
+        ),
+        (
+            "shared_session_pooler",
+            build_url(
+                f"postgres.{EXPECTED_PROJECT_REF}",
+                password,
+                SHARED_POOLER_HOST,
+                5432,
+                DATABASE,
+            ),
+        ),
+        (
+            "direct",
+            build_url("postgres", password, DIRECT_HOST, 5432, DATABASE),
+        ),
+    ]
+
+    seen: set[str] = set()
+    unique_candidates: list[tuple[str, str]] = []
+    for label, candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        unique_candidates.append((label, candidate))
+
+    with Path(github_env).open("a", encoding="utf-8") as handle:
+        for index, (label, candidate) in enumerate(unique_candidates, start=1):
+            print(f"::add-mask::{candidate}")
+            handle.write(f"SOURCE_DATABASE_URL_CANDIDATE_{index}={candidate}\n")
+            handle.write(f"SOURCE_DATABASE_URL_CANDIDATE_{index}_LABEL={label}\n")
+        handle.write(f"SOURCE_DATABASE_URL_CANDIDATE_COUNT={len(unique_candidates)}\n")
+
+    original_class = (
+        "shared_pooler"
+        if original_host.endswith(".pooler.supabase.com")
+        else "project_host"
+        if original_host == DIRECT_HOST
+        else "other_postgresql"
     )
 
-    print(f"::add-mask::{canonical}")
-    with Path(github_env).open("a", encoding="utf-8") as handle:
-        handle.write(f"SOURCE_DATABASE_URL={canonical}\n")
-
-    print("production_supabase_source=canonical_session_pooler")
+    print("production_supabase_source=candidate_set")
     print(f"production_supabase_project_ref={EXPECTED_PROJECT_REF}")
     print(f"production_supabase_region={EXPECTED_REGION}")
-    print(f"production_supabase_pooler_port={SESSION_POOLER_PORT}")
+    print(f"production_supabase_original_class={original_class}")
+    print(f"production_supabase_original_port={original_port or 5432}")
+    print(f"production_supabase_candidate_count={len(unique_candidates)}")
     print("production_supabase_tls=required_libpq_compatible")
 
 
