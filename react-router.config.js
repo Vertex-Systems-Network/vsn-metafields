@@ -1,3 +1,5 @@
+import process from "node:process";
+
 function normalizeHost(value) {
   if (!value) return null;
 
