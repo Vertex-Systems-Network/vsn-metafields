@@ -34,6 +34,8 @@ jobs:
       TARGET_DIRECT_URL: ${{ secrets.DIRECT_URL }}
       MIGRATION_CONFIRMATION: ${{ github.event.inputs.confirm }}
       EXPECTED_SOURCE_SESSION_COUNT: ${{ github.event.inputs.expected_source_session_count }}
+      STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
+      PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production
 
     steps:
       - name: Checkout protected main
@@ -64,6 +66,37 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Require distinct production Neon target
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from urllib.parse import urlparse
+
+          staging_id = os.environ["STAGING_NEON_ENDPOINT_ID"]
+          database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
+          direct_host = urlparse(os.environ["DIRECT_URL"]).hostname or ""
+
+          if not database_host.endswith(".neon.tech") or not direct_host.endswith(".neon.tech"):
+              raise SystemExit("Production database URLs must both be Neon PostgreSQL endpoints.")
+
+          pooled_id = database_host.split(".", 1)[0].removesuffix("-pooler")
+          direct_id = direct_host.split(".", 1)[0].removesuffix("-pooler")
+
+          if pooled_id != direct_id:
+              raise SystemExit("Production DATABASE_URL and DIRECT_URL must point to the same Neon endpoint.")
+          if pooled_id == staging_id:
+              raise SystemExit("Production database must not reuse the certified staging Neon endpoint.")
+          if "-pooler." not in database_host:
+              raise SystemExit("Production DATABASE_URL must use the pooled Neon endpoint.")
+          if "-pooler." in direct_host:
+              raise SystemExit("Production DIRECT_URL must use the direct Neon endpoint.")
+
+          print("production_neon_identity=distinct_from_staging")
+          print("production_neon_project_name=vsn-metafields-production")
+          PY
 
       - name: Install dependencies
         run: npm ci
