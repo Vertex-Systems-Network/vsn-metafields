@@ -110,6 +110,8 @@ jobs:
           database = policy.get("database") or {}
           if database.get("provider") != "neon_postgresql":
               raise SystemExit("Production database provider is not pinned to Neon PostgreSQL.")
+          if database.get("production_schema_provisioned") is not True:
+              raise SystemExit("Production Neon schema provisioning is not certified complete.")
           if database.get("session_migration_required") is not True:
               raise SystemExit("Production session migration requirement is missing.")
           if database.get("session_migration_completed") is not True:
