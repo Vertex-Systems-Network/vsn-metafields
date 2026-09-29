@@ -132,6 +132,7 @@ def main() -> int:
     require(database.get("staging_project_rename_pending") is True, "staging Neon rename state must remain explicit until renamed")
     require(database.get("staging_endpoint_id") == "ep-snowy-surf-b3gxl2wf", "certified staging Neon endpoint drifted")
     require(database.get("production_project_name") == "vsn-metafields-production", "production Neon project name drifted")
+    require(database.get("production_project_id") == "nameless-breeze-35836648", "production Neon project ID drifted")
     require(database.get("provisioning_workflow") == "production-neon-provisioning.yml", "production Neon provisioning workflow drifted")
     require(isinstance(database.get("production_schema_provisioned"), bool), "production Neon schema provisioning state missing")
     require(database.get("require_empty_session_store_before_migration") is True, "production Neon must require empty Session store before migration")
@@ -143,6 +144,10 @@ def main() -> int:
             isinstance(production_endpoint_id, str)
             and re.fullmatch(r"ep-[a-z0-9-]+", production_endpoint_id) is not None,
             "certified production Neon endpoint ID missing or invalid",
+        )
+        require(
+            production_endpoint_id == "ep-flat-mouse-b5z1wu54",
+            "production Neon endpoint certification drifted",
         )
         require(
             production_endpoint_id != database.get("staging_endpoint_id"),
@@ -192,6 +197,7 @@ def main() -> int:
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in session_migration, "production migration must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in session_migration, "production migration must pin the production Neon project name")
     require("production_project_provisioned" in session_migration, "session_migration must require certified production Neon provisioning")
+    require("production_schema_provisioned" in session_migration, "session_migration must require certified production Neon schema")
     require("production_endpoint_id" in session_migration, "session_migration must require the certified production Neon endpoint ID")
     require("pooled_id != production_id" in session_migration, "session_migration must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in session_migration, "production migration must reject the staging Neon endpoint")
@@ -209,6 +215,7 @@ def main() -> int:
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in deploy, "production deploy must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in deploy, "production deploy must pin the production Neon project name")
     require("production_project_provisioned" in deploy, "deploy must require certified production Neon provisioning")
+    require("production_schema_provisioned" in deploy, "deploy must require certified production Neon schema")
     require("production_endpoint_id" in deploy, "deploy must require the certified production Neon endpoint ID")
     require("pooled_id != production_id" in deploy, "deploy must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in deploy, "production deploy must reject the staging Neon endpoint")
@@ -254,6 +261,7 @@ def main() -> int:
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in acceptance, "production acceptance must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in acceptance, "production acceptance must pin the production Neon project name")
     require("production_project_provisioned" in acceptance, "acceptance must require certified production Neon provisioning")
+    require("production_schema_provisioned" in acceptance, "acceptance must require certified production Neon schema")
     require("production_endpoint_id" in acceptance, "acceptance must require the certified production Neon endpoint ID")
     require("pooled_id != production_id" in acceptance, "acceptance must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in acceptance, "production acceptance must reject the staging Neon endpoint")
