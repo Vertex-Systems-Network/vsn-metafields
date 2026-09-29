@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "DEVELOPMENT-RUNTIME-SAFETY",
-  "last_verified_completion": "Local development is operational on the dedicated VSN Metafields Development Shopify app, local-testing dev store, and isolated local PostgreSQL database.",
-  "next_valid_work_unit": "Keep development local by default, deploy development to staging only by explicit workflow dispatch, and use Shopify test subscriptions outside APP_ENV=production.",
+  "current_work_unit": "ISSUE-4-cloudflare-subscription-safe-migration",
+  "last_verified_completion": "Local development is end-to-end operational: dedicated VSN Metafields Development Shopify app, local-testing dev store, isolated local PostgreSQL database, authenticated embedded navigation, Packages page, and a 5-day/$55 Shopify test subscription verified ACTIVE by the user.",
+  "next_valid_work_unit": "Continue normal product development on development/local-testing with no automatic staging or production deployment. Deploy development to staging only by explicit manual dispatch when the user wants remote validation; production deployment and Shopify live cutover remain separately gated.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Validate environment-aware Shopify billing contracts in CI.",
-    "Keep development pushes non-deploying; use manual development-to-staging dispatch only when requested.",
-    "Promote development to main only through intentional release PR.",
+    "Continue product development on the development branch and local-testing store.",
+    "Use manual development-to-staging deployment only when remote staging validation is requested.",
+    "Promote development to main only through an intentional release PR.",
     "Keep production deploy and Shopify live cutover separately manual/authorization-gated."
   ],
   "outstanding_removals": [],
@@ -29,9 +29,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "local_development_green_manual_staging_gate_and_test_billing_in_progress",
-  "security_readiness": "local_staging_production_isolated_no_automatic_deploy",
-  "last_reconciled_repository_ref": "25ebfde1f1bfbeb3538eddc0988fe89c98d1fffc",
-  "last_reconciled_at": "2026-09-29T12:30:00+00:00",
-  "notes": "Local development is isolated from staging and live. Staging auto-deploy is being removed because the cloudflare-staging GitHub environment rejected direct development-branch deployments; the safer model is manual staging deployment that explicitly checks out development. Billing creation becomes test-mode for local/staging and real only when APP_ENV=production."
+  "qa_readiness": "local_development_end_to_end_green_test_billing_active",
+  "security_readiness": "local_staging_production_isolated_manual_promotion_only",
+  "last_reconciled_repository_ref": "884486e82855e63907fbe62e501a9b1186dad041",
+  "last_reconciled_at": "2026-09-29T14:15:00+00:00",
+  "notes": "Local development is fully isolated and verified through an ACTIVE Shopify test subscription at 5 trial days and $55/month. React Router 7.18 reverse-proxy action-origin handling is configured only for the current local trycloudflare tunnel. No live Shopify app, merchant subscription, Railway service, or production URL was changed."
 }
