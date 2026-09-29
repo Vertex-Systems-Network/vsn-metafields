@@ -252,6 +252,21 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /metafieldDefinitionUpdate/);
 });
 
+test("production cutover certification performs build and Worker dry-run without authorizing release", () => {
+  const workflow = read(".github/workflows/production-cutover-contract.yml");
+
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm run build/);
+  assert.match(workflow, /wrangler@4\.141\.0 deploy/);
+  assert.match(workflow, /--config wrangler\.production\.jsonc/);
+  assert.match(workflow, /--dry-run/);
+  assert.match(workflow, /production_worker_dry_run=pass/);
+  assert.match(workflow, /production_release_authorized=false/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.doesNotMatch(workflow, /shopify app release/);
+  assert.doesNotMatch(workflow, /prisma migrate deploy/);
+});
+
 test("production cutover package preserves Shopify identity, billing, database, and Railway rollback", () => {
   const current = read("shopify.app.toml");
   const target = read("shopify.app.cloudflare-production.toml");

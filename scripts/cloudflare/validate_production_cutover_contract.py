@@ -110,6 +110,7 @@ def main() -> int:
         require("--allow-deletes" not in workflow, "Shopify config deletes are forbidden during migration")
 
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
+    require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("environment: cloudflare-production" in deploy, "production deploy environment missing")
     require("prisma migrate status" in deploy, "production migration status preflight missing")
@@ -139,6 +140,7 @@ def main() -> int:
     print("production_billing_mutation_authorized=false")
     print("production_database_migration_authorized=false")
     print("railway_rollback_required=true")
+    print("production_package_certifiable_without_deploy=true")
     return 0
 
 

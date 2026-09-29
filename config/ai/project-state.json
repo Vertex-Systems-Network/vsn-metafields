@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-cutover-preparation",
+  "current_work_unit": "ISSUE-4-production-cutover-package-certification",
   "last_verified_completion": "Issue #4 staging acceptance automated on Cloudflare deploy run 36501696634 at protected main 9070675d42e9cb2a98748506ef509c1a138923ea. Cloudflare Version ID 9e302286-fa4b-4e04-a759-b9d749102411; live health and 5-day/$55 billing contract passed; offline Shopify session, Admin GraphQL, and currentAppInstallation.activeSubscriptions reads all passed with 2 stored sessions and 0 active staging subscriptions.",
-  "next_valid_work_unit": "Certify the prepared production cutover package while keeping release_authorized=false. Do not change active Shopify production URLs until an explicit production cutover authorization is recorded.",
+  "next_valid_work_unit": "Certify the production cutover package with build/dry-run evidence while release_authorized=false; after certification, stop before any production deploy or Shopify URL cutover until explicit production authorization.",
   "progress": {
     "total_work_units": 6,
     "complete": 4,
@@ -16,10 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Certify the isolated Cloudflare production Worker configuration and manual-only deployment preflight.",
-    "Certify the unreleased Shopify production cutover candidate workflow and authorization-gated release workflow.",
-    "Certify the Railway rollback workflow.",
-    "Keep release_authorized=false and production Shopify URLs on Railway until explicit cutover authorization."
+    "Run and record production cutover contract certification with production build and Wrangler dry-run.",
+    "Confirm Shopify production candidate/release and Railway rollback workflows remain manual, authorization-gated, and billing-mutation-free.",
+    "Keep release_authorized=false and current production Shopify URL on Railway."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -29,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "staging_automated_acceptance_green_production_cutover_package_preparation",
-  "security_readiness": "production_cutover_prepared_but_release_unauthorized",
-  "last_reconciled_repository_ref": "9070675d42e9cb2a98748506ef509c1a138923ea",
-  "last_reconciled_at": "2026-09-29T00:10:46+00:00",
-  "notes": "Staging runtime, billing contract, offline session continuity, Admin GraphQL, subscription-read, and compliance webhook checks are green. Production cutover preparation is now the active work unit. The cutover release policy remains false by design; preparation may create isolated artifacts/workflows but must not change the active Shopify production URL or stop Railway."
+  "qa_readiness": "production_cutover_package_certification_in_progress",
+  "security_readiness": "production_cutover_prepared_release_unauthorized",
+  "last_reconciled_repository_ref": "1710efa3791e739798e0a7544fadc9485e6ee02c",
+  "last_reconciled_at": "2026-09-29T00:20:00+00:00",
+  "notes": "Source-level production cutover contract is green on protected main. Certification is being strengthened with a real production build and Wrangler production-config dry-run only. This must not deploy the production Worker, release Shopify config, mutate subscriptions, run database migrations, or stop Railway."
 }

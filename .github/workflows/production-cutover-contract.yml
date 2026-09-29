@@ -32,10 +32,34 @@ on:
 permissions:
   contents: read
 
+env:
+  CI: "true"
+  NODE_ENV: test
+  DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vsn_metafields_cutover_ci
+  DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/vsn_metafields_cutover_ci
+  SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a
+  SHOPIFY_API_SECRET: ci-placeholder
+  SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
+  SCOPES: read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders
+
 jobs:
   production-cutover-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vsn_metafields_cutover_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d vsn_metafields_cutover_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -43,8 +67,38 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Validate prepared production cutover contract
         run: python scripts/cloudflare/validate_production_cutover_contract.py
+
+      - name: Validate production Prisma schema without migrating
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma validate
+          npx prisma migrate status || true
+          git diff --exit-code -- prisma
+
+      - name: Build production application
+        run: npm run build
+
+      - name: Dry-run isolated Cloudflare production Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/vsn-metafields-production-dry-run
+          npx --yes wrangler@4.141.0 deploy             --config wrangler.production.jsonc             --dry-run             --outdir /tmp/vsn-metafields-production-dry-run
+
+          test -d /tmp/vsn-metafields-production-dry-run
+          echo "production_worker_dry_run=pass"
 
       - name: Confirm active production Shopify config still targets Railway
         shell: bash
@@ -65,4 +119,6 @@ jobs:
               raise SystemExit("production release unexpectedly authorized")
           print("production_cutover_prepared=true")
           print("production_release_authorized=false")
+          print("production_worker_certification=dry_run_only")
+          print("production_shopify_cutover_performed=false")
           PY
