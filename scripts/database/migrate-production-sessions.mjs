@@ -41,6 +41,51 @@ function requireSecret(name, value) {
   if (!value) fail(`${name} is required.`);
 }
 
+function sourceConnectionMetadata() {
+  const source = new URL(SOURCE_URL);
+  const host = source.hostname.toLowerCase();
+  const sourceClass =
+    host === `db.${EXPECTED_SUPABASE_PROJECT_REF}.supabase.co`
+      ? "supabase_direct"
+      : /(^|\\.)pooler\\.supabase\\.com$/.test(host)
+        ? "supabase_shared_pooler"
+        : "other_postgresql";
+  const port = source.port || "5432";
+  const sslMode = source.searchParams.get("sslmode") || "unspecified";
+  const userKind = source.username.startsWith("postgres") ? "postgres_role" : "other_role";
+  return { host, sourceClass, port, sslMode, userKind };
+}
+
+function safeErrorSummary(error) {
+  const parts = [];
+  const add = (label, value) => {
+    if (value !== undefined && value !== null && String(value).length > 0) {
+      parts.push(`${label}=${String(value)}`);
+    }
+  };
+
+  add("name", error?.name);
+  add("code", error?.code);
+  add("errno", error?.errno);
+  add("syscall", error?.syscall);
+
+  if (Array.isArray(error?.errors)) {
+    for (const nested of error.errors) {
+      add("nested_name", nested?.name);
+      add("nested_code", nested?.code);
+      add("nested_errno", nested?.errno);
+      add("nested_syscall", nested?.syscall);
+    }
+  }
+
+  const message = String(error?.message || "").trim();
+  if (message && !message.includes(SOURCE_URL) && !message.includes(TARGET_URL)) {
+    add("message", message);
+  }
+
+  return parts.length > 0 ? parts.join(";") : "unclassified_error";
+}
+
 function assertProviderIdentity() {
   const source = new URL(SOURCE_URL);
   const target = new URL(TARGET_URL);
@@ -131,12 +176,27 @@ async function main() {
 
   assertProviderIdentity();
 
-  const source = new Client({ connectionString: SOURCE_URL });
-  const target = new Client({ connectionString: TARGET_URL });
+  const source = new Client({
+    connectionString: SOURCE_URL,
+    connectionTimeoutMillis: 15000,
+  });
+  const target = new Client({
+    connectionString: TARGET_URL,
+    connectionTimeoutMillis: 15000,
+  });
 
   try {
+    const sourceMeta = sourceConnectionMetadata();
+    console.log(`production_session_source_class=${sourceMeta.sourceClass}`);
+    console.log(`production_session_source_host=${sourceMeta.host}`);
+    console.log(`production_session_source_port=${sourceMeta.port}`);
+    console.log(`production_session_source_sslmode=${sourceMeta.sslMode}`);
+    console.log(`production_session_source_user_kind=${sourceMeta.userKind}`);
+    console.log("production_session_source_connection=attempting");
     await source.connect();
+    console.log("production_session_source_connection=pass");
     await target.connect();
+    console.log("production_session_target_connection=pass");
 
     await assertSessionSchema(source, "Source");
     await assertSessionSchema(target, "Target");
@@ -239,6 +299,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`production_session_migration=fail: ${error.message}`);
+  console.error(`production_session_migration=fail:${safeErrorSummary(error)}`);
   process.exitCode = 1;
 });
