@@ -10,17 +10,20 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".graphqlrc.js"
+      - "react-router.config.js"
       - ".github/workflows/app-validation.yml"
       - "tests/app-contracts.test.mjs"
   push:
     branches:
       - main
+      - development
     paths:
       - "app/**"
       - "prisma/**"
       - "package.json"
       - "package-lock.json"
       - ".graphqlrc.js"
+      - "react-router.config.js"
       - ".github/workflows/app-validation.yml"
       - "tests/app-contracts.test.mjs"
   workflow_dispatch:
