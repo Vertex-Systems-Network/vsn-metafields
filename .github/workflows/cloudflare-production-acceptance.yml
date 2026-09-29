@@ -1,0 +1,153 @@
+name: Cloudflare Production Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type VERIFY_PRODUCTION_WORKER_ONLY to verify the already-deployed production Worker without changing Shopify URLs"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production-acceptance
+  cancel-in-progress: false
+
+jobs:
+  verify-production-worker:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'VERIFY_PRODUCTION_WORKER_ONLY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Require production database values
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DATABASE_URL DIRECT_URL
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate prepared production cutover contract
+        run: python scripts/cloudflare/validate_production_cutover_contract.py
+
+      - name: Verify production database migration status read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma validate
+          npx prisma migrate status
+          echo "production_database_migration_status=pass"
+
+      - name: Verify production Session table read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { createPrismaClient } from "./app/db.server.js";
+
+          const prisma = createPrismaClient();
+          try {
+            await prisma.session.count();
+            console.log("production_session_table_read=pass");
+          } finally {
+            await prisma.$disconnect();
+          }
+          NODE
+
+      - name: Verify deployed production Worker health contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          expected_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
+          if os.environ["SHOPIFY_APP_URL"] != expected_url:
+              raise SystemExit("production Worker URL mismatch")
+
+          with urllib.request.urlopen(expected_url + "/healthz", timeout=20) as response:
+              if response.status != 200:
+                  raise SystemExit(f"unexpected production health status: {response.status}")
+              payload = json.loads(response.read().decode("utf-8"))
+
+          expected_plan = {
+              "id": "pro-plan",
+              "amount": 55,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 5,
+          }
+
+          if payload.get("ok") is not True:
+              raise SystemExit("production Worker health did not report ok=true")
+          if payload.get("service") != "vsn-metafields":
+              raise SystemExit("production Worker service identity mismatch")
+          if payload.get("plan") != expected_plan:
+              raise SystemExit(f"production Worker billing metadata mismatch: {payload!r}")
+
+          print("production_worker_health=pass")
+          print("production_billing_metadata=pass")
+          PY
+
+      - name: Confirm Railway remains Shopify live target and release stays unauthorized
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import tomllib
+          from pathlib import Path
+
+          with open("shopify.app.toml", "rb") as handle:
+              current = tomllib.load(handle)
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+
+          railway_url = "https://vsn-metafields-production.up.railway.app"
+          if current.get("application_url") != railway_url:
+              raise SystemExit("Shopify live application URL no longer points to Railway")
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("production release unexpectedly authorized")
+          if policy.get("authorized_version") is not None:
+              raise SystemExit("production authorized version must remain unset")
+          if policy.get("authorized_source_ref") is not None:
+              raise SystemExit("production authorized source ref must remain unset")
+
+          print("production_worker_acceptance=pass")
+          print("production_shopify_live_target=railway")
+          print("production_release_authorized=false")
+          print("production_shopify_cutover_performed=false")
+          print("production_billing_mutation_performed=false")
+          PY
