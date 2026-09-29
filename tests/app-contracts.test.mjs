@@ -558,7 +558,7 @@ test("Neon staging and production identities stay isolated", () => {
   }
 });
 
-test("production Supabase source is canonicalized for IPv4 GitHub runners", () => {
+test("production Supabase source routes stay project- and region-certified", () => {
   const workflow = read(".github/workflows/production-session-migration.yml");
   const resolver = read("scripts/database/resolve-production-supabase-source.py");
 
@@ -568,12 +568,13 @@ test("production Supabase source is canonicalized for IPv4 GitHub runners", () =
 
   assert.match(resolver, /EXPECTED_PROJECT_REF = "kqwlohmfyobsdsdekjzl"/);
   assert.match(resolver, /EXPECTED_REGION = "ap-southeast-2"/);
-  assert.match(resolver, /SESSION_POOLER_HOST = "aws-0-ap-southeast-2\.pooler\.supabase\.com"/);
-  assert.match(resolver, /SESSION_POOLER_PORT = 5432/);
-  assert.match(resolver, /postgres\.\{EXPECTED_PROJECT_REF\}/);
+  assert.match(resolver, /SHARED_POOLER_HOST = "aws-0-ap-southeast-2\.pooler\.supabase\.com"/);
+  assert.match(resolver, /DIRECT_HOST = f"db\.\{EXPECTED_PROJECT_REF\}\.supabase\.co"/);
+  assert.match(resolver, /build_url\("postgres", password, DIRECT_HOST, 6543, DATABASE\)/);
+  assert.match(resolver, /build_url\("postgres", password, DIRECT_HOST, 5432, DATABASE\)/);
   assert.match(resolver, /quote\(password, safe=""\)/);
   assert.match(resolver, /::add-mask::/);
-  assert.match(resolver, /SOURCE_DATABASE_URL=\{canonical\}/);
+  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_/);
   assert.match(resolver, /GITHUB_ENV/);
   assert.doesNotMatch(resolver, /print\(.*password/i);
 });
