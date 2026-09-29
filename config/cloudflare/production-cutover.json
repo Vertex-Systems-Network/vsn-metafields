@@ -25,9 +25,16 @@
     ]
   },
   "database": {
-    "provider": "postgresql",
+    "provider": "neon_postgresql",
+    "source_provider": "supabase_postgresql",
     "migrate_during_cutover": false,
-    "require_migration_status_clean": true
+    "require_migration_status_clean": true,
+    "session_migration_required": true,
+    "session_migration_completed": false,
+    "expected_source_session_count": 4,
+    "migration_workflow": "production-session-migration.yml",
+    "runtime_connection": "pooled",
+    "migration_connection": "direct"
   },
   "rollback": {
     "keep_railway_available": true,
