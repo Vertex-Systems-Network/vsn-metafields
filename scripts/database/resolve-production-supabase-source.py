@@ -82,7 +82,7 @@ def main() -> None:
             netloc,
             f"/{SESSION_DATABASE}",
             "",
-            "sslmode=require",
+            "sslmode=verify-full",
             "",
         )
     )
