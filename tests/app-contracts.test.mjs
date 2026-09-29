@@ -471,3 +471,13 @@ test("staging session reset is isolated from the production shop", () => {
   assert.doesNotMatch(workflow, /\npush:/);
   assert.doesNotMatch(workflow, /cloudflare-production/);
 });
+
+
+test("expiring offline Shopify tokens are enabled for public Admin API access", () => {
+  const shopify = read("app/shopify.server.js");
+  const schema = read("prisma/schema.prisma");
+
+  assert.match(shopify, /future:\s*\{[\s\S]*expiringOfflineAccessTokens:\s*true/);
+  assert.match(schema, /refreshToken\s+String\?/);
+  assert.match(schema, /refreshTokenExpires\s+DateTime\?/);
+});
