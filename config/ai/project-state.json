@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-worker-preparation",
-  "last_verified_completion": "PR #103 merged to protected main as 07d1eb3ad3f3e6d1e66f6cbc1bc74c43bd78940e after Production Cutover Contract, Dependency Security Audit, App Validation, AI Native Quality Gates, and Cloudflare Staging Readiness all passed. Development was then reconciled to the same certified baseline.",
-  "next_valid_work_unit": "Deploy and verify the isolated Cloudflare production Worker only after separate explicit production authorization. Keep Shopify production URLs on Railway and keep release_authorized=false until an independent production Worker verification is complete.",
+  "current_work_unit": "ISSUE-4-production-worker-deploy-and-acceptance",
+  "last_verified_completion": "PR #107 merged to protected main as c184b25628fc5c59a1110c6fe9ec49e11ce31b05 after Production Cutover Contract, App Validation, AI Native Quality Gates, and Cloudflare Staging Readiness all passed. Production mutation workflows are protected-main-only and the production Worker deploy/acceptance chain is bound to an exact immutable source SHA exposed through /healthz. Development was fast-forwarded to the same certified baseline.",
+  "next_valid_work_unit": "After separate explicit production authorization, dispatch Cloudflare Production Prepare from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05, then run independent Cloudflare Production Acceptance against that exact SHA. Keep Shopify production URLs on Railway and release_authorized=false until acceptance is complete.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,8 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "When separately authorized, run the guarded Cloudflare Production Prepare workflow to deploy the isolated production Worker without changing Shopify URLs.",
-    "Verify production Worker health, PostgreSQL/Prisma migration status, session behavior, and the 5-day/USD 55 billing metadata independently.",
+    "After separate explicit production authorization, run the guarded Cloudflare Production Prepare workflow from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05. If main moves before dispatch, recertify instead of deploying a different SHA.",
+    "Run the independent Cloudflare Production Acceptance workflow against the exact deployed source SHA and verify Worker health, PostgreSQL/Prisma migration status, read-only Session access, and 5-day/USD 55 billing metadata.",
     "Only after independent production Worker verification, prepare an unreleased Shopify production cutover version and keep release separately authorization-gated.",
     "After a separately authorized Shopify cutover, verify existing merchant subscriptions and retain Railway through the rollback window."
   ],
@@ -30,9 +30,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_preflight_certified_all_gates_green",
-  "security_readiness": "production_worker_not_deployed_shopify_railway_live_release_unauthorized",
-  "last_reconciled_repository_ref": "07d1eb3ad3f3e6d1e66f6cbc1bc74c43bd78940e",
-  "last_reconciled_at": "2026-09-29T20:13:00+00:00",
-  "notes": "Isolated staging is fully green. The production Worker bundle has passed Wrangler dry-run, build, Prisma status checks, dependency security audit, app/session contract smoke, and ANPOS validation. The active production Shopify app still targets Railway, release_authorized remains false, and no production Worker deploy or Shopify live cutover has occurred."
+  "qa_readiness": "production_execution_ready_sha_bound_all_gates_green",
+  "security_readiness": "production_worker_not_deployed_shopify_railway_live_release_unauthorized_sha_bound",
+  "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+  "last_reconciled_at": "2026-09-29T20:38:51+00:00",
+  "notes": "Isolated staging is fully green. Protected main and development are aligned at c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Production mutation workflows require protected main; Worker deploy and independent acceptance require an exact source SHA, and /healthz exposes that deployed SHA for verification. The active production Shopify app still targets Railway, release_authorized remains false, and no production Worker deploy or Shopify live cutover has occurred."
 }

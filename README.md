@@ -15,7 +15,7 @@
 - **Active P0 blocker:** none — protected project history rewrite is complete and ruleset protections are restored
 - **PHASE-00 progress:** 100% complete
 - **PHASE-01 progress:** 5/6 work units complete; production preflight certified
-- **Active work:** Issue #4 — production preflight is certified; next is separately authorized isolated Cloudflare production Worker deployment while Shopify live URLs remain on Railway
+- **Active work:** Issue #4 — production execution is SHA-bound and ready; next is separately authorized isolated Cloudflare production Worker deploy + independent acceptance while Shopify live URLs remain on Railway
 
 The protected project history has been rewritten and `main` is the sole live branch. The application tree was preserved exactly across the rewrite. AI Native Quality Gates now perform a normal fresh clone of `main`, require zero reachable accidental `..git/` paths, and run `git fsck --full`. GitHub-managed `refs/pull/*` retain legacy PR snapshots outside normal project branch/tag control; that platform-side dereference/GC item is tracked separately and is not treated as a live project-ref blocker.
 
@@ -31,4 +31,4 @@ Billing invariant: the Pro plan is centrally defined as USD 55 every 30 days wit
 
 Shopify staging version safety: the dedicated staging app identity is no longer represented by the production client ID in source control. A guarded manual workflow can create an unreleased staging Shopify app version using the staging app automation token, verify the staging client ID differs from production, and carry the required app/uninstalled, app/scopes_update, and compliance webhook subscriptions before any manual release.
 
-Release baseline: protected `main` and `development` are aligned at `07d1eb3ad3f3e6d1e66f6cbc1bc74c43bd78940e`. Production Worker deployment and Shopify live cutover remain separate manual authorization gates.
+Release baseline: protected `main` and `development` are aligned at `c184b25628fc5c59a1110c6fe9ec49e11ce31b05`. Production Worker deploy and independent acceptance are bound to an exact immutable source SHA; the Worker reports that SHA through `/healthz`. Production Worker deployment and Shopify live cutover remain separate manual authorization gates.
