@@ -63,15 +63,33 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import json
           import os
           import re
+          from pathlib import Path
           from urllib.parse import urlparse
 
           expected = os.environ["EXPECTED_PRODUCTION_ENDPOINT_ID"]
-          staging = os.environ["STAGING_NEON_ENDPOINT_ID"]
+          expected_project = os.environ["PRODUCTION_NEON_PROJECT_NAME"]
+          expected_staging = os.environ["STAGING_NEON_ENDPOINT_ID"]
 
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          database = policy.get("database") or {}
+          certified = database.get("production_endpoint_id")
+          staging = database.get("staging_endpoint_id")
+
+          if database.get("production_project_name") != expected_project:
+              raise SystemExit("Production Neon project name is not repository-certified.")
+          if database.get("production_project_provisioned") is not True:
+              raise SystemExit("Production Neon project is not repository-certified as created.")
+          if staging != expected_staging:
+              raise SystemExit("Certified staging Neon endpoint drifted from workflow policy.")
           if re.fullmatch(r"ep-[a-z0-9-]+", expected) is None:
               raise SystemExit("Production endpoint ID must be an exact Neon ep-... identifier.")
+          if certified != expected:
+              raise SystemExit("Requested production endpoint does not match repository policy.")
           if expected == staging:
               raise SystemExit("Production Neon endpoint must differ from staging.")
 

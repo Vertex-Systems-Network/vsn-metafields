@@ -87,6 +87,8 @@ jobs:
 
           if database.get("production_project_provisioned") is not True:
               raise SystemExit("Production Neon project is not certified as provisioned.")
+          if database.get("production_schema_provisioned") is not True:
+              raise SystemExit("Production Neon schema provisioning is not certified complete.")
           if not isinstance(production_id, str) or not production_id.startswith("ep-"):
               raise SystemExit("Certified production Neon endpoint ID is missing.")
           if production_id == staging_id:
