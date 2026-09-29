@@ -583,9 +583,8 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.doesNotMatch(workflow, /appSubscriptionCreate|appSubscriptionCancel|shopify app release/);
 
   assert.match(script, /EXPECTED_SUPABASE_PROJECT_REF/);
-  assert.match(script, /db\.\$\{EXPECTED_SUPABASE_PROJECT_REF\}\.supabase\.co/);
-  assert.match(script, /pooler\\\.supabase\\\.com/);
-  assert.match(script, /source\.username\.startsWith\("postgres"\)/);
+  assert.match(script, /\["postgres:", "postgresql:"\]\.includes\(source\.protocol\)/);
+  assert.doesNotMatch(script, /Source database must use a Supabase-managed direct or shared-pooler endpoint/);
   assert.match(script, /EXPECTED_SOURCE_ID_DIGEST/);
   assert.match(script, /sourceTokenCount/);
   assert.match(script, /sourceIdDigest/);
