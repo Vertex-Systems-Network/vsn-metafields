@@ -42,7 +42,10 @@
     "production_project_name": "vsn-metafields-production",
     "production_project_provisioned": false,
     "production_endpoint_id": null,
-    "require_distinct_neon_projects": true
+    "require_distinct_neon_projects": true,
+    "bootstrap_workflow": "production-neon-bootstrap.yml",
+    "production_schema_bootstrap_required": true,
+    "production_schema_bootstrap_completed": false
   },
   "rollback": {
     "keep_railway_available": true,
