@@ -3,7 +3,7 @@ import { sessionStorage, unauthenticated } from "../shopify.server";
 
 const EXPECTED_STAGING_APP_URL =
   "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev";
-const EXPECTED_STAGING_SHOP = "vertex-systems-network.myshopify.com";
+const PRODUCTION_SHOP = "vertex-systems-network.myshopify.com";
 const SIGNATURE_MAX_AGE_SECONDS = 300;
 const SIGNED_PATH = "/internal/staging-acceptance";
 
@@ -74,7 +74,8 @@ export const loader = async ({ request }) => {
   const now = Math.floor(Date.now() / 1000);
 
   if (
-    shop !== EXPECTED_STAGING_SHOP ||
+    !/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop) ||
+    shop === PRODUCTION_SHOP ||
     !Number.isSafeInteger(timestamp) ||
     Math.abs(now - timestamp) > SIGNATURE_MAX_AGE_SECONDS
   ) {
