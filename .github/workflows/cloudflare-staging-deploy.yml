@@ -116,6 +116,7 @@ jobs:
           import json
           import os
           import time
+          import urllib.error
           import urllib.request
 
           url = os.environ["SHOPIFY_APP_URL"].rstrip("/") + "/healthz"
@@ -194,13 +195,53 @@ jobs:
               },
           )
 
-          with urllib.request.urlopen(request, timeout=20) as response:
-              if response.status != 200:
-                  raise RuntimeError(f"unexpected HTTP status: {response.status}")
-              payload = json.loads(response.read().decode("utf-8"))
+          payload = None
+          last_error = None
+
+          for attempt in range(1, 4):
+              try:
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  break
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode("utf-8", errors="replace")
+                  try:
+                      diagnostic = json.loads(body)
+                  except json.JSONDecodeError:
+                      diagnostic = {"raw": body[:500]}
+                  print(
+                      "staging_acceptance_http_error="
+                      + json.dumps(
+                          {
+                              "status": exc.code,
+                              "stage": diagnostic.get("stage"),
+                              "code": diagnostic.get("code"),
+                              "errorName": diagnostic.get("errorName"),
+                              "session": diagnostic.get("session"),
+                          },
+                          sort_keys=True,
+                      )
+                  )
+                  last_error = exc
+                  if attempt == 3:
+                      raise
+                  time.sleep(attempt * 2)
+
+          if payload is None:
+              raise last_error or RuntimeError("staging acceptance returned no payload")
 
           if payload.get("ok") is not True:
-              raise RuntimeError("staging acceptance endpoint returned ok=false")
+              raise RuntimeError(
+                  "staging acceptance endpoint returned ok=false "
+                  + json.dumps(
+                      {
+                          "stage": payload.get("stage"),
+                          "code": payload.get("code"),
+                          "session": payload.get("session"),
+                      },
+                      sort_keys=True,
+                  )
+              )
 
           session = payload.get("session") or {}
           if session.get("offlineSessionAvailable") is not True:
