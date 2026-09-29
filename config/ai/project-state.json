@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "API/DB preflight verified Supabase project kqwlohmfyobsdsdekjzl ACTIVE_HEALTHY with 4 Session rows and 4 access tokens; Neon project nameless-breeze-35836648 is reachable with 0 Session rows. Production Session Migration run 36638708646 then failed before writes only because the source secret host did not match the hard-coded Supabase hostname formats.",
-  "next_valid_work_unit": "Merge the fingerprint-first source validation fix, then rerun Production Session Migration with expected_source_session_count=4. The source URL only needs to be PostgreSQL; source identity is certified by required Session schema, exact count, 4 access tokens, and the pinned audited Session-ID SHA-256 before any Neon transaction begins.",
+  "last_verified_completion": "API checks confirmed Supabase ACTIVE_HEALTHY with 4/4 sessions and Neon reachable with 0 sessions. PR #121 removed brittle source-host identity gating and merged successfully, but rerun attempt of Production Session Migration still failed during source.connect() after about 10 seconds with an empty pg error message. All GitHub secret, Neon endpoint, schema, and production isolation preflights passed.",
+  "next_valid_work_unit": "Certify sanitized source-connection diagnostics, rerun the same guarded migration, and inspect only non-secret source host/class/port/sslmode plus PostgreSQL/OS error codes. Use that evidence to correct the source connection secret or network mode before any Session write occurs.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "api_preflight_green_source_host_gate_removal_pending",
-  "security_readiness": "source_identity_bound_to_audited_session_fingerprint_before_write",
+  "qa_readiness": "source_connection_diagnostics_pending",
+  "security_readiness": "api_health_green_no_target_writes_connection_error_sanitized_next",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36638708646 made no Neon writes. API checks prove both source and target services healthy. The brittle source hostname restriction is removed because the encrypted GitHub secret uses a connection form not represented by our provider patterns; safety is retained by PostgreSQL URL validation plus audited Session schema/count/token/fingerprint checks before transaction begin."
+  "notes": "The latest migration rerun made no Neon Session writes. Source connection failure occurs before source schema/fingerprint verification. Diagnostics are intentionally limited to non-secret endpoint metadata and error codes; passwords, full URLs, and Session/token values remain excluded from logs."
 }
