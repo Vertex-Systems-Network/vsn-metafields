@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Production Session Migration run 36645881938 used the correct Supabase Session Pooler string shape (aws-1-ap-southeast-2.pooler.supabase.com:5432) but failed inside the URL resolver before any database connection. The secret host could not be recognized after the database password was inserted, consistent with raw URL-reserved characters in the password altering standard URL parsing.",
-  "next_valid_work_unit": "Merge the robust Supabase source parser that splits credentials at the last @, preserves raw password bytes, percent-encodes them, and then validates the exact Connect-dialog pooler host. After merge, run a fresh Production Session Migration with the existing corrected aws-1 Session Pooler secret.",
+  "last_verified_completion": "Production Session Migration run 36646759216 on protected main 5a0ccf7d55a68a12232b364288119dc1d6074aba passed exact pooler resolution, Neon URL/isolation/schema preflights, and reached Supabase Supavisor session mode. Source authentication failed with PostgreSQL code 28P01 before any source audit or Neon write. Supabase server logs confirm the request reached the correct project/region/session pooler.",
+  "next_valid_work_unit": "Merge bounded password interpretation fallback. The resolver will try the exact raw password literal first and, only when percent escapes are present, a percent-decoded interpretation second. Both stay on the exact certified aws-1 pooler host and must pass the audited 4-row Session fingerprint before Neon is connected. If both return 28P01, the stored database password is definitively incorrect and must be replaced with the real Supabase DB password.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "robust_supabase_secret_parser_pending",
-  "security_readiness": "correct_pooler_secret_present_no_target_writes_password_never_logged",
+  "qa_readiness": "supabase_password_interpretation_fallback_pending",
+  "security_readiness": "correct_pooler_reached_auth_failed_no_target_writes_bounded_secret_interpretations",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36645881938 stopped in Resolve canonical Supabase session pooler; no source connection or Neon write occurred. The parser fix handles raw reserved characters in the database password without exposing the password or full URL."
+  "notes": "Run 36646759216 made no Neon Session writes. Error 28P01 is authentication failure. This patch eliminates URL encoding ambiguity without logging credentials or changing the Supabase database password."
 }
