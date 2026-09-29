@@ -14,6 +14,15 @@ on:
       - ".github/workflows/shopify-production-cutover-release.yml"
       - ".github/workflows/shopify-production-rollback-railway.yml"
       - ".github/workflows/production-cutover-contract.yml"
+      - "app/shopify.server.js"
+      - "app/billing-config.js"
+      - "app/db.server.js"
+      - "app/prisma-session-storage.server.js"
+      - "prisma/schema.prisma"
+      - "prisma/migrations/**"
+      - "package.json"
+      - "package-lock.json"
+      - "workers/**"
   push:
     branches:
       - main
@@ -27,6 +36,15 @@ on:
       - ".github/workflows/shopify-production-cutover-release.yml"
       - ".github/workflows/shopify-production-rollback-railway.yml"
       - ".github/workflows/production-cutover-contract.yml"
+      - "app/shopify.server.js"
+      - "app/billing-config.js"
+      - "app/db.server.js"
+      - "app/prisma-session-storage.server.js"
+      - "prisma/schema.prisma"
+      - "prisma/migrations/**"
+      - "package.json"
+      - "package-lock.json"
+      - "workers/**"
   workflow_dispatch:
 
 permissions:
