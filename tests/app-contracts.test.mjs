@@ -517,6 +517,9 @@ test("production Neon bootstrap is isolated, empty-target guarded, and schema-on
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
   assert.match(workflow, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
+  assert.match(workflow, /production_project_provisioned/);
+  assert.match(workflow, /production_endpoint_id/);
+  assert.match(workflow, /Requested production endpoint does not match repository policy/);
   assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
   assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
   assert.match(workflow, /Production bootstrap must never use the staging Neon endpoint/);
