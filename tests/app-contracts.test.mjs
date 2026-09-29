@@ -52,6 +52,13 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
+test("App Validation tracks React Router runtime config changes", () => {
+  const workflow = read(".github/workflows/app-validation.yml");
+
+  const matches = workflow.match(/- "react-router\.config\.js"/g) || [];
+  assert.equal(matches.length, 2);
+});
+
 test("local React Router actions allow only the current Shopify tunnel origin", () => {
   const config = read("react-router.config.js");
 
