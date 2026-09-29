@@ -224,6 +224,9 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /authenticate\.admin\(request\)/);
   assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
   assert.match(status, /process\.env\.APP_ENV === "production"/);
+  assert.match(status, /process\.env\.NODE_ENV === "production"/);
+  assert.match(packages, /process\.env\.APP_ENV === "production"/);
+  assert.match(packages, /process\.env\.NODE_ENV === "production"/);
   assert.match(status, /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/);
   assert.match(status, /subscription\.id === id && subscription\.status === "ACTIVE"/);
   assert.match(status, /duplicateActivePlan/);
