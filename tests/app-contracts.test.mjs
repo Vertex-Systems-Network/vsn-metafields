@@ -448,6 +448,42 @@ test("production cutover package preserves Shopify identity, billing, database, 
   }
 });
 
+test("production Worker acceptance gate is independent, read-only, and keeps Railway live", () => {
+  const acceptance = read(".github/workflows/cloudflare-production-acceptance.yml");
+  const contract = read(".github/workflows/production-cutover-contract.yml");
+  const validator = read("scripts/cloudflare/validate_production_cutover_contract.py");
+
+  assert.match(acceptance, /workflow_dispatch:/);
+  assert.doesNotMatch(acceptance, /\npush:/);
+  assert.match(acceptance, /VERIFY_PRODUCTION_WORKER_ONLY/);
+  assert.match(acceptance, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(acceptance, /ref: main/);
+  assert.match(acceptance, /environment: cloudflare-production/);
+  assert.match(acceptance, /prisma migrate status/);
+  assert.doesNotMatch(acceptance, /prisma migrate deploy/);
+  assert.match(acceptance, /prisma\.session\.count\(\)/);
+  assert.match(acceptance, /production_session_table_read=pass/);
+  assert.match(acceptance, /production_worker_health=pass/);
+  assert.match(acceptance, /production_billing_metadata=pass/);
+  assert.match(acceptance, /production_shopify_live_target=railway/);
+  assert.match(acceptance, /production_release_authorized=false/);
+  assert.match(acceptance, /production_shopify_cutover_performed=false/);
+  assert.match(acceptance, /production_billing_mutation_performed=false/);
+  assert.doesNotMatch(acceptance, /wrangler@|wrangler\s+deploy/);
+  assert.doesNotMatch(acceptance, /app release/);
+  assert.doesNotMatch(acceptance, /appSubscriptionCreate/);
+  assert.doesNotMatch(acceptance, /appSubscriptionCancel/);
+
+  const acceptancePathMatches =
+    contract.match(/\.github\/workflows\/cloudflare-production-acceptance\.yml/g) || [];
+  assert.equal(acceptancePathMatches.length, 2);
+
+  assert.match(validator, /ACCEPTANCE/);
+  assert.match(validator, /production acceptance must remain manual-only/);
+  assert.match(validator, /production acceptance must never deploy the Worker/);
+  assert.match(validator, /production acceptance must never release Shopify config/);
+});
+
 test("destructive global session-clear route stays absent", () => {
   assert.equal(exists("app/routes/clear-sessions.jsx"), false);
 });
