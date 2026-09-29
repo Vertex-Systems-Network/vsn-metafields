@@ -173,7 +173,22 @@ jobs:
                   time.sleep(attempt * 2)
           PY
 
+      - name: Resolve isolated staging shop from session store
+        id: staging-shop
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHOP="$(node scripts/cloudflare/resolve-staging-shop.mjs)"
+          if [ -z "$SHOP" ]; then
+            echo "No isolated staging shop session was resolved." >&2
+            exit 1
+          fi
+          echo "shop=$SHOP" >> "$GITHUB_OUTPUT"
+          echo "staging_shop_resolved=true"
+
       - name: Verify staging Shopify session and subscription reads
+        env:
+          STAGING_SHOP: ${{ steps.staging-shop.outputs.shop }}
         shell: bash
         run: |
           set -euo pipefail
@@ -186,7 +201,7 @@ jobs:
           import time
           import urllib.request
 
-          shop = "vertex-systems-network.myshopify.com"
+          shop = os.environ["STAGING_SHOP"]
           path = "/internal/staging-acceptance"
           timestamp = str(int(time.time()))
           message = f"{timestamp}\n{shop}\n{path}".encode("utf-8")
