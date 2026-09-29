@@ -8,8 +8,10 @@ export default function PackagesPage() {
   const location = useLocation();
 
   useEffect(() => {
-    statusFetcher.load(`/app/api/status${location.search}`);
-  }, [location.search]);
+    if (statusFetcher.state === "idle" && !statusFetcher.data) {
+      statusFetcher.load(`/app/api/status${location.search}`);
+    }
+  }, [location.search, statusFetcher.state, statusFetcher.data]);
 
   const subscriptions = statusFetcher.data?.subscriptions ?? [];
   const subscription =
