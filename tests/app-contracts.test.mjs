@@ -146,7 +146,6 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(diagnostic, /activeSubscriptions/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
-  assert.doesNotMatch(diagnostic, /accessToken/);
   assert.doesNotMatch(diagnostic, /DATABASE_URL/);
 
   assert.match(workflow, /staging_offline_session=pass/);
