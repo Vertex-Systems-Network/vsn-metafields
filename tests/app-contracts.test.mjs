@@ -558,40 +558,26 @@ test("Neon staging and production identities stay isolated", () => {
   }
 });
 
-test("production Supabase source routes stay project- and region-certified", () => {
+test("production Supabase source requires the exact Connect-dialog pooler URL", () => {
   const workflow = read(".github/workflows/production-session-migration.yml");
   const resolver = read("scripts/database/resolve-production-supabase-source.py");
 
-  assert.match(workflow, /resolve-production-supabase-source\.py/);
   assert.match(workflow, /EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl/);
   assert.match(workflow, /EXPECTED_SUPABASE_REGION: ap-southeast-2/);
-
   assert.match(resolver, /EXPECTED_PROJECT_REF = "kqwlohmfyobsdsdekjzl"/);
-  assert.match(resolver, /EXPECTED_REGION = "ap-southeast-2"/);
-  assert.match(resolver, /SHARED_POOLER_HOST = "aws-0-ap-southeast-2\.pooler\.supabase\.com"/);
-  assert.match(resolver, /DIRECT_HOST = f"db\.\{EXPECTED_PROJECT_REF\}\.supabase\.co"/);
-  assert.match(resolver, /build_url\("postgres", password, DIRECT_HOST, 6543, DATABASE\)/);
-  assert.match(resolver, /build_url\("postgres", password, DIRECT_HOST, 5432, DATABASE\)/);
-  assert.match(resolver, /quote\(password, safe=""\)/);
-  assert.match(resolver, /::add-mask::/);
-  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_/);
-  assert.match(resolver, /GITHUB_ENV/);
-  assert.doesNotMatch(resolver, /print\(.*password/i);
-});
-
-test("Supabase source resolver builds bounded masked route candidates with TLS required", () => {
-  const resolver = read("scripts/database/resolve-production-supabase-source.py");
-
+  assert.match(resolver, /host\.endsWith|host\.endswith/);
+  assert.match(resolver, /\.pooler\.supabase\.com/);
+  assert.match(resolver, /aws-\\d\+-\[a-z0-9-\]\+\\\.pooler\\\.supabase\\\.com/);
+  assert.match(resolver, /expected_username = f"postgres\.\{EXPECTED_PROJECT_REF\}"/);
+  assert.match(resolver, /ALLOWED_POOLER_PORTS = \{5432, 6543\}/);
   assert.match(resolver, /sslmode=require&uselibpqcompat=true/);
-  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_/);
-  assert.match(resolver, /dedicated_pooler/);
-  assert.match(resolver, /shared_transaction_pooler/);
-  assert.match(resolver, /shared_session_pooler/);
-  assert.match(resolver, /original_normalized/);
+  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_1=/);
+  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_COUNT=1/);
+  assert.match(resolver, /exact_supabase_connect_pooler/);
   assert.match(resolver, /::add-mask::/);
-  assert.match(resolver, /production_supabase_candidate_count=/);
-  assert.match(resolver, /production_supabase_tls=required_libpq_compatible/);
+  assert.doesNotMatch(resolver, /aws-0-ap-southeast-2\.pooler\.supabase\.com/);
   assert.doesNotMatch(resolver, /sslmode=disable/);
+  assert.doesNotMatch(resolver, /print\(.*password/i);
 });
 
 test("production session migration is guarded, transactional, and preserves secret session fields", () => {
