@@ -62,6 +62,9 @@ def main() -> int:
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
     require(policy.get("status") == "prepared_not_authorized", "production cutover status drifted")
     require(policy.get("release_authorized") is False, "production release must remain unauthorized during preparation")
+    require(policy.get("authorized_version") is None, "authorized production version must remain unset during preparation")
+    require(policy.get("authorized_source_ref") is None, "authorized production source ref must remain unset during preparation")
+    require(policy.get("authorization_record") is None, "production authorization record must remain unset during preparation")
 
     worker = policy.get("production_worker")
     shopify = policy.get("shopify")
@@ -122,9 +125,15 @@ def main() -> int:
     require("--config cloudflare-production" in candidate, "production Shopify candidate config missing")
     require("--no-release" in candidate, "production Shopify candidate must remain unreleased")
     require("app release" not in candidate, "candidate workflow must not release Shopify config")
+    require('SOURCE_PREFIX="${GITHUB_SHA:0:12}"' in candidate, "candidate version must bind to source ref")
+    require("candidate_source_ref=$GITHUB_SHA" in candidate, "candidate source ref evidence missing")
 
     require("RELEASE_PRODUCTION_CUTOVER" in release, "production release confirmation missing")
     require("release_authorized" in release, "production release must enforce policy authorization")
+    require("authorized_version" in release, "production release must pin the exact authorized version")
+    require("authorized_source_ref" in release, "production release must pin the candidate source ref")
+    require("authorization_record" in release, "production release must require an audit authorization record")
+    require("cloudflare-production-cutover-([0-9a-f]{12})-([0-9]+)" in release, "production release version format guard missing")
     require("app release" in release and "--allow-updates" in release, "production release command missing")
     require(cloudflare_url in release, "production release must verify Cloudflare production health")
 
