@@ -3,7 +3,7 @@ import { sessionStorage, unauthenticated } from "../shopify.server";
 
 const EXPECTED_STAGING_APP_URL =
   "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev";
-const EXPECTED_STAGING_SHOP = "vertex-systems-network.myshopify.com";
+const PRODUCTION_SHOP = "vertex-systems-network.myshopify.com";
 const SIGNATURE_MAX_AGE_SECONDS = 300;
 const SIGNED_PATH = "/internal/staging-acceptance";
 
@@ -74,7 +74,8 @@ export const loader = async ({ request }) => {
   const now = Math.floor(Date.now() / 1000);
 
   if (
-    shop !== EXPECTED_STAGING_SHOP ||
+    !/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop) ||
+    shop === PRODUCTION_SHOP ||
     !Number.isSafeInteger(timestamp) ||
     Math.abs(now - timestamp) > SIGNATURE_MAX_AGE_SECONDS
   ) {
@@ -94,11 +95,68 @@ export const loader = async ({ request }) => {
     );
   }
 
-  try {
-    const storedSessions = await sessionStorage.findSessionsByShop(shop);
-    const { admin, session } = await unauthenticated.admin(shop);
+  let storedSessions;
 
-    const response = await admin.graphql(`
+  try {
+    storedSessions = await sessionStorage.findSessionsByShop(shop);
+  } catch (error) {
+    console.error("[vsn-staging-acceptance] session-store read failed", error);
+    return noStoreJson(
+      {
+        ok: false,
+        stage: "session-store",
+        code: "session_store_read_failed",
+        errorName: error instanceof Error ? error.name : typeof error,
+      },
+      { status: 502 },
+    );
+  }
+
+  const sessionSummary = {
+    storedSessionCount: storedSessions.length,
+    onlineSessionCount: storedSessions.filter(
+      (storedSession) => storedSession.isOnline,
+    ).length,
+    offlineSessionCount: storedSessions.filter(
+      (storedSession) => !storedSession.isOnline,
+    ).length,
+  };
+
+  if (storedSessions.length === 0) {
+    return noStoreJson(
+      {
+        ok: false,
+        stage: "session-store",
+        code: "no_stored_sessions",
+        session: sessionSummary,
+      },
+      { status: 409 },
+    );
+  }
+
+  let admin;
+  let session;
+
+  try {
+    ({ admin, session } = await unauthenticated.admin(shop));
+  } catch (error) {
+    console.error("[vsn-staging-acceptance] offline session unavailable", error);
+    return noStoreJson(
+      {
+        ok: false,
+        stage: "offline-session",
+        code: "offline_session_unavailable",
+        errorName: error instanceof Error ? error.name : typeof error,
+        session: sessionSummary,
+      },
+      { status: 409 },
+    );
+  }
+
+  let response;
+
+  try {
+    response = await admin.graphql(`
       #graphql
       query StagingAcceptance {
         currentAppInstallation {
@@ -112,53 +170,151 @@ export const loader = async ({ request }) => {
         }
       }
     `);
-
-    const json = await response.json();
-
-    if (json?.errors?.length) {
-      throw new Error(
-        json.errors[0]?.message || "Shopify Admin GraphQL read failed.",
-      );
-    }
-
-    const subscriptions =
-      json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
-
-    return noStoreJson({
-      ok: true,
-      shop,
-      session: {
-        offlineSessionAvailable: session?.isOnline === false,
-        storedSessionCount: storedSessions.length,
-        onlineSessionCount: storedSessions.filter(
-          (storedSession) => storedSession.isOnline,
-        ).length,
-      },
-      adminGraphql: {
-        ok: true,
-      },
-      subscriptions: {
-        readOk: Array.isArray(subscriptions),
-        activeCount: subscriptions.filter(
-          (subscription) => subscription.status === "ACTIVE",
-        ).length,
-        statuses: subscriptions.map((subscription) => ({
-          name: subscription.name,
-          status: subscription.status,
-          test: subscription.test,
-          trialDays: subscription.trialDays,
-        })),
-      },
-    });
   } catch (error) {
-    console.error("[vsn-staging-acceptance] read-only diagnostic failed", error);
+    console.error("[vsn-staging-acceptance] admin GraphQL request failed", error);
+
+    let directProbe = {
+      attempted: false,
+      ok: false,
+      status: null,
+    };
+
+    if (session?.accessToken) {
+      directProbe.attempted = true;
+
+      try {
+        const directResponse = await fetch(
+          `https://${shop}/admin/api/2026-07/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": session.accessToken,
+            },
+            body: JSON.stringify({
+              query: `
+                query StagingDirectProbe {
+                  currentAppInstallation {
+                    id
+                  }
+                }
+              `,
+            }),
+          },
+        );
+
+        const directBody = await directResponse.text();
+        let errorMessages = [];
+
+        if (!directResponse.ok && directBody) {
+          try {
+            const parsed = JSON.parse(directBody);
+            const candidates = [
+              ...(Array.isArray(parsed?.errors) ? parsed.errors : [parsed?.errors]),
+              parsed?.error,
+              parsed?.message,
+            ];
+
+            errorMessages = candidates
+              .flatMap((candidate) => {
+                if (!candidate) return [];
+                if (typeof candidate === "string") return [candidate];
+                if (typeof candidate?.message === "string") {
+                  return [candidate.message];
+                }
+                return [];
+              })
+              .map((message) => message.slice(0, 240))
+              .slice(0, 3);
+          } catch {
+            errorMessages = ["non_json_error_response"];
+          }
+        }
+
+        directProbe = {
+          attempted: true,
+          ok: directResponse.ok,
+          status: directResponse.status,
+          requestId: directResponse.headers.get("x-request-id") || null,
+          errorMessages,
+        };
+      } catch (directError) {
+        console.error(
+          "[vsn-staging-acceptance] direct GraphQL probe failed",
+          directError,
+        );
+        directProbe = {
+          attempted: true,
+          ok: false,
+          status: null,
+          errorName:
+            directError instanceof Error ? directError.name : typeof directError,
+        };
+      }
+    }
 
     return noStoreJson(
       {
         ok: false,
-        error: "Read-only staging acceptance failed.",
+        stage: "admin-graphql",
+        code: directProbe.ok
+          ? "sdk_graphql_failed_direct_probe_passed"
+          : "admin_graphql_request_failed",
+        errorName: error instanceof Error ? error.name : typeof error,
+        directProbe,
+        session: {
+          ...sessionSummary,
+          selectedSessionOnline: session?.isOnline === true,
+          selectedSessionHasAccessToken: Boolean(session?.accessToken),
+          selectedSessionScopeCount: String(session?.scope || "")
+            .split(",")
+            .map((scope) => scope.trim())
+            .filter(Boolean).length,
+        },
       },
       { status: 502 },
     );
   }
+
+  const json = await response.json();
+
+  if (json?.errors?.length) {
+    console.error("[vsn-staging-acceptance] admin GraphQL response contained errors");
+    return noStoreJson(
+      {
+        ok: false,
+        stage: "admin-graphql",
+        code: "admin_graphql_response_error",
+        session: sessionSummary,
+      },
+      { status: 502 },
+    );
+  }
+
+  const subscriptions =
+    json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
+
+  return noStoreJson({
+    ok: true,
+    shop,
+    session: {
+      offlineSessionAvailable: session?.isOnline === false,
+      ...sessionSummary,
+    },
+    adminGraphql: {
+      ok: true,
+    },
+    subscriptions: {
+      readOk: Array.isArray(subscriptions),
+      activeCount: subscriptions.filter(
+        (subscription) => subscription.status === "ACTIVE",
+      ).length,
+      statuses: subscriptions.map((subscription) => ({
+        name: subscription.name,
+        status: subscription.status,
+        test: subscription.test,
+        trialDays: subscription.trialDays,
+      })),
+    },
+  });
 };
