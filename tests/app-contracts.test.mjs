@@ -256,6 +256,22 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /metafieldDefinitionUpdate/);
 });
 
+test("development pushes run validation but never deployment workflows", () => {
+  const appValidation = read(".github/workflows/app-validation.yml");
+  const readiness = read(".github/workflows/cloudflare-staging-readiness.yml");
+  const quality = read(".github/workflows/repository-quality.yml");
+  const audit = read(".github/workflows/dependency-audit.yml");
+  const stagingDeploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const productionDeploy = read(".github/workflows/cloudflare-production-deploy.yml");
+
+  for (const workflow of [appValidation, readiness, quality, audit]) {
+    assert.match(workflow, /push:[\s\S]*- main[\s\S]*- development/);
+  }
+
+  assert.doesNotMatch(stagingDeploy, /\npush:/);
+  assert.doesNotMatch(productionDeploy, /\npush:/);
+});
+
 test("development flow keeps local and staging changes away from live production", () => {
   const flow = JSON.parse(read("config/development-flow.json"));
   const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
