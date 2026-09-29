@@ -34,5 +34,16 @@
     "production_cutover_requires_explicit_authorization": true,
     "railway_rollback_retained_during_migration": true,
     "development_push_cannot_deploy_staging": true
+  },
+  "development_ci": {
+    "automatic_on_push": true,
+    "deploys_staging": false,
+    "deploys_production": false,
+    "checks": [
+      "App Validation",
+      "Cloudflare Staging Readiness",
+      "AI Native Quality Gates",
+      "Dependency Security Audit when dependency files change"
+    ]
   }
 }
