@@ -128,7 +128,9 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
 
   assert.match(diagnostic, /EXPECTED_STAGING_APP_URL/);
-  assert.match(diagnostic, /vertex-systems-network\.myshopify\.com/);
+  assert.match(diagnostic, /PRODUCTION_SHOP/);
+  assert.match(diagnostic, /shop === PRODUCTION_SHOP/);
+  assert.match(diagnostic, /myshopify\\.com/);
   assert.match(diagnostic, /SIGNATURE_MAX_AGE_SECONDS = 300/);
   assert.match(diagnostic, /crypto\.subtle\.verify/);
   assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
@@ -151,6 +153,9 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(workflow, /staging_offline_session=pass/);
   assert.match(workflow, /staging_admin_graphql=pass/);
   assert.match(workflow, /staging_subscription_read=pass/);
+  assert.match(workflow, /resolve-staging-shop\.mjs/);
+  assert.match(workflow, /steps\.staging-shop\.outputs\.shop/);
+  assert.match(workflow, /STAGING_SHOP/);
   assert.match(workflow, /staging_acceptance_http_error=/);
   assert.match(workflow, /"directProbe": diagnostic\.get\("directProbe"\)/);
   assert.match(workflow, /urllib\.error\.HTTPError/);
