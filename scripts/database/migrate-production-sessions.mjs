@@ -131,12 +131,27 @@ async function main() {
 
   assertProviderIdentity();
 
-  const source = new Client({ connectionString: SOURCE_URL });
-  const target = new Client({ connectionString: TARGET_URL });
+  const source = new Client({
+    connectionString: SOURCE_URL,
+    connectionTimeoutMillis: 10000,
+    query_timeout: 10000,
+    keepAlive: true,
+  });
+  const target = new Client({
+    connectionString: TARGET_URL,
+    connectionTimeoutMillis: 10000,
+    query_timeout: 10000,
+    keepAlive: true,
+  });
 
   try {
+    console.log("production_session_source_connection=attempting");
     await source.connect();
+    console.log("production_session_source_connection=connected");
+
+    console.log("production_session_target_connection=attempting");
     await target.connect();
+    console.log("production_session_target_connection=connected");
 
     await assertSessionSchema(source, "Source");
     await assertSessionSchema(target, "Target");
