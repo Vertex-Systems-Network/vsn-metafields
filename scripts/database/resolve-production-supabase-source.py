@@ -57,7 +57,10 @@ def main() -> None:
 
     raw_username, raw_password = raw_userinfo.split(":", 1)
     username = unquote(raw_username)
-    password = unquote(raw_password)
+    password_candidates = [("raw_literal", raw_password)]
+    decoded_password = unquote(raw_password)
+    if decoded_password != raw_password:
+        password_candidates.append(("percent_decoded", decoded_password))
 
     destination = urlparse(f"postgresql://placeholder:placeholder@{raw_destination}")
     host = (destination.hostname or "").lower()
@@ -85,32 +88,49 @@ def main() -> None:
     if database != EXPECTED_DATABASE:
         fail("Supabase source database must be postgres.")
 
-    if not password:
-        fail("Supabase source database password is empty.")
-    if re.fullmatch(r"[\[<].*(?:PASSWORD|password).*[\]>]", password):
-        fail("Supabase source database password is still a placeholder.")
+    for _, password in password_candidates:
+        if not password:
+            fail("Supabase source database password is empty.")
+        if re.fullmatch(r"[\[<].*(?:PASSWORD|password).*[\]>]", password):
+            fail("Supabase source database password is still a placeholder.")
 
     encoded_user = quote(username, safe="")
-    encoded_password = quote(password, safe="")
-    normalized = urlunparse(
-        (
-            "postgresql",
-            f"{encoded_user}:{encoded_password}@{host}:{port}",
-            f"/{database}",
-            "",
-            "sslmode=require&uselibpqcompat=true",
-            "",
+    normalized_candidates = []
+    seen = set()
+    for label, password in password_candidates:
+        encoded_password = quote(password, safe="")
+        normalized = urlunparse(
+            (
+                "postgresql",
+                f"{encoded_user}:{encoded_password}@{host}:{port}",
+                f"/{database}",
+                "",
+                "sslmode=require&uselibpqcompat=true",
+                "",
+            )
         )
-    )
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        normalized_candidates.append((label, normalized))
 
-    print(f"::add-mask::{normalized}")
     with Path(github_env).open("a", encoding="utf-8") as handle:
-        handle.write(f"SOURCE_DATABASE_URL_CANDIDATE_1={normalized}\n")
-        handle.write("SOURCE_DATABASE_URL_CANDIDATE_1_LABEL=exact_supabase_connect_pooler\n")
-        handle.write("SOURCE_DATABASE_URL_CANDIDATE_COUNT=1\n")
+        for index, (label, normalized) in enumerate(normalized_candidates, start=1):
+            print(f"::add-mask::{normalized}")
+            handle.write(f"SOURCE_DATABASE_URL_CANDIDATE_{index}={normalized}\n")
+            handle.write(
+                f"SOURCE_DATABASE_URL_CANDIDATE_{index}_LABEL="
+                f"exact_supabase_connect_pooler_{label}\n"
+            )
+        handle.write(
+            f"SOURCE_DATABASE_URL_CANDIDATE_COUNT={len(normalized_candidates)}\n"
+        )
 
     mode = "session" if port == 5432 else "transaction"
     print("production_supabase_source=exact_connect_pooler")
+    print(
+        f"production_supabase_password_interpretations={len(normalized_candidates)}"
+    )
     print(f"production_supabase_project_ref={EXPECTED_PROJECT_REF}")
     print(f"production_supabase_region={EXPECTED_REGION}")
     print(f"production_supabase_pooler_port={port}")
