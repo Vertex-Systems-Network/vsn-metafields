@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   create-production-cutover-candidate:
-    if: github.event.inputs.confirm == 'CREATE_PRODUCTION_CUTOVER_VERSION'
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'CREATE_PRODUCTION_CUTOVER_VERSION'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: cloudflare-production
@@ -31,6 +31,7 @@ jobs:
       - name: Checkout protected main
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: main
           persist-credentials: false
 
       - name: Setup Node 22
