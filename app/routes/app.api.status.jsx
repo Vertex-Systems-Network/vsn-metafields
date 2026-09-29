@@ -238,7 +238,7 @@ export const action = async ({ request }) => {
 					appSubscriptionCreate(
 						name: $name
 						returnUrl: $returnUrl
-						test: false
+						test: $test
 						trialDays: $trialDays
 						lineItems: $lineItems
 					) {
