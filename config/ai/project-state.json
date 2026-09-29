@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Fresh Production Session Migration run 36641823576 on protected main cb49542486ad613ec072e244a104c2d037fc661c passed canonical pooler resolution, Neon endpoint/schema preflights, and TLS negotiation. It then failed before any Neon writes with 'tenant/user postgres.kqwlohmfyobsdsdekjzl not found'. Supabase-side logs confirmed the request reached Supavisor in ap-southeast-2 session mode for project kqwlohmfyobsdsdekjzl, while the same project also has active PgBouncer traffic.",
-  "next_valid_work_unit": "Merge the bounded Supabase route fallback. A fresh migration will derive masked original/dedicated/shared transaction/shared session/direct candidates, and accept a source only after required Session schema, exact 4-row count, 4 access tokens, and pinned Session-ID fingerprint all pass. Neon target connection/transaction starts only after source audit succeeds.",
+  "last_verified_completion": "Fresh Production Session Migration run 36643604377 tested all bounded routes on protected main 69d1d52e2f39c5e685c7cf2a44f6868b67fb7fe2. The original protected source URL classified as non-Supabase PostgreSQL and failed ECONNREFUSED; project-host routes were IPv6-unreachable; region-derived shared transaction/session routes reached Supavisor but failed XX000 tenant lookup. Supabase docs confirm the shared-pooler cluster index is project-specific and cannot be derived from the region.",
+  "next_valid_work_unit": "Require SUPABASE_SOURCE_DATABASE_URL to be copied exactly from Supabase Dashboard > Connect > Session pooler (preferred for migration) or Transaction pooler, preserving the project-specific pooler cluster host and username postgres.kqwlohmfyobsdsdekjzl. After the secret is corrected, run a fresh Production Session Migration with expected_source_session_count=4.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "bounded_supabase_route_fallback_pending",
-  "security_readiness": "source_candidates_masked_fingerprint_before_target_write",
+  "qa_readiness": "exact_supabase_connect_pooler_secret_required",
+  "security_readiness": "no_target_writes_source_url_must_be_exact_connect_dialog_pooler",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36641823576 wrote no Neon Session rows. The single hardcoded shared-session pooler assumption is replaced with a bounded route set backed by Supabase API/log evidence. Candidate failures expose only route labels and sanitized error codes; credentials and Session values remain excluded. Full-row digest verification before commit remains unchanged."
+  "notes": "Run 36643604377 made no Neon Session writes; Neon remains at 0 rows and Supabase retains 4/4 audited sessions. Derived aws-0 pooler assumptions are removed. The resolver now accepts only an exact Supabase Connect-dialog shared pooler hostname with the certified project-ref username and documented pooler port, while retaining TLS, source fingerprint, transactional target write, and full-row digest verification."
 }
