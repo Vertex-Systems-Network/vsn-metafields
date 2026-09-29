@@ -415,6 +415,14 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.expected_source_session_count, 4);
   assert.equal(policy.database.runtime_connection, "pooled");
   assert.equal(policy.database.migration_connection, "direct");
+  assert.equal(policy.database.staging_project_current_name, "vsn-metafields");
+  assert.equal(policy.database.staging_project_canonical_name, "vsn-metafields-staging");
+  assert.equal(policy.database.staging_project_rename_pending, true);
+  assert.equal(policy.database.staging_endpoint_id, "ep-snowy-surf-b3gxl2wf");
+  assert.equal(policy.database.production_project_name, "vsn-metafields-production");
+  assert.equal(policy.database.production_project_provisioned, false);
+  assert.equal(policy.database.production_endpoint_id, null);
+  assert.equal(policy.database.require_distinct_neon_projects, true);
   assert.equal(policy.rollback.keep_railway_available, true);
 
   assert.match(validator, /production_release_authorized=false/);
@@ -468,6 +476,28 @@ test("production cutover package preserves Shopify identity, billing, database, 
   for (const workflow of [deploy, candidate, release, rollback]) {
     assert.doesNotMatch(workflow, /appSubscriptionCreate/);
     assert.doesNotMatch(workflow, /appSubscriptionCancel/);
+  }
+});
+
+test("Neon staging and production identities stay isolated", () => {
+  const staging = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const migration = read(".github/workflows/production-session-migration.yml");
+  const deploy = read(".github/workflows/cloudflare-production-deploy.yml");
+  const acceptance = read(".github/workflows/cloudflare-production-acceptance.yml");
+
+  assert.match(staging, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
+  assert.match(staging, /staging_neon_identity=pass/);
+  assert.match(staging, /pooled_id != expected or direct_id != expected/);
+  assert.match(staging, /Staging DATABASE_URL must use the pooled Neon endpoint/);
+  assert.match(staging, /Staging DIRECT_URL must use the direct Neon endpoint/);
+
+  for (const workflow of [migration, deploy, acceptance]) {
+    assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
+    assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
+    assert.match(workflow, /pooled_id == staging_id/);
+    assert.match(workflow, /production_neon_identity=distinct_from_staging/);
+    assert.match(workflow, /Production DATABASE_URL must use the pooled Neon endpoint/);
+    assert.match(workflow, /Production DIRECT_URL must use the direct Neon endpoint/);
   }
 });
 
