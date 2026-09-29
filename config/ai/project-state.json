@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Production Neon Provisioning run 36635943764 completed successfully on protected main f33137832acf822293b5cc641f4248c6457f0059. The pooled DATABASE_URL resolved to certified endpoint ep-flat-mouse-b5z1wu54, the matching direct URL was derived and masked, Prisma schema deployment succeeded, independent Neon verification confirms public.Session exists with 0 rows, and 1 completed Prisma migration is recorded.",
-  "next_valid_work_unit": "Certify production_schema_provisioned=true, then provide the temporary Supabase source connection as cloudflare-production SUPABASE_SOURCE_DATABASE_URL and run Production Session Migration with expected_source_session_count=4. After transactional copy and digest verification pass, certify session_migration_completed=true before Worker deploy/acceptance.",
+  "last_verified_completion": "Production Session Migration run 36637225910 passed secret preflight, Neon URL derivation, exact production endpoint isolation, dependency install, and Prisma schema status. It failed before any write because the migration script rejected the valid Supabase Shared Pooler hostname. The source secret is present; validation is being corrected to accept only the certified Supabase project via direct host or project-bound pooler username.",
+  "next_valid_work_unit": "Merge the certified Supabase Shared Pooler source validation fix, then rerun Production Session Migration with expected_source_session_count=4. Verify transactional copy and digest integrity and independently confirm Neon contains exactly 4 sessions before certifying session_migration_completed=true.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_neon_schema_certified_session_migration_pending",
-  "security_readiness": "production_schema_verified_empty_source_copy_transactional_gate_next",
+  "qa_readiness": "supabase_pooler_source_validation_fix_pending",
+  "security_readiness": "source_secret_present_certified_project_ref_validation_required",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Successful Production Neon Provisioning run 36635943764 applied the production Prisma schema to certified project nameless-breeze-35836648 / endpoint ep-flat-mouse-b5z1wu54. Neon inspection confirms Session and _prisma_migrations tables, Session count 0, and 1 completed migration. No Shopify cutover, billing mutation, or source Session copy occurred. Supabase remains the temporary authoritative source for exactly 4 production Shopify Session rows."
+  "notes": "Run 36637225910 made no Session writes. Failure occurred at provider identity validation. The source uses Supabase Shared Pooler, so the fix permits pooler.supabase.com only when the connection username binds to certified project ref kqwlohmfyobsdsdekjzl; arbitrary Supabase poolers remain rejected."
 }
