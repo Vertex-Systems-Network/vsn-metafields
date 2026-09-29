@@ -52,13 +52,34 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
-test("embedded app navigation stays inside Shopify and preserves auth context", () => {
+test("App Validation tracks React Router runtime config changes", () => {
+  const workflow = read(".github/workflows/app-validation.yml");
+
+  const matches = workflow.match(/- "react-router\.config\.js"/g) || [];
+  assert.equal(matches.length, 2);
+});
+
+test("local React Router actions allow only the current Shopify tunnel origin", () => {
+  const config = read("react-router.config.js");
+
+  assert.match(config, /process\.env\.SHOPIFY_APP_URL/);
+  assert.match(config, /process\.env\.HOST/);
+  assert.match(config, /endsWith\("\.trycloudflare\.com"\)/);
+  assert.match(config, /allowedActionOrigins:\s*localTunnelHost \? \[localTunnelHost\] : \[\]/);
+  assert.doesNotMatch(config, /\*\.trycloudflare\.com/);
+  assert.doesNotMatch(config, /vertexsystemsnetwork\.workers\.dev/);
+  assert.doesNotMatch(config, /up\.railway\.app/);
+});
+
+test("embedded app navigation follows Shopify React Router NavMenu pattern", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
 
-  assert.match(app, /useLocation/);
-  assert.match(app, /href={\`\/app\$\{location\.search\}\`}/);
-  assert.match(app, /href={\`\/app\/packages\$\{location\.search\}\`}/);
+  assert.match(app, /import \{ Link, Outlet, useLoaderData, useRouteError \} from "react-router"/);
+  assert.match(app, /import \{ NavMenu \} from "@shopify\/app-bridge-react"/);
+  assert.match(app, /<NavMenu>/);
+  assert.match(app, /<Link to="\/app" rel="home">Options<\/Link>/);
+  assert.match(app, /<Link to="\/app\/packages">Packages<\/Link>/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
@@ -107,21 +128,41 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
 
   assert.match(diagnostic, /EXPECTED_STAGING_APP_URL/);
-  assert.match(diagnostic, /vertex-systems-network\.myshopify\.com/);
+  assert.match(diagnostic, /PRODUCTION_SHOP/);
+  assert.match(diagnostic, /shop === PRODUCTION_SHOP/);
+  assert.match(diagnostic, /myshopify\\.com/);
   assert.match(diagnostic, /SIGNATURE_MAX_AGE_SECONDS = 300/);
   assert.match(diagnostic, /crypto\.subtle\.verify/);
   assert.match(diagnostic, /sessionStorage\.findSessionsByShop\(shop\)/);
   assert.match(diagnostic, /unauthenticated\.admin\(shop\)/);
   assert.match(diagnostic, /currentAppInstallation/);
+  assert.match(diagnostic, /session_store_read_failed/);
+  assert.match(diagnostic, /no_stored_sessions/);
+  assert.match(diagnostic, /offline_session_unavailable/);
+  assert.match(diagnostic, /admin_graphql_request_failed/);
+  assert.match(diagnostic, /sdk_graphql_failed_direct_probe_passed/);
+  assert.match(diagnostic, /X-Shopify-Access-Token/);
+  assert.match(diagnostic, /directProbe/);
+  assert.match(diagnostic, /errorMessages/);
+  assert.match(diagnostic, /x-request-id/);
+  assert.match(diagnostic, /message\.slice\(0, 240\)/);
+  assert.doesNotMatch(diagnostic, /directBody\s*[,}]/);
+  assert.doesNotMatch(diagnostic, /accessToken:\s*session\.accessToken/);
+  assert.match(diagnostic, /admin_graphql_response_error/);
   assert.match(diagnostic, /activeSubscriptions/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCancel/);
-  assert.doesNotMatch(diagnostic, /accessToken/);
   assert.doesNotMatch(diagnostic, /DATABASE_URL/);
 
   assert.match(workflow, /staging_offline_session=pass/);
   assert.match(workflow, /staging_admin_graphql=pass/);
   assert.match(workflow, /staging_subscription_read=pass/);
+  assert.match(workflow, /resolve-staging-shop\.mjs/);
+  assert.match(workflow, /steps\.staging-shop\.outputs\.shop/);
+  assert.match(workflow, /STAGING_SHOP/);
+  assert.match(workflow, /staging_acceptance_http_error=/);
+  assert.match(workflow, /"directProbe": diagnostic\.get\("directProbe"\)/);
+  assert.match(workflow, /urllib\.error\.HTTPError/);
 });
 
 test("public health contract exposes only deployment-safe plan metadata", () => {
@@ -151,6 +192,8 @@ test("Cloudflare staging deploy is manual and always checks out development", ()
   assert.match(workflow, /environment: cloudflare-staging/);
   assert.match(workflow, /APP_ENV:staging/);
   assert.match(workflow, /Staging deploy must not use the Railway production Shopify URL/);
+  assert.match(workflow, /Staging deploy must use the dedicated staging Shopify app identity, not production/);
+  assert.match(workflow, /PROD_CLIENT_ID/);
   assert.doesNotMatch(workflow, /environment:\s*production/);
 });
 
@@ -218,18 +261,41 @@ test("Pro billing configuration stays centralized at 5 trial days and $55 across
   assert.doesNotMatch(packages, /15-day free trial/);
 });
 
+test("packages page avoids duplicate server auth and loads billing status client-side", () => {
+  const packages = read("app/routes/app.packages.jsx");
+
+  assert.match(packages, /import \{ useFetcher, useLocation \} from "react-router"/);
+  assert.doesNotMatch(packages, /export const loader/);
+  assert.doesNotMatch(packages, /authenticate\.admin\(request\)/);
+  assert.doesNotMatch(packages, /useLoaderData/);
+  assert.match(packages, /statusFetcher\.state === "idle" && !statusFetcher\.data/);
+  assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
+  assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
+  assert.match(packages, /actionFetcher\.submit/);
+});
+
 test("billing mutations require authenticated POST requests and guard active plans", () => {
   const status = read("app/routes/app.api.status.jsx");
+  const packages = read("app/routes/app.packages.jsx");
 
   assert.match(status, /authenticate\.admin\(request\)/);
-  assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
+  assert.match(status, /method !== "POST"/);
+  assert.match(status, /actionType !== "create" && actionType !== "cancel"/);
+  assert.match(status, /\[vsn-status-action\]/);
+  assert.match(status, /\[vsn-status-action-auth-failed\]/);
+  assert.match(status, /process\.env\.APP_ENV === "production"/);
+  assert.match(status, /process\.env\.NODE_ENV === "production"/);
+  assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
+  assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
   assert.match(status, /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/);
   assert.match(status, /subscription\.id === id && subscription\.status === "ACTIVE"/);
   assert.match(status, /duplicateActivePlan/);
   assert.match(status, /subscription\.status === "ACTIVE"/);
   assert.match(status, /appSubscriptionCancel\(id: \$id, prorate: true\)/);
   assert.match(status, /mutation CreateSubscription\(/);
-  assert.match(status, /test:\s*false/);
+  assert.match(status, /\$test:\s*Boolean!/);
+  assert.match(status, /test:\s*\$test/);
+  assert.match(status, /test:\s*!isProductionBilling\(\)/);
   assert.match(status, /variables:\s*\{\s*id\s*\}/);
   assert.doesNotMatch(status, /appSubscriptionCancel\([^\n]*\$\{/);
 });
@@ -251,6 +317,22 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /field\.namespace === NAMESPACE/);
   assert.match(pinFields, /request\.method\.toUpperCase\(\) !== "POST"/);
   assert.match(pinFields, /metafieldDefinitionUpdate/);
+});
+
+test("development pushes run validation but never deployment workflows", () => {
+  const appValidation = read(".github/workflows/app-validation.yml");
+  const readiness = read(".github/workflows/cloudflare-staging-readiness.yml");
+  const quality = read(".github/workflows/repository-quality.yml");
+  const audit = read(".github/workflows/dependency-audit.yml");
+  const stagingDeploy = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const productionDeploy = read(".github/workflows/cloudflare-production-deploy.yml");
+
+  for (const workflow of [appValidation, readiness, quality, audit]) {
+    assert.match(workflow, /push:[\s\S]*- main[\s\S]*- development/);
+  }
+
+  assert.doesNotMatch(stagingDeploy, /\npush:/);
+  assert.doesNotMatch(productionDeploy, /\npush:/);
 });
 
 test("development flow keeps local and staging changes away from live production", () => {
@@ -368,4 +450,49 @@ test("production cutover package preserves Shopify identity, billing, database, 
 
 test("destructive global session-clear route stays absent", () => {
   assert.equal(exists("app/routes/clear-sessions.jsx"), false);
+});
+
+
+test("staging session reset is isolated from the production shop", () => {
+  const reset = read("scripts/cloudflare/reset-staging-sessions.mjs");
+  const workflow = read(".github/workflows/cloudflare-staging-session-reset.yml");
+
+  assert.match(reset, /PRODUCTION_SHOP = "vertex-systems-network\.myshopify\.com"/);
+  assert.match(reset, /shop !== PRODUCTION_SHOP/);
+  assert.match(reset, /stagingShops\.length !== 1/);
+  assert.match(reset, /deleteMany\(\{/);
+  assert.match(reset, /where: \{ shop \}/);
+  assert.match(reset, /productionShopTouched: false/);
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /RESET_STAGING_SESSIONS_ONLY/);
+  assert.match(workflow, /environment: cloudflare-staging/);
+  assert.match(workflow, /ref: development/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.doesNotMatch(workflow, /cloudflare-production/);
+});
+
+
+test("expiring offline Shopify tokens are enabled for public Admin API access", () => {
+  const shopify = read("app/shopify.server.js");
+  const schema = read("prisma/schema.prisma");
+
+  assert.match(shopify, /future:\s*\{[\s\S]*expiringOfflineAccessTokens:\s*true/);
+  assert.match(schema, /refreshToken\s+String\?/);
+  assert.match(schema, /refreshTokenExpires\s+DateTime\?/);
+});
+
+
+test("production cutover preflight watches runtime-critical release paths", () => {
+  const workflow = read(".github/workflows/production-cutover-contract.yml");
+
+  assert.match(workflow, /app\/shopify\.server\.js/);
+  assert.match(workflow, /app\/billing-config\.js/);
+  assert.match(workflow, /app\/db\.server\.js/);
+  assert.match(workflow, /app\/prisma-session-storage\.server\.js/);
+  assert.match(workflow, /prisma\/schema\.prisma/);
+  assert.match(workflow, /prisma\/migrations\/\*\*/);
+  assert.match(workflow, /package\.json/);
+  assert.match(workflow, /package-lock\.json/);
+  assert.match(workflow, /workers\/\*\*/);
 });
