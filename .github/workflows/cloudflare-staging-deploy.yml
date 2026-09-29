@@ -57,6 +57,18 @@ jobs:
             fi
           done
 
+          PROD_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" = "$PROD_CLIENT_ID" ]; then
+            echo "Staging deploy must use the dedicated staging Shopify app identity, not production." >&2
+            exit 1
+          fi
+
           case "$SHOPIFY_APP_URL" in
             https://vsn-metafields-production.up.railway.app*)
               echo "Staging deploy must not use the Railway production Shopify URL." >&2
