@@ -1,0 +1,90 @@
+name: Production Session Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type MIGRATE_SUPABASE_SESSIONS_TO_NEON to copy production Shopify sessions into the certified Neon database"
+        required: true
+        type: string
+      expected_source_session_count:
+        description: "Exact audited source Session row count"
+        required: true
+        default: "4"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-session-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate-production-sessions:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'MIGRATE_SUPABASE_SESSIONS_TO_NEON'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      SOURCE_DATABASE_URL: ${{ secrets.SUPABASE_SOURCE_DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      TARGET_DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      MIGRATION_CONFIRMATION: ${{ github.event.inputs.confirm }}
+      EXPECTED_SOURCE_SESSION_COUNT: ${{ github.event.inputs.expected_source_session_count }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6.0.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Require migration-only secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL
+          do
+            case "$name" in
+              SUPABASE_SOURCE_DATABASE_URL) value="$SOURCE_DATABASE_URL" ;;
+              DATABASE_URL) value="$DATABASE_URL" ;;
+              DIRECT_URL) value="$DIRECT_URL" ;;
+            esac
+            if [ -z "$value" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Require clean Neon Prisma schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma migrate status
+          echo "production_neon_schema_status=pass"
+
+      - name: Copy and verify production Shopify sessions
+        run: node scripts/database/migrate-production-sessions.mjs
+
+      - name: Record safe migration evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "production_session_migration_source=supabase"
+          echo "production_session_migration_target=neon"
+          echo "production_session_migration_expected_count=$EXPECTED_SOURCE_SESSION_COUNT"
+          echo "production_session_credentials_logged=false"
+          echo "production_shopify_cutover_performed=false"
+          echo "production_billing_mutation_performed=false"
