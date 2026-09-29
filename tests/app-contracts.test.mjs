@@ -422,6 +422,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.production_project_name, "vsn-metafields-production");
   assert.equal(policy.database.production_project_provisioned, false);
   assert.equal(policy.database.production_endpoint_id, null);
+  assert.equal(policy.database.bootstrap_workflow, "production-neon-bootstrap.yml");
+  assert.equal(policy.database.production_schema_bootstrap_required, true);
+  assert.equal(policy.database.production_schema_bootstrap_completed, false);
   assert.equal(policy.database.require_distinct_neon_projects, true);
   assert.equal(policy.rollback.keep_railway_available, true);
 
@@ -504,6 +507,30 @@ test("Neon staging and production identities stay isolated", () => {
   }
 });
 
+test("production Neon bootstrap is isolated, empty-target guarded, and schema-only", () => {
+  const workflow = read(".github/workflows/production-neon-bootstrap.yml");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /BOOTSTRAP_ISOLATED_NEON_PRODUCTION/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
+  assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
+  assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
+  assert.match(workflow, /Production bootstrap must never use the staging Neon endpoint/);
+  assert.match(workflow, /Production bootstrap target already contains/);
+  assert.match(workflow, /npx prisma migrate deploy/);
+  assert.match(workflow, /npx prisma migrate status/);
+  assert.match(workflow, /production_neon_bootstrap_session_count=0/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.match(workflow, /production_billing_mutation_performed=false/);
+  assert.match(workflow, /production_session_migration_performed=false/);
+  assert.doesNotMatch(workflow, /SUPABASE_SOURCE_DATABASE_URL/);
+  assert.doesNotMatch(workflow, /appSubscriptionCreate|appSubscriptionCancel|shopify app release/);
+});
+
 test("production session migration is guarded, transactional, and preserves secret session fields", () => {
   const workflow = read(".github/workflows/production-session-migration.yml");
   const script = read("scripts/database/migrate-production-sessions.mjs");
@@ -518,6 +545,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(workflow, /SUPABASE_SOURCE_DATABASE_URL/);
   assert.match(workflow, /TARGET_DIRECT_URL/);
   assert.match(workflow, /EXPECTED_SOURCE_SESSION_COUNT/);
+  assert.match(workflow, /production_schema_bootstrap_completed/);
   assert.match(workflow, /production_session_credentials_logged=false/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
   assert.match(workflow, /production_billing_mutation_performed=false/);
@@ -535,6 +563,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
 
+  assert.match(deploy, /production_schema_bootstrap_completed/);
   assert.match(deploy, /session_migration_completed/);
   assert.match(deploy, /production_neon_session_migration=certified/);
 });
@@ -565,6 +594,8 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(acceptance, /production_release_authorized=false/);
   assert.match(acceptance, /production_shopify_cutover_performed=false/);
   assert.match(acceptance, /production_billing_mutation_performed=false/);
+  assert.match(acceptance, /production_schema_bootstrap_completed/);
+  assert.match(acceptance, /session_migration_completed/);
   assert.doesNotMatch(acceptance, /wrangler@|wrangler\s+deploy/);
   assert.doesNotMatch(acceptance, /app release/);
   assert.doesNotMatch(acceptance, /appSubscriptionCreate/);
@@ -583,6 +614,7 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
 test("all production mutation workflows require protected main dispatch and checkout", () => {
   const workflows = [
     read(".github/workflows/cloudflare-production-deploy.yml"),
+    read(".github/workflows/production-neon-bootstrap.yml"),
     read(".github/workflows/production-session-migration.yml"),
     read(".github/workflows/shopify-production-cutover-version.yml"),
     read(".github/workflows/shopify-production-cutover-release.yml"),
@@ -646,6 +678,7 @@ test("production cutover preflight watches runtime-critical release paths", () =
   assert.match(workflow, /package\.json/);
   assert.match(workflow, /package-lock\.json/);
   assert.match(workflow, /workers\/\*\*/);
+  assert.match(workflow, /production-neon-bootstrap\.yml/);
   assert.match(workflow, /production-session-migration\.yml/);
   assert.match(workflow, /migrate-production-sessions\.mjs/);
 });
