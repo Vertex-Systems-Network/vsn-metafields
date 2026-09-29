@@ -1,0 +1,174 @@
+name: Production Neon Provisioning
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type PROVISION_ISOLATED_NEON_PRODUCTION to initialize the separate Neon production database"
+        required: true
+        type: string
+      production_endpoint_id:
+        description: "Exact Neon production endpoint ID (ep-...) from vsn-metafields-production"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-neon-provisioning
+  cancel-in-progress: false
+
+jobs:
+  provision-production-neon:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'PROVISION_ISOLATED_NEON_PRODUCTION'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      EXPECTED_PRODUCTION_ENDPOINT_ID: ${{ github.event.inputs.production_endpoint_id }}
+      STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
+      PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6.0.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Require production database secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DATABASE_URL DIRECT_URL
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Verify isolated production Neon identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+          from urllib.parse import urlparse
+
+          expected = os.environ["EXPECTED_PRODUCTION_ENDPOINT_ID"]
+          staging = os.environ["STAGING_NEON_ENDPOINT_ID"]
+
+          if re.fullmatch(r"ep-[a-z0-9-]+", expected) is None:
+              raise SystemExit("Production endpoint ID must be an exact Neon ep-... identifier.")
+          if expected == staging:
+              raise SystemExit("Production Neon endpoint must differ from staging.")
+
+          database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
+          direct_host = urlparse(os.environ["DIRECT_URL"]).hostname or ""
+
+          if not database_host.endswith(".neon.tech") or not direct_host.endswith(".neon.tech"):
+              raise SystemExit("Production database URLs must both be Neon PostgreSQL endpoints.")
+
+          pooled_id = database_host.split(".", 1)[0].removesuffix("-pooler")
+          direct_id = direct_host.split(".", 1)[0].removesuffix("-pooler")
+
+          if pooled_id != expected or direct_id != expected:
+              raise SystemExit("Production database URLs do not match the requested production Neon endpoint.")
+          if "-pooler." not in database_host:
+              raise SystemExit("Production DATABASE_URL must use the pooled Neon endpoint.")
+          if "-pooler." in direct_host:
+              raise SystemExit("Production DIRECT_URL must use the direct Neon endpoint.")
+
+          print("production_neon_identity=isolated")
+          print(f"production_neon_endpoint_id={expected}")
+          print("production_neon_project_name=vsn-metafields-production")
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Confirm target is uninitialized for Shopify sessions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import pg from "pg";
+          const { Client } = pg;
+          const client = new Client({ connectionString: process.env.DIRECT_URL });
+          await client.connect();
+          try {
+            const result = await client.query(
+              `select to_regclass('public."Session"') as session_table`
+            );
+            if (result.rows[0]?.session_table) {
+              const count = await client.query(`select count(*)::int as count from public."Session"`);
+              if (count.rows[0].count !== 0) {
+                throw new Error("Production Neon target already contains Shopify Session rows.");
+              }
+            }
+            console.log("production_neon_preexisting_sessions=0");
+          } finally {
+            await client.end();
+          }
+          NODE
+
+      - name: Apply production Prisma schema
+        run: npx prisma migrate deploy
+
+      - name: Verify production schema and empty Session store
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma migrate status
+          node --input-type=module <<'NODE'
+          import pg from "pg";
+          const { Client } = pg;
+          const client = new Client({ connectionString: process.env.DIRECT_URL });
+          await client.connect();
+          try {
+            const table = await client.query(
+              `select to_regclass('public."Session"') as session_table`
+            );
+            if (!table.rows[0]?.session_table) {
+              throw new Error("Prisma Session table was not created.");
+            }
+            const count = await client.query(`select count(*)::int as count from public."Session"`);
+            if (count.rows[0].count !== 0) {
+              throw new Error("Production Session table must remain empty before source migration.");
+            }
+            const migrations = await client.query(
+              `select count(*)::int as count from public."_prisma_migrations" where finished_at is not null and rolled_back_at is null`
+            );
+            if (migrations.rows[0].count < 1) {
+              throw new Error("No completed Prisma migrations were recorded.");
+            }
+            console.log("production_neon_schema=pass");
+            console.log("production_session_rows_before_migration=0");
+            console.log(`production_prisma_migrations=${migrations.rows[0].count}`);
+          } finally {
+            await client.end();
+          }
+          NODE
+
+      - name: Record safe provisioning evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "production_neon_provisioning=pass"
+          echo "production_neon_endpoint_id=$EXPECTED_PRODUCTION_ENDPOINT_ID"
+          echo "production_neon_project_name=$PRODUCTION_NEON_PROJECT_NAME"
+          echo "production_neon_staging_endpoint_reused=false"
+          echo "production_shopify_cutover_performed=false"
+          echo "production_billing_mutation_performed=false"
