@@ -52,13 +52,15 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
-test("embedded app navigation stays inside Shopify and preserves auth context", () => {
+test("embedded app navigation stays client-side and preserves Shopify auth context", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
 
-  assert.match(app, /useLocation/);
-  assert.match(app, /href={\`\/app\$\{location\.search\}\`}/);
-  assert.match(app, /href={\`\/app\/packages\$\{location\.search\}\`}/);
+  assert.match(app, /import \{ Link, Outlet, useLoaderData, useRouteError \} from "react-router"/);
+  assert.match(app, /<Link to="\/app" rel="home">Options<\/Link>/);
+  assert.match(app, /<Link to="\/app\/packages">Packages<\/Link>/);
+  assert.doesNotMatch(app, /<s-link/);
+  assert.doesNotMatch(app, /useLocation/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
