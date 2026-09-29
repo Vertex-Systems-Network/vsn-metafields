@@ -484,6 +484,23 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(validator, /production acceptance must never release Shopify config/);
 });
 
+test("all production mutation workflows require protected main dispatch and checkout", () => {
+  const workflows = [
+    read(".github/workflows/cloudflare-production-deploy.yml"),
+    read(".github/workflows/shopify-production-cutover-version.yml"),
+    read(".github/workflows/shopify-production-cutover-release.yml"),
+    read(".github/workflows/shopify-production-rollback-railway.yml"),
+  ];
+
+  for (const workflow of workflows) {
+    assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+    assert.match(workflow, /ref: main/);
+    assert.match(workflow, /workflow_dispatch:/);
+    assert.doesNotMatch(workflow, /\npush:/);
+  }
+});
+
+
 test("destructive global session-clear route stays absent", () => {
   assert.equal(exists("app/routes/clear-sessions.jsx"), false);
 });
