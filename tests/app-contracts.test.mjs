@@ -492,6 +492,9 @@ test("production Neon provisioning is manual, isolated, and schema-only", () => 
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
   assert.match(workflow, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
+  assert.match(workflow, /production_project_provisioned/);
+  assert.match(workflow, /production_endpoint_id/);
+  assert.match(workflow, /Requested production endpoint does not match repository policy/);
   assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
   assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
   assert.match(workflow, /Production Neon endpoint must differ from staging/);
@@ -546,6 +549,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(workflow, /SUPABASE_SOURCE_DATABASE_URL/);
   assert.match(workflow, /TARGET_DIRECT_URL/);
   assert.match(workflow, /EXPECTED_SOURCE_SESSION_COUNT/);
+  assert.match(workflow, /production_schema_provisioned/);
   assert.match(workflow, /production_session_credentials_logged=false/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
   assert.match(workflow, /production_billing_mutation_performed=false/);
@@ -563,6 +567,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
 
+  assert.match(deploy, /production_schema_provisioned/);
   assert.match(deploy, /session_migration_completed/);
   assert.match(deploy, /production_neon_session_migration=certified/);
 });
@@ -593,6 +598,8 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(acceptance, /production_release_authorized=false/);
   assert.match(acceptance, /production_shopify_cutover_performed=false/);
   assert.match(acceptance, /production_billing_mutation_performed=false/);
+  assert.match(acceptance, /production_schema_provisioned/);
+  assert.match(acceptance, /session_migration_completed/);
   assert.doesNotMatch(acceptance, /wrangler@|wrangler\s+deploy/);
   assert.doesNotMatch(acceptance, /app release/);
   assert.doesNotMatch(acceptance, /appSubscriptionCreate/);
