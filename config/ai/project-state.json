@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
-  "last_verified_completion": "Issue #4 PHASE-01 staging release milestone verified: protected-main Cloudflare staging runtime deploy run 36500207757 succeeded at main fbffc70dbd272c4757be32ba2cc142046b5846c2 (Cloudflare Version ID 8bbc8772-6124-4af6-8341-ddc73804b782), and Shopify Staging Release run 36500565113 successfully released exact version staging-webhooks-2, re-verified staging identity/config isolation, passed non-destructive compliance webhook delivery for customers/data_request, customers/redact, and shop/redact, and left production config unchanged.",
-  "next_valid_work_unit": "Use the self-verifying staging deployment contract to prove the live Worker serves the expected 5-day/$55 plan, then continue automated non-mutating acceptance checks for auth/session/subscription-read/navigation before production-cutover planning.",
+  "last_verified_completion": "Issue #4 self-verifying Cloudflare staging deployment verified on run 36501112790 from protected main 19695fd42932cda4068273bd504d60601b4cfd0f. Cloudflare Version ID 93d792cb-644d-4f10-bb8f-156f799aa917; live /healthz returned staging_runtime_health=pass and staging_billing_contract=5_days_usd_55.",
+  "next_valid_work_unit": "Deploy and execute the signed read-only staging acceptance probe to verify offline session continuity, Admin GraphQL access, and currentAppInstallation.activeSubscriptions without any billing mutation.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,8 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Deploy the self-verifying /healthz runtime contract to Cloudflare staging and record its live 5-day/$55 proof.",
-    "Add/execute non-mutating staging acceptance checks for auth/session/subscription-read/navigation where safely automatable.",
+    "Deploy the signed read-only staging acceptance probe and record session/Admin GraphQL/subscription-read evidence.",
+    "Retain embedded navigation as a separate browser-context acceptance check; static navigation contract remains covered by tests.",
     "Keep production cutover blocked until final staging acceptance evidence is complete."
   ],
   "outstanding_removals": [],
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "staging_runtime_webhooks_green_self_verifying_runtime_contract_pending",
+  "qa_readiness": "live_staging_billing_contract_green_read_only_shopify_acceptance_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "6a71c0cd5b6d9b629af148af260be2ee238ab4d3",
-  "last_reconciled_at": "2026-09-29T00:00:00+00:00",
-  "notes": "Manual UI verification is no longer the only way to prove the deployed billing values. A non-sensitive /healthz contract is being added so the Cloudflare staging deployment can automatically prove that the live Worker serves the expected 5-day/$55 Pro plan. Production remains unchanged."
+  "last_reconciled_repository_ref": "19695fd42932cda4068273bd504d60601b4cfd0f",
+  "last_reconciled_at": "2026-09-29T00:04:21+00:00",
+  "notes": "Live Cloudflare staging now self-verifies the deployed 5-day/$55 billing contract. The next automation is a timestamped HMAC-signed staging-only endpoint that uses the stored offline Shopify session for read-only Admin GraphQL activeSubscriptions verification. It never exposes access tokens and never calls billing create/cancel mutations."
 }
