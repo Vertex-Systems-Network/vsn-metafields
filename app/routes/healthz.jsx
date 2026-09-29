@@ -1,10 +1,13 @@
 import { PRO_PLAN } from "../billing-config";
 
-export const loader = async () =>
-  Response.json(
+export const loader = async ({ context }) => {
+  const commitSha = context?.cloudflare?.env?.APP_COMMIT_SHA ?? null;
+
+  return Response.json(
     {
       ok: true,
       service: "vsn-metafields",
+      commitSha,
       plan: {
         id: PRO_PLAN.id,
         amount: PRO_PLAN.amount,
@@ -19,3 +22,4 @@ export const loader = async () =>
       },
     }
   );
+};
