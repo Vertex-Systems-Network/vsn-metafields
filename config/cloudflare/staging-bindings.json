@@ -56,5 +56,10 @@
     "production_routes_allowed": false,
     "manual_dispatch_fallback": true,
     "automatic": false
+  },
+  "session_resolution": {
+    "mode": "database_distinct_shop",
+    "forbidden_production_shop": "vertex-systems-network.myshopify.com",
+    "require_exactly_one_non_production_shop": true
   }
 }
