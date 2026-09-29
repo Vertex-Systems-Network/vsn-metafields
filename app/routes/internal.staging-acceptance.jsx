@@ -203,10 +203,40 @@ export const loader = async ({ request }) => {
           },
         );
 
+        const directBody = await directResponse.text();
+        let errorMessages = [];
+
+        if (!directResponse.ok && directBody) {
+          try {
+            const parsed = JSON.parse(directBody);
+            const candidates = [
+              ...(Array.isArray(parsed?.errors) ? parsed.errors : [parsed?.errors]),
+              parsed?.error,
+              parsed?.message,
+            ];
+
+            errorMessages = candidates
+              .flatMap((candidate) => {
+                if (!candidate) return [];
+                if (typeof candidate === "string") return [candidate];
+                if (typeof candidate?.message === "string") {
+                  return [candidate.message];
+                }
+                return [];
+              })
+              .map((message) => message.slice(0, 240))
+              .slice(0, 3);
+          } catch {
+            errorMessages = ["non_json_error_response"];
+          }
+        }
+
         directProbe = {
           attempted: true,
           ok: directResponse.ok,
           status: directResponse.status,
+          requestId: directResponse.headers.get("x-request-id") || null,
+          errorMessages,
         };
       } catch (directError) {
         console.error(
