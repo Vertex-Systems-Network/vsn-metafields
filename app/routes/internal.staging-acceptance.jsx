@@ -1,3 +1,4 @@
+import process from "node:process";
 import { sessionStorage, unauthenticated } from "../shopify.server";
 
 const EXPECTED_STAGING_APP_URL =
