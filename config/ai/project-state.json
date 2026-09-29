@@ -5,7 +5,7 @@
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
   "last_verified_completion": "Issue #4 PHASE-01 staging release milestone verified: protected-main Cloudflare staging runtime deploy run 36500207757 succeeded at main fbffc70dbd272c4757be32ba2cc142046b5846c2 (Cloudflare Version ID 8bbc8772-6124-4af6-8341-ddc73804b782), and Shopify Staging Release run 36500565113 successfully released exact version staging-webhooks-2, re-verified staging identity/config isolation, passed non-destructive compliance webhook delivery for customers/data_request, customers/redact, and shop/redact, and left production config unchanged.",
-  "next_valid_work_unit": "Perform final staging acceptance verification in the embedded Shopify app: confirm the deployed Packages UI shows a 5-day trial and $55/month, confirm auth/session/subscription-read/navigation remain healthy, and keep production cutover blocked until that evidence is recorded.",
+  "next_valid_work_unit": "Use the self-verifying staging deployment contract to prove the live Worker serves the expected 5-day/$55 plan, then continue automated non-mutating acceptance checks for auth/session/subscription-read/navigation before production-cutover planning.",
   "progress": {
     "total_work_units": 6,
     "complete": 3,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Verify the embedded staging Packages page shows the centralized 5-day trial and $55/month after the successful Cloudflare deploy.",
-    "Reconfirm staging auth/session continuity, active-subscription read, and embedded navigation after the latest runtime deployment.",
-    "Record final staging acceptance evidence before authorizing any production URL cutover."
+    "Deploy the self-verifying /healthz runtime contract to Cloudflare staging and record its live 5-day/$55 proof.",
+    "Add/execute non-mutating staging acceptance checks for auth/session/subscription-read/navigation where safely automatable.",
+    "Keep production cutover blocked until final staging acceptance evidence is complete."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "staging_runtime_and_webhooks_green_final_embedded_acceptance_pending",
+  "qa_readiness": "staging_runtime_webhooks_green_self_verifying_runtime_contract_pending",
   "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "c892fe17313afc357faf826026382e4c0d267b02",
-  "last_reconciled_at": "2026-09-28T23:57:00+00:00",
-  "notes": "Cloudflare staging runtime automation and one-time Shopify staging release automation are green. Production Shopify/Railway remains unchanged. Synthetic compliance webhook delivery validates endpoint handling but does not replace a real-event subscription E2E check. Final embedded staging acceptance (including 5-day/$55 UI) remains the only immediate gate before production-cutover planning."
+  "last_reconciled_repository_ref": "6a71c0cd5b6d9b629af148af260be2ee238ab4d3",
+  "last_reconciled_at": "2026-09-29T00:00:00+00:00",
+  "notes": "Manual UI verification is no longer the only way to prove the deployed billing values. A non-sensitive /healthz contract is being added so the Cloudflare staging deployment can automatically prove that the live Worker serves the expected 5-day/$55 Pro plan. Production remains unchanged."
 }
