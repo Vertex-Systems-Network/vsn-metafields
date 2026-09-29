@@ -447,3 +447,23 @@ test("production cutover package preserves Shopify identity, billing, database, 
 test("destructive global session-clear route stays absent", () => {
   assert.equal(exists("app/routes/clear-sessions.jsx"), false);
 });
+
+
+test("staging session reset is isolated from the production shop", () => {
+  const reset = read("scripts/cloudflare/reset-staging-sessions.mjs");
+  const workflow = read(".github/workflows/cloudflare-staging-session-reset.yml");
+
+  assert.match(reset, /PRODUCTION_SHOP = "vertex-systems-network\.myshopify\.com"/);
+  assert.match(reset, /shop !== PRODUCTION_SHOP/);
+  assert.match(reset, /stagingShops\.length !== 1/);
+  assert.match(reset, /deleteMany\(\{/);
+  assert.match(reset, /where: \{ shop \}/);
+  assert.match(reset, /productionShopTouched: false/);
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /RESET_STAGING_SESSIONS_ONLY/);
+  assert.match(workflow, /environment: cloudflare-staging/);
+  assert.match(workflow, /ref: development/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.doesNotMatch(workflow, /cloudflare-production/);
+});
