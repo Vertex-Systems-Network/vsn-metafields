@@ -3,22 +3,22 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-cutover-package-certification",
-  "last_verified_completion": "Issue #4 staging acceptance automated on Cloudflare deploy run 36501696634 at protected main 9070675d42e9cb2a98748506ef509c1a138923ea. Cloudflare Version ID 9e302286-fa4b-4e04-a759-b9d749102411; live health and 5-day/$55 billing contract passed; offline Shopify session, Admin GraphQL, and currentAppInstallation.activeSubscriptions reads all passed with 2 stored sessions and 0 active staging subscriptions.",
-  "next_valid_work_unit": "Certify the production cutover package with build/dry-run evidence while release_authorized=false; after certification, stop before any production deploy or Shopify URL cutover until explicit production authorization.",
+  "current_work_unit": "ISSUE-4-production-cutover-authorization-gate",
+  "last_verified_completion": "Issue #4 production cutover package certified on protected main b48a109d953b2125c55b3d01951afbe13297dc35. Production Cutover Contract run 36503033586 passed contract validation, Prisma no-migration validation, production application build, and Wrangler production-config dry-run. Active Shopify production URL remains Railway and release_authorized=false.",
+  "next_valid_work_unit": "Harden and preserve the explicit production authorization gate. A future cutover requires a reviewed repository change that sets release_authorized=true and pins authorized_version, authorized_source_ref, and authorization_record to one unreleased candidate. Do not deploy or release production in this work unit.",
   "progress": {
     "total_work_units": 6,
-    "complete": 4,
-    "in_progress": 1,
-    "blocked": 0,
+    "complete": 5,
+    "in_progress": 0,
+    "blocked": 1,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Run and record production cutover contract certification with production build and Wrangler dry-run.",
-    "Confirm Shopify production candidate/release and Railway rollback workflows remain manual, authorization-gated, and billing-mutation-free.",
-    "Keep release_authorized=false and current production Shopify URL on Railway."
+    "Keep production cutover release authorization false until an explicit cutover decision is made.",
+    "When authorized in the future, create one unreleased candidate whose version embeds its source SHA, then pin that exact version/source in the reviewed repository authorization record.",
+    "Preserve Railway as rollback until post-cutover merchant/subscription verification completes."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_cutover_package_certification_in_progress",
-  "security_readiness": "production_cutover_prepared_release_unauthorized",
-  "last_reconciled_repository_ref": "1710efa3791e739798e0a7544fadc9485e6ee02c",
-  "last_reconciled_at": "2026-09-29T00:20:00+00:00",
-  "notes": "Source-level production cutover contract is green on protected main. Certification is being strengthened with a real production build and Wrangler production-config dry-run only. This must not deploy the production Worker, release Shopify config, mutate subscriptions, run database migrations, or stop Railway."
+  "qa_readiness": "production_cutover_package_certified_authorization_gate_closed",
+  "security_readiness": "production_cutover_certified_release_unauthorized_exact_candidate_pin_required",
+  "last_reconciled_repository_ref": "b48a109d953b2125c55b3d01951afbe13297dc35",
+  "last_reconciled_at": "2026-09-29T00:27:00+00:00",
+  "notes": "Production cutover source package is certified without deployment. The release path is being hardened so authorization must pin one exact candidate version and its source commit. No production Worker deployment, Shopify URL change, billing mutation, database migration, merchant reinstall, or Railway shutdown is authorized."
 }
