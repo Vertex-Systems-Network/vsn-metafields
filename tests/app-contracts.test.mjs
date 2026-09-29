@@ -422,6 +422,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.production_project_name, "vsn-metafields-production");
   assert.equal(policy.database.production_project_provisioned, false);
   assert.equal(policy.database.production_endpoint_id, null);
+  assert.equal(policy.database.provisioning_workflow, "production-neon-provisioning.yml");
+  assert.equal(policy.database.production_schema_provisioned, false);
+  assert.equal(policy.database.require_empty_session_store_before_migration, true);
   assert.equal(policy.database.require_distinct_neon_projects, true);
   assert.equal(policy.rollback.keep_railway_available, true);
 
@@ -477,6 +480,31 @@ test("production cutover package preserves Shopify identity, billing, database, 
     assert.doesNotMatch(workflow, /appSubscriptionCreate/);
     assert.doesNotMatch(workflow, /appSubscriptionCancel/);
   }
+});
+
+test("production Neon provisioning is manual, isolated, and schema-only", () => {
+  const workflow = read(".github/workflows/production-neon-provisioning.yml");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /PROVISION_ISOLATED_NEON_PRODUCTION/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
+  assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
+  assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
+  assert.match(workflow, /Production Neon endpoint must differ from staging/);
+  assert.match(workflow, /Production DATABASE_URL must use the pooled Neon endpoint/);
+  assert.match(workflow, /Production DIRECT_URL must use the direct Neon endpoint/);
+  assert.match(workflow, /production_neon_preexisting_sessions=0/);
+  assert.match(workflow, /npx prisma migrate deploy/);
+  assert.match(workflow, /npx prisma migrate status/);
+  assert.match(workflow, /production_neon_schema=pass/);
+  assert.match(workflow, /production_session_rows_before_migration=0/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.match(workflow, /production_billing_mutation_performed=false/);
+  assert.doesNotMatch(workflow, /appSubscriptionCreate|appSubscriptionCancel|shopify app release/);
 });
 
 test("Neon staging and production identities stay isolated", () => {
@@ -583,6 +611,7 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
 test("all production mutation workflows require protected main dispatch and checkout", () => {
   const workflows = [
     read(".github/workflows/cloudflare-production-deploy.yml"),
+    read(".github/workflows/production-neon-provisioning.yml"),
     read(".github/workflows/production-session-migration.yml"),
     read(".github/workflows/shopify-production-cutover-version.yml"),
     read(".github/workflows/shopify-production-cutover-release.yml"),
@@ -646,6 +675,7 @@ test("production cutover preflight watches runtime-critical release paths", () =
   assert.match(workflow, /package\.json/);
   assert.match(workflow, /package-lock\.json/);
   assert.match(workflow, /workers\/\*\*/);
+  assert.match(workflow, /production-neon-provisioning\.yml/);
   assert.match(workflow, /production-session-migration\.yml/);
   assert.match(workflow, /migrate-production-sessions\.mjs/);
 });
