@@ -220,6 +220,7 @@ test("Pro billing configuration stays centralized at 5 trial days and $55 across
 
 test("billing mutations require authenticated POST requests and guard active plans", () => {
   const status = read("app/routes/app.api.status.jsx");
+  const packages = read("app/routes/app.packages.jsx");
 
   assert.match(status, /authenticate\.admin\(request\)/);
   assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
