@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-provision-isolated-neon-production",
-  "last_verified_completion": "PR #110 merged as 3587252a7038025c221e8fbc20834283b512c4de with AI Native Quality Gates, App Validation, Production Cutover Contract, and Cloudflare Staging Readiness all green. Existing Neon endpoint ep-snowy-surf-b3gxl2wf is proven in use by cloudflare-staging and is therefore classified as staging, regardless of its current dashboard project name.",
-  "next_valid_work_unit": "Rename the existing Neon project currently named vsn-metafields to vsn-metafields-staging, provision a separate Neon project named vsn-metafields-production, then set cloudflare-production DATABASE_URL to its pooled endpoint and DIRECT_URL to the matching direct endpoint. Production workflows must reject ep-snowy-surf-b3gxl2wf. After that, run the guarded 4-row Supabase-to-Neon production Session migration.",
+  "current_work_unit": "ISSUE-4-bootstrap-isolated-neon-production",
+  "last_verified_completion": "PR #111 merged as 0a5c8b2c0fddfa37aba71972b21a7748f573de76 with all four required suites green. Staging Neon endpoint ep-snowy-surf-b3gxl2wf is pinned and all production migration/deploy/acceptance paths reject it. Production remains unprovisioned until a distinct vsn-metafields-production endpoint is created and certified.",
+  "next_valid_work_unit": "Create the separate Neon project vsn-metafields-production, set cloudflare-production DATABASE_URL to its pooled URL and DIRECT_URL to its matching direct URL, then run Production Neon Bootstrap with its exact ep-... endpoint ID. After schema bootstrap passes and is certified in repository policy, run the guarded 4-row Supabase-to-Neon Session migration.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,10 +16,11 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Rename existing Neon project vsn-metafields to vsn-metafields-staging; its certified staging endpoint is ep-snowy-surf-b3gxl2wf.",
-    "Provision a separate Neon project named vsn-metafields-production and record its endpoint identity in repository policy.",
-    "Set cloudflare-production DATABASE_URL to the production pooled Neon URL and DIRECT_URL to the matching direct Neon URL; never reuse the staging endpoint.",
-    "Run and certify the guarded 4-row Supabase-to-Neon production Session migration, then continue Worker prepare and independent acceptance."
+    "Rename existing Neon project vsn-metafields to vsn-metafields-staging when convenient; endpoint ep-snowy-surf-b3gxl2wf remains the certified staging identity.",
+    "Create a new Neon project named vsn-metafields-production and capture its exact endpoint ID.",
+    "Set cloudflare-production DATABASE_URL to the new production pooled URL and DIRECT_URL to its matching direct URL.",
+    "Run guarded Production Neon Bootstrap; after success certify production_project_provisioned=true, production_endpoint_id, and production_schema_bootstrap_completed=true in repository policy.",
+    "Run guarded 4-row Supabase-to-Neon Session migration, then certify session_migration_completed=true before Worker deploy/acceptance."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -30,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "isolated_neon_production_project_required",
-  "security_readiness": "staging_neon_endpoint_pinned_production_must_be_distinct",
+  "qa_readiness": "production_neon_bootstrap_workflow_prepared",
+  "security_readiness": "staging_endpoint_rejected_production_schema_bootstrap_fail_closed",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "The Neon project currently named vsn-metafields is already the staging database because cloudflare-staging uses endpoint ep-snowy-surf-b3gxl2wf and verified staging sessions exist there. Canonical target naming is vsn-metafields-staging for that existing project and vsn-metafields-production for a new isolated live project. Production migration/deploy/acceptance workflows are being hardened to reject the staging endpoint and require pooled DATABASE_URL plus matching direct DIRECT_URL. Supabase remains only the temporary source of 4 production Shopify Session rows. Shopify live remains on Railway and release_authorized=false."
+  "notes": "Final database sequence is now explicit: staging remains on Neon endpoint ep-snowy-surf-b3gxl2wf; live production must use a distinct project named vsn-metafields-production. A new guarded Production Neon Bootstrap workflow initializes only an empty isolated production target, applies Prisma migrations, and proves the Session table is still empty. Only after separate policy certification can the 4 restored Supabase Shopify sessions be migrated. Shopify production remains on Railway and release_authorized=false."
 }
