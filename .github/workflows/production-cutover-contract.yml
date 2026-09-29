@@ -33,6 +33,7 @@ on:
       - "config/cloudflare/production-cutover.json"
       - "scripts/cloudflare/validate_production_cutover_contract.py"
       - ".github/workflows/cloudflare-production-deploy.yml"
+      - ".github/workflows/cloudflare-production-acceptance.yml"
       - ".github/workflows/shopify-production-cutover-version.yml"
       - ".github/workflows/shopify-production-cutover-release.yml"
       - ".github/workflows/shopify-production-rollback-railway.yml"
