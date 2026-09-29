@@ -253,6 +253,8 @@ def main() -> int:
     require('expected_username = f"postgres.{EXPECTED_PROJECT_REF}"' in supabase_source_resolver, "Supabase pooler username must bind the certified project ref")
     require(".pooler.supabase.com" in supabase_source_resolver, "Supabase source must use a Connect-dialog pooler host")
     require("ALLOWED_POOLER_PORTS = {5432, 6543}" in supabase_source_resolver, "Supabase pooler port contract drifted")
+    require('remainder.rsplit("@", 1)' in supabase_source_resolver, "Supabase source parser must tolerate raw special characters in passwords")
+    require('raw_userinfo.split(":", 1)' in supabase_source_resolver, "Supabase source parser must split username/password safely")
     require('quote(password, safe="")' in supabase_source_resolver, "Supabase source password must be safely re-encoded")
     require("::add-mask::" in supabase_source_resolver, "Supabase exact source URL must be masked")
     require("SOURCE_DATABASE_URL_CANDIDATE_1=" in supabase_source_resolver, "Supabase exact source URL must be exported through GITHUB_ENV")

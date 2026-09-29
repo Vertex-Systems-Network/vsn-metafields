@@ -571,6 +571,9 @@ test("production Supabase source requires the exact Connect-dialog pooler URL", 
   assert.match(resolver, /expected_username = f"postgres\.\{EXPECTED_PROJECT_REF\}"/);
   assert.match(resolver, /ALLOWED_POOLER_PORTS = \{5432, 6543\}/);
   assert.match(resolver, /sslmode=require&uselibpqcompat=true/);
+  assert.match(resolver, /remainder\.rsplit\("@", 1\)/);
+  assert.match(resolver, /raw_userinfo\.split\(":", 1\)/);
+  assert.match(resolver, /quote\(password, safe=""\)/);
   assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_1=/);
   assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_COUNT=1/);
   assert.match(resolver, /exact_supabase_connect_pooler/);

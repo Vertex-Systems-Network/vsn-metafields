@@ -42,15 +42,27 @@ def main() -> None:
     if region != EXPECTED_REGION:
         fail("Supabase source region does not match repository certification.")
 
-    parsed = urlparse(source_url)
-    if parsed.scheme not in {"postgres", "postgresql"}:
+    if "://" not in source_url:
         fail("SUPABASE_SOURCE_DATABASE_URL must be a PostgreSQL URL.")
 
-    host = (parsed.hostname or "").lower()
-    port = parsed.port or 5432
-    username = unquote(parsed.username or "")
-    password = unquote(parsed.password or "")
-    database = parsed.path.lstrip("/") or EXPECTED_DATABASE
+    scheme, remainder = source_url.split("://", 1)
+    if scheme not in {"postgres", "postgresql"}:
+        fail("SUPABASE_SOURCE_DATABASE_URL must be a PostgreSQL URL.")
+    if "@" not in remainder:
+        fail("SUPABASE_SOURCE_DATABASE_URL does not contain database credentials.")
+
+    raw_userinfo, raw_destination = remainder.rsplit("@", 1)
+    if ":" not in raw_userinfo:
+        fail("SUPABASE_SOURCE_DATABASE_URL does not contain a database password.")
+
+    raw_username, raw_password = raw_userinfo.split(":", 1)
+    username = unquote(raw_username)
+    password = unquote(raw_password)
+
+    destination = urlparse(f"postgresql://placeholder:placeholder@{raw_destination}")
+    host = (destination.hostname or "").lower()
+    port = destination.port or 5432
+    database = destination.path.lstrip("/") or EXPECTED_DATABASE
 
     if not host.endswith(".pooler.supabase.com"):
         fail(
