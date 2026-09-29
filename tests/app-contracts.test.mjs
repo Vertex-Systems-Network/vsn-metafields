@@ -578,6 +578,14 @@ test("production Supabase source is canonicalized for IPv4 GitHub runners", () =
   assert.doesNotMatch(resolver, /print\(.*password/i);
 });
 
+test("Supabase source resolver keeps TLS required with libpq-compatible semantics", () => {
+  const resolver = read("scripts/database/resolve-production-supabase-source.py");
+
+  assert.match(resolver, /sslmode=require&uselibpqcompat=true/);
+  assert.match(resolver, /production_supabase_tls=required_libpq_compatible/);
+  assert.doesNotMatch(resolver, /sslmode=disable/);
+});
+
 test("production session migration is guarded, transactional, and preserves secret session fields", () => {
   const workflow = read(".github/workflows/production-session-migration.yml");
   const script = read("scripts/database/migrate-production-sessions.mjs");
