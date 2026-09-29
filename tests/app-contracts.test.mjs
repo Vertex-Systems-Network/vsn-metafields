@@ -141,14 +141,15 @@ test("public health contract exposes only deployment-safe plan metadata", () => 
   assert.match(workflow, /staging_runtime_health=pass/);
 });
 
-test("Cloudflare staging deploy stays isolated and auto-deploys only runtime changes", () => {
+test("Cloudflare staging deploy is manual and always checks out development", () => {
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
 
-  assert.match(workflow, /push:/);
-  assert.match(workflow, /branches:\s*\n\s*- development/);
-  assert.match(workflow, /- "app\/\*\*"/);
-  assert.match(workflow, /github\.event_name == 'push'/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /DEPLOY_DEVELOPMENT_TO_STAGING/);
+  assert.match(workflow, /ref: development/);
   assert.match(workflow, /environment: cloudflare-staging/);
+  assert.match(workflow, /APP_ENV:staging/);
   assert.match(workflow, /Staging deploy must not use the Railway production Shopify URL/);
   assert.doesNotMatch(workflow, /environment:\s*production/);
 });
@@ -222,13 +223,16 @@ test("billing mutations require authenticated POST requests and guard active pla
 
   assert.match(status, /authenticate\.admin\(request\)/);
   assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
+  assert.match(status, /process\.env\.APP_ENV === "production"/);
   assert.match(status, /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/);
   assert.match(status, /subscription\.id === id && subscription\.status === "ACTIVE"/);
   assert.match(status, /duplicateActivePlan/);
   assert.match(status, /subscription\.status === "ACTIVE"/);
   assert.match(status, /appSubscriptionCancel\(id: \$id, prorate: true\)/);
   assert.match(status, /mutation CreateSubscription\(/);
-  assert.match(status, /test:\s*false/);
+  assert.match(status, /\$test:\s*Boolean!/);
+  assert.match(status, /test:\s*\$test/);
+  assert.match(status, /test:\s*!isProductionBilling\(\)/);
   assert.match(status, /variables:\s*\{\s*id\s*\}/);
   assert.doesNotMatch(status, /appSubscriptionCancel\([^\n]*\$\{/);
 });
@@ -260,14 +264,16 @@ test("development flow keeps local and staging changes away from live production
   assert.equal(flow.development_branch, "development");
   assert.equal(flow.release_branch, "main");
   assert.equal(flow.staging.source_branch, "development");
-  assert.equal(flow.staging.auto_deploy_runtime_changes, true);
+  assert.equal(flow.staging.auto_deploy_runtime_changes, false);
+  assert.equal(flow.staging.deploy_mode, "manual_dispatch_from_development");
   assert.equal(flow.live.source_branch, "main");
   assert.equal(flow.live.auto_deploy, false);
   assert.equal(flow.live.deploy_mode, "manual_dispatch");
   assert.equal(flow.live.shopify_cutover_mode, "explicit_authorization_only");
 
-  assert.match(staging, /branches:\s*\n\s*- development/);
-  assert.doesNotMatch(staging, /branches:\s*\n\s*- main/);
+  assert.match(staging, /workflow_dispatch:/);
+  assert.match(staging, /ref: development/);
+  assert.doesNotMatch(staging, /\npush:/);
 
   assert.match(production, /workflow_dispatch:/);
   assert.doesNotMatch(production, /\npush:/);
