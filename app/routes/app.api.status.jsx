@@ -49,8 +49,12 @@ async function getActiveSubscriptions(admin) {
   return json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 }
 
+function isProductionBilling() {
+  return process.env.APP_ENV === "production";
+}
+
 function getValidSubscriptions(subscriptions) {
-  return process.env.NODE_ENV === "production"
+  return isProductionBilling()
     ? subscriptions.filter((subscription) => !subscription.test)
     : subscriptions;
 }
@@ -228,6 +232,7 @@ export const action = async ({ request }) => {
 					$name: String!
 					$returnUrl: URL!
 					$trialDays: Int
+          $test: Boolean!
 					$lineItems: [AppSubscriptionLineItemInput!]!
 					) {
 					appSubscriptionCreate(
@@ -253,6 +258,7 @@ export const action = async ({ request }) => {
 						name: selectedPlan.name,
 						returnUrl,
 						trialDays: selectedPlan.trialDays,
+            test: !isProductionBilling(),
 						lineItems: [
 							{
 								plan: {
