@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Fresh Production Session Migration run 36643604377 tested all bounded routes on protected main 69d1d52e2f39c5e685c7cf2a44f6868b67fb7fe2. The original protected source URL classified as non-Supabase PostgreSQL and failed ECONNREFUSED; project-host routes were IPv6-unreachable; region-derived shared transaction/session routes reached Supavisor but failed XX000 tenant lookup. Supabase docs confirm the shared-pooler cluster index is project-specific and cannot be derived from the region.",
-  "next_valid_work_unit": "Require SUPABASE_SOURCE_DATABASE_URL to be copied exactly from Supabase Dashboard > Connect > Session pooler (preferred for migration) or Transaction pooler, preserving the project-specific pooler cluster host and username postgres.kqwlohmfyobsdsdekjzl. After the secret is corrected, run a fresh Production Session Migration with expected_source_session_count=4.",
+  "last_verified_completion": "Production Session Migration run 36645881938 used the correct Supabase Session Pooler string shape (aws-1-ap-southeast-2.pooler.supabase.com:5432) but failed inside the URL resolver before any database connection. The secret host could not be recognized after the database password was inserted, consistent with raw URL-reserved characters in the password altering standard URL parsing.",
+  "next_valid_work_unit": "Merge the robust Supabase source parser that splits credentials at the last @, preserves raw password bytes, percent-encodes them, and then validates the exact Connect-dialog pooler host. After merge, run a fresh Production Session Migration with the existing corrected aws-1 Session Pooler secret.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "exact_supabase_connect_pooler_secret_required",
-  "security_readiness": "no_target_writes_source_url_must_be_exact_connect_dialog_pooler",
+  "qa_readiness": "robust_supabase_secret_parser_pending",
+  "security_readiness": "correct_pooler_secret_present_no_target_writes_password_never_logged",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36643604377 made no Neon Session writes; Neon remains at 0 rows and Supabase retains 4/4 audited sessions. Derived aws-0 pooler assumptions are removed. The resolver now accepts only an exact Supabase Connect-dialog shared pooler hostname with the certified project-ref username and documented pooler port, while retaining TLS, source fingerprint, transactional target write, and full-row digest verification."
+  "notes": "Run 36645881938 stopped in Resolve canonical Supabase session pooler; no source connection or Neon write occurred. The parser fix handles raw reserved characters in the database password without exposing the password or full URL."
 }
