@@ -183,6 +183,8 @@ test("Cloudflare staging deploy is manual and always checks out development", ()
   assert.match(workflow, /environment: cloudflare-staging/);
   assert.match(workflow, /APP_ENV:staging/);
   assert.match(workflow, /Staging deploy must not use the Railway production Shopify URL/);
+  assert.match(workflow, /Staging deploy must use the dedicated staging Shopify app identity, not production/);
+  assert.match(workflow, /PROD_CLIENT_ID/);
   assert.doesNotMatch(workflow, /environment:\s*production/);
 });
 
