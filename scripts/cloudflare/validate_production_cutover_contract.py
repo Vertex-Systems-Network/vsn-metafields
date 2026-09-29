@@ -194,6 +194,8 @@ def main() -> int:
     require("production_billing_mutation_performed=false" in production_neon_provisioning, "production Neon provisioning must prove no billing mutation")
 
     require("resolve-production-supabase-source.py" in session_migration, "production session migration must canonicalize the Supabase source")
+    require("sslmode=require&uselibpqcompat=true" in read(ROOT / "scripts" / "database" / "resolve-production-supabase-source.py"), "Supabase source must keep TLS required with libpq-compatible semantics")
+    require("sslmode=disable" not in read(ROOT / "scripts" / "database" / "resolve-production-supabase-source.py"), "Supabase source must never disable TLS")
     require("EXPECTED_SUPABASE_REGION: ap-southeast-2" in session_migration, "production session migration must pin the certified Supabase region")
     require("resolve-production-neon-urls.py" in session_migration, "production session migration must resolve the direct URL safely")
     require("SUPABASE_SOURCE_DATABASE_URL DATABASE_URL" in session_migration, "production session migration must require source plus pooled target")
