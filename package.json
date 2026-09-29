@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "prisma generate && react-router build",
-    "dev": "shopify app dev",
+    "dev": "shopify app dev --config local",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
@@ -20,7 +20,7 @@
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
     "test:contracts": "node --test tests/app-contracts.test.mjs",
-    "dev:local": "npm run dev",
+    "dev:local": "shopify app dev --config local",
     "check:release": "npm run lint && npm run typecheck && npm run test:contracts && npm run build"
   },
   "type": "module",
