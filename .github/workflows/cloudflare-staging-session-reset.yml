@@ -1,0 +1,54 @@
+name: Reset Cloudflare Staging Sessions
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RESET_STAGING_SESSIONS_ONLY to delete sessions only for the isolated non-production staging shop"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-staging-session-reset
+  cancel-in-progress: false
+
+jobs:
+  reset-staging-sessions:
+    if: github.event.inputs.confirm == 'RESET_STAGING_SESSIONS_ONLY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: cloudflare-staging
+    env:
+      CI: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout development source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: development
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Require isolated staging database
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "Missing cloudflare-staging DATABASE_URL." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Reset only isolated staging shop sessions
+        run: node scripts/cloudflare/reset-staging-sessions.mjs
