@@ -318,6 +318,15 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(validator, /production_release_authorized=false/);
   assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
   assert.match(deploy, /environment: cloudflare-production/);
+  assert.match(deploy, /CLOUDFLARE_ACCOUNT_ID: f63cf3af0868a5c8a0b26ebee5dd039f/);
+  assert.match(deploy, /SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a/);
+  assert.match(deploy, /SHOPIFY_APP_URL: https:\/\/vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev/);
+  assert.match(deploy, /SCOPES: read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders/);
+  assert.match(deploy, /for name in CLOUDFLARE_API_TOKEN DATABASE_URL DIRECT_URL SHOPIFY_API_SECRET/);
+  assert.doesNotMatch(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
+  assert.doesNotMatch(deploy, /secrets\.SHOPIFY_API_KEY/);
+  assert.doesNotMatch(deploy, /secrets\.SHOPIFY_APP_URL/);
+  assert.doesNotMatch(deploy, /secrets\.SCOPES/);
   assert.match(deploy, /prisma migrate status/);
   assert.doesNotMatch(deploy, /prisma migrate deploy/);
   assert.match(deploy, /--config wrangler\.production\.jsonc/);
