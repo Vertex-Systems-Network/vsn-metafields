@@ -82,7 +82,7 @@ def main() -> None:
             netloc,
             f"/{SESSION_DATABASE}",
             "",
-            "sslmode=require",
+            "sslmode=require&uselibpqcompat=true",
             "",
         )
     )
@@ -95,6 +95,7 @@ def main() -> None:
     print(f"production_supabase_project_ref={EXPECTED_PROJECT_REF}")
     print(f"production_supabase_region={EXPECTED_REGION}")
     print(f"production_supabase_pooler_port={SESSION_POOLER_PORT}")
+    print("production_supabase_tls=required_libpq_compatible")
 
 
 if __name__ == "__main__":
