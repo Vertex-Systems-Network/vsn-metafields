@@ -1,0 +1,48 @@
+# Prepared Cloudflare production cutover configuration.
+# This file is intentionally separate from shopify.app.toml while Railway
+# remains the active production rollback target.
+#
+# Creating an unreleased app version from this file does not authorize release.
+
+client_id = "f5266ba8dba403005deb695fedad053a"
+name = "VSN Metafields"
+application_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request" ]
+  uri = "/webhooks/customers/data_request"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/redact" ]
+  uri = "/webhooks/customers/redact"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "shop/redact" ]
+  uri = "/webhooks/shop/redact"
+
+[access_scopes]
+scopes = "read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/auth/callback",
+  "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/auth/shopify/callback",
+  "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/api/auth/callback"
+]

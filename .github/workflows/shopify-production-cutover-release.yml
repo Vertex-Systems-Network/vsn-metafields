@@ -1,0 +1,145 @@
+name: Shopify Production Cutover Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE_PRODUCTION_CUTOVER to release an explicitly authorized Cloudflare production version"
+        required: true
+        type: string
+      version:
+        description: "Exact unreleased Shopify version name to release"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopify-production-cutover-release
+  cancel-in-progress: false
+
+jobs:
+  release-production-cutover:
+    if: github.event.inputs.confirm == 'RELEASE_PRODUCTION_CUTOVER'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      TARGET_VERSION: ${{ github.event.inputs.version }}
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+
+      - name: Require explicit repository release authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8"))
+          if policy.get("release_authorized") is not True:
+              raise SystemExit("Production Shopify cutover release is not authorized in repository policy.")
+          PY
+
+      - name: Require production Shopify identity and target
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL TARGET_VERSION
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required production cutover value: $name" >&2
+              exit 1
+            fi
+          done
+
+          EXPECTED_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" != "$EXPECTED_CLIENT_ID" ]; then
+            echo "Refusing production cutover release with a different Shopify app identity." >&2
+            exit 1
+          fi
+
+          if [ "$SHOPIFY_APP_URL" != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" ]; then
+            echo "Refusing production cutover release for an unexpected target URL." >&2
+            exit 1
+          fi
+
+      - name: Verify Cloudflare production Worker health before release
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          with urllib.request.urlopen("https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz", timeout=20) as response:
+              payload = json.loads(response.read().decode("utf-8"))
+
+          if payload.get("ok") is not True:
+              raise SystemExit("Cloudflare production Worker health check failed")
+          PY
+
+      - name: Verify target Shopify version exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app versions list \
+            --config cloudflare-production \
+            --json > /tmp/shopify-production-versions.json
+          grep -F "$TARGET_VERSION" /tmp/shopify-production-versions.json >/dev/null
+
+      - name: Release exact production cutover version
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @shopify/cli@4.8.2 app release \
+            --config cloudflare-production \
+            --version "$TARGET_VERSION" \
+            --allow-updates
+
+      - name: Validate non-destructive production compliance webhook delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          trigger_webhook() {
+            local topic="$1"
+            local path="$2"
+            npx --yes @shopify/cli@4.8.2 app webhook trigger \
+              --config cloudflare-production \
+              --api-version 2026-07 \
+              --address "$SHOPIFY_APP_URL$path" \
+              --topic "$topic" \
+              --client-secret "$SHOPIFY_API_SECRET"
+          }
+
+          trigger_webhook "customers/data_request" "/webhooks/customers/data_request"
+          trigger_webhook "customers/redact" "/webhooks/customers/redact"
+          trigger_webhook "shop/redact" "/webhooks/shop/redact"
+
+      - name: Preserve Railway rollback source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+          git diff --exit-code -- shopify.app.toml

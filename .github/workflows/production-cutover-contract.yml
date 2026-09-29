@@ -1,0 +1,68 @@
+name: Production Cutover Contract
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "wrangler.production.jsonc"
+      - "shopify.app.cloudflare-production.toml"
+      - "config/cloudflare/production-cutover.json"
+      - "scripts/cloudflare/validate_production_cutover_contract.py"
+      - ".github/workflows/cloudflare-production-deploy.yml"
+      - ".github/workflows/shopify-production-cutover-version.yml"
+      - ".github/workflows/shopify-production-cutover-release.yml"
+      - ".github/workflows/shopify-production-rollback-railway.yml"
+      - ".github/workflows/production-cutover-contract.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "wrangler.production.jsonc"
+      - "shopify.app.cloudflare-production.toml"
+      - "config/cloudflare/production-cutover.json"
+      - "scripts/cloudflare/validate_production_cutover_contract.py"
+      - ".github/workflows/cloudflare-production-deploy.yml"
+      - ".github/workflows/shopify-production-cutover-version.yml"
+      - ".github/workflows/shopify-production-cutover-release.yml"
+      - ".github/workflows/shopify-production-rollback-railway.yml"
+      - ".github/workflows/production-cutover-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-cutover-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate prepared production cutover contract
+        run: python scripts/cloudflare/validate_production_cutover_contract.py
+
+      - name: Confirm active production Shopify config still targets Railway
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+
+      - name: Confirm production release remains unauthorized
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8"))
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("production release unexpectedly authorized")
+          print("production_cutover_prepared=true")
+          print("production_release_authorized=false")
+          PY

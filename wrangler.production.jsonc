@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+  "name": "vsn-metafields-production",
+  "main": "./workers/app.js",
+  "compatibility_date": "2026-09-28",
+  "assets": {
+    "directory": "build/client"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
