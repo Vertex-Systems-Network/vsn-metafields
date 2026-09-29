@@ -23,6 +23,7 @@ ROLLBACK = ROOT / ".github" / "workflows" / "shopify-production-rollback-railway
 PRODUCTION_NEON_PROVISIONING = ROOT / ".github" / "workflows" / "production-neon-provisioning.yml"
 SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migration.yml"
 SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
+NEON_URL_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-neon-urls.py"
 
 
 class ValidationError(RuntimeError):
@@ -67,6 +68,7 @@ def main() -> int:
     production_neon_provisioning = read(PRODUCTION_NEON_PROVISIONING)
     session_migration = read(SESSION_MIGRATION)
     session_migration_script = read(SESSION_MIGRATION_SCRIPT)
+    neon_url_resolver = read(NEON_URL_RESOLVER)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -168,6 +170,9 @@ def main() -> int:
     require("staging_neon_identity=pass" in staging_deploy, "staging Neon identity evidence missing")
     require("pooled_id != expected or direct_id != expected" in staging_deploy, "staging deploy must reject non-staging Neon endpoints")
 
+    require("resolve-production-neon-urls.py" in production_neon_provisioning, "production Neon provisioning must resolve the direct URL safely")
+    require("for name in DATABASE_URL" in production_neon_provisioning, "production Neon provisioning must require pooled DATABASE_URL")
+    require("for name in DATABASE_URL DIRECT_URL" not in production_neon_provisioning, "production Neon provisioning must not require duplicate DIRECT_URL secret")
     require("workflow_dispatch:" in production_neon_provisioning and "push:" not in production_neon_provisioning, "production Neon provisioning must remain manual-only")
     require("PROVISION_ISOLATED_NEON_PRODUCTION" in production_neon_provisioning, "production Neon provisioning confirmation gate missing")
     require("github.ref == 'refs/heads/main'" in production_neon_provisioning, "production Neon provisioning must require protected main")
@@ -186,6 +191,9 @@ def main() -> int:
     require("production_shopify_cutover_performed=false" in production_neon_provisioning, "production Neon provisioning must prove no Shopify cutover")
     require("production_billing_mutation_performed=false" in production_neon_provisioning, "production Neon provisioning must prove no billing mutation")
 
+    require("resolve-production-neon-urls.py" in session_migration, "production session migration must resolve the direct URL safely")
+    require("SUPABASE_SOURCE_DATABASE_URL DATABASE_URL" in session_migration, "production session migration must require source plus pooled target")
+    require("SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL" not in session_migration, "production session migration must not require duplicate DIRECT_URL secret")
     require("workflow_dispatch:" in session_migration and "push:" not in session_migration, "production session migration must remain manual-only")
     require("MIGRATE_SUPABASE_SESSIONS_TO_NEON" in session_migration, "production session migration confirmation gate missing")
     require("github.ref == 'refs/heads/main'" in session_migration, "production session migration must require protected main")
@@ -206,12 +214,21 @@ def main() -> int:
     require("pooled_id == staging_id" in session_migration, "production migration must reject the staging Neon endpoint")
     require("production_neon_identity=certified_and_distinct" in session_migration, "production migration Neon isolation evidence missing")
     require("supabase" in session_migration_script.lower(), "session migration script must identify Supabase source")
+    require("DATABASE_URL" in neon_url_resolver, "Neon URL resolver must consume pooled DATABASE_URL")
+    require("DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export DIRECT_URL")
+    require("TARGET_DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export migration target URL")
+    require("-pooler" in neon_url_resolver, "Neon URL resolver must derive direct hostname from pooled endpoint")
+    require("::add-mask::" in neon_url_resolver, "Neon URL resolver must mask the derived credential URL")
+    require("EXPECTED_PRODUCTION_ENDPOINT_ID" in neon_url_resolver, "Neon URL resolver must verify certified endpoint identity")
     require("neon" in session_migration_script.lower(), "session migration script must identify Neon target")
     require("begin" in session_migration_script and "commit" in session_migration_script and "rollback" in session_migration_script, "session migration must be transactional")
     require("aggregateDigest" in session_migration_script, "session migration must verify complete row integrity")
     require("accessToken" in session_migration_script, "session migration must preserve Shopify access tokens")
     require("console.log(row" not in session_migration_script, "session migration must not log session rows")
 
+    require("resolve-production-neon-urls.py" in deploy, "production Worker deploy must resolve the direct URL safely")
+    require("CLOUDFLARE_API_TOKEN DATABASE_URL SHOPIFY_API_SECRET" in deploy, "production Worker deploy must require pooled DB and platform credentials")
+    require("CLOUDFLARE_API_TOKEN DATABASE_URL DIRECT_URL SHOPIFY_API_SECRET" not in deploy, "production Worker deploy must not require duplicate DIRECT_URL secret")
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
     require("production_schema_provisioned" in deploy, "production Worker deploy must gate on certified production Neon schema provisioning")
     require("session_migration_completed" in deploy, "production Worker deploy must gate on certified session migration")
@@ -242,6 +259,9 @@ def main() -> int:
     require("--config wrangler.production.jsonc" in deploy, "production Wrangler config missing from deploy")
     require(cloudflare_url in deploy, "production deploy must pin expected Cloudflare URL")
 
+    require("resolve-production-neon-urls.py" in acceptance, "production acceptance must resolve the direct URL safely")
+    require("for name in DATABASE_URL" in acceptance, "production acceptance must require pooled DATABASE_URL")
+    require("for name in DATABASE_URL DIRECT_URL" not in acceptance, "production acceptance must not require duplicate DIRECT_URL secret")
     require("workflow_dispatch:" in acceptance and "push:" not in acceptance, "production acceptance must remain manual-only")
     require("VERIFY_PRODUCTION_WORKER_ONLY" in acceptance, "production acceptance confirmation gate missing")
     require("source_sha:" in acceptance, "production acceptance immutable source input missing")
