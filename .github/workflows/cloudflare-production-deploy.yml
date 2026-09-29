@@ -1,0 +1,156 @@
+name: Cloudflare Production Prepare
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY_PRODUCTION_WORKER_ONLY to deploy the isolated production Worker without changing Shopify URLs"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production-prepare
+  cancel-in-progress: false
+
+jobs:
+  deploy-production-worker:
+    if: github.event.inputs.confirm == 'DEPLOY_PRODUCTION_WORKER_ONLY'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SCOPES: ${{ secrets.SCOPES }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Require production-only credentials and identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL DIRECT_URL SHOPIFY_API_SECRET SHOPIFY_API_KEY SHOPIFY_APP_URL SCOPES
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          EXPECTED_CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+
+          if [ "$SHOPIFY_API_KEY" != "$EXPECTED_CLIENT_ID" ]; then
+            echo "Refusing production Worker deploy with a non-production Shopify client ID." >&2
+            exit 1
+          fi
+
+          if [ "$SHOPIFY_APP_URL" != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" ]; then
+            echo "Refusing production Worker deploy for an unexpected target URL." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate prepared production cutover contract
+        run: python scripts/cloudflare/validate_production_cutover_contract.py
+
+      - name: Validate Prisma and require clean production migration status
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma validate
+          npx prisma migrate status
+
+      - name: Build production Worker
+        run: npm run build
+
+      - name: Create ephemeral production secrets file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          payload = {
+              "DATABASE_URL": os.environ["DATABASE_URL"],
+              "DIRECT_URL": os.environ["DIRECT_URL"],
+              "SHOPIFY_API_SECRET": os.environ["SHOPIFY_API_SECRET"],
+          }
+          with open("/tmp/vsn-metafields-production-secrets.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle)
+          PY
+          chmod 600 /tmp/vsn-metafields-production-secrets.json
+
+      - name: Deploy isolated Cloudflare production Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.141.0 deploy \
+            --config wrangler.production.jsonc \
+            --secrets-file /tmp/vsn-metafields-production-secrets.json \
+            --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY" \
+            --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL" \
+            --var "SCOPES:$SCOPES" \
+            --var "NODE_ENV:production"
+
+      - name: Verify production Worker before Shopify cutover
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          expected_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
+          if os.environ["SHOPIFY_APP_URL"] != expected_url:
+              raise SystemExit("production Worker URL mismatch")
+
+          with urllib.request.urlopen(expected_url + "/healthz", timeout=20) as response:
+              if response.status != 200:
+                  raise SystemExit(f"unexpected production health status: {response.status}")
+              payload = json.loads(response.read().decode("utf-8"))
+
+          expected_plan = {
+              "id": "pro-plan",
+              "amount": 55,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 5,
+          }
+          if payload.get("ok") is not True or payload.get("plan") != expected_plan:
+              raise SystemExit(f"production Worker health contract mismatch: {payload!r}")
+
+          print("production_worker_prepared=pass")
+          print("production_shopify_cutover_performed=false")
+          PY
+
+      - name: Remove ephemeral production secrets file
+        if: always()
+        run: rm -f /tmp/vsn-metafields-production-secrets.json
