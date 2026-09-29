@@ -1,54 +1,6 @@
-import { useLoaderData, useFetcher } from "react-router";
+import { useFetcher, useLocation } from "react-router";
 import { useEffect } from "react";
-import { authenticate } from "../shopify.server";
 import { PRO_PLAN } from "../billing-config";
-
-// ─── Loader: reuse status API logic directly ──────────────────────────────────
-export const loader = async ({ request }) => {
-  const url = new URL(request.url);
-  const chargeId = url.searchParams.get("charge_id");
-
-  // authenticate.admin handles the session exchange automatically
-  const { admin } = await authenticate.admin(request);
-
-  //console.log("PACKAGES SHOP:", session?.shop);
-  //console.log("CHARGE ID:", chargeId); // confirm it's being received
-
-  // Small delay if charge_id present — Shopify needs a moment to activate
-  if (chargeId) {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-  }
-
-  const res = await admin.graphql(`
-    #graphql
-    query {
-      currentAppInstallation {
-        activeSubscriptions {
-          id name status test currentPeriodEnd trialDays
-        }
-      }
-    }
-  `);
-
-  const data = await res.json();
-  const activeSubscriptions =
-    data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
-
-  const isProductionBilling =
-    process.env.APP_ENV === "production" ||
-    process.env.NODE_ENV === "production";
-
-  const validSubscriptions = isProductionBilling
-    ? activeSubscriptions.filter((sub) => !sub.test)
-    : activeSubscriptions;
-
-  const subscription =
-    validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
-
-  //console.log("PACKAGES SUBSCRIPTION:", subscription);
-
-  return { subscription, chargeId };
-}
 
 export default function PackagesPage() {
   const statusFetcher = useFetcher();
