@@ -50,13 +50,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in DATABASE_URL DIRECT_URL
+          for name in DATABASE_URL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
               exit 1
             fi
           done
+
+      - name: Resolve production Neon direct URL
+        run: python scripts/database/resolve-production-neon-urls.py
 
       - name: Verify isolated production Neon identity
         shell: bash

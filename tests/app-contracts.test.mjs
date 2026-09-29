@@ -446,7 +446,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(deploy, /SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a/);
   assert.match(deploy, /SHOPIFY_APP_URL: https:\/\/vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev/);
   assert.match(deploy, /SCOPES: read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders/);
-  assert.match(deploy, /for name in CLOUDFLARE_API_TOKEN DATABASE_URL DIRECT_URL SHOPIFY_API_SECRET/);
+  assert.match(deploy, /resolve-production-neon-urls\.py/);
+  assert.match(deploy, /for name in CLOUDFLARE_API_TOKEN DATABASE_URL SHOPIFY_API_SECRET/);
+  assert.doesNotMatch(deploy, /for name in CLOUDFLARE_API_TOKEN DATABASE_URL DIRECT_URL SHOPIFY_API_SECRET/);
   assert.doesNotMatch(deploy, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.doesNotMatch(deploy, /secrets\.SHOPIFY_API_KEY/);
   assert.doesNotMatch(deploy, /secrets\.SHOPIFY_APP_URL/);
@@ -483,6 +485,20 @@ test("production cutover package preserves Shopify identity, billing, database, 
   }
 });
 
+test("production Neon pooled URL safely derives the direct URL", () => {
+  const resolver = read("scripts/database/resolve-production-neon-urls.py");
+
+  assert.match(resolver, /DATABASE_URL/);
+  assert.match(resolver, /DIRECT_URL/);
+  assert.match(resolver, /TARGET_DIRECT_URL/);
+  assert.match(resolver, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
+  assert.match(resolver, /removesuffix\("-pooler"\)/);
+  assert.match(resolver, /replace\("-pooler\.", "\.", 1\)/);
+  assert.match(resolver, /::add-mask::/);
+  assert.match(resolver, /GITHUB_ENV/);
+  assert.match(resolver, /Production|Neon|production_neon_endpoint_id/);
+});
+
 test("production Neon provisioning is manual, isolated, and schema-only", () => {
   const workflow = read(".github/workflows/production-neon-provisioning.yml");
 
@@ -492,6 +508,9 @@ test("production Neon provisioning is manual, isolated, and schema-only", () => 
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /resolve-production-neon-urls\.py/);
+  assert.match(workflow, /for name in DATABASE_URL/);
+  assert.doesNotMatch(workflow, /for name in DATABASE_URL DIRECT_URL/);
   assert.match(workflow, /EXPECTED_PRODUCTION_ENDPOINT_ID/);
   assert.match(workflow, /production_project_provisioned/);
   assert.match(workflow, /production_endpoint_id/);
@@ -548,7 +567,9 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
   assert.match(workflow, /SUPABASE_SOURCE_DATABASE_URL/);
+  assert.match(workflow, /resolve-production-neon-urls\.py/);
   assert.match(workflow, /TARGET_DIRECT_URL/);
+  assert.doesNotMatch(workflow, /SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL/);
   assert.match(workflow, /EXPECTED_SOURCE_SESSION_COUNT/);
   assert.match(workflow, /production_schema_provisioned/);
   assert.match(workflow, /production_session_credentials_logged=false/);
@@ -589,6 +610,9 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(acceptance, /github\.ref == 'refs\/heads\/main'/);
   assert.match(acceptance, /ref: main/);
   assert.match(acceptance, /environment: cloudflare-production/);
+  assert.match(acceptance, /resolve-production-neon-urls\.py/);
+  assert.match(acceptance, /for name in DATABASE_URL/);
+  assert.doesNotMatch(acceptance, /for name in DATABASE_URL DIRECT_URL/);
   assert.match(acceptance, /prisma migrate status/);
   assert.doesNotMatch(acceptance, /prisma migrate deploy/);
   assert.match(acceptance, /prisma\.session\.count\(\)/);
@@ -686,4 +710,5 @@ test("production cutover preflight watches runtime-critical release paths", () =
   assert.match(workflow, /production-neon-provisioning\.yml/);
   assert.match(workflow, /production-session-migration\.yml/);
   assert.match(workflow, /migrate-production-sessions\.mjs/);
+  assert.match(workflow, /resolve-production-neon-urls\.py/);
 });

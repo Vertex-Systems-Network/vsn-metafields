@@ -32,6 +32,7 @@ jobs:
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
       PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production
+      EXPECTED_PRODUCTION_ENDPOINT_ID: ep-flat-mouse-b5z1wu54
       SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
 
     steps:
@@ -40,6 +41,9 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+
+      - name: Resolve production Neon direct URL
+        run: python scripts/database/resolve-production-neon-urls.py
 
       - name: Require immutable production source evidence
         shell: bash
@@ -133,7 +137,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in DATABASE_URL DIRECT_URL
+          for name in DATABASE_URL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
