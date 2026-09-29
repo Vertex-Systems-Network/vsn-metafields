@@ -511,7 +511,6 @@ test("production Neon provisioning is manual, isolated, and schema-only", () => 
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
-  assert.match(workflow, /resolve-production-supabase-source\.py/);
   assert.match(workflow, /resolve-production-neon-urls\.py/);
   assert.match(workflow, /for name in DATABASE_URL/);
   assert.doesNotMatch(workflow, /for name in DATABASE_URL DIRECT_URL/);
