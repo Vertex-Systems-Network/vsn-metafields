@@ -1,6 +1,7 @@
-import { Outlet, useLoaderData, useRouteError } from "react-router";
+import { Link, Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
+import { NavMenu } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { createPrismaClient } from "../db.server";
 
@@ -105,10 +106,10 @@ export default function App() {
 
   return (
     <AppProvider embedded apiKey={apiKey}>
-      <s-app-nav>
-        <s-link href="/app" rel="home">Options</s-link>
-        <s-link href="/app/packages">Packages</s-link>
-      </s-app-nav>
+      <NavMenu>
+        <Link to="/app" rel="home">Options</Link>
+        <Link to="/app/packages">Packages</Link>
+      </NavMenu>
       <Outlet />
     </AppProvider>
   );
