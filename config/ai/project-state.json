@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Fresh Production Session Migration run 36641165741 on protected main 33237ec24ea3b355d23759bae9dcc888d5a034b5 executed the canonical IPv4 Supabase Session Pooler resolver successfully, passed Neon endpoint/schema preflights, and failed before any writes with 'self-signed certificate in certificate chain' while source.connect() used current Node pg semantics.",
-  "next_valid_work_unit": "Merge the Supabase pooler TLS compatibility fix that keeps SSL required while opting into standard libpq require semantics via uselibpqcompat=true. Then run a fresh Production Session Migration from current main with expected_source_session_count=4 and verify source connect, audited fingerprint, transactional copy, full-row digest, and independent Neon count=4.",
+  "last_verified_completion": "Fresh Production Session Migration run 36641823576 on protected main cb49542486ad613ec072e244a104c2d037fc661c passed canonical pooler resolution, Neon endpoint/schema preflights, and TLS negotiation. It then failed before any Neon writes with 'tenant/user postgres.kqwlohmfyobsdsdekjzl not found'. Supabase-side logs confirmed the request reached Supavisor in ap-southeast-2 session mode for project kqwlohmfyobsdsdekjzl, while the same project also has active PgBouncer traffic.",
+  "next_valid_work_unit": "Merge the bounded Supabase route fallback. A fresh migration will derive masked original/dedicated/shared transaction/shared session/direct candidates, and accept a source only after required Session schema, exact 4-row count, 4 access tokens, and pinned Session-ID fingerprint all pass. Neon target connection/transaction starts only after source audit succeeds.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "supabase_pooler_tls_compatibility_fix_pending",
-  "security_readiness": "tls_required_source_target_unchanged_no_session_writes",
+  "qa_readiness": "bounded_supabase_route_fallback_pending",
+  "security_readiness": "source_candidates_masked_fingerprint_before_target_write",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Supabase documentation defines sslmode=require as encrypted without CA/hostname verification, while current pg-connection-string treats require as verify-full unless uselibpqcompat=true. The fix preserves TLS encryption and does not use sslmode=disable. Fresh run 36641165741 wrote no Neon Session rows."
+  "notes": "Run 36641823576 wrote no Neon Session rows. The single hardcoded shared-session pooler assumption is replaced with a bounded route set backed by Supabase API/log evidence. Candidate failures expose only route labels and sanitized error codes; credentials and Session values remain excluded. Full-row digest verification before commit remains unchanged."
 }
