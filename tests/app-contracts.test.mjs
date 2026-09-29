@@ -222,8 +222,10 @@ test("Pro billing configuration stays centralized at 5 trial days and $55 across
 test("packages page avoids duplicate server auth and loads billing status client-side", () => {
   const packages = read("app/routes/app.packages.jsx");
 
+  assert.match(packages, /import \{ useFetcher, useLocation \} from "react-router"/);
   assert.doesNotMatch(packages, /export const loader/);
   assert.doesNotMatch(packages, /authenticate\.admin\(request\)/);
+  assert.doesNotMatch(packages, /useLoaderData/);
   assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
   assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
   assert.match(packages, /actionFetcher\.submit/);
@@ -237,8 +239,8 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
   assert.match(status, /process\.env\.APP_ENV === "production"/);
   assert.match(status, /process\.env\.NODE_ENV === "production"/);
-  assert.match(packages, /process\.env\.APP_ENV === "production"/);
-  assert.match(packages, /process\.env\.NODE_ENV === "production"/);
+  assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
+  assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
   assert.match(status, /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/);
   assert.match(status, /subscription\.id === id && subscription\.status === "ACTIVE"/);
   assert.match(status, /duplicateActivePlan/);
