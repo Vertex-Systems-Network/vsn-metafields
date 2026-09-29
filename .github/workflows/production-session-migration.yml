@@ -72,10 +72,26 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+
+          import json
           import os
+          from pathlib import Path
           from urllib.parse import urlparse
 
-          staging_id = os.environ["STAGING_NEON_ENDPOINT_ID"]
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          database = policy.get("database") or {}
+          staging_id = database.get("staging_endpoint_id")
+          production_id = database.get("production_endpoint_id")
+
+          if database.get("production_project_provisioned") is not True:
+              raise SystemExit("Production Neon project is not certified as provisioned.")
+          if not isinstance(production_id, str) or not production_id.startswith("ep-"):
+              raise SystemExit("Certified production Neon endpoint ID is missing.")
+          if production_id == staging_id:
+              raise SystemExit("Production and staging Neon endpoint IDs must be different.")
+
           database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
           direct_host = urlparse(os.environ["DIRECT_URL"]).hostname or ""
 
@@ -88,13 +104,15 @@ jobs:
           if pooled_id != direct_id:
               raise SystemExit("Production DATABASE_URL and DIRECT_URL must point to the same Neon endpoint.")
           if pooled_id == staging_id:
-              raise SystemExit("Production database must not reuse the certified staging Neon endpoint.")
+              raise SystemExit("Production migration must not use the staging Neon endpoint.")
+          if pooled_id != production_id:
+              raise SystemExit("Production database URLs do not match the repository-certified production Neon endpoint.")
           if "-pooler." not in database_host:
               raise SystemExit("Production DATABASE_URL must use the pooled Neon endpoint.")
           if "-pooler." in direct_host:
               raise SystemExit("Production DIRECT_URL must use the direct Neon endpoint.")
 
-          print("production_neon_identity=distinct_from_staging")
+          print("production_neon_identity=certified_and_distinct")
           print("production_neon_project_name=vsn-metafields-production")
           PY
 
