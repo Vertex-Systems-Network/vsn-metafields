@@ -51,12 +51,25 @@ export const loader = async ({ request }) => {
 }
 
 export default function PackagesPage() {
-  const { subscription } = useLoaderData();
-  const fetcher = useFetcher();
+  const statusFetcher = useFetcher();
+  const actionFetcher = useFetcher();
+  const location = useLocation();
 
-  const isProActive = subscription?.name === "pro-plan" && subscription?.status === "ACTIVE";
-  const isLoading = fetcher.state !== "idle";
-  const result = fetcher.data;
+  useEffect(() => {
+    statusFetcher.load(`/app/api/status${location.search}`);
+  }, [location.search]);
+
+  const subscriptions = statusFetcher.data?.subscriptions ?? [];
+  const subscription =
+    subscriptions.find((sub) => sub.status === "ACTIVE") || null;
+
+  const isProActive =
+    subscription?.name === "pro-plan" &&
+    subscription?.status === "ACTIVE";
+  const isLoading =
+    statusFetcher.state !== "idle" ||
+    actionFetcher.state !== "idle";
+  const result = actionFetcher.data;
 
   // Redirect to Shopify billing confirmation page
   useEffect(() => {
@@ -82,7 +95,7 @@ export default function PackagesPage() {
     formData.set("host", params.get("host") ?? "");
     formData.set("shop", params.get("shop") ?? "");
 
-    fetcher.submit(formData, {
+    actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/status${window.location.search}`,
     });
@@ -93,7 +106,7 @@ export default function PackagesPage() {
     const formData = new FormData();
     formData.set("actionType", "cancel");
     formData.set("id", subscription?.id);
-    fetcher.submit(formData, {
+    actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/status${window.location.search}`,
     });
@@ -101,6 +114,16 @@ export default function PackagesPage() {
 
   return (
     <s-page heading="Packages">
+
+      {statusFetcher.state === "loading" && !statusFetcher.data && (
+        <s-banner tone="info">Checking subscription status...</s-banner>
+      )}
+
+      {statusFetcher.data && !statusFetcher.data.ok && (
+        <s-banner tone="critical">
+          {statusFetcher.data.error || "Failed to load subscription status."}
+        </s-banner>
+      )}
 
       {result?.error && (
         <s-banner tone="critical">{result.error}</s-banner>
