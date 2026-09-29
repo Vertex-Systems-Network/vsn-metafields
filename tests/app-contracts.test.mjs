@@ -573,10 +573,14 @@ test("production Supabase source requires the exact Connect-dialog pooler URL", 
   assert.match(resolver, /sslmode=require&uselibpqcompat=true/);
   assert.match(resolver, /remainder\.rsplit\("@", 1\)/);
   assert.match(resolver, /raw_userinfo\.split\(":", 1\)/);
+  assert.match(resolver, /password_candidates = \[\("raw_literal", raw_password\)\]/);
+  assert.match(resolver, /decoded_password = unquote\(raw_password\)/);
+  assert.match(resolver, /percent_decoded/);
   assert.match(resolver, /quote\(password, safe=""\)/);
-  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_1=/);
-  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_COUNT=1/);
-  assert.match(resolver, /exact_supabase_connect_pooler/);
+  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_/);
+  assert.match(resolver, /SOURCE_DATABASE_URL_CANDIDATE_COUNT=/);
+  assert.match(resolver, /exact_supabase_connect_pooler_/);
+  assert.match(resolver, /production_supabase_password_interpretations=/);
   assert.match(resolver, /::add-mask::/);
   assert.doesNotMatch(resolver, /aws-0-ap-southeast-2\.pooler\.supabase\.com/);
   assert.doesNotMatch(resolver, /sslmode=disable/);
