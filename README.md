@@ -14,8 +14,8 @@
 - **History-hygiene tooling:** committed — purge runbook, read-only audit script, repository-bound + expected-main + exact-ref-allowlist guarded local-mirror helper, synthetic safety tests, machine-enforced ref-retirement policy + SHA-bound private freeze guard + non-executable administrator maintenance bundle + tree-preserving post-rewrite certifier + SHA-bound non-main ref retirement executor
 - **Active P0 blocker:** none — protected project history rewrite is complete and ruleset protections are restored
 - **PHASE-00 progress:** 100% complete
-- **PHASE-01 progress:** 3/6 work units complete; work unit 4 staging auth validation active
-- **Active work:** Issue #4 — Cloudflare staging auth is working; embedded navigation and 15-day trial consistency are being finalized; no production cutover authorized
+- **PHASE-01 progress:** 4/6 work units complete; production release-candidate preflight is next
+- **Active work:** Issue #4 — isolated Cloudflare staging is fully green; prepare/certify the production release candidate without deploying or cutting over live Shopify URLs
 
 The protected project history has been rewritten and `main` is the sole live branch. The application tree was preserved exactly across the rewrite. AI Native Quality Gates now perform a normal fresh clone of `main`, require zero reachable accidental `..git/` paths, and run `git fsck --full`. GitHub-managed `refs/pull/*` retain legacy PR snapshots outside normal project branch/tag control; that platform-side dereference/GC item is tracked separately and is not treated as a live project-ref blocker.
 
@@ -25,8 +25,8 @@ Prisma Worker runtime: Prisma `6.19.3` now uses the engine-less client with `@pr
 
 Workerd runtime: CI now boots the full React Router app inside the Cloudflare Workers runtime and separately proves PrismaPg + Shopify PrismaSessionStorage store/load/delete behavior against isolated PostgreSQL. Staging deployment is manual-only and production Shopify URLs remain on Railway.
 
-Cloudflare staging auth root cause: the fresh Neon schema is migrated and reachable, but Shopify's Prisma session adapter begins its readiness query when `PrismaSessionStorage` is constructed at module scope. Cloudflare Workers forbid database/network I/O outside a request context, so the adapter reports a misleading missing-session-table error even while request-time Prisma counts succeed. The current candidate moves Prisma/session database work into request-scoped operations and disconnects after each operation.
+Cloudflare staging auth: fully verified on the isolated staging app/store. Shopify now requires expiring offline access tokens for Admin API access; `future.expiringOfflineAccessTokens` is enabled, session refresh fields are present, and staging Admin GraphQL plus subscription reads pass.
 
-Billing invariant: the Pro plan trial is centrally defined as 15 days and contract-tested so API creation and package UI cannot silently drift apart.
+Billing invariant: the Pro plan is centrally defined as USD 55 every 30 days with a 5-day trial and contract-tested so API creation, health metadata, and package UI cannot silently drift apart.
 
 Shopify staging version safety: the dedicated staging app identity is no longer represented by the production client ID in source control. A guarded manual workflow can create an unreleased staging Shopify app version using the staging app automation token, verify the staging client ID differs from production, and carry the required app/uninstalled, app/scopes_update, and compliance webhook subscriptions before any manual release.
