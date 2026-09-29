@@ -481,3 +481,18 @@ test("expiring offline Shopify tokens are enabled for public Admin API access", 
   assert.match(schema, /refreshToken\s+String\?/);
   assert.match(schema, /refreshTokenExpires\s+DateTime\?/);
 });
+
+
+test("production cutover preflight watches runtime-critical release paths", () => {
+  const workflow = read(".github/workflows/production-cutover-contract.yml");
+
+  assert.match(workflow, /app\/shopify\.server\.js/);
+  assert.match(workflow, /app\/billing-config\.js/);
+  assert.match(workflow, /app\/db\.server\.js/);
+  assert.match(workflow, /app\/prisma-session-storage\.server\.js/);
+  assert.match(workflow, /prisma\/schema\.prisma/);
+  assert.match(workflow, /prisma\/migrations\/\*\*/);
+  assert.match(workflow, /package\.json/);
+  assert.match(workflow, /package-lock\.json/);
+  assert.match(workflow, /workers\/\*\*/);
+});
