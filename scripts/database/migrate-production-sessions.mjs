@@ -238,7 +238,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+try {
+  await main();
+} catch (error) {
   console.error(`production_session_migration=fail: ${error.message}`);
   process.exitCode = 1;
-});
+}

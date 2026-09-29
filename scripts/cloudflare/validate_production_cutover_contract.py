@@ -222,6 +222,8 @@ def main() -> int:
     require("EXPECTED_SOURCE_ID_DIGEST" in session_migration_script, "session migration script must verify audited source Session identity")
     require("sourceTokenCount" in session_migration_script, "session migration script must verify source access-token coverage")
     require("sourceIdDigest" in session_migration_script, "session migration script must verify source Session fingerprint")
+    require("await main()" in session_migration_script, "session migration entrypoint must await completion")
+    require("main().catch" not in session_migration_script, "session migration must not allow unresolved async completion")
     require("DATABASE_URL" in neon_url_resolver, "Neon URL resolver must consume pooled DATABASE_URL")
     require("DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export DIRECT_URL")
     require("TARGET_DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export migration target URL")

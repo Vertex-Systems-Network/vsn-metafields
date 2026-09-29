@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "API/DB preflight verified Supabase project kqwlohmfyobsdsdekjzl ACTIVE_HEALTHY with 4 Session rows and 4 access tokens; Neon project nameless-breeze-35836648 is reachable with 0 Session rows. Production Session Migration run 36638708646 then failed before writes only because the source secret host did not match the hard-coded Supabase hostname formats.",
-  "next_valid_work_unit": "Merge the fingerprint-first source validation fix, then rerun Production Session Migration with expected_source_session_count=4. The source URL only needs to be PostgreSQL; source identity is certified by required Session schema, exact count, 4 access tokens, and the pinned audited Session-ID SHA-256 before any Neon transaction begins.",
+  "last_verified_completion": "API checks confirmed Supabase source healthy with 4 sessions/4 access tokens and Neon production healthy with 0 sessions. After the fingerprint-first fix, rerun attempt 2 of workflow 36638708646 showed every GitHub step green but Neon still had 0 rows. Logs proved checkout used main d4eeed2ef2a37e24bb9676ee973c01f4af9b364e and the migration command exited in ~70ms without emitting its success evidence. Root cause: the ESM script invoked main().catch(...) without top-level await, allowing Node to exit before async database work completed.",
+  "next_valid_work_unit": "Merge the awaited-entrypoint fix, then rerun the same guarded Production Session Migration. Require actual script evidence production_session_migration=pass and production_session_rows_copied=4, then independently confirm Neon Session count=4 before certifying session_migration_completed=true.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "api_preflight_green_source_host_gate_removal_pending",
-  "security_readiness": "source_identity_bound_to_audited_session_fingerprint_before_write",
+  "qa_readiness": "awaited_session_migration_entrypoint_fix_pending",
+  "security_readiness": "apis_green_no_target_rows_async_exit_bug_identified",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36638708646 made no Neon writes. API checks prove both source and target services healthy. The brittle source hostname restriction is removed because the encrypted GitHub secret uses a connection form not represented by our provider patterns; safety is retained by PostgreSQL URL validation plus audited Session schema/count/token/fingerprint checks before transaction begin."
+  "notes": "A green GitHub job is not being treated as migration success because independent Neon verification remained 0 rows. The script is changed to top-level await main(), making Node remain alive until the source fingerprint, transaction, upserts, full-row digest verification, commit, and success evidence are complete."
 }
