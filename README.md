@@ -15,11 +15,11 @@
 - **Active P0 blocker:** none — protected project history rewrite is complete and ruleset protections are restored
 - **PHASE-00 progress:** 100% complete
 - **PHASE-01 progress:** 5/6 work units complete; production preflight certified
-- **Active work:** Issue #4 — production execution is SHA-bound and ready; next is separately authorized isolated Cloudflare production Worker deploy + independent acceptance while Shopify live URLs remain on Railway
+- **Active work:** Issue #4 — migrate the 4 audited production Shopify Session rows from restored Supabase into Neon, certify row integrity, then resume isolated Cloudflare production Worker deploy + independent acceptance while Shopify live URLs remain on Railway
 
 The protected project history has been rewritten and `main` is the sole live branch. The application tree was preserved exactly across the rewrite. AI Native Quality Gates now perform a normal fresh clone of `main`, require zero reachable accidental `..git/` paths, and run `git fsck --full`. GitHub-managed `refs/pull/*` retain legacy PR snapshots outside normal project branch/tag control; that platform-side dereference/GC item is tracked separately and is not treated as a live project-ref blocker.
 
-Cloudflare migration safety: the existing Shopify app identity, paid subscriptions, Railway production URL, and PostgreSQL-backed Prisma session store remain unchanged during staging preparation. The repository now carries a staging-only Wrangler baseline and a CI dry-run/invariant gate before any Cloudflare deployment is allowed.
+Cloudflare migration safety: the existing Shopify app identity, paid subscriptions, and Railway production URL remain unchanged during preparation. The final live database target is Neon PostgreSQL. The restored Supabase database is treated only as the authoritative migration source for the 4 audited production Shopify Session rows. A guarded one-time workflow performs transactional Supabase-to-Neon upsert plus full-row integrity verification without logging session values; production Worker deployment fails closed until that migration is separately certified complete.
 
 Prisma Worker runtime: Prisma `6.19.3` now uses the engine-less client with `@prisma/adapter-pg`; the existing Shopify `PrismaSessionStorage` contract and PostgreSQL Session schema are unchanged. CI proves a real session store/load/delete round-trip through the adapter.
 
