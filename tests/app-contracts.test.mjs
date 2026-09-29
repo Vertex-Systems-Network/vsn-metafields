@@ -102,6 +102,23 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.doesNotMatch(releaseWorkflow, /trigger_webhook "app\/scopes_update"/);
 });
 
+test("public health contract exposes only deployment-safe plan metadata", () => {
+  const health = read("app/routes/healthz.jsx");
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+
+  assert.match(health, /PRO_PLAN/);
+  assert.match(health, /service:\s*"vsn-metafields"/);
+  assert.match(health, /amount:\s*PRO_PLAN\.amount/);
+  assert.match(health, /trialDays:\s*PRO_PLAN\.trialDays/);
+  assert.match(health, /Cache-Control/);
+  assert.doesNotMatch(health, /DATABASE_URL|SHOPIFY_API_SECRET|session|accessToken/);
+
+  assert.match(workflow, /\/healthz/);
+  assert.match(workflow, /"amount": 55/);
+  assert.match(workflow, /"trialDays": 5/);
+  assert.match(workflow, /staging_runtime_health=pass/);
+});
+
 test("Cloudflare staging deploy stays isolated and auto-deploys only runtime changes", () => {
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
 
