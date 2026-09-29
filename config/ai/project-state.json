@@ -4,22 +4,22 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-cloudflare-subscription-safe-migration",
-  "last_verified_completion": "Local development is end-to-end operational: dedicated VSN Metafields Development Shopify app, local-testing dev store, isolated local PostgreSQL database, authenticated embedded navigation, Packages page, and a 5-day/$55 Shopify test subscription verified ACTIVE by the user.",
-  "next_valid_work_unit": "Continue normal product development on development/local-testing with no automatic staging or production deployment. Deploy development to staging only by explicit manual dispatch when the user wants remote validation; production deployment and Shopify live cutover remain separately gated.",
+  "last_verified_completion": "Cloudflare staging validation is fully green on the isolated staging Shopify app/store: Worker health, 5-day/$55 billing metadata, PostgreSQL sessions, expiring offline token auth, Admin GraphQL, and activeSubscriptions read all passed. Production Shopify URLs remain on Railway.",
+  "next_valid_work_unit": "Prepare and certify the production release candidate through a development-to-main PR and production dry-run only. Do not deploy the production Worker or change Shopify live URLs without separate explicit authorization.",
   "progress": {
     "total_work_units": 6,
-    "complete": 5,
+    "complete": 4,
     "in_progress": 1,
     "blocked": 0,
-    "deferred": 0,
+    "deferred": 1,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Continue product development on the development branch and local-testing store.",
-    "Use manual development-to-staging deployment only when remote staging validation is requested.",
-    "Promote development to main only through an intentional release PR.",
-    "Keep production deploy and Shopify live cutover separately manual/authorization-gated."
+    "Create an intentional development-to-main release-candidate PR and require all validation/preflight checks to pass.",
+    "Certify the production Worker package with build, Prisma migration-status checks, production cutover invariants, and Wrangler dry-run.",
+    "Keep the actual production Worker deploy manual and separately authorized.",
+    "Keep the Shopify Railway-to-Cloudflare live URL cutover separately authorization-gated after independent production Worker verification."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -29,9 +29,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "local_development_end_to_end_green_test_billing_active",
-  "security_readiness": "local_staging_production_isolated_manual_promotion_only",
-  "last_reconciled_repository_ref": "884486e82855e63907fbe62e501a9b1186dad041",
-  "last_reconciled_at": "2026-09-29T14:15:00+00:00",
-  "notes": "Local development is fully isolated and verified through an ACTIVE Shopify test subscription at 5 trial days and $55/month. React Router 7.18 reverse-proxy action-origin handling is configured only for the current local trycloudflare tunnel. No live Shopify app, merchant subscription, Railway service, or production URL was changed."
+  "qa_readiness": "cloudflare_staging_end_to_end_green_expiring_offline_tokens",
+  "security_readiness": "staging_certified_production_release_not_authorized_railway_live",
+  "last_reconciled_repository_ref": "3981bc19b05cfcc6d0e2068816ceddfe320576a2",
+  "last_reconciled_at": "2026-09-29T17:21:45+00:00",
+  "notes": "Isolated Cloudflare staging passed runtime health, the 5-day/$55 plan contract, staging shop auto-resolution, offline session availability, Shopify Admin GraphQL, and subscription reads after enabling Shopify expiring offline access tokens. Production app identity, production merchant subscriptions, Railway service, and Shopify live URLs remain unchanged."
 }
