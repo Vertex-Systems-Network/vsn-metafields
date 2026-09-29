@@ -132,6 +132,7 @@ def main() -> int:
     require(database.get("staging_project_rename_pending") is True, "staging Neon rename state must remain explicit until renamed")
     require(database.get("staging_endpoint_id") == "ep-snowy-surf-b3gxl2wf", "certified staging Neon endpoint drifted")
     require(database.get("production_project_name") == "vsn-metafields-production", "production Neon project name drifted")
+    require(database.get("production_project_id") == "nameless-breeze-35836648", "production Neon project ID drifted")
     require(database.get("provisioning_workflow") == "production-neon-provisioning.yml", "production Neon provisioning workflow drifted")
     require(isinstance(database.get("production_schema_provisioned"), bool), "production Neon schema provisioning state missing")
     require(database.get("require_empty_session_store_before_migration") is True, "production Neon must require empty Session store before migration")
@@ -147,6 +148,10 @@ def main() -> int:
         require(
             production_endpoint_id != database.get("staging_endpoint_id"),
             "production Neon endpoint must differ from staging",
+        )
+        require(
+            production_endpoint_id == "ep-flat-mouse-b5z1wu54",
+            "production Neon endpoint certification drifted",
         )
     else:
         require(production_endpoint_id is None, "unprovisioned production Neon endpoint must remain unset")
