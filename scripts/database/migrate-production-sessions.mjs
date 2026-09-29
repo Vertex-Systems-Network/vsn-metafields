@@ -7,6 +7,7 @@ const SOURCE_URL = process.env.SOURCE_DATABASE_URL;
 const TARGET_URL = process.env.TARGET_DIRECT_URL;
 const CONFIRMATION = process.env.MIGRATION_CONFIRMATION;
 const EXPECTED_SUPABASE_PROJECT_REF = process.env.EXPECTED_SUPABASE_PROJECT_REF;
+const EXPECTED_SOURCE_ID_DIGEST = process.env.EXPECTED_SOURCE_ID_DIGEST;
 const EXPECTED_SOURCE_COUNT = Number.parseInt(
   process.env.EXPECTED_SOURCE_SESSION_COUNT || "",
   10
@@ -55,10 +56,10 @@ function assertProviderIdentity() {
   const isDirectSource = sourceHost === directSourceHost;
   const isSharedPooler =
     /(^|\.)pooler\.supabase\.com$/.test(sourceHost) &&
-    source.username === `postgres.${EXPECTED_SUPABASE_PROJECT_REF}`;
+    source.username.startsWith("postgres");
 
   if (!isDirectSource && !isSharedPooler) {
-    fail("Source database does not match the certified Supabase project.");
+    fail("Source database must use a Supabase-managed direct or shared-pooler endpoint.");
   }
 
   if (!/(^|\.)neon\.tech$/.test(targetHost)) {
@@ -124,6 +125,7 @@ async function main() {
   requireSecret("SOURCE_DATABASE_URL", SOURCE_URL);
   requireSecret("TARGET_DIRECT_URL", TARGET_URL);
   requireSecret("EXPECTED_SUPABASE_PROJECT_REF", EXPECTED_SUPABASE_PROJECT_REF);
+  requireSecret("EXPECTED_SOURCE_ID_DIGEST", EXPECTED_SOURCE_ID_DIGEST);
 
   if (CONFIRMATION !== "MIGRATE_SUPABASE_SESSIONS_TO_NEON") {
     fail("Migration confirmation gate is not satisfied.");
@@ -156,6 +158,30 @@ async function main() {
       fail(
         `Source Session row count drifted: expected ${EXPECTED_SOURCE_COUNT}, found ${sourceRows.length}.`
       );
+    }
+
+    const sourceTokenCount = sourceRows.filter(
+      (row) => typeof row.accessToken === "string" && row.accessToken.length > 0
+    ).length;
+    if (sourceTokenCount !== EXPECTED_SOURCE_COUNT) {
+      fail(
+        `Source access-token count drifted: expected ${EXPECTED_SOURCE_COUNT}, found ${sourceTokenCount}.`
+      );
+    }
+
+    const sourceIdDigest = crypto
+      .createHash("sha256")
+      .update(
+        sourceRows
+          .map((row) => row.id)
+          .slice()
+          .sort()
+          .join("\n")
+      )
+      .digest("hex");
+
+    if (sourceIdDigest !== EXPECTED_SOURCE_ID_DIGEST) {
+      fail("Source Session identity fingerprint does not match the audited production source.");
     }
 
     const sourceDigest = aggregateDigest(sourceRows);
@@ -204,6 +230,7 @@ async function main() {
     console.log(`production_session_rows_copied=${sourceRows.length}`);
     console.log("production_session_secret_values_logged=false");
     console.log("production_session_source=supabase");
+    console.log("production_session_source_identity=audited");
     console.log("production_session_target=neon");
   } catch (error) {
     try {

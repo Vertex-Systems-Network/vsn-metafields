@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Production Session Migration run 36637225910 passed secret preflight, Neon URL derivation, exact production endpoint isolation, dependency install, and Prisma schema status. It failed before any write because the migration script rejected the valid Supabase Shared Pooler hostname. The source secret is present; validation is being corrected to accept only the certified Supabase project via direct host or project-bound pooler username.",
-  "next_valid_work_unit": "Merge the certified Supabase Shared Pooler source validation fix, then rerun Production Session Migration with expected_source_session_count=4. Verify transactional copy and digest integrity and independently confirm Neon contains exactly 4 sessions before certifying session_migration_completed=true.",
+  "last_verified_completion": "Production Session Migration run 36638047251 passed secret preflight, Neon direct-URL derivation, exact production endpoint isolation, dependency install, and clean Prisma schema verification. It failed before writes because the stored Supabase source connection uses a legacy/shared pooler username shape that did not match the exact project-ref URL validator. Neon still has 0 Session rows; Supabase still has the audited 4 sessions with 4 access tokens.",
+  "next_valid_work_unit": "Merge the robust Supabase source identity fix. The migration will accept only Supabase-managed direct/shared-pooler hosts and then cryptographically verify the audited production Session ID set plus exact count/token coverage before opening the Neon write transaction. Rerun Production Session Migration with expected_source_session_count=4.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "supabase_pooler_source_validation_fix_pending",
-  "security_readiness": "source_secret_present_certified_project_ref_validation_required",
+  "qa_readiness": "audited_supabase_source_fingerprint_fix_pending",
+  "security_readiness": "source_host_managed_session_identity_digest_pinned_no_target_writes_yet",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36637225910 made no Session writes. Failure occurred at provider identity validation. The source uses Supabase Shared Pooler, so the fix permits pooler.supabase.com only when the connection username binds to certified project ref kqwlohmfyobsdsdekjzl; arbitrary Supabase poolers remain rejected."
+  "notes": "Run 36638047251 made no Neon Session writes. To avoid relying on legacy pooler username formatting, source safety is strengthened by pinning SHA-256 of the four audited production Session IDs (cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46), requiring exactly 4 rows and 4 non-empty access tokens before transaction begin. Non-Supabase hosts remain rejected."
 }

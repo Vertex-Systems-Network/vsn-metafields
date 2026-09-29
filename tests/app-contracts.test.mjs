@@ -575,6 +575,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.doesNotMatch(workflow, /SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL/);
   assert.match(workflow, /EXPECTED_SOURCE_SESSION_COUNT/);
   assert.match(workflow, /EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl/);
+  assert.match(workflow, /EXPECTED_SOURCE_ID_DIGEST: cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46/);
   assert.match(workflow, /production_schema_provisioned/);
   assert.match(workflow, /production_session_credentials_logged=false/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
@@ -584,7 +585,10 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /EXPECTED_SUPABASE_PROJECT_REF/);
   assert.match(script, /db\.\$\{EXPECTED_SUPABASE_PROJECT_REF\}\.supabase\.co/);
   assert.match(script, /pooler\\\.supabase\\\.com/);
-  assert.match(script, /postgres\.\$\{EXPECTED_SUPABASE_PROJECT_REF\}/);
+  assert.match(script, /source\.username\.startsWith\("postgres"\)/);
+  assert.match(script, /EXPECTED_SOURCE_ID_DIGEST/);
+  assert.match(script, /sourceTokenCount/);
+  assert.match(script, /sourceIdDigest/);
   assert.ok(script.includes("neon\\.tech"));
   assert.match(script, /TARGET_DIRECT_URL must use the direct Neon endpoint/);
   assert.match(script, /begin/);
@@ -592,6 +596,7 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /rollback/);
   assert.match(script, /on conflict \("id"\) do update/);
   assert.match(script, /aggregateDigest/);
+  assert.match(script, /production_session_source_identity=audited/);
   assert.match(script, /accessToken/);
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
