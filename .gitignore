@@ -36,3 +36,6 @@ database.sqlite
 # Cloudflare local/runtime state and secrets
 .wrangler/
 .dev.vars*
+
+# Local Shopify development app config must stay machine-local
+shopify.app.local.toml

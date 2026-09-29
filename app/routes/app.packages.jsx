@@ -1,59 +1,29 @@
-import { useLoaderData, useFetcher } from "react-router";
+import { useFetcher, useLocation } from "react-router";
 import { useEffect } from "react";
-import { authenticate } from "../shopify.server";
 import { PRO_PLAN } from "../billing-config";
 
-// ─── Loader: reuse status API logic directly ──────────────────────────────────
-export const loader = async ({ request }) => {
-  const url = new URL(request.url);
-  const chargeId = url.searchParams.get("charge_id");
-
-  // authenticate.admin handles the session exchange automatically
-  const { admin } = await authenticate.admin(request);
-
-  //console.log("PACKAGES SHOP:", session?.shop);
-  //console.log("CHARGE ID:", chargeId); // confirm it's being received
-
-  // Small delay if charge_id present — Shopify needs a moment to activate
-  if (chargeId) {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-  }
-
-  const res = await admin.graphql(`
-    #graphql
-    query {
-      currentAppInstallation {
-        activeSubscriptions {
-          id name status test currentPeriodEnd trialDays
-        }
-      }
-    }
-  `);
-
-  const data = await res.json();
-  const activeSubscriptions =
-    data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
-
-  const validSubscriptions =
-    process.env.NODE_ENV === "production"
-      ? activeSubscriptions.filter((sub) => !sub.test)
-      : activeSubscriptions;
-
-  const subscription =
-    validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
-
-  //console.log("PACKAGES SUBSCRIPTION:", subscription);
-
-  return { subscription, chargeId };
-}
-
 export default function PackagesPage() {
-  const { subscription } = useLoaderData();
-  const fetcher = useFetcher();
+  const statusFetcher = useFetcher();
+  const actionFetcher = useFetcher();
+  const location = useLocation();
 
-  const isProActive = subscription?.name === "pro-plan" && subscription?.status === "ACTIVE";
-  const isLoading = fetcher.state !== "idle";
-  const result = fetcher.data;
+  useEffect(() => {
+    if (statusFetcher.state === "idle" && !statusFetcher.data) {
+      statusFetcher.load(`/app/api/status${location.search}`);
+    }
+  }, [location.search, statusFetcher.state, statusFetcher.data]);
+
+  const subscriptions = statusFetcher.data?.subscriptions ?? [];
+  const subscription =
+    subscriptions.find((sub) => sub.status === "ACTIVE") || null;
+
+  const isProActive =
+    subscription?.name === "pro-plan" &&
+    subscription?.status === "ACTIVE";
+  const isLoading =
+    statusFetcher.state !== "idle" ||
+    actionFetcher.state !== "idle";
+  const result = actionFetcher.data;
 
   // Redirect to Shopify billing confirmation page
   useEffect(() => {
@@ -79,7 +49,7 @@ export default function PackagesPage() {
     formData.set("host", params.get("host") ?? "");
     formData.set("shop", params.get("shop") ?? "");
 
-    fetcher.submit(formData, {
+    actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/status${window.location.search}`,
     });
@@ -90,7 +60,7 @@ export default function PackagesPage() {
     const formData = new FormData();
     formData.set("actionType", "cancel");
     formData.set("id", subscription?.id);
-    fetcher.submit(formData, {
+    actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/status${window.location.search}`,
     });
@@ -98,6 +68,16 @@ export default function PackagesPage() {
 
   return (
     <s-page heading="Packages">
+
+      {statusFetcher.state === "loading" && !statusFetcher.data && (
+        <s-banner tone="info">Checking subscription status...</s-banner>
+      )}
+
+      {statusFetcher.data && !statusFetcher.data.ok && (
+        <s-banner tone="critical">
+          {statusFetcher.data.error || "Failed to load subscription status."}
+        </s-banner>
+      )}
 
       {result?.error && (
         <s-banner tone="critical">{result.error}</s-banner>
