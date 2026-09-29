@@ -74,8 +74,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="cloudflare-production-cutover-${GITHUB_RUN_NUMBER}"
+          SOURCE_PREFIX="${GITHUB_SHA:0:12}"
+          VERSION="cloudflare-production-cutover-${SOURCE_PREFIX}-${GITHUB_RUN_NUMBER}"
           echo "candidate_version=$VERSION"
+          echo "candidate_source_ref=$GITHUB_SHA"
+          {
+            echo "## Production cutover candidate"
+            echo ""
+            echo "- Version: `$VERSION`"
+            echo "- Source ref: `$GITHUB_SHA`"
+            echo "- Released: **no**"
+          } >> "$GITHUB_STEP_SUMMARY"
           npx --yes @shopify/cli@4.8.2 app deploy \
             --config cloudflare-production \
             --no-release \

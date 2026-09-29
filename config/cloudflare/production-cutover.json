@@ -31,5 +31,8 @@
   "rollback": {
     "keep_railway_available": true,
     "prepared_workflow": "shopify-production-rollback-railway.yml"
-  }
+  },
+  "authorized_version": null,
+  "authorized_source_ref": null,
+  "authorization_record": null
 }

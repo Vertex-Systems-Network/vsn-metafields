@@ -288,6 +288,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(Object.hasOwn(wrangler, "routes"), false);
 
   assert.equal(policy.release_authorized, false);
+  assert.equal(policy.authorized_version, null);
+  assert.equal(policy.authorized_source_ref, null);
+  assert.equal(policy.authorization_record, null);
   assert.equal(policy.shopify.preserve_app_identity, true);
   assert.equal(policy.shopify.merchant_reinstall_allowed, false);
   assert.equal(policy.billing.mutate_during_cutover, false);
@@ -305,10 +308,16 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(candidate, /CREATE_PRODUCTION_CUTOVER_VERSION/);
   assert.match(candidate, /--config cloudflare-production/);
   assert.match(candidate, /--no-release/);
+  assert.match(candidate, /SOURCE_PREFIX="\$\{GITHUB_SHA:0:12\}"/);
+  assert.match(candidate, /candidate_source_ref=\$GITHUB_SHA/);
   assert.doesNotMatch(candidate, /app release/);
 
   assert.match(release, /RELEASE_PRODUCTION_CUTOVER/);
   assert.match(release, /release_authorized/);
+  assert.match(release, /authorized_version/);
+  assert.match(release, /authorized_source_ref/);
+  assert.match(release, /authorization_record/);
+  assert.match(release, /cloudflare-production-cutover-/);
   assert.match(release, /--allow-updates/);
   assert.doesNotMatch(release, /--allow-deletes/);
 
