@@ -138,6 +138,10 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(diagnostic, /no_stored_sessions/);
   assert.match(diagnostic, /offline_session_unavailable/);
   assert.match(diagnostic, /admin_graphql_request_failed/);
+  assert.match(diagnostic, /sdk_graphql_failed_direct_probe_passed/);
+  assert.match(diagnostic, /X-Shopify-Access-Token/);
+  assert.match(diagnostic, /directProbe/);
+  assert.doesNotMatch(diagnostic, /accessToken:\s*session\.accessToken/);
   assert.match(diagnostic, /admin_graphql_response_error/);
   assert.match(diagnostic, /activeSubscriptions/);
   assert.doesNotMatch(diagnostic, /appSubscriptionCreate/);
@@ -149,6 +153,7 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(workflow, /staging_admin_graphql=pass/);
   assert.match(workflow, /staging_subscription_read=pass/);
   assert.match(workflow, /staging_acceptance_http_error=/);
+  assert.match(workflow, /"directProbe": diagnostic\.get\("directProbe"\)/);
   assert.match(workflow, /urllib\.error\.HTTPError/);
 });
 
