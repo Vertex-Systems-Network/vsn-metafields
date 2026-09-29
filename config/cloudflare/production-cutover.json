@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "issue": 4,
+  "status": "prepared_not_authorized",
+  "release_authorized": false,
+  "production_worker": {
+    "name": "vsn-metafields-production",
+    "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
+    "public_route_binding": false
+  },
+  "shopify": {
+    "client_id": "f5266ba8dba403005deb695fedad053a",
+    "current_railway_url": "https://vsn-metafields-production.up.railway.app",
+    "target_cloudflare_url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
+    "preserve_app_identity": true,
+    "merchant_reinstall_allowed": false
+  },
+  "billing": {
+    "mutate_during_cutover": false,
+    "status_source": "currentAppInstallation.activeSubscriptions",
+    "forbidden_mutations": [
+      "appSubscriptionCreate",
+      "appSubscriptionCancel"
+    ]
+  },
+  "database": {
+    "provider": "postgresql",
+    "migrate_during_cutover": false,
+    "require_migration_status_clean": true
+  },
+  "rollback": {
+    "keep_railway_available": true,
+    "prepared_workflow": "shopify-production-rollback-railway.yml"
+  }
+}
