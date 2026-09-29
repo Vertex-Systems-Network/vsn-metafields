@@ -45,6 +45,29 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Require verified Neon production session migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          database = policy.get("database") or {}
+          if database.get("provider") != "neon_postgresql":
+              raise SystemExit("Production database provider is not pinned to Neon PostgreSQL.")
+          if database.get("session_migration_required") is not True:
+              raise SystemExit("Production session migration requirement is missing.")
+          if database.get("session_migration_completed") is not True:
+              raise SystemExit(
+                  "Production Supabase-to-Neon session migration is not certified complete."
+              )
+          print("production_neon_session_migration=certified")
+          PY
+
       - name: Require immutable protected-main source
         shell: bash
         run: |

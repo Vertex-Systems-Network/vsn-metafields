@@ -19,6 +19,8 @@ ACCEPTANCE = ROOT / ".github" / "workflows" / "cloudflare-production-acceptance.
 CANDIDATE = ROOT / ".github" / "workflows" / "shopify-production-cutover-version.yml"
 RELEASE = ROOT / ".github" / "workflows" / "shopify-production-cutover-release.yml"
 ROLLBACK = ROOT / ".github" / "workflows" / "shopify-production-rollback-railway.yml"
+SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migration.yml"
+SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
 
 
 class ValidationError(RuntimeError):
@@ -59,6 +61,8 @@ def main() -> int:
     candidate = read(CANDIDATE)
     release = read(RELEASE)
     rollback = read(ROLLBACK)
+    session_migration = read(SESSION_MIGRATION)
+    session_migration_script = read(SESSION_MIGRATION_SCRIPT)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -109,18 +113,45 @@ def main() -> int:
 
     require(billing.get("mutate_during_cutover") is False, "billing mutations must remain forbidden during cutover")
     require(billing.get("status_source") == "currentAppInstallation.activeSubscriptions", "subscription status source drifted")
-    require(database.get("provider") == "postgresql", "first production cutover must retain PostgreSQL")
+    require(database.get("provider") == "neon_postgresql", "production database target must be Neon PostgreSQL")
+    require(database.get("source_provider") == "supabase_postgresql", "production session migration source must remain Supabase PostgreSQL")
     require(database.get("migrate_during_cutover") is False, "production cutover must not apply schema migrations")
     require(database.get("require_migration_status_clean") is True, "production migration status preflight is required")
+    require(database.get("session_migration_required") is True, "production session migration must remain required")
+    require(isinstance(database.get("session_migration_completed"), bool), "production session migration completion state missing")
+    require(database.get("expected_source_session_count") == 4, "audited production source Session count drifted")
+    require(database.get("migration_workflow") == "production-session-migration.yml", "production session migration workflow drifted")
+    require(database.get("runtime_connection") == "pooled", "production Neon runtime must use pooled connection")
+    require(database.get("migration_connection") == "direct", "production Neon migrations must use direct connection")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
-    workflows = [deploy, acceptance, candidate, release, rollback]
+    workflows = [deploy, acceptance, candidate, release, rollback, session_migration]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
         require("--allow-deletes" not in workflow, "Shopify config deletes are forbidden during migration")
 
+    require("workflow_dispatch:" in session_migration and "push:" not in session_migration, "production session migration must remain manual-only")
+    require("MIGRATE_SUPABASE_SESSIONS_TO_NEON" in session_migration, "production session migration confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in session_migration, "production session migration must require protected main")
+    require("ref: main" in session_migration, "production session migration checkout must pin main")
+    require("environment: cloudflare-production" in session_migration, "production session migration environment missing")
+    require("SUPABASE_SOURCE_DATABASE_URL" in session_migration, "Supabase source secret binding missing")
+    require("TARGET_DIRECT_URL" in session_migration, "Neon direct target binding missing")
+    require("EXPECTED_SOURCE_SESSION_COUNT" in session_migration, "audited source Session count binding missing")
+    require("production_session_credentials_logged=false" in session_migration, "migration workflow must record no credential logging")
+    require("production_shopify_cutover_performed=false" in session_migration, "migration must prove no Shopify cutover occurred")
+    require("production_billing_mutation_performed=false" in session_migration, "migration must prove no billing mutation occurred")
+    require("supabase" in session_migration_script.lower(), "session migration script must identify Supabase source")
+    require("neon" in session_migration_script.lower(), "session migration script must identify Neon target")
+    require("begin" in session_migration_script and "commit" in session_migration_script and "rollback" in session_migration_script, "session migration must be transactional")
+    require("aggregateDigest" in session_migration_script, "session migration must verify complete row integrity")
+    require("accessToken" in session_migration_script, "session migration must preserve Shopify access tokens")
+    require("console.log(row" not in session_migration_script, "session migration must not log session rows")
+
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
+    require("session_migration_completed" in deploy, "production Worker deploy must gate on certified session migration")
+    require("production_neon_session_migration=certified" in deploy, "production Worker deploy migration evidence missing")
     require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("source_sha:" in deploy, "production Worker deploy immutable source input missing")

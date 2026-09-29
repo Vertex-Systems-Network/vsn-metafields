@@ -3,23 +3,23 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-worker-deploy-and-acceptance",
-  "last_verified_completion": "PR #107 certified the immutable production runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05 with all required gates green; PR #108 reconciled the control-plane state. The production policy now pins that runtime SHA independently of later documentation/control-plane commits.",
-  "next_valid_work_unit": "After separate explicit production authorization, dispatch Cloudflare Production Prepare from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05. The workflow must prove that SHA is the repository-certified production source and an ancestor of protected main, then deploy that exact detached commit. Run independent Cloudflare Production Acceptance against the same SHA. Keep Shopify production URLs on Railway and release_authorized=false until acceptance is complete.",
+  "current_work_unit": "ISSUE-4-neon-production-session-migration",
+  "last_verified_completion": "Production Worker execution controls are SHA-bound through PR #109. The existing Supabase VSN Metafields project was restored and audited: public Session exists with exactly 4 rows and all 4 retain access tokens. The established Neon-backed staging database is reachable and schema-current, with endpoint evidence from the successful staging deployment.",
+  "next_valid_work_unit": "Provision the cloudflare-production environment with the existing Neon pooled DATABASE_URL, Neon direct DIRECT_URL, and a temporary SUPABASE_SOURCE_DATABASE_URL. Run the guarded Production Session Migration from protected main with expected_source_session_count=4. After transactional row-integrity verification succeeds, record session_migration_completed=true in policy before retrying Cloudflare Production Prepare.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
-    "in_progress": 0,
+    "in_progress": 1,
     "blocked": 0,
-    "deferred": 1,
+    "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "After separate explicit production authorization, run the guarded Cloudflare Production Prepare workflow from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05. If main moves before dispatch, recertify instead of deploying a different SHA.",
-    "Run the independent Cloudflare Production Acceptance workflow against the exact deployed source SHA and verify Worker health, PostgreSQL/Prisma migration status, read-only Session access, and 5-day/USD 55 billing metadata.",
-    "Only after independent production Worker verification, prepare an unreleased Shopify production cutover version and keep release separately authorization-gated.",
-    "After a separately authorized Shopify cutover, verify existing merchant subscriptions and retain Railway through the rollback window."
+    "Complete and certify the one-time Supabase-to-Neon production Session migration for the 4 audited source rows without logging session/access-token values.",
+    "After migration evidence is green, update production policy session_migration_completed=true and recertify protected main while keeping the certified runtime payload separately pinned.",
+    "Run the guarded Cloudflare Production Prepare workflow against the repository-certified runtime SHA using Neon production DATABASE_URL/DIRECT_URL.",
+    "Run independent Cloudflare Production Acceptance, then keep Shopify release separately authorization-gated and Railway available for rollback."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -30,9 +30,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_execution_ready_sha_bound_all_gates_green",
-  "security_readiness": "production_worker_not_deployed_shopify_railway_live_release_unauthorized_sha_bound",
+  "qa_readiness": "neon_production_session_migration_required_before_worker_deploy",
+  "security_readiness": "supabase_source_restored_neon_target_required_worker_deploy_fail_closed",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Isolated staging is fully green. Protected main remains the only production dispatch authority and development is kept aligned by fast-forward reconciliation. The certified production runtime source is c184b25628fc5c59a1110c6fe9ec49e11ce31b05; production deploy/acceptance are policy-bound to that SHA and /healthz exposes the deployed SHA for verification. Documentation/control-plane commits may advance without changing the certified runtime payload. The active production Shopify app still targets Railway, release_authorized remains false, and no production Worker deploy or Shopify live cutover has occurred."
+  "notes": "Final live database decision is Neon PostgreSQL. Supabase is a temporary migration source only. The restored Supabase project contains 4 Shopify Session rows with access tokens, so data migration is mandatory before the production Worker can use Neon without merchant session loss. The migration workflow is manual-only, protected-main-only, transactional, exact-count checked, full-row digest verified, and designed not to log credentials or session rows. Shopify production remains on Railway and release_authorized remains false."
 }
