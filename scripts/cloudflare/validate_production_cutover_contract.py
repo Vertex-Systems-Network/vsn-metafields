@@ -15,6 +15,7 @@ WRANGLER = ROOT / "wrangler.production.jsonc"
 SHOPIFY_CURRENT = ROOT / "shopify.app.toml"
 SHOPIFY_TARGET = ROOT / "shopify.app.cloudflare-production.toml"
 DEPLOY = ROOT / ".github" / "workflows" / "cloudflare-production-deploy.yml"
+ACCEPTANCE = ROOT / ".github" / "workflows" / "cloudflare-production-acceptance.yml"
 CANDIDATE = ROOT / ".github" / "workflows" / "shopify-production-cutover-version.yml"
 RELEASE = ROOT / ".github" / "workflows" / "shopify-production-cutover-release.yml"
 ROLLBACK = ROOT / ".github" / "workflows" / "shopify-production-rollback-railway.yml"
@@ -54,6 +55,7 @@ def main() -> int:
     current = load_toml(SHOPIFY_CURRENT)
     target = load_toml(SHOPIFY_TARGET)
     deploy = read(DEPLOY)
+    acceptance = read(ACCEPTANCE)
     candidate = read(CANDIDATE)
     release = read(RELEASE)
     rollback = read(ROLLBACK)
@@ -106,7 +108,7 @@ def main() -> int:
     require(database.get("require_migration_status_clean") is True, "production migration status preflight is required")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
-    workflows = [deploy, candidate, release, rollback]
+    workflows = [deploy, acceptance, candidate, release, rollback]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
@@ -120,6 +122,26 @@ def main() -> int:
     require("prisma migrate deploy" not in deploy, "production deploy must not apply database migrations")
     require("--config wrangler.production.jsonc" in deploy, "production Wrangler config missing from deploy")
     require(cloudflare_url in deploy, "production deploy must pin expected Cloudflare URL")
+
+    require("workflow_dispatch:" in acceptance and "push:" not in acceptance, "production acceptance must remain manual-only")
+    require("VERIFY_PRODUCTION_WORKER_ONLY" in acceptance, "production acceptance confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in acceptance, "production acceptance must require protected main")
+    require("ref: main" in acceptance, "production acceptance checkout must pin main")
+    require("environment: cloudflare-production" in acceptance, "production acceptance environment missing")
+    require("prisma migrate status" in acceptance, "production acceptance migration-status check missing")
+    require("prisma migrate deploy" not in acceptance, "production acceptance must not apply database migrations")
+    require("prisma.session.count()" in acceptance, "production acceptance must perform a read-only Session table probe")
+    require("production_session_table_read=pass" in acceptance, "production Session table evidence missing")
+    require("production_worker_health=pass" in acceptance, "production Worker health evidence missing")
+    require("production_billing_metadata=pass" in acceptance, "production billing metadata evidence missing")
+    require("production_shopify_live_target=railway" in acceptance, "production acceptance must prove Railway remains live")
+    require("production_release_authorized=false" in acceptance, "production acceptance must prove release remains unauthorized")
+    require("production_shopify_cutover_performed=false" in acceptance, "production acceptance must prove no Shopify cutover occurred")
+    require("production_billing_mutation_performed=false" in acceptance, "production acceptance must prove no billing mutation occurred")
+    require("wrangler" not in acceptance, "production acceptance must never deploy the Worker")
+    require("app release" not in acceptance, "production acceptance must never release Shopify config")
+    require(cloudflare_url in acceptance, "production acceptance must pin expected Cloudflare URL")
+    require(railway_url in acceptance, "production acceptance must pin Railway live URL")
 
     require("CREATE_PRODUCTION_CUTOVER_VERSION" in candidate, "production cutover candidate confirmation missing")
     require("--config cloudflare-production" in candidate, "production Shopify candidate config missing")
