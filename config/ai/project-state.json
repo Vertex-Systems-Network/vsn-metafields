@@ -3,12 +3,12 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-cloudflare-staging-deploy-validation",
-  "last_verified_completion": "Issue #4 self-verifying Cloudflare staging deployment verified on run 36501112790 from protected main 19695fd42932cda4068273bd504d60601b4cfd0f. Cloudflare Version ID 93d792cb-644d-4f10-bb8f-156f799aa917; live /healthz returned staging_runtime_health=pass and staging_billing_contract=5_days_usd_55.",
-  "next_valid_work_unit": "Deploy and execute the signed read-only staging acceptance probe to verify offline session continuity, Admin GraphQL access, and currentAppInstallation.activeSubscriptions without any billing mutation.",
+  "current_work_unit": "ISSUE-4-production-cutover-preparation",
+  "last_verified_completion": "Issue #4 staging acceptance automated on Cloudflare deploy run 36501696634 at protected main 9070675d42e9cb2a98748506ef509c1a138923ea. Cloudflare Version ID 9e302286-fa4b-4e04-a759-b9d749102411; live health and 5-day/$55 billing contract passed; offline Shopify session, Admin GraphQL, and currentAppInstallation.activeSubscriptions reads all passed with 2 stored sessions and 0 active staging subscriptions.",
+  "next_valid_work_unit": "Certify the prepared production cutover package while keeping release_authorized=false. Do not change active Shopify production URLs until an explicit production cutover authorization is recorded.",
   "progress": {
     "total_work_units": 6,
-    "complete": 3,
+    "complete": 4,
     "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
@@ -16,9 +16,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Deploy the signed read-only staging acceptance probe and record session/Admin GraphQL/subscription-read evidence.",
-    "Retain embedded navigation as a separate browser-context acceptance check; static navigation contract remains covered by tests.",
-    "Keep production cutover blocked until final staging acceptance evidence is complete."
+    "Certify the isolated Cloudflare production Worker configuration and manual-only deployment preflight.",
+    "Certify the unreleased Shopify production cutover candidate workflow and authorization-gated release workflow.",
+    "Certify the Railway rollback workflow.",
+    "Keep release_authorized=false and production Shopify URLs on Railway until explicit cutover authorization."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +29,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "live_staging_billing_contract_green_read_only_shopify_acceptance_pending",
-  "security_readiness": "phase_00_green_phase_01_production_cutover_forbidden_until_staging_passes",
-  "last_reconciled_repository_ref": "19695fd42932cda4068273bd504d60601b4cfd0f",
-  "last_reconciled_at": "2026-09-29T00:04:21+00:00",
-  "notes": "Live Cloudflare staging now self-verifies the deployed 5-day/$55 billing contract. The next automation is a timestamped HMAC-signed staging-only endpoint that uses the stored offline Shopify session for read-only Admin GraphQL activeSubscriptions verification. It never exposes access tokens and never calls billing create/cancel mutations."
+  "qa_readiness": "staging_automated_acceptance_green_production_cutover_package_preparation",
+  "security_readiness": "production_cutover_prepared_but_release_unauthorized",
+  "last_reconciled_repository_ref": "9070675d42e9cb2a98748506ef509c1a138923ea",
+  "last_reconciled_at": "2026-09-29T00:10:46+00:00",
+  "notes": "Staging runtime, billing contract, offline session continuity, Admin GraphQL, subscription-read, and compliance webhook checks are green. Production cutover preparation is now the active work unit. The cutover release policy remains false by design; preparation may create isolated artifacts/workflows but must not change the active Shopify production URL or stop Railway."
 }
