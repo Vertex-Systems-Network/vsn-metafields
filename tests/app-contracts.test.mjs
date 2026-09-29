@@ -52,6 +52,18 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
+test("local React Router actions allow only the current Shopify tunnel origin", () => {
+  const config = read("react-router.config.js");
+
+  assert.match(config, /process\.env\.SHOPIFY_APP_URL/);
+  assert.match(config, /process\.env\.HOST/);
+  assert.match(config, /endsWith\("\.trycloudflare\.com"\)/);
+  assert.match(config, /allowedActionOrigins:\s*localTunnelHost \? \[localTunnelHost\] : \[\]/);
+  assert.doesNotMatch(config, /\*\.trycloudflare\.com/);
+  assert.doesNotMatch(config, /vertexsystemsnetwork\.workers\.dev/);
+  assert.doesNotMatch(config, /up\.railway\.app/);
+});
+
 test("embedded app navigation follows Shopify React Router NavMenu pattern", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
