@@ -117,6 +117,8 @@ def main() -> int:
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
     require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in deploy, "production Worker deploy must require protected main")
+    require("ref: main" in deploy, "production Worker deploy checkout must pin main")
     require("environment: cloudflare-production" in deploy, "production deploy environment missing")
     require("prisma migrate status" in deploy, "production migration status preflight missing")
     require("prisma migrate deploy" not in deploy, "production deploy must not apply database migrations")
@@ -144,6 +146,8 @@ def main() -> int:
     require(railway_url in acceptance, "production acceptance must pin Railway live URL")
 
     require("CREATE_PRODUCTION_CUTOVER_VERSION" in candidate, "production cutover candidate confirmation missing")
+    require("github.ref == 'refs/heads/main'" in candidate, "production cutover candidate must require protected main")
+    require("ref: main" in candidate, "production cutover candidate checkout must pin main")
     require("--config cloudflare-production" in candidate, "production Shopify candidate config missing")
     require("--no-release" in candidate, "production Shopify candidate must remain unreleased")
     require("app release" not in candidate, "candidate workflow must not release Shopify config")
@@ -151,6 +155,8 @@ def main() -> int:
     require("candidate_source_ref=$GITHUB_SHA" in candidate, "candidate source ref evidence missing")
 
     require("RELEASE_PRODUCTION_CUTOVER" in release, "production release confirmation missing")
+    require("github.ref == 'refs/heads/main'" in release, "production release must require protected main")
+    require("ref: main" in release, "production release checkout must pin main")
     require("release_authorized" in release, "production release must enforce policy authorization")
     require("authorized_version" in release, "production release must pin the exact authorized version")
     require("authorized_source_ref" in release, "production release must pin the candidate source ref")
@@ -160,6 +166,8 @@ def main() -> int:
     require(cloudflare_url in release, "production release must verify Cloudflare production health")
 
     require("ROLLBACK_TO_RAILWAY" in rollback, "Railway rollback confirmation missing")
+    require("github.ref == 'refs/heads/main'" in rollback, "Railway rollback must require protected main")
+    require("ref: main" in rollback, "Railway rollback checkout must pin main")
     require(railway_url in rollback, "Railway rollback URL guard missing")
     require("app release" in rollback and "--allow-updates" in rollback, "Railway rollback release command missing")
 
