@@ -252,6 +252,62 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /metafieldDefinitionUpdate/);
 });
 
+test("production cutover package preserves Shopify identity, billing, database, and Railway rollback", () => {
+  const current = read("shopify.app.toml");
+  const target = read("shopify.app.cloudflare-production.toml");
+  const wrangler = JSON.parse(read("wrangler.production.jsonc"));
+  const policy = JSON.parse(read("config/cloudflare/production-cutover.json"));
+  const validator = read("scripts/cloudflare/validate_production_cutover_contract.py");
+  const deploy = read(".github/workflows/cloudflare-production-deploy.yml");
+  const candidate = read(".github/workflows/shopify-production-cutover-version.yml");
+  const release = read(".github/workflows/shopify-production-cutover-release.yml");
+  const rollback = read(".github/workflows/shopify-production-rollback-railway.yml");
+
+  assert.match(current, /client_id = "f5266ba8dba403005deb695fedad053a"/);
+  assert.match(current, /application_url = "https://vsn-metafields-production\.up\.railway\.app"/);
+  assert.match(target, /client_id = "f5266ba8dba403005deb695fedad053a"/);
+  assert.match(target, /application_url = "https://vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev"/);
+
+  assert.equal(wrangler.name, "vsn-metafields-production");
+  assert.equal(wrangler.main, "./workers/app.js");
+  assert.equal(Object.hasOwn(wrangler, "routes"), false);
+
+  assert.equal(policy.release_authorized, false);
+  assert.equal(policy.shopify.preserve_app_identity, true);
+  assert.equal(policy.shopify.merchant_reinstall_allowed, false);
+  assert.equal(policy.billing.mutate_during_cutover, false);
+  assert.equal(policy.database.migrate_during_cutover, false);
+  assert.equal(policy.rollback.keep_railway_available, true);
+
+  assert.match(validator, /production_release_authorized=false/);
+  assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
+  assert.match(deploy, /environment: cloudflare-production/);
+  assert.match(deploy, /prisma migrate status/);
+  assert.doesNotMatch(deploy, /prisma migrate deploy/);
+  assert.match(deploy, /--config wrangler\.production\.jsonc/);
+  assert.match(deploy, /production_shopify_cutover_performed=false/);
+
+  assert.match(candidate, /CREATE_PRODUCTION_CUTOVER_VERSION/);
+  assert.match(candidate, /--config cloudflare-production/);
+  assert.match(candidate, /--no-release/);
+  assert.doesNotMatch(candidate, /app release/);
+
+  assert.match(release, /RELEASE_PRODUCTION_CUTOVER/);
+  assert.match(release, /release_authorized/);
+  assert.match(release, /--allow-updates/);
+  assert.doesNotMatch(release, /--allow-deletes/);
+
+  assert.match(rollback, /ROLLBACK_TO_RAILWAY/);
+  assert.match(rollback, /railway-rollback-/);
+  assert.match(rollback, /--allow-updates/);
+  assert.doesNotMatch(rollback, /--allow-deletes/);
+
+  for (const workflow of [deploy, candidate, release, rollback]) {
+    assert.doesNotMatch(workflow, /appSubscriptionCreate/);
+    assert.doesNotMatch(workflow, /appSubscriptionCancel/);
+  }
+});
+
 test("destructive global session-clear route stays absent", () => {
   assert.equal(exists("app/routes/clear-sessions.jsx"), false);
 });
