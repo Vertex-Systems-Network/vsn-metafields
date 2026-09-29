@@ -24,6 +24,7 @@ PRODUCTION_NEON_PROVISIONING = ROOT / ".github" / "workflows" / "production-neon
 SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migration.yml"
 SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
 NEON_URL_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-neon-urls.py"
+SUPABASE_SOURCE_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-supabase-source.py"
 
 
 class ValidationError(RuntimeError):
@@ -69,6 +70,7 @@ def main() -> int:
     session_migration = read(SESSION_MIGRATION)
     session_migration_script = read(SESSION_MIGRATION_SCRIPT)
     neon_url_resolver = read(NEON_URL_RESOLVER)
+    supabase_source_resolver = read(SUPABASE_SOURCE_RESOLVER)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -191,6 +193,8 @@ def main() -> int:
     require("production_shopify_cutover_performed=false" in production_neon_provisioning, "production Neon provisioning must prove no Shopify cutover")
     require("production_billing_mutation_performed=false" in production_neon_provisioning, "production Neon provisioning must prove no billing mutation")
 
+    require("resolve-production-supabase-source.py" in session_migration, "production session migration must canonicalize the Supabase source")
+    require("EXPECTED_SUPABASE_REGION: ap-southeast-2" in session_migration, "production session migration must pin the certified Supabase region")
     require("resolve-production-neon-urls.py" in session_migration, "production session migration must resolve the direct URL safely")
     require("SUPABASE_SOURCE_DATABASE_URL DATABASE_URL" in session_migration, "production session migration must require source plus pooled target")
     require("SUPABASE_SOURCE_DATABASE_URL DATABASE_URL DIRECT_URL" not in session_migration, "production session migration must not require duplicate DIRECT_URL secret")
@@ -224,6 +228,20 @@ def main() -> int:
     require("sourceIdDigest" in session_migration_script, "session migration script must verify source Session fingerprint")
     require("await main()" in session_migration_script, "session migration entrypoint must await completion")
     require("main().catch" not in session_migration_script, "session migration must not allow unresolved async completion")
+    require("connectionTimeoutMillis: 10000" in session_migration_script, "session migration must bound database connection waits")
+    require("query_timeout: 10000" in session_migration_script, "session migration must bound database queries")
+    require("production_session_source_connection=attempting" in session_migration_script, "source connection attempt evidence missing")
+    require("production_session_source_connection=connected" in session_migration_script, "source connection success evidence missing")
+    require("production_session_target_connection=connected" in session_migration_script, "target connection success evidence missing")
+    require('EXPECTED_PROJECT_REF = "kqwlohmfyobsdsdekjzl"' in supabase_source_resolver, "Supabase source resolver project ref drifted")
+    require('EXPECTED_REGION = "ap-southeast-2"' in supabase_source_resolver, "Supabase source resolver region drifted")
+    require('SESSION_POOLER_HOST = "aws-0-ap-southeast-2.pooler.supabase.com"' in supabase_source_resolver, "Supabase Session Pooler host drifted")
+    require("SESSION_POOLER_PORT = 5432" in supabase_source_resolver, "Supabase Session Pooler port must remain session mode")
+    require('username = f"postgres.{EXPECTED_PROJECT_REF}"' in supabase_source_resolver, "Supabase Session Pooler username must bind the project ref")
+    require('quote(password, safe="")' in supabase_source_resolver, "Supabase source password must be safely re-encoded")
+    require("::add-mask::" in supabase_source_resolver, "Supabase canonical source URL must be masked")
+    require("SOURCE_DATABASE_URL={canonical}" in supabase_source_resolver, "Supabase canonical source URL must be exported through GITHUB_ENV")
+
     require("DATABASE_URL" in neon_url_resolver, "Neon URL resolver must consume pooled DATABASE_URL")
     require("DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export DIRECT_URL")
     require("TARGET_DIRECT_URL" in neon_url_resolver, "Neon URL resolver must export migration target URL")

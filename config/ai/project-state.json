@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "API checks confirmed Supabase source healthy with 4 sessions/4 access tokens and Neon production healthy with 0 sessions. After the fingerprint-first fix, rerun attempt 2 of workflow 36638708646 showed every GitHub step green but Neon still had 0 rows. Logs proved checkout used main d4eeed2ef2a37e24bb9676ee973c01f4af9b364e and the migration command exited in ~70ms without emitting its success evidence. Root cause: the ESM script invoked main().catch(...) without top-level await, allowing Node to exit before async database work completed.",
-  "next_valid_work_unit": "Merge the awaited-entrypoint fix, then rerun the same guarded Production Session Migration. Require actual script evidence production_session_migration=pass and production_session_rows_copied=4, then independently confirm Neon Session count=4 before certifying session_migration_completed=true.",
+  "last_verified_completion": "API-first diagnosis confirmed Supabase project kqwlohmfyobsdsdekjzl is ACTIVE_HEALTHY with 4 Session rows/4 access tokens and Neon production endpoint ep-flat-mouse-b5z1wu54 is healthy with 0 Session rows. After the awaited-entrypoint fix, workflow 36638708646 failed genuinely with Node exit 13 because source.connect() never settled. Supabase documentation confirms GitHub Actions should use the IPv4 Shared Pooler session-mode endpoint rather than the free-tier IPv6 direct database endpoint.",
+  "next_valid_work_unit": "Merge the canonical Supabase Session Pooler resolver and bounded connection-timeout fix. Rerun Production Session Migration using the existing SUPABASE_SOURCE_DATABASE_URL only as the password source; runtime will rebuild postgresql://postgres.kqwlohmfyobsdsdekjzl@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres, then require actual source/target connection evidence, audited fingerprint checks, transactional copy, digest verification, and Neon API count=4.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "awaited_session_migration_entrypoint_fix_pending",
-  "security_readiness": "apis_green_no_target_rows_async_exit_bug_identified",
+  "qa_readiness": "canonical_supabase_ipv4_session_pooler_fix_pending",
+  "security_readiness": "apis_green_password_reused_canonical_pooler_masked_bounded_connections",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "A green GitHub job is not being treated as migration success because independent Neon verification remained 0 rows. The script is changed to top-level await main(), making Node remain alive until the source fingerprint, transaction, upserts, full-row digest verification, commit, and success evidence are complete."
+  "notes": "No Neon Session writes have occurred. The new resolver never logs credentials: it extracts the password from the existing protected secret, safely URL-encodes it, reconstructs the repository-certified ap-southeast-2 Supavisor session-mode URL, masks it, and exports it via GITHUB_ENV. Migration source/target connections now use 10-second connect/query bounds so failures surface deterministically instead of unsettled top-level await."
 }

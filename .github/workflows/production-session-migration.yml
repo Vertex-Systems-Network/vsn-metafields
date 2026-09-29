@@ -38,6 +38,7 @@ jobs:
       PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production
       EXPECTED_PRODUCTION_ENDPOINT_ID: ep-flat-mouse-b5z1wu54
       EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl
+      EXPECTED_SUPABASE_REGION: ap-southeast-2
       EXPECTED_SOURCE_ID_DIGEST: cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46
 
     steps:
@@ -68,6 +69,9 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Resolve canonical Supabase session pooler
+        run: python scripts/database/resolve-production-supabase-source.py
 
       - name: Resolve production Neon direct URL
         run: python scripts/database/resolve-production-neon-urls.py
