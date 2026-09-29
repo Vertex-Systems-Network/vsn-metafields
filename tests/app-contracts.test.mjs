@@ -511,6 +511,7 @@ test("production Neon provisioning is manual, isolated, and schema-only", () => 
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.match(workflow, /ref: main/);
   assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /resolve-production-supabase-source\.py/);
   assert.match(workflow, /resolve-production-neon-urls\.py/);
   assert.match(workflow, /for name in DATABASE_URL/);
   assert.doesNotMatch(workflow, /for name in DATABASE_URL DIRECT_URL/);
@@ -558,6 +559,26 @@ test("Neon staging and production identities stay isolated", () => {
   }
 });
 
+test("production Supabase source is canonicalized for IPv4 GitHub runners", () => {
+  const workflow = read(".github/workflows/production-session-migration.yml");
+  const resolver = read("scripts/database/resolve-production-supabase-source.py");
+
+  assert.match(workflow, /resolve-production-supabase-source\.py/);
+  assert.match(workflow, /EXPECTED_SUPABASE_PROJECT_REF: kqwlohmfyobsdsdekjzl/);
+  assert.match(workflow, /EXPECTED_SUPABASE_REGION: ap-southeast-2/);
+
+  assert.match(resolver, /EXPECTED_PROJECT_REF = "kqwlohmfyobsdsdekjzl"/);
+  assert.match(resolver, /EXPECTED_REGION = "ap-southeast-2"/);
+  assert.match(resolver, /SESSION_POOLER_HOST = "aws-0-ap-southeast-2\.pooler\.supabase\.com"/);
+  assert.match(resolver, /SESSION_POOLER_PORT = 5432/);
+  assert.match(resolver, /postgres\.\{EXPECTED_PROJECT_REF\}/);
+  assert.match(resolver, /quote\(password, safe=""\)/);
+  assert.match(resolver, /::add-mask::/);
+  assert.match(resolver, /SOURCE_DATABASE_URL=\{canonical\}/);
+  assert.match(resolver, /GITHUB_ENV/);
+  assert.doesNotMatch(resolver, /print\(.*password/i);
+});
+
 test("production session migration is guarded, transactional, and preserves secret session fields", () => {
   const workflow = read(".github/workflows/production-session-migration.yml");
   const script = read("scripts/database/migrate-production-sessions.mjs");
@@ -598,6 +619,12 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /production_session_source_identity=audited/);
   assert.match(script, /await main\(\)/);
   assert.doesNotMatch(script, /main\(\)\.catch/);
+  assert.match(script, /connectionTimeoutMillis: 10000/);
+  assert.match(script, /query_timeout: 10000/);
+  assert.match(script, /production_session_source_connection=attempting/);
+  assert.match(script, /production_session_source_connection=connected/);
+  assert.match(script, /production_session_target_connection=attempting/);
+  assert.match(script, /production_session_target_connection=connected/);
   assert.match(script, /accessToken/);
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
