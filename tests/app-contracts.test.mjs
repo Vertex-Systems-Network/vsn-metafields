@@ -596,6 +596,15 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /on conflict \("id"\) do update/);
   assert.match(script, /aggregateDigest/);
   assert.match(script, /production_session_source_identity=audited/);
+  assert.match(script, /production_session_source_class=/);
+  assert.match(script, /production_session_source_host=/);
+  assert.match(script, /production_session_source_port=/);
+  assert.match(script, /production_session_source_sslmode=/);
+  assert.match(script, /production_session_source_user_kind=/);
+  assert.match(script, /production_session_source_connection=attempting/);
+  assert.match(script, /production_session_source_connection=pass/);
+  assert.match(script, /safeErrorSummary/);
+  assert.match(script, /connectionTimeoutMillis: 15000/);
   assert.match(script, /accessToken/);
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
