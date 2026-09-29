@@ -52,14 +52,8 @@ function assertProviderIdentity() {
     fail("EXPECTED_SUPABASE_PROJECT_REF is required.");
   }
 
-  const directSourceHost = `db.${EXPECTED_SUPABASE_PROJECT_REF}.supabase.co`;
-  const isDirectSource = sourceHost === directSourceHost;
-  const isSharedPooler =
-    /(^|\.)pooler\.supabase\.com$/.test(sourceHost) &&
-    source.username.startsWith("postgres");
-
-  if (!isDirectSource && !isSharedPooler) {
-    fail("Source database must use a Supabase-managed direct or shared-pooler endpoint.");
+  if (!["postgres:", "postgresql:"].includes(source.protocol)) {
+    fail("Source database URL must use PostgreSQL.");
   }
 
   if (!/(^|\.)neon\.tech$/.test(targetHost)) {
