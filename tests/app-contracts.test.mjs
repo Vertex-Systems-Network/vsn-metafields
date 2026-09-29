@@ -596,6 +596,8 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(script, /on conflict \("id"\) do update/);
   assert.match(script, /aggregateDigest/);
   assert.match(script, /production_session_source_identity=audited/);
+  assert.match(script, /await main\(\)/);
+  assert.doesNotMatch(script, /main\(\)\.catch/);
   assert.match(script, /accessToken/);
   assert.match(script, /refreshToken/);
   assert.doesNotMatch(script, /console\.log\(row/);
