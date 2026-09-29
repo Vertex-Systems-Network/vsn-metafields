@@ -35,7 +35,7 @@ export const loader = async ({ request }) => {
     data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
   const validSubscriptions =
-    process.env.NODE_ENV === "production"
+    process.env.APP_ENV === "production"
       ? activeSubscriptions.filter((sub) => !sub.test)
       : activeSubscriptions;
 
