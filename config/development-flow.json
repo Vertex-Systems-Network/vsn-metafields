@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "repository": "Vertex-Systems-Network/vsn-metafields",
+  "development_branch": "development",
+  "release_branch": "main",
+  "local": {
+    "command": "npm run dev",
+    "committed_secrets": false,
+    "direct_live_deploy": false
+  },
+  "staging": {
+    "environment": "cloudflare-staging",
+    "source_branch": "development",
+    "auto_deploy_runtime_changes": true,
+    "production_identity_allowed": false
+  },
+  "release": {
+    "route": "development -> pull request -> main",
+    "automatic_merge": false,
+    "validation_required": true
+  },
+  "live": {
+    "environment": "cloudflare-production",
+    "source_branch": "main",
+    "auto_deploy": false,
+    "deploy_mode": "manual_dispatch",
+    "shopify_cutover_mode": "explicit_authorization_only"
+  },
+  "invariants": {
+    "development_push_cannot_deploy_production": true,
+    "main_push_cannot_deploy_production": true,
+    "staging_cannot_change_live_shopify_url": true,
+    "production_cutover_requires_explicit_authorization": true,
+    "railway_rollback_retained_during_migration": true
+  }
+}
