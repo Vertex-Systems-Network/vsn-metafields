@@ -14,6 +14,7 @@ POLICY = ROOT / "config" / "cloudflare" / "production-cutover.json"
 WRANGLER = ROOT / "wrangler.production.jsonc"
 SHOPIFY_CURRENT = ROOT / "shopify.app.toml"
 SHOPIFY_TARGET = ROOT / "shopify.app.cloudflare-production.toml"
+STAGING_DEPLOY = ROOT / ".github" / "workflows" / "cloudflare-staging-deploy.yml"
 DEPLOY = ROOT / ".github" / "workflows" / "cloudflare-production-deploy.yml"
 ACCEPTANCE = ROOT / ".github" / "workflows" / "cloudflare-production-acceptance.yml"
 CANDIDATE = ROOT / ".github" / "workflows" / "shopify-production-cutover-version.yml"
@@ -56,6 +57,7 @@ def main() -> int:
     wrangler = load_json(WRANGLER)
     current = load_toml(SHOPIFY_CURRENT)
     target = load_toml(SHOPIFY_TARGET)
+    staging_deploy = read(STAGING_DEPLOY)
     deploy = read(DEPLOY)
     acceptance = read(ACCEPTANCE)
     candidate = read(CANDIDATE)
@@ -123,6 +125,14 @@ def main() -> int:
     require(database.get("migration_workflow") == "production-session-migration.yml", "production session migration workflow drifted")
     require(database.get("runtime_connection") == "pooled", "production Neon runtime must use pooled connection")
     require(database.get("migration_connection") == "direct", "production Neon migrations must use direct connection")
+    require(database.get("staging_project_current_name") == "vsn-metafields", "current staging Neon project name drifted")
+    require(database.get("staging_project_canonical_name") == "vsn-metafields-staging", "canonical staging Neon project name drifted")
+    require(database.get("staging_project_rename_pending") is True, "staging Neon rename state must remain explicit until renamed")
+    require(database.get("staging_endpoint_id") == "ep-snowy-surf-b3gxl2wf", "certified staging Neon endpoint drifted")
+    require(database.get("production_project_name") == "vsn-metafields-production", "production Neon project name drifted")
+    require(isinstance(database.get("production_project_provisioned"), bool), "production Neon provisioning state missing")
+    require(database.get("production_endpoint_id") is None, "production Neon endpoint must remain unset until project provisioning is certified")
+    require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
     workflows = [deploy, acceptance, candidate, release, rollback, session_migration]
@@ -130,6 +140,10 @@ def main() -> int:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
         require("--allow-deletes" not in workflow, "Shopify config deletes are forbidden during migration")
+
+    require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in staging_deploy, "staging deploy must pin the certified Neon endpoint")
+    require("staging_neon_identity=pass" in staging_deploy, "staging Neon identity evidence missing")
+    require("pooled_id != expected or direct_id != expected" in staging_deploy, "staging deploy must reject non-staging Neon endpoints")
 
     require("workflow_dispatch:" in session_migration and "push:" not in session_migration, "production session migration must remain manual-only")
     require("MIGRATE_SUPABASE_SESSIONS_TO_NEON" in session_migration, "production session migration confirmation gate missing")
@@ -142,6 +156,10 @@ def main() -> int:
     require("production_session_credentials_logged=false" in session_migration, "migration workflow must record no credential logging")
     require("production_shopify_cutover_performed=false" in session_migration, "migration must prove no Shopify cutover occurred")
     require("production_billing_mutation_performed=false" in session_migration, "migration must prove no billing mutation occurred")
+    require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in session_migration, "production migration must know the staging Neon endpoint")
+    require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in session_migration, "production migration must pin the production Neon project name")
+    require("pooled_id == staging_id" in session_migration, "production migration must reject the staging Neon endpoint")
+    require("production_neon_identity=distinct_from_staging" in session_migration, "production migration Neon isolation evidence missing")
     require("supabase" in session_migration_script.lower(), "session migration script must identify Supabase source")
     require("neon" in session_migration_script.lower(), "session migration script must identify Neon target")
     require("begin" in session_migration_script and "commit" in session_migration_script and "rollback" in session_migration_script, "session migration must be transactional")
@@ -152,6 +170,10 @@ def main() -> int:
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
     require("session_migration_completed" in deploy, "production Worker deploy must gate on certified session migration")
     require("production_neon_session_migration=certified" in deploy, "production Worker deploy migration evidence missing")
+    require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in deploy, "production deploy must know the staging Neon endpoint")
+    require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in deploy, "production deploy must pin the production Neon project name")
+    require("pooled_id == staging_id" in deploy, "production deploy must reject the staging Neon endpoint")
+    require("production_neon_identity=distinct_from_staging" in deploy, "production deploy Neon isolation evidence missing")
     require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("source_sha:" in deploy, "production Worker deploy immutable source input missing")
@@ -190,6 +212,10 @@ def main() -> int:
     require("production_release_authorized=false" in acceptance, "production acceptance must prove release remains unauthorized")
     require("production_shopify_cutover_performed=false" in acceptance, "production acceptance must prove no Shopify cutover occurred")
     require("production_billing_mutation_performed=false" in acceptance, "production acceptance must prove no billing mutation occurred")
+    require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in acceptance, "production acceptance must know the staging Neon endpoint")
+    require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in acceptance, "production acceptance must pin the production Neon project name")
+    require("pooled_id == staging_id" in acceptance, "production acceptance must reject the staging Neon endpoint")
+    require("production_neon_identity=distinct_from_staging" in acceptance, "production acceptance Neon isolation evidence missing")
     require("wrangler" not in acceptance, "production acceptance must never deploy the Worker")
     require("app release" not in acceptance, "production acceptance must never release Shopify config")
     require(cloudflare_url in acceptance, "production acceptance must pin expected Cloudflare URL")
