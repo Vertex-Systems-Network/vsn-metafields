@@ -3,23 +3,23 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-isolated-production-worker-deploy",
-  "last_verified_completion": "Issue #4 production cutover package certified on protected main b48a109d953b2125c55b3d01951afbe13297dc35. Production Cutover Contract run 36503033586 passed contract validation, Prisma no-migration validation, production application build, and Wrangler production-config dry-run. Active Shopify production URL remains Railway and release_authorized=false.",
-  "next_valid_work_unit": "Populate only the four sensitive cloudflare-production environment secrets (CLOUDFLARE_API_TOKEN, DATABASE_URL, DIRECT_URL, SHOPIFY_API_SECRET), then re-trigger the one-time isolated production Worker deployment. Shopify live URL must remain Railway.",
+  "current_work_unit": "DEVELOPMENT-LIVE-SEPARATION",
+  "last_verified_completion": "PHASE-01 migration preparation remains intact; the production Worker was not deployed because environment secrets were absent. No live Shopify URL change occurred.",
+  "next_valid_work_unit": "Use development as the integration branch, auto-deploy runtime changes from development to Cloudflare staging, and promote to main only through an intentional release PR. Production deployment and Shopify cutover remain manual/authorization-gated.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
-    "in_progress": 0,
-    "blocked": 1,
+    "in_progress": 1,
+    "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Add CLOUDFLARE_API_TOKEN to the cloudflare-production GitHub environment.",
-    "Add production DATABASE_URL and DIRECT_URL to the cloudflare-production GitHub environment.",
-    "Add the existing production Shopify app SHOPIFY_API_SECRET to the cloudflare-production GitHub environment.",
-    "Re-trigger isolated production Worker deployment; do not change Shopify URLs."
+    "Create the permanent development branch from the newly merged release baseline.",
+    "Use development/feature branches for future engineering work and Cloudflare staging validation.",
+    "Promote development to main only when a release is intentionally requested.",
+    "Keep Cloudflare production deploy and Shopify live cutover manual/authorization-gated."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -29,9 +29,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "isolated_production_worker_deploy_blocked_on_four_environment_secrets",
-  "security_readiness": "shopify_cutover_unauthorized_production_worker_not_deployed",
-  "last_reconciled_repository_ref": "268d53f34e8de68585b673b7811adb1a48399263",
-  "last_reconciled_at": "2026-09-29T00:40:00+00:00",
-  "notes": "One-time isolated production Worker deploy run 36504052620 was safely blocked before install/build/deploy because cloudflare-production secrets were absent. No production Worker deployment or Shopify cutover occurred. Non-sensitive account/client/app URL/scope values are being moved into reviewed workflow constants so only four true secrets require human setup."
+  "qa_readiness": "development_staging_live_separation_implementation",
+  "security_readiness": "main_release_branch_production_manual_only",
+  "last_reconciled_repository_ref": "238b6780f8f626eed633ecdcc373bc2f1316afd5",
+  "last_reconciled_at": "2026-09-29T09:30:00+00:00",
+  "notes": "Deployment model is being simplified to Local/Development -> automatic isolated Staging -> reviewed main release -> manual Production -> separately authorized Shopify live cutover. Direct development on main is no longer the intended workflow."
 }
