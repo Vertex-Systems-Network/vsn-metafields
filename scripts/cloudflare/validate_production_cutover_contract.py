@@ -82,6 +82,12 @@ def main() -> int:
     client_id = str(shopify["client_id"])
     railway_url = str(shopify["current_railway_url"])
     cloudflare_url = str(shopify["target_cloudflare_url"])
+    certified_source_sha = worker.get("certified_source_sha")
+    require(
+        isinstance(certified_source_sha, str)
+        and re.fullmatch(r"[0-9a-f]{40}", certified_source_sha) is not None,
+        "production Worker certified source SHA missing or invalid",
+    )
 
     require(current.get("client_id") == client_id, "current production Shopify client_id drifted")
     require(target.get("client_id") == client_id, "Cloudflare production config must preserve Shopify client_id")
@@ -120,6 +126,10 @@ def main() -> int:
     require("source_sha:" in deploy, "production Worker deploy immutable source input missing")
     require("EXPECTED_SOURCE_SHA" in deploy, "production Worker deploy expected source binding missing")
     require("git rev-parse HEAD" in deploy, "production Worker deploy must verify checked-out source SHA")
+    require("fetch-depth: 0" in deploy, "production Worker deploy must fetch protected-main ancestry")
+    require('policy["production_worker"]["certified_source_sha"]' in deploy, "production Worker deploy must read repository-certified source SHA")
+    require("git merge-base --is-ancestor" in deploy, "production Worker deploy must prove certified source belongs to protected main")
+    require('git checkout --detach "$EXPECTED_SOURCE_SHA"' in deploy, "production Worker deploy must checkout the exact certified source")
     require("APP_COMMIT_SHA:$EXPECTED_SOURCE_SHA" in deploy, "production Worker deploy must publish source SHA to runtime")
     require('payload.get("commitSha") != expected_source_sha' in deploy, "production Worker deploy must verify runtime source SHA")
     require("github.ref == 'refs/heads/main'" in deploy, "production Worker deploy must require protected main")
@@ -134,6 +144,7 @@ def main() -> int:
     require("VERIFY_PRODUCTION_WORKER_ONLY" in acceptance, "production acceptance confirmation gate missing")
     require("source_sha:" in acceptance, "production acceptance immutable source input missing")
     require("EXPECTED_SOURCE_SHA" in acceptance, "production acceptance expected source binding missing")
+    require('policy["production_worker"]["certified_source_sha"]' in acceptance, "production acceptance must read repository-certified source SHA")
     require('payload.get("commitSha") != expected_source_sha' in acceptance, "production acceptance must verify runtime source SHA")
     require("github.ref == 'refs/heads/main'" in acceptance, "production acceptance must require protected main")
     require("ref: main" in acceptance, "production acceptance checkout must pin main")

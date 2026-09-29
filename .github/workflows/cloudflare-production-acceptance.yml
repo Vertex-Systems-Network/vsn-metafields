@@ -47,6 +47,25 @@ jobs:
             echo "Production source SHA must be an exact 40-character lowercase commit SHA." >&2
             exit 1
           fi
+
+          POLICY_SOURCE_SHA="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          print(policy["production_worker"]["certified_source_sha"])
+          PY
+          )"
+
+          if [ "$EXPECTED_SOURCE_SHA" != "$POLICY_SOURCE_SHA" ]; then
+            echo "Acceptance source does not match the repository-certified Worker source." >&2
+            echo "requested=$EXPECTED_SOURCE_SHA" >&2
+            echo "certified=$POLICY_SOURCE_SHA" >&2
+            exit 1
+          fi
+
           echo "expected_production_source_sha=$EXPECTED_SOURCE_SHA"
 
       - name: Setup Node 22

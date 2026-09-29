@@ -4,8 +4,8 @@
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
   "current_work_unit": "ISSUE-4-production-worker-deploy-and-acceptance",
-  "last_verified_completion": "PR #107 merged to protected main as c184b25628fc5c59a1110c6fe9ec49e11ce31b05 after Production Cutover Contract, App Validation, AI Native Quality Gates, and Cloudflare Staging Readiness all passed. Production mutation workflows are protected-main-only and the production Worker deploy/acceptance chain is bound to an exact immutable source SHA exposed through /healthz. Development was fast-forwarded to the same certified baseline.",
-  "next_valid_work_unit": "After separate explicit production authorization, dispatch Cloudflare Production Prepare from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05, then run independent Cloudflare Production Acceptance against that exact SHA. Keep Shopify production URLs on Railway and release_authorized=false until acceptance is complete.",
+  "last_verified_completion": "PR #107 certified the immutable production runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05 with all required gates green; PR #108 reconciled the control-plane state. The production policy now pins that runtime SHA independently of later documentation/control-plane commits.",
+  "next_valid_work_unit": "After separate explicit production authorization, dispatch Cloudflare Production Prepare from protected main with source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05. The workflow must prove that SHA is the repository-certified production source and an ancestor of protected main, then deploy that exact detached commit. Run independent Cloudflare Production Acceptance against the same SHA. Keep Shopify production URLs on Railway and release_authorized=false until acceptance is complete.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -34,5 +34,5 @@
   "security_readiness": "production_worker_not_deployed_shopify_railway_live_release_unauthorized_sha_bound",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Isolated staging is fully green. Protected main and development are aligned at c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Production mutation workflows require protected main; Worker deploy and independent acceptance require an exact source SHA, and /healthz exposes that deployed SHA for verification. The active production Shopify app still targets Railway, release_authorized remains false, and no production Worker deploy or Shopify live cutover has occurred."
+  "notes": "Isolated staging is fully green. Protected main remains the only production dispatch authority and development is kept aligned by fast-forward reconciliation. The certified production runtime source is c184b25628fc5c59a1110c6fe9ec49e11ce31b05; production deploy/acceptance are policy-bound to that SHA and /healthz exposes the deployed SHA for verification. Documentation/control-plane commits may advance without changing the certified runtime payload. The active production Shopify app still targets Railway, release_authorized remains false, and no production Worker deploy or Shopify live cutover has occurred."
 }

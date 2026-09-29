@@ -397,6 +397,10 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(Object.hasOwn(wrangler, "routes"), false);
 
   assert.equal(policy.release_authorized, false);
+  assert.equal(
+    policy.production_worker.certified_source_sha,
+    "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+  );
   assert.equal(policy.authorized_version, null);
   assert.equal(policy.authorized_source_ref, null);
   assert.equal(policy.authorization_record, null);
@@ -411,6 +415,11 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(deploy, /source_sha:/);
   assert.match(deploy, /EXPECTED_SOURCE_SHA/);
   assert.match(deploy, /git rev-parse HEAD/);
+  assert.match(deploy, /fetch-depth: 0/);
+  assert.match(deploy, /production_worker/);
+  assert.match(deploy, /certified_source_sha/);
+  assert.match(deploy, /git merge-base --is-ancestor/);
+  assert.match(deploy, /git checkout --detach "\$EXPECTED_SOURCE_SHA"/);
   assert.match(deploy, /APP_COMMIT_SHA:\$EXPECTED_SOURCE_SHA/);
   assert.match(deploy, /payload\.get\("commitSha"\) != expected_source_sha/);
   assert.match(deploy, /environment: cloudflare-production/);
@@ -465,6 +474,7 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(acceptance, /VERIFY_PRODUCTION_WORKER_ONLY/);
   assert.match(acceptance, /source_sha:/);
   assert.match(acceptance, /EXPECTED_SOURCE_SHA/);
+  assert.match(acceptance, /certified_source_sha/);
   assert.match(acceptance, /payload\.get\("commitSha"\) != expected_source_sha/);
   assert.match(acceptance, /production_worker_source_sha=/);
   assert.match(acceptance, /github\.ref == 'refs\/heads\/main'/);
