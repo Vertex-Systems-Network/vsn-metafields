@@ -171,13 +171,75 @@ export const loader = async ({ request }) => {
     `);
   } catch (error) {
     console.error("[vsn-staging-acceptance] admin GraphQL request failed", error);
+
+    let directProbe = {
+      attempted: false,
+      ok: false,
+      status: null,
+    };
+
+    if (session?.accessToken) {
+      directProbe.attempted = true;
+
+      try {
+        const directResponse = await fetch(
+          `https://${shop}/admin/api/2026-07/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": session.accessToken,
+            },
+            body: JSON.stringify({
+              query: `
+                query StagingDirectProbe {
+                  currentAppInstallation {
+                    id
+                  }
+                }
+              `,
+            }),
+          },
+        );
+
+        directProbe = {
+          attempted: true,
+          ok: directResponse.ok,
+          status: directResponse.status,
+        };
+      } catch (directError) {
+        console.error(
+          "[vsn-staging-acceptance] direct GraphQL probe failed",
+          directError,
+        );
+        directProbe = {
+          attempted: true,
+          ok: false,
+          status: null,
+          errorName:
+            directError instanceof Error ? directError.name : typeof directError,
+        };
+      }
+    }
+
     return noStoreJson(
       {
         ok: false,
         stage: "admin-graphql",
-        code: "admin_graphql_request_failed",
+        code: directProbe.ok
+          ? "sdk_graphql_failed_direct_probe_passed"
+          : "admin_graphql_request_failed",
         errorName: error instanceof Error ? error.name : typeof error,
-        session: sessionSummary,
+        directProbe,
+        session: {
+          ...sessionSummary,
+          selectedSessionOnline: session?.isOnline === true,
+          selectedSessionHasAccessToken: Boolean(session?.accessToken),
+          selectedSessionScopeCount: String(session?.scope || "")
+            .split(",")
+            .map((scope) => scope.trim())
+            .filter(Boolean).length,
+        },
       },
       { status: 502 },
     );
