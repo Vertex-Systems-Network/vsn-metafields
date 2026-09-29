@@ -264,9 +264,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   const rollback = read(".github/workflows/shopify-production-rollback-railway.yml");
 
   assert.match(current, /client_id = "f5266ba8dba403005deb695fedad053a"/);
-  assert.match(current, /application_url = "https://vsn-metafields-production\.up\.railway\.app"/);
+  assert.ok(current.includes('application_url = "https://vsn-metafields-production.up.railway.app"'));
   assert.match(target, /client_id = "f5266ba8dba403005deb695fedad053a"/);
-  assert.match(target, /application_url = "https://vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev"/);
+  assert.ok(target.includes('application_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"'));
 
   assert.equal(wrangler.name, "vsn-metafields-production");
   assert.equal(wrangler.main, "./workers/app.js");
