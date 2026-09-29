@@ -34,10 +34,13 @@ export const loader = async ({ request }) => {
   const activeSubscriptions =
     data?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
-  const validSubscriptions =
-    process.env.APP_ENV === "production"
-      ? activeSubscriptions.filter((sub) => !sub.test)
-      : activeSubscriptions;
+  const isProductionBilling =
+    process.env.APP_ENV === "production" ||
+    process.env.NODE_ENV === "production";
+
+  const validSubscriptions = isProductionBilling
+    ? activeSubscriptions.filter((sub) => !sub.test)
+    : activeSubscriptions;
 
   const subscription =
     validSubscriptions.find((sub) => sub.status === "ACTIVE") || null;
