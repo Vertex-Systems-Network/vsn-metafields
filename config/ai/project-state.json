@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-bootstrap-certified-neon-production",
-  "last_verified_completion": "PR #114 hardened the Neon production certification sequence on protected main. The separate live Neon project is now externally verified as vsn-metafields-production (project nameless-breeze-35836648) with endpoint ep-flat-mouse-b5z1wu54 in aws-us-east-2; staging remains ep-snowy-surf-b3gxl2wf.",
-  "next_valid_work_unit": "Set cloudflare-production DATABASE_URL to the pooled connection for ep-flat-mouse-b5z1wu54 and DIRECT_URL to the matching direct connection. Run Production Neon Provisioning from protected main with production_endpoint_id=ep-flat-mouse-b5z1wu54. After it passes, separately certify production_schema_provisioned=true, then run the guarded 4-row Supabase-to-Neon Session migration.",
+  "current_work_unit": "ISSUE-4-provision-certified-neon-schema",
+  "last_verified_completion": "Production Neon identity was independently verified through the connected Neon account: project nameless-breeze-35836648 is named vsn-metafields-production in aws-us-east-2, its default production branch is ready, endpoint ep-flat-mouse-b5z1wu54 is active, and neondb currently has zero tables. Repository policy certifies this production project/endpoint while staging remains ep-snowy-surf-b3gxl2wf.",
+  "next_valid_work_unit": "Set cloudflare-production DATABASE_URL to the pooled URL for certified endpoint ep-flat-mouse-b5z1wu54 and DIRECT_URL to the matching direct URL. Then run Production Neon Provisioning from protected main with production_endpoint_id=ep-flat-mouse-b5z1wu54. After schema provisioning and zero-Session verification pass, certify production_schema_provisioned=true before running the guarded 4-row Supabase-to-Neon Session migration.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,11 +16,11 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Set cloudflare-production DATABASE_URL to the pooled Neon connection for certified production endpoint ep-flat-mouse-b5z1wu54.",
-    "Set cloudflare-production DIRECT_URL to the matching direct/non-pooler connection for ep-flat-mouse-b5z1wu54.",
-    "Run Production Neon Provisioning with production_endpoint_id=ep-flat-mouse-b5z1wu54 and verify zero pre-migration Session rows plus clean Prisma schema.",
-    "After provisioning succeeds, certify production_schema_provisioned=true; then run the guarded 4-row Supabase Session migration and separately certify session_migration_completed=true.",
-    "Rename existing Neon project vsn-metafields to vsn-metafields-staging when its project ID becomes available; endpoint ep-snowy-surf-b3gxl2wf already remains staging-only."
+    "Set cloudflare-production DATABASE_URL to the pooled URL for certified production endpoint ep-flat-mouse-b5z1wu54.",
+    "Set cloudflare-production DIRECT_URL to the matching direct/non-pooler URL for ep-flat-mouse-b5z1wu54.",
+    "Run Production Neon Provisioning from protected main with production_endpoint_id=ep-flat-mouse-b5z1wu54.",
+    "After provisioning passes, certify production_schema_provisioned=true in repository policy.",
+    "Run the guarded 4-row Supabase-to-Neon Session migration; after it passes certify session_migration_completed=true before Worker deploy/acceptance."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_neon_identity_certified_schema_bootstrap_pending",
-  "security_readiness": "exact_production_endpoint_certified_schema_and_session_state_fail_closed",
+  "qa_readiness": "production_neon_identity_certified_schema_provisioning_pending",
+  "security_readiness": "production_project_endpoint_certified_schema_and_session_state_fail_closed",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Production Neon identity is certified in policy: project nameless-breeze-35836648 / vsn-metafields-production, endpoint ep-flat-mouse-b5z1wu54. The known staging endpoint remains ep-snowy-surf-b3gxl2wf. production_schema_provisioned remains false until the guarded bootstrap workflow passes; Session migration and Worker deploy/acceptance remain fail-closed behind later certifications. Shopify live remains on Railway and release_authorized=false."
+  "notes": "Verified live Neon target: project nameless-breeze-35836648 / vsn-metafields-production, region aws-us-east-2, branch production, endpoint ep-flat-mouse-b5z1wu54. The database currently has zero tables, so it is a clean schema-provisioning target. Staging remains pinned to ep-snowy-surf-b3gxl2wf. Schema provisioning and Session migration are separately certification-gated; Shopify production remains on Railway and release_authorized=false."
 }
