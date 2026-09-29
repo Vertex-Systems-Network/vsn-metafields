@@ -490,8 +490,8 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(workflow, /production_billing_mutation_performed=false/);
   assert.doesNotMatch(workflow, /appSubscriptionCreate|appSubscriptionCancel|shopify app release/);
 
-  assert.match(script, /supabase\\\.(co|com)/);
-  assert.match(script, /neon\\\.tech/);
+  assert.ok(script.includes("supabase\\.(co|com)"));
+  assert.ok(script.includes("neon\\.tech"));
   assert.match(script, /TARGET_DIRECT_URL must use the direct Neon endpoint/);
   assert.match(script, /begin/);
   assert.match(script, /commit/);
