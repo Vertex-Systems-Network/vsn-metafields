@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "DEVELOPMENT-LIVE-SEPARATION",
-  "last_verified_completion": "PHASE-01 migration preparation remains intact; the production Worker was not deployed because environment secrets were absent. No live Shopify URL change occurred.",
-  "next_valid_work_unit": "Use development as the integration branch, auto-deploy runtime changes from development to Cloudflare staging, and promote to main only through an intentional release PR. Production deployment and Shopify cutover remain manual/authorization-gated.",
+  "current_work_unit": "DEVELOPMENT-RUNTIME-SAFETY",
+  "last_verified_completion": "Local development is operational on the dedicated VSN Metafields Development Shopify app, local-testing dev store, and isolated local PostgreSQL database.",
+  "next_valid_work_unit": "Keep development local by default, deploy development to staging only by explicit workflow dispatch, and use Shopify test subscriptions outside APP_ENV=production.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,10 +16,10 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Create the permanent development branch from the newly merged release baseline.",
-    "Use development/feature branches for future engineering work and Cloudflare staging validation.",
-    "Promote development to main only when a release is intentionally requested.",
-    "Keep Cloudflare production deploy and Shopify live cutover manual/authorization-gated."
+    "Validate environment-aware Shopify billing contracts in CI.",
+    "Keep development pushes non-deploying; use manual development-to-staging dispatch only when requested.",
+    "Promote development to main only through intentional release PR.",
+    "Keep production deploy and Shopify live cutover separately manual/authorization-gated."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -29,9 +29,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "development_staging_live_separation_implementation",
-  "security_readiness": "main_release_branch_production_manual_only",
-  "last_reconciled_repository_ref": "238b6780f8f626eed633ecdcc373bc2f1316afd5",
-  "last_reconciled_at": "2026-09-29T09:30:00+00:00",
-  "notes": "Deployment model is being simplified to Local/Development -> automatic isolated Staging -> reviewed main release -> manual Production -> separately authorized Shopify live cutover. Direct development on main is no longer the intended workflow."
+  "qa_readiness": "local_development_green_manual_staging_gate_and_test_billing_in_progress",
+  "security_readiness": "local_staging_production_isolated_no_automatic_deploy",
+  "last_reconciled_repository_ref": "25ebfde1f1bfbeb3538eddc0988fe89c98d1fffc",
+  "last_reconciled_at": "2026-09-29T12:30:00+00:00",
+  "notes": "Local development is isolated from staging and live. Staging auto-deploy is being removed because the cloudflare-staging GitHub environment rejected direct development-branch deployments; the safer model is manual staging deployment that explicitly checks out development. Billing creation becomes test-mode for local/staging and real only when APP_ENV=production."
 }
