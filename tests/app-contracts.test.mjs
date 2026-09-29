@@ -52,14 +52,15 @@ test("Prisma runtime stays Worker-compatible without changing session storage", 
   assert.ok(wrangler.compatibility_flags.includes("nodejs_compat"));
 });
 
-test("embedded app navigation uses Shopify app-nav links and preserves auth context", () => {
+test("embedded app navigation follows Shopify React Router NavMenu pattern", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
 
-  assert.match(app, /<s-app-nav>/);
-  assert.match(app, /<s-link href="\/app" rel="home">Options<\/s-link>/);
-  assert.match(app, /<s-link href="\/app\/packages">Packages<\/s-link>/);
-  assert.doesNotMatch(app, /<Link to="\/app/);
+  assert.match(app, /import \{ Link, Outlet, useLoaderData, useRouteError \} from "react-router"/);
+  assert.match(app, /import \{ NavMenu \} from "@shopify\/app-bridge-react"/);
+  assert.match(app, /<NavMenu>/);
+  assert.match(app, /<Link to="\/app" rel="home">Options<\/Link>/);
+  assert.match(app, /<Link to="\/app\/packages">Packages<\/Link>/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
@@ -226,6 +227,7 @@ test("packages page avoids duplicate server auth and loads billing status client
   assert.doesNotMatch(packages, /export const loader/);
   assert.doesNotMatch(packages, /authenticate\.admin\(request\)/);
   assert.doesNotMatch(packages, /useLoaderData/);
+  assert.match(packages, /statusFetcher\.state === "idle" && !statusFetcher\.data/);
   assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
   assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
   assert.match(packages, /actionFetcher\.submit/);
@@ -236,7 +238,10 @@ test("billing mutations require authenticated POST requests and guard active pla
   const packages = read("app/routes/app.packages.jsx");
 
   assert.match(status, /authenticate\.admin\(request\)/);
-  assert.match(status, /request\.method\.toUpperCase\(\) !== "POST"/);
+  assert.match(status, /method !== "POST"/);
+  assert.match(status, /actionType !== "create" && actionType !== "cancel"/);
+  assert.match(status, /\[vsn-status-action\]/);
+  assert.match(status, /\[vsn-status-action-auth-failed\]/);
   assert.match(status, /process\.env\.APP_ENV === "production"/);
   assert.match(status, /process\.env\.NODE_ENV === "production"/);
   assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
