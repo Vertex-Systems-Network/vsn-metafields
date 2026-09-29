@@ -1,23 +1,10 @@
 name: Cloudflare Staging Deploy
 
 on:
-  push:
-    branches:
-      - development
-    paths:
-      - "app/**"
-      - "prisma/**"
-      - "workers/**"
-      - "package.json"
-      - "package-lock.json"
-      - "wrangler.jsonc"
-      - "vite.config.js"
-      - "tsconfig.json"
-      - ".github/workflows/cloudflare-staging-deploy.yml"
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Type DEPLOY_STAGING_ONLY to deploy the isolated Cloudflare staging Worker"
+        description: "Type DEPLOY_DEVELOPMENT_TO_STAGING to deploy the development branch to isolated staging"
         required: true
         type: string
 
@@ -30,7 +17,7 @@ concurrency:
 
 jobs:
   deploy-staging:
-    if: github.event_name == 'push' || github.event.inputs.confirm == 'DEPLOY_STAGING_ONLY'
+    if: github.event.inputs.confirm == 'DEPLOY_DEVELOPMENT_TO_STAGING'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: cloudflare-staging
@@ -49,6 +36,7 @@ jobs:
       - name: Checkout development source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: development
           persist-credentials: false
 
       - name: Setup Node 22
@@ -116,7 +104,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes wrangler@4.141.0 deploy             --secrets-file /tmp/vsn-metafields-staging-secrets.json             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"
+          npx --yes wrangler@4.141.0 deploy             --secrets-file /tmp/vsn-metafields-staging-secrets.json             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"             --var "APP_ENV:staging"
 
       - name: Verify deployed staging runtime contract
         shell: bash

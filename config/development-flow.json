@@ -11,8 +11,9 @@
   "staging": {
     "environment": "cloudflare-staging",
     "source_branch": "development",
-    "auto_deploy_runtime_changes": true,
-    "production_identity_allowed": false
+    "auto_deploy_runtime_changes": false,
+    "production_identity_allowed": false,
+    "deploy_mode": "manual_dispatch_from_development"
   },
   "release": {
     "route": "development -> pull request -> main",
@@ -31,6 +32,18 @@
     "main_push_cannot_deploy_production": true,
     "staging_cannot_change_live_shopify_url": true,
     "production_cutover_requires_explicit_authorization": true,
-    "railway_rollback_retained_during_migration": true
+    "railway_rollback_retained_during_migration": true,
+    "development_push_cannot_deploy_staging": true
+  },
+  "development_ci": {
+    "automatic_on_push": true,
+    "deploys_staging": false,
+    "deploys_production": false,
+    "checks": [
+      "App Validation",
+      "Cloudflare Staging Readiness",
+      "AI Native Quality Gates",
+      "Dependency Security Audit when dependency files change"
+    ]
   }
 }
