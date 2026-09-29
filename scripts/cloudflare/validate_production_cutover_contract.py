@@ -130,8 +130,21 @@ def main() -> int:
     require(database.get("staging_project_rename_pending") is True, "staging Neon rename state must remain explicit until renamed")
     require(database.get("staging_endpoint_id") == "ep-snowy-surf-b3gxl2wf", "certified staging Neon endpoint drifted")
     require(database.get("production_project_name") == "vsn-metafields-production", "production Neon project name drifted")
-    require(isinstance(database.get("production_project_provisioned"), bool), "production Neon provisioning state missing")
-    require(database.get("production_endpoint_id") is None, "production Neon endpoint must remain unset until project provisioning is certified")
+    provisioned = database.get("production_project_provisioned")
+    production_endpoint_id = database.get("production_endpoint_id")
+    require(isinstance(provisioned, bool), "production Neon provisioning state missing")
+    if provisioned:
+        require(
+            isinstance(production_endpoint_id, str)
+            and re.fullmatch(r"ep-[a-z0-9-]+", production_endpoint_id) is not None,
+            "certified production Neon endpoint ID missing or invalid",
+        )
+        require(
+            production_endpoint_id != database.get("staging_endpoint_id"),
+            "production Neon endpoint must differ from staging",
+        )
+    else:
+        require(production_endpoint_id is None, "unprovisioned production Neon endpoint must remain unset")
     require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
@@ -158,8 +171,11 @@ def main() -> int:
     require("production_billing_mutation_performed=false" in session_migration, "migration must prove no billing mutation occurred")
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in session_migration, "production migration must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in session_migration, "production migration must pin the production Neon project name")
+    require("production_project_provisioned" in session_migration, "session_migration must require certified production Neon provisioning")
+    require("production_endpoint_id" in session_migration, "session_migration must require the certified production Neon endpoint ID")
+    require("pooled_id != production_id" in session_migration, "session_migration must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in session_migration, "production migration must reject the staging Neon endpoint")
-    require("production_neon_identity=distinct_from_staging" in session_migration, "production migration Neon isolation evidence missing")
+    require("production_neon_identity=certified_and_distinct" in session_migration, "production migration Neon isolation evidence missing")
     require("supabase" in session_migration_script.lower(), "session migration script must identify Supabase source")
     require("neon" in session_migration_script.lower(), "session migration script must identify Neon target")
     require("begin" in session_migration_script and "commit" in session_migration_script and "rollback" in session_migration_script, "session migration must be transactional")
@@ -172,8 +188,11 @@ def main() -> int:
     require("production_neon_session_migration=certified" in deploy, "production Worker deploy migration evidence missing")
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in deploy, "production deploy must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in deploy, "production deploy must pin the production Neon project name")
+    require("production_project_provisioned" in deploy, "deploy must require certified production Neon provisioning")
+    require("production_endpoint_id" in deploy, "deploy must require the certified production Neon endpoint ID")
+    require("pooled_id != production_id" in deploy, "deploy must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in deploy, "production deploy must reject the staging Neon endpoint")
-    require("production_neon_identity=distinct_from_staging" in deploy, "production deploy Neon isolation evidence missing")
+    require("production_neon_identity=certified_and_distinct" in deploy, "production deploy Neon isolation evidence missing")
     require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("source_sha:" in deploy, "production Worker deploy immutable source input missing")
@@ -214,8 +233,11 @@ def main() -> int:
     require("production_billing_mutation_performed=false" in acceptance, "production acceptance must prove no billing mutation occurred")
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in acceptance, "production acceptance must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in acceptance, "production acceptance must pin the production Neon project name")
+    require("production_project_provisioned" in acceptance, "acceptance must require certified production Neon provisioning")
+    require("production_endpoint_id" in acceptance, "acceptance must require the certified production Neon endpoint ID")
+    require("pooled_id != production_id" in acceptance, "acceptance must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in acceptance, "production acceptance must reject the staging Neon endpoint")
-    require("production_neon_identity=distinct_from_staging" in acceptance, "production acceptance Neon isolation evidence missing")
+    require("production_neon_identity=certified_and_distinct" in acceptance, "production acceptance Neon isolation evidence missing")
     require("wrangler" not in acceptance, "production acceptance must never deploy the Worker")
     require("app release" not in acceptance, "production acceptance must never release Shopify config")
     require(cloudflare_url in acceptance, "production acceptance must pin expected Cloudflare URL")
