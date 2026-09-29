@@ -171,6 +171,8 @@ test("public health contract exposes only deployment-safe plan metadata", () => 
 
   assert.match(health, /PRO_PLAN/);
   assert.match(health, /service:\s*"vsn-metafields"/);
+  assert.match(health, /APP_COMMIT_SHA/);
+  assert.match(health, /commitSha/);
   assert.match(health, /amount:\s*PRO_PLAN\.amount/);
   assert.match(health, /trialDays:\s*PRO_PLAN\.trialDays/);
   assert.match(health, /Cache-Control/);
@@ -406,6 +408,11 @@ test("production cutover package preserves Shopify identity, billing, database, 
 
   assert.match(validator, /production_release_authorized=false/);
   assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
+  assert.match(deploy, /source_sha:/);
+  assert.match(deploy, /EXPECTED_SOURCE_SHA/);
+  assert.match(deploy, /git rev-parse HEAD/);
+  assert.match(deploy, /APP_COMMIT_SHA:\$EXPECTED_SOURCE_SHA/);
+  assert.match(deploy, /payload\.get\("commitSha"\) != expected_source_sha/);
   assert.match(deploy, /environment: cloudflare-production/);
   assert.match(deploy, /CLOUDFLARE_ACCOUNT_ID: f63cf3af0868a5c8a0b26ebee5dd039f/);
   assert.match(deploy, /SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a/);
@@ -456,6 +463,10 @@ test("production Worker acceptance gate is independent, read-only, and keeps Rai
   assert.match(acceptance, /workflow_dispatch:/);
   assert.doesNotMatch(acceptance, /\npush:/);
   assert.match(acceptance, /VERIFY_PRODUCTION_WORKER_ONLY/);
+  assert.match(acceptance, /source_sha:/);
+  assert.match(acceptance, /EXPECTED_SOURCE_SHA/);
+  assert.match(acceptance, /payload\.get\("commitSha"\) != expected_source_sha/);
+  assert.match(acceptance, /production_worker_source_sha=/);
   assert.match(acceptance, /github\.ref == 'refs\/heads\/main'/);
   assert.match(acceptance, /ref: main/);
   assert.match(acceptance, /environment: cloudflare-production/);
@@ -541,6 +552,7 @@ test("production cutover preflight watches runtime-critical release paths", () =
 
   assert.match(workflow, /app\/shopify\.server\.js/);
   assert.match(workflow, /app\/billing-config\.js/);
+  assert.match(workflow, /app\/routes\/healthz\.jsx/);
   assert.match(workflow, /app\/db\.server\.js/);
   assert.match(workflow, /app\/prisma-session-storage\.server\.js/);
   assert.match(workflow, /prisma\/schema\.prisma/);

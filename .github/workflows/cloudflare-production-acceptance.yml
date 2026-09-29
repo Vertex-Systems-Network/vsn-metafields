@@ -7,6 +7,10 @@ on:
         description: "Type VERIFY_PRODUCTION_WORKER_ONLY to verify the already-deployed production Worker without changing Shopify URLs"
         required: true
         type: string
+      source_sha:
+        description: "Exact 40-character commit SHA expected to be running on the production Worker"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -23,6 +27,7 @@ jobs:
     environment: cloudflare-production
     env:
       CI: "true"
+      EXPECTED_SOURCE_SHA: ${{ github.event.inputs.source_sha }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DIRECT_URL: ${{ secrets.DIRECT_URL }}
       SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
@@ -33,6 +38,16 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+
+      - name: Require immutable production source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! [[ "$EXPECTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Production source SHA must be an exact 40-character lowercase commit SHA." >&2
+            exit 1
+          fi
+          echo "expected_production_source_sha=$EXPECTED_SOURCE_SHA"
 
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -100,6 +115,12 @@ jobs:
                   raise SystemExit(f"unexpected production health status: {response.status}")
               payload = json.loads(response.read().decode("utf-8"))
 
+          expected_source_sha = os.environ["EXPECTED_SOURCE_SHA"]
+          if payload.get("commitSha") != expected_source_sha:
+              raise SystemExit(
+                  f"production Worker source mismatch: expected {expected_source_sha}, got {payload.get('commitSha')!r}"
+              )
+
           expected_plan = {
               "id": "pro-plan",
               "amount": 55,
@@ -115,6 +136,7 @@ jobs:
           if payload.get("plan") != expected_plan:
               raise SystemExit(f"production Worker billing metadata mismatch: {payload!r}")
 
+          print(f"production_worker_source_sha={expected_source_sha}")
           print("production_worker_health=pass")
           print("production_billing_metadata=pass")
           PY
