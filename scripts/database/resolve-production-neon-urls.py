@@ -51,10 +51,9 @@ def derive_direct_url(database_url: str, expected_endpoint: str) -> str:
     )
     direct_host = pooled_host.replace("-pooler.", ".", 1)
 
-    if parsed.port is not None:
-        netloc = f"{parsed.username}:{parsed.password}@{direct_host}:{parsed.port}"
-    else:
-        netloc = f"{parsed.username}:{parsed.password}@{direct_host}"
+    userinfo = parsed.netloc.rsplit("@", 1)[0] if "@" in parsed.netloc else ""
+    authority = f"{userinfo}@{direct_host}" if userinfo else direct_host
+    netloc = f"{authority}:{parsed.port}" if parsed.port is not None else authority
 
     direct = urlunparse(
         (
