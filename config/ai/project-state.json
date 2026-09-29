@@ -3,22 +3,22 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-cutover-authorization-gate",
+  "current_work_unit": "ISSUE-4-isolated-production-worker-deploy",
   "last_verified_completion": "Issue #4 production cutover package certified on protected main b48a109d953b2125c55b3d01951afbe13297dc35. Production Cutover Contract run 36503033586 passed contract validation, Prisma no-migration validation, production application build, and Wrangler production-config dry-run. Active Shopify production URL remains Railway and release_authorized=false.",
-  "next_valid_work_unit": "Harden and preserve the explicit production authorization gate. A future cutover requires a reviewed repository change that sets release_authorized=true and pins authorized_version, authorized_source_ref, and authorization_record to one unreleased candidate. Do not deploy or release production in this work unit.",
+  "next_valid_work_unit": "Deploy the certified final runtime to the isolated Cloudflare production Worker only, verify /healthz, then remove the one-time push trigger and return the production prepare workflow to manual-only before any live Shopify cutover work.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
-    "in_progress": 0,
-    "blocked": 1,
+    "in_progress": 1,
+    "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Keep production cutover release authorization false until an explicit cutover decision is made.",
-    "When authorized in the future, create one unreleased candidate whose version embeds its source SHA, then pin that exact version/source in the reviewed repository authorization record.",
-    "Preserve Railway as rollback until post-cutover merchant/subscription verification completes."
+    "Deploy isolated Cloudflare production Worker and verify the 5-day/$55 health contract.",
+    "Remove the one-time production prepare request trigger after successful deployment.",
+    "Keep Shopify production URL on Railway and release_authorized=false until the later live cutover step."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_cutover_package_certified_authorization_gate_closed",
-  "security_readiness": "production_cutover_certified_release_unauthorized_exact_candidate_pin_required",
-  "last_reconciled_repository_ref": "b48a109d953b2125c55b3d01951afbe13297dc35",
-  "last_reconciled_at": "2026-09-29T00:27:00+00:00",
-  "notes": "Production cutover source package is certified without deployment. The release path is being hardened so authorization must pin one exact candidate version and its source commit. No production Worker deployment, Shopify URL change, billing mutation, database migration, merchant reinstall, or Railway shutdown is authorized."
+  "qa_readiness": "certified_runtime_pre_live_production_worker_deploy_pending",
+  "security_readiness": "isolated_production_worker_deploy_authorized_shopify_cutover_unauthorized",
+  "last_reconciled_repository_ref": "4761ef2689ba18350b6288d6f37d7ed197c1080e",
+  "last_reconciled_at": "2026-09-29T00:35:00+00:00",
+  "notes": "User authorized deploying the finalized runtime to the isolated Cloudflare production Worker before working on the live Shopify cutover. This authorization does not include changing Shopify production URLs, releasing Shopify configuration, mutating billing, applying database migrations, or stopping Railway."
 }

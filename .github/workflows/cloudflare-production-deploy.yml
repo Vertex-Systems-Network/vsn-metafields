@@ -1,6 +1,11 @@
 name: Cloudflare Production Prepare
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "config/cloudflare/production-prepare-request.json"
   workflow_dispatch:
     inputs:
       confirm:
@@ -17,7 +22,7 @@ concurrency:
 
 jobs:
   deploy-production-worker:
-    if: github.event.inputs.confirm == 'DEPLOY_PRODUCTION_WORKER_ONLY'
+    if: github.event_name == 'push' || github.event.inputs.confirm == 'DEPLOY_PRODUCTION_WORKER_ONLY'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment: cloudflare-production
@@ -43,6 +48,38 @@ jobs:
         with:
           node-version: "22.13.0"
           cache: npm
+
+      - name: Verify one-time production prepare request
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          request = json.loads(Path("config/cloudflare/production-prepare-request.json").read_text(encoding="utf-8"))
+          policy = json.loads(Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8"))
+
+          expected = {
+              "schema_version": 1,
+              "issue": 4,
+              "action": "deploy_isolated_production_worker_only",
+              "target_worker": "vsn-metafields-production",
+              "target_url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
+              "shopify_cutover_authorized": False,
+              "billing_mutation_authorized": False,
+              "database_migration_authorized": False,
+              "keep_railway_active": True,
+          }
+          for key, value in expected.items():
+              if request.get(key) != value:
+                  raise SystemExit(f"invalid production prepare request: {key}")
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("production prepare request refuses an authorized Shopify release state")
+          print("one_time_production_prepare_request=valid")
+          print("shopify_cutover_performed=false")
+          PY
 
       - name: Require production-only credentials and identity
         shell: bash
