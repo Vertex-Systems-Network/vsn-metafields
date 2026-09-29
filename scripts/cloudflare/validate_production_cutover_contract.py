@@ -112,7 +112,13 @@ def main() -> int:
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
         require("--allow-deletes" not in workflow, "Shopify config deletes are forbidden during migration")
 
-    require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
+    require("workflow_dispatch:" in deploy, "production Worker manual fallback missing")
+    if "push:" in deploy:
+        require('config/cloudflare/production-prepare-request.json' in deploy, "production push deploy must be limited to the one-time prepare request")
+        require("github.event_name == 'push'" in deploy, "production one-time push gate missing")
+        require("shopify_cutover_performed=false" in deploy, "production one-time deploy must prove no Shopify cutover")
+    else:
+        require("push:" not in deploy, "production Worker deploy push trigger drifted")
     require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("environment: cloudflare-production" in deploy, "production deploy environment missing")
