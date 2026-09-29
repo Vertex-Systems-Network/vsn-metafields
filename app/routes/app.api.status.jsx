@@ -65,7 +65,31 @@ function getValidSubscriptions(subscriptions) {
 
 // ─── GET: fetch subscription status ───────────────────────────────────────────
 export const loader = async ({ request }) => {
-  const { admin, session } = await authenticate.admin(request);
+  const url = new URL(request.url);
+  console.info("[vsn-status-loader]", JSON.stringify({
+    method: request.method,
+    pathname: url.pathname,
+    hasShop: url.searchParams.has("shop"),
+    hasHost: url.searchParams.has("host"),
+    hasIdToken: url.searchParams.has("id_token"),
+  }));
+
+  let auth;
+  try {
+    auth = await authenticate.admin(request);
+  } catch (error) {
+    console.error("[vsn-status-loader-auth-failed]", JSON.stringify({
+      method: request.method,
+      pathname: url.pathname,
+      status: error instanceof Response ? error.status : undefined,
+      statusText: error instanceof Response ? error.statusText : undefined,
+      errorName: error instanceof Error ? error.name : undefined,
+      errorMessage: error instanceof Error ? error.message : undefined,
+    }));
+    throw error;
+  }
+
+  const { admin, session } = auth;
 
   try {
     const activeSubscriptions = await getActiveSubscriptions(admin);
@@ -105,9 +129,10 @@ export const loader = async ({ request }) => {
 
 // ─── POST: create or cancel subscription ──────────────────────────────────────
 export const action = async ({ request }) => {
-  const { admin, session } = await authenticate.admin(request);
+  const url = new URL(request.url);
+  const method = request.method.toUpperCase();
 
-  if (request.method.toUpperCase() !== "POST") {
+  if (method !== "POST") {
     return Response.json(
       { ok: false, error: "Method not allowed." },
       { status: 405, headers: { Allow: "POST" } }
@@ -116,6 +141,40 @@ export const action = async ({ request }) => {
 
   const formData = await request.formData();
   const actionType = formData.get("actionType");
+
+  console.info("[vsn-status-action]", JSON.stringify({
+    method,
+    pathname: url.pathname,
+    actionType: String(actionType || ""),
+    hasShop: url.searchParams.has("shop"),
+    hasHost: url.searchParams.has("host"),
+    hasIdToken: url.searchParams.has("id_token"),
+  }));
+
+  if (actionType !== "create" && actionType !== "cancel") {
+    return Response.json(
+      { ok: false, error: "Unsupported billing action." },
+      { status: 400 }
+    );
+  }
+
+  let auth;
+  try {
+    auth = await authenticate.admin(request);
+  } catch (error) {
+    console.error("[vsn-status-action-auth-failed]", JSON.stringify({
+      method,
+      pathname: url.pathname,
+      actionType: String(actionType || ""),
+      status: error instanceof Response ? error.status : undefined,
+      statusText: error instanceof Response ? error.statusText : undefined,
+      errorName: error instanceof Error ? error.name : undefined,
+      errorMessage: error instanceof Error ? error.message : undefined,
+    }));
+    throw error;
+  }
+
+  const { admin, session } = auth;
 
 	// ── CANCEL ──────────────────────────────────────────────────────────────────
 	if (actionType === "cancel") {
@@ -303,5 +362,5 @@ export const action = async ({ request }) => {
 		}
 	}
 
-	return Response.json({ ok: false, error: "Unknown actionType." }, { status: 400 });
+  return Response.json({ ok: false, error: "Unsupported billing action." }, { status: 400 });
 };
