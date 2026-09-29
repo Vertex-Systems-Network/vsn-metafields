@@ -20,6 +20,7 @@ ACCEPTANCE = ROOT / ".github" / "workflows" / "cloudflare-production-acceptance.
 CANDIDATE = ROOT / ".github" / "workflows" / "shopify-production-cutover-version.yml"
 RELEASE = ROOT / ".github" / "workflows" / "shopify-production-cutover-release.yml"
 ROLLBACK = ROOT / ".github" / "workflows" / "shopify-production-rollback-railway.yml"
+NEON_BOOTSTRAP = ROOT / ".github" / "workflows" / "production-neon-bootstrap.yml"
 SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migration.yml"
 SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
 
@@ -63,6 +64,7 @@ def main() -> int:
     candidate = read(CANDIDATE)
     release = read(RELEASE)
     rollback = read(ROLLBACK)
+    neon_bootstrap = read(NEON_BOOTSTRAP)
     session_migration = read(SESSION_MIGRATION)
     session_migration_script = read(SESSION_MIGRATION_SCRIPT)
 
@@ -122,6 +124,9 @@ def main() -> int:
     require(database.get("session_migration_required") is True, "production session migration must remain required")
     require(isinstance(database.get("session_migration_completed"), bool), "production session migration completion state missing")
     require(database.get("expected_source_session_count") == 4, "audited production source Session count drifted")
+    require(database.get("bootstrap_workflow") == "production-neon-bootstrap.yml", "production Neon bootstrap workflow drifted")
+    require(database.get("production_schema_bootstrap_required") is True, "production Neon schema bootstrap must remain required")
+    require(isinstance(database.get("production_schema_bootstrap_completed"), bool), "production Neon schema bootstrap completion state missing")
     require(database.get("migration_workflow") == "production-session-migration.yml", "production session migration workflow drifted")
     require(database.get("runtime_connection") == "pooled", "production Neon runtime must use pooled connection")
     require(database.get("migration_connection") == "direct", "production Neon migrations must use direct connection")
@@ -148,7 +153,7 @@ def main() -> int:
     require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
-    workflows = [deploy, acceptance, candidate, release, rollback, session_migration]
+    workflows = [deploy, acceptance, candidate, release, rollback, neon_bootstrap, session_migration]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
@@ -157,6 +162,23 @@ def main() -> int:
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in staging_deploy, "staging deploy must pin the certified Neon endpoint")
     require("staging_neon_identity=pass" in staging_deploy, "staging Neon identity evidence missing")
     require("pooled_id != expected or direct_id != expected" in staging_deploy, "staging deploy must reject non-staging Neon endpoints")
+
+    require("workflow_dispatch:" in neon_bootstrap and "push:" not in neon_bootstrap, "production Neon bootstrap must remain manual-only")
+    require("BOOTSTRAP_ISOLATED_NEON_PRODUCTION" in neon_bootstrap, "production Neon bootstrap confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in neon_bootstrap, "production Neon bootstrap must require protected main")
+    require("ref: main" in neon_bootstrap, "production Neon bootstrap checkout must pin main")
+    require("environment: cloudflare-production" in neon_bootstrap, "production Neon bootstrap environment missing")
+    require("EXPECTED_PRODUCTION_ENDPOINT_ID" in neon_bootstrap, "production Neon bootstrap endpoint input binding missing")
+    require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in neon_bootstrap, "production Neon bootstrap must know the staging endpoint")
+    require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in neon_bootstrap, "production Neon bootstrap project name drifted")
+    require("Production bootstrap must never use the staging Neon endpoint." in neon_bootstrap, "production Neon bootstrap must reject staging")
+    require("Production bootstrap target already contains" in neon_bootstrap, "production Neon bootstrap must fail on preexisting Session rows")
+    require("npx prisma migrate deploy" in neon_bootstrap, "production Neon bootstrap must apply Prisma migrations")
+    require("npx prisma migrate status" in neon_bootstrap, "production Neon bootstrap must verify migration status")
+    require("production_neon_bootstrap_session_count=0" in neon_bootstrap, "production Neon bootstrap must verify empty Session table")
+    require("production_shopify_cutover_performed=false" in neon_bootstrap, "production Neon bootstrap must prove no Shopify cutover occurred")
+    require("production_billing_mutation_performed=false" in neon_bootstrap, "production Neon bootstrap must prove no billing mutation occurred")
+    require("production_session_migration_performed=false" in neon_bootstrap, "production Neon bootstrap must prove no Session migration occurred")
 
     require("workflow_dispatch:" in session_migration and "push:" not in session_migration, "production session migration must remain manual-only")
     require("MIGRATE_SUPABASE_SESSIONS_TO_NEON" in session_migration, "production session migration confirmation gate missing")
@@ -172,6 +194,7 @@ def main() -> int:
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in session_migration, "production migration must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in session_migration, "production migration must pin the production Neon project name")
     require("production_project_provisioned" in session_migration, "session_migration must require certified production Neon provisioning")
+    require("production_schema_bootstrap_completed" in session_migration, "session migration must require certified Neon schema bootstrap")
     require("production_endpoint_id" in session_migration, "session_migration must require the certified production Neon endpoint ID")
     require("pooled_id != production_id" in session_migration, "session_migration must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in session_migration, "production migration must reject the staging Neon endpoint")
@@ -184,6 +207,7 @@ def main() -> int:
     require("console.log(row" not in session_migration_script, "session migration must not log session rows")
 
     require("workflow_dispatch:" in deploy and "push:" not in deploy, "production Worker deploy must remain manual-only")
+    require("production_schema_bootstrap_completed" in deploy, "production Worker deploy must gate on certified Neon schema bootstrap")
     require("session_migration_completed" in deploy, "production Worker deploy must gate on certified session migration")
     require("production_neon_session_migration=certified" in deploy, "production Worker deploy migration evidence missing")
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in deploy, "production deploy must know the staging Neon endpoint")
@@ -231,6 +255,8 @@ def main() -> int:
     require("production_release_authorized=false" in acceptance, "production acceptance must prove release remains unauthorized")
     require("production_shopify_cutover_performed=false" in acceptance, "production acceptance must prove no Shopify cutover occurred")
     require("production_billing_mutation_performed=false" in acceptance, "production acceptance must prove no billing mutation occurred")
+    require("production_schema_bootstrap_completed" in acceptance, "production acceptance must require certified Neon schema bootstrap")
+    require("session_migration_completed" in acceptance, "production acceptance must require certified Session migration")
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in acceptance, "production acceptance must know the staging Neon endpoint")
     require("PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production" in acceptance, "production acceptance must pin the production Neon project name")
     require("production_project_provisioned" in acceptance, "acceptance must require certified production Neon provisioning")
