@@ -50,7 +50,10 @@ async function getActiveSubscriptions(admin) {
 }
 
 function isProductionBilling() {
-  return process.env.APP_ENV === "production";
+  return (
+    process.env.APP_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  );
 }
 
 function getValidSubscriptions(subscriptions) {
