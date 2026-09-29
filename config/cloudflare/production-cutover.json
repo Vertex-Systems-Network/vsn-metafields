@@ -40,12 +40,13 @@
     "staging_project_rename_pending": true,
     "staging_endpoint_id": "ep-snowy-surf-b3gxl2wf",
     "production_project_name": "vsn-metafields-production",
-    "production_project_provisioned": false,
-    "production_endpoint_id": null,
+    "production_project_provisioned": true,
+    "production_endpoint_id": "ep-flat-mouse-b5z1wu54",
     "require_distinct_neon_projects": true,
     "provisioning_workflow": "production-neon-provisioning.yml",
     "production_schema_provisioned": false,
-    "require_empty_session_store_before_migration": true
+    "require_empty_session_store_before_migration": true,
+    "production_project_id": "nameless-breeze-35836648"
   },
   "rollback": {
     "keep_railway_available": true,
