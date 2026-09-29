@@ -420,8 +420,9 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.staging_project_rename_pending, true);
   assert.equal(policy.database.staging_endpoint_id, "ep-snowy-surf-b3gxl2wf");
   assert.equal(policy.database.production_project_name, "vsn-metafields-production");
-  assert.equal(policy.database.production_project_provisioned, false);
-  assert.equal(policy.database.production_endpoint_id, null);
+  assert.equal(policy.database.production_project_id, "nameless-breeze-35836648");
+  assert.equal(policy.database.production_project_provisioned, true);
+  assert.equal(policy.database.production_endpoint_id, "ep-flat-mouse-b5z1wu54");
   assert.equal(policy.database.provisioning_workflow, "production-neon-provisioning.yml");
   assert.equal(policy.database.production_schema_provisioned, false);
   assert.equal(policy.database.require_empty_session_store_before_migration, true);
@@ -523,6 +524,7 @@ test("Neon staging and production identities stay isolated", () => {
     assert.match(workflow, /STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf/);
     assert.match(workflow, /PRODUCTION_NEON_PROJECT_NAME: vsn-metafields-production/);
     assert.match(workflow, /production_project_provisioned/);
+    assert.match(workflow, /production_schema_provisioned/);
     assert.match(workflow, /production_endpoint_id/);
     assert.match(workflow, /pooled_id == staging_id/);
     assert.match(workflow, /pooled_id != production_id/);
