@@ -7,13 +7,13 @@
     "name": "vsn-metafields-production",
     "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
     "public_route_binding": false,
-    "certified_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "certified_source_sha": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
     "deployment_completed": true,
-    "deployment_run_id": 36652638277,
-    "cloudflare_version_id": "8a0d51eb-74d4-4041-8216-89aef63e1a52",
+    "deployment_run_id": 36688847964,
+    "cloudflare_version_id": "f25977a9-b02e-492c-9e01-6d3de120c5a8",
     "acceptance_completed": true,
-    "acceptance_run_id": 36652893746,
-    "accepted_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+    "acceptance_run_id": 36690095989,
+    "accepted_source_sha": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
   },
   "shopify": {
     "client_id": "f5266ba8dba403005deb695fedad053a",
@@ -71,9 +71,9 @@
     "prepared_workflow": "cloudflare-production-version-rollback.yml",
     "window": {
       "status": "active",
-      "opened_at": "2026-09-30T01:55:25Z",
+      "opened_at": "2026-09-30T08:31:09Z",
       "minimum_hours": 24,
-      "earliest_close_at": "2026-10-01T01:55:25Z",
+      "earliest_close_at": "2026-10-01T08:31:09Z",
       "certification_workflow": "production-rollback-window-certification.yml",
       "closure_authorized": false,
       "certification_run_id": null,
@@ -89,7 +89,10 @@
         "cloudflare_rollback_source_preserved": true,
         "no_cloudflare_rollback_version_cleanup_before_certification": true,
         "no_supabase_cleanup_before_certification": true
-      }
+      },
+      "reset_at": "2026-09-30T08:31:09Z",
+      "reset_run_id": 36690095989,
+      "reset_reason": "production_runtime_entitlement_hotfix_accepted"
     },
     "strategy": "cloudflare_worker_version",
     "cloudflare_rollback_version_id": "8a0d51eb-74d4-4041-8216-89aef63e1a52",
@@ -125,18 +128,18 @@
     "railway_rollback_preserved": true
   },
   "runtime_update": {
-    "status": "prepared",
+    "status": "accepted",
     "reason": "restore_existing_active_test_subscription_entitlement",
     "target_source_sha": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
-    "current_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "current_source_sha": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
     "workflow": "cloudflare-production-runtime-hotfix.yml",
     "shopify_config_mutation_allowed": false,
     "billing_mutation_allowed": false,
     "database_mutation_allowed": false,
     "preserve_subscription_snapshot": true,
     "reset_rollback_window_after_success": true,
-    "deployment_run_id": null,
-    "accepted": false,
+    "deployment_run_id": 36688847964,
+    "accepted": true,
     "session_credential_refresh_allowed": true,
     "session_credential_refresh_fields": [
       "accessToken",
@@ -144,6 +147,18 @@
       "refreshToken",
       "refreshTokenExpires",
       "scope"
-    ]
+    ],
+    "previous_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "deployment_cloudflare_version_id": "f25977a9-b02e-492c-9e01-6d3de120c5a8",
+    "acceptance_run_id": 36690095989,
+    "accepted_at": "2026-09-30T08:31:09Z",
+    "acceptance_subscription_snapshot_digest": "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76",
+    "acceptance_subscription_shop_count": 2,
+    "acceptance_active_subscription_count": 2,
+    "acceptance_worker_health": true,
+    "acceptance_billing_metadata": true,
+    "acceptance_cloudflare_rollback_available": true,
+    "session_credential_refresh_run_id": 36688847964,
+    "session_credential_refresh_performed": true
   }
 }
