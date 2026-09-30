@@ -2,6 +2,7 @@ import { authenticate } from "../shopify.server";
 
 const NAMESPACE = "vsn_metafields";
 const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS";
+const ALLOWED_OWNERS = new Set(["PRODUCT", "PRODUCTVARIANT", "COLLECTION"]);
 const ALLOWED_TYPES = new Set([
   "single_line_text_field",
   "multi_line_text_field",
@@ -11,7 +12,15 @@ const ALLOWED_TYPES = new Set([
   "url",
 ]);
 
-async function getVsnMetafieldDefinitions(admin) {
+function requireOwnerType(value) {
+  const ownerType = String(value || "PRODUCT").toUpperCase();
+  if (!ALLOWED_OWNERS.has(ownerType)) {
+    throw new RangeError("Unsupported metafield owner type.");
+  }
+  return ownerType;
+}
+
+async function getVsnMetafieldDefinitions(admin, ownerType) {
   const definitions = [];
   let after = null;
   let hasNextPage = true;
@@ -19,8 +28,8 @@ async function getVsnMetafieldDefinitions(admin) {
   while (hasNextPage) {
     const res = await admin.graphql(
       `#graphql
-      query GetMetafieldDefinitions($after: String) {
-        metafieldDefinitions(first: 100, after: $after, ownerType: PRODUCT) {
+      query GetMetafieldDefinitions($after: String, $ownerType: MetafieldOwnerType!) {
+        metafieldDefinitions(first: 100, after: $after, ownerType: $ownerType) {
           nodes {
             id
             name
@@ -36,7 +45,7 @@ async function getVsnMetafieldDefinitions(admin) {
           }
         }
       }`,
-      { variables: { after } }
+      { variables: { after, ownerType } }
     );
 
     const data = await res.json();
@@ -69,11 +78,13 @@ export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
   try {
-    const fields = await getVsnMetafieldDefinitions(admin);
+    const ownerType = requireOwnerType(new URL(request.url).searchParams.get("ownerType"));
+    const fields = await getVsnMetafieldDefinitions(admin, ownerType);
 
     return Response.json({
       ok: true,
       fields,
+      ownerType,
     });
   } catch (error) {
     return Response.json(
@@ -107,6 +118,7 @@ export const action = async ({ request }) => {
   try {
     const formData = await request.formData();
     const actionType = String(formData.get("actionType") || "create");
+    const ownerType = requireOwnerType(formData.get("ownerType"));
 
     if (actionType === "reset") {
       if (formData.get("confirm") !== RESET_CONFIRMATION) {
@@ -120,7 +132,7 @@ export const action = async ({ request }) => {
         );
       }
 
-      const fields = await getVsnMetafieldDefinitions(admin);
+      const fields = await getVsnMetafieldDefinitions(admin, ownerType);
       let deletedCount = 0;
       const deleteErrors = [];
 
@@ -182,7 +194,7 @@ export const action = async ({ request }) => {
       return Response.json({
         ok: true,
         success: true,
-        message: `${deletedCount} metafield definition(s) deleted.`,
+        message: `${deletedCount} ${ownerType} metafield definition(s) deleted.`,
       });
     }
 
@@ -267,7 +279,7 @@ export const action = async ({ request }) => {
             key: cleanKey,
             namespace: NAMESPACE,
             type,
-            ownerType: "PRODUCT",
+            ownerType,
             pin: true,
             access: {
               storefront: "PUBLIC_READ",
@@ -307,7 +319,7 @@ export const action = async ({ request }) => {
     return Response.json({
       ok: true,
       success: true,
-      message: "Metafield created successfully.",
+      message: `${ownerType} metafield created successfully.`,
       metafield: result?.data?.metafieldDefinitionCreate?.createdDefinition,
     });
   } catch (error) {
