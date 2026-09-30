@@ -693,6 +693,35 @@ test("production session migration is guarded, transactional, and preserves secr
   assert.match(deploy, /production_neon_session_migration=certified/);
 });
 
+test("production offline-token migration is explicit, guarded, and billing-safe", () => {
+  const workflow = read(".github/workflows/production-offline-token-migration.yml");
+  const script = read("scripts/database/migrate-production-offline-tokens.mjs");
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /MIGRATE_PRODUCTION_OFFLINE_TOKENS/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /SHOPIFY_API_SECRET/);
+  assert.match(workflow, /DATABASE_URL/);
+  assert.match(workflow, /production_shopify_live_target=railway/);
+  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.doesNotMatch(workflow, /app release|appSubscriptionCreate|appSubscriptionCancel/);
+
+  assert.match(script, /legacy_non_expiring_token_rejected/);
+  assert.match(script, /urn:ietf:params:oauth:grant-type:token-exchange/);
+  assert.match(script, /urn:shopify:params:oauth:token-type:offline-access-token/);
+  assert.match(script, /expiring:\s*"1"/);
+  assert.match(script, /refresh_token/);
+  assert.match(script, /refresh_token_expires_in/);
+  assert.match(script, /production_offline_token_migration=pass/);
+  assert.match(script, /production_billing_mutation_performed=false/);
+  assert.match(script, /production_shopify_reinstall_required=false/);
+  assert.doesNotMatch(script, /console\.log\(row/);
+  assert.doesNotMatch(script, /appSubscriptionCreate|appSubscriptionCancel/);
+});
+
 test("production Worker acceptance gate is independent, read-only, and keeps Railway live", () => {
   const acceptance = read(".github/workflows/cloudflare-production-acceptance.yml");
   const contract = read(".github/workflows/production-cutover-contract.yml");
