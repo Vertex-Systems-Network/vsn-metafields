@@ -1,5 +1,6 @@
 import { authenticate } from "../shopify.server";
 import { hasActivePlan } from "../active-plan.server";
+import { removeDefinition } from "../definition-removal.server";
 
 const NAMESPACE = "vsn_metafields";
 const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS";
@@ -136,25 +137,8 @@ export const action = async ({ request }) => {
       }
 
       const definitions = await getVsnMetafieldDefinitions(admin, ownerType);
-      const selected = definitions.find((field) => field.id === id && field.key === key);
-      if (!selected) {
-        return Response.json({ ok: false, success: false, error: "Definition not found for this resource." }, { status: 404 });
-      }
-
-      const response = await admin.graphql(`#graphql
-        mutation DeleteSelectedMetafieldDefinition($id: ID!) {
-          metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: false) {
-            deletedDefinitionId
-            userErrors { field message }
-          }
-        }
-      `, { variables: { id: selected.id } });
-      const result = await response.json();
-      const deletion = result?.data?.metafieldDefinitionDelete;
-      const error = result?.errors?.[0]?.message || deletion?.userErrors?.[0]?.message;
-      if (error || deletion?.deletedDefinitionId !== selected.id) {
-        return Response.json({ ok: false, success: false, error: error || "Definition deletion was not confirmed." }, { status: 400 });
-      }
+      const removal = await removeDefinition(admin, definitions, { id, key });
+      if (!removal.ok) return Response.json({ ok: false, success: false, error: removal.error }, { status: removal.status });
       return Response.json({ ok: true, success: true, message: `${key} definition removed from ${ownerType}; associated values were retained.` });
     }
 
