@@ -44,9 +44,7 @@ jobs:
       EXPECTED_SUBSCRIPTION_SHOP_COUNT: ${{ github.event.inputs.subscription_shop_count }}
       EXPECTED_ACTIVE_SUBSCRIPTION_COUNT: ${{ github.event.inputs.subscription_active_count }}
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-      SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
-      SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
@@ -137,22 +135,21 @@ jobs:
             exit 1
           fi
 
-          EXPECTED_CLIENT_ID="$(python - <<'PY'
+          python - <<'PY'
           import tomllib
+
           with open("shopify.app.toml", "rb") as handle:
-              print(tomllib.load(handle)["client_id"])
+              current = tomllib.load(handle)
+          with open("shopify.app.cloudflare-production.toml", "rb") as handle:
+              target = tomllib.load(handle)
+
+          if current.get("client_id") != target.get("client_id"):
+              raise SystemExit("Production cutover release Shopify app identity mismatch.")
+          if target.get("application_url") != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev":
+              raise SystemExit("Production cutover release target URL mismatch.")
+
+          print("production_shopify_identity=repository_certified")
           PY
-          )"
-
-          if [ "$SHOPIFY_API_KEY" != "$EXPECTED_CLIENT_ID" ]; then
-            echo "Refusing production cutover release with a different Shopify app identity." >&2
-            exit 1
-          fi
-
-          if [ "$SHOPIFY_APP_URL" != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" ]; then
-            echo "Refusing production cutover release for an unexpected target URL." >&2
-            exit 1
-          fi
 
       - name: Verify Cloudflare production Worker health before release
         shell: bash
@@ -257,13 +254,15 @@ jobs:
         run: |
           set -euo pipefail
 
+          TARGET_APP_URL="https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
+
           trigger_webhook() {
             local topic="$1"
             local path="$2"
             npx --yes @shopify/cli@4.8.2 app webhook trigger \
               --config cloudflare-production \
               --api-version 2026-07 \
-              --address "$SHOPIFY_APP_URL$path" \
+              --address "$TARGET_APP_URL$path" \
               --topic "$topic" \
               --client-secret "$SHOPIFY_API_SECRET"
           }
