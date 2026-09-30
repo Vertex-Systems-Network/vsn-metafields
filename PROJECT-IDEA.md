@@ -20,6 +20,7 @@ RECEIVED — 2026-10-01. Product planning input from current user conversation; 
 - Follow this repository's ANPOS planning blueprint before feature implementation.
 
 ### Facts
+- User reports a working local setup on the `development` branch; its runtime bindings have not been independently inspected. Repo config confirms `development` is the local/staging source branch, staging deploy is manual, and `main` is the release branch.
 - Current `app/routes/app.api.fields.jsx` hardcodes `PRODUCT`, namespace `vsn_metafields`, and six field types.
 - The existing app uses Shopify Admin GraphQL, React Router, Prisma/PostgreSQL and Cloudflare production runtime.
 - The current project-state resume point is production rollback-window certification, distinct from this feature initiative.
