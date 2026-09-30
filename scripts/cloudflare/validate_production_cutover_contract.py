@@ -19,7 +19,7 @@ DEPLOY = ROOT / ".github" / "workflows" / "cloudflare-production-deploy.yml"
 ACCEPTANCE = ROOT / ".github" / "workflows" / "cloudflare-production-acceptance.yml"
 CANDIDATE = ROOT / ".github" / "workflows" / "shopify-production-cutover-version.yml"
 RELEASE = ROOT / ".github" / "workflows" / "shopify-production-cutover-release.yml"
-ROLLBACK = ROOT / ".github" / "workflows" / "shopify-production-rollback-railway.yml"
+ROLLBACK = ROOT / ".github" / "workflows" / "cloudflare-production-version-rollback.yml"
 PRODUCTION_NEON_PROVISIONING = ROOT / ".github" / "workflows" / "production-neon-provisioning.yml"
 SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migration.yml"
 SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
@@ -283,7 +283,12 @@ def main() -> int:
     else:
         require(production_endpoint_id is None, "unprovisioned production Neon endpoint must remain unset")
     require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
-    require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
+    require(rollback_policy.get("keep_railway_available") is False, "Dead Railway rollback endpoint must not remain an active dependency")
+    require(rollback_policy.get("strategy") == "cloudflare_worker_version", "production rollback strategy must be Cloudflare Worker version rollback")
+    require(rollback_policy.get("prepared_workflow") == "cloudflare-production-version-rollback.yml", "production rollback workflow drifted")
+    require(rollback_policy.get("cloudflare_rollback_version_id") == worker.get("cloudflare_version_id"), "Cloudflare rollback version must match the certified pre-hotfix Worker version")
+    require(rollback_policy.get("cloudflare_rollback_source_sha") == worker.get("accepted_source_sha"), "Cloudflare rollback source must match the certified pre-hotfix source")
+    require(rollback_policy.get("railway_endpoint_status") == "unreachable_http_404", "Railway endpoint failure evidence must remain explicit")
 
     runtime_update = policy.get("runtime_update")
     if runtime_update is not None:
@@ -343,9 +348,9 @@ def main() -> int:
         "subscription_snapshot_unchanged",
         "production_session_count_and_token_coverage",
         "expiring_offline_tokens_ready",
-        "railway_runtime_reachable",
-        "railway_rollback_source_preserved",
-        "no_railway_retirement_before_certification",
+        "cloudflare_previous_version_rollback_available",
+        "cloudflare_rollback_source_preserved",
+        "no_cloudflare_rollback_version_cleanup_before_certification",
         "no_supabase_cleanup_before_certification",
     ):
         require(rollback_criteria.get(criterion) is True, f"rollback-window criterion missing: {criterion}")
@@ -396,7 +401,7 @@ def main() -> int:
     require("production_runtime_hotfix_pre_health=pass" in runtime_hotfix, "production runtime hotfix pre-health evidence missing")
     require("production_runtime_hotfix_post_health=pass" in runtime_hotfix, "production runtime hotfix post-health evidence missing")
     require("production_runtime_hotfix_subscriptions_preserved=pass" in runtime_hotfix, "production runtime hotfix subscription preservation evidence missing")
-    require("production_runtime_hotfix_railway_rollback=pass" in runtime_hotfix, "production runtime hotfix Railway rollback evidence missing")
+    require("production_runtime_hotfix_cloudflare_rollback=pass" in runtime_hotfix, "production runtime hotfix Cloudflare rollback evidence missing")
     require("production_shopify_config_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no Shopify config mutation")
     require("production_billing_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no billing mutation")
     require("refresh-production-offline-tokens.mjs" in runtime_hotfix, "production runtime hotfix must refresh expired offline tokens safely")
@@ -684,11 +689,12 @@ def main() -> int:
     require("earliest_close_at" in rollback_window_certification, "rollback-window certification must enforce earliest close time")
     require("rollback_window_elapsed=pass" in rollback_window_certification, "rollback-window elapsed-time evidence missing")
     require("vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz" in rollback_window_certification, "rollback-window Cloudflare health check missing")
-    require("vsn-metafields-production.up.railway.app/healthz" in rollback_window_certification, "rollback-window Railway health check missing")
+    require("wrangler@4.141.0 versions view" in rollback_window_certification, "rollback-window Cloudflare rollback-version check missing")
+    require("ROLLBACK_VERSION_ID" in rollback_window_certification, "rollback-window certified rollback version binding missing")
     require("audit-production-subscriptions.mjs" in rollback_window_certification, "rollback-window subscription audit missing")
     require("audit-production-session-readiness.mjs" in rollback_window_certification, "rollback-window Session readiness audit missing")
     require("production_rollback_window_certification=pass" in rollback_window_certification, "rollback-window certification success evidence missing")
-    require("production_railway_retirement_performed=false" in rollback_window_certification, "rollback-window certification must prove no Railway retirement")
+    require("production_cloudflare_rollback_version_cleanup_performed=false" in rollback_window_certification, "rollback-window certification must prove rollback version is retained")
     require("production_supabase_cleanup_performed=false" in rollback_window_certification, "rollback-window certification must prove no Supabase cleanup")
     require("npx --yes @shopify/cli" not in rollback_window_certification, "rollback-window certification must not invoke Shopify CLI mutations")
     require("app deploy" not in rollback_window_certification, "rollback-window certification must not deploy Shopify config")
@@ -733,11 +739,14 @@ def main() -> int:
     require("prisma migrate deploy" not in runtime_hotfix, "runtime hotfix must never mutate production schema")
     require("--allow-deletes" not in runtime_hotfix, "runtime hotfix must never authorize Shopify config deletes")
 
-    require("ROLLBACK_TO_RAILWAY" in rollback, "Railway rollback confirmation missing")
-    require("github.ref == 'refs/heads/main'" in rollback, "Railway rollback must require protected main")
-    require("ref: main" in rollback, "Railway rollback checkout must pin main")
-    require(railway_url in rollback, "Railway rollback URL guard missing")
-    require("app release" in rollback and "--allow-updates" in rollback, "Railway rollback release command missing")
+    require("ROLLBACK_CLOUDFLARE_PRODUCTION_VERSION" in rollback, "Cloudflare rollback confirmation missing")
+    require("github.ref == 'refs/heads/main'" in rollback, "Cloudflare rollback must require protected main")
+    require("ref: main" in rollback, "Cloudflare rollback checkout must pin main")
+    require("wrangler@4.141.0 rollback" in rollback, "Cloudflare rollback command missing")
+    require("REQUESTED_ROLLBACK_VERSION_ID" in rollback, "Cloudflare rollback exact-version binding missing")
+    require("production_shopify_config_mutation_performed=false" in rollback, "Cloudflare rollback must not mutate Shopify config")
+    require("production_billing_mutation_performed=false" in rollback, "Cloudflare rollback must not mutate billing")
+    require("production_database_mutation_performed=false" in rollback, "Cloudflare rollback must not mutate database state")
 
     print(f"production_cutover_contract={status}")
     print(f"production_release_authorized={str(release_authorized).lower()}")
@@ -746,7 +755,7 @@ def main() -> int:
     print(f"production_target_url={cloudflare_url}")
     print("production_billing_mutation_authorized=false")
     print("production_database_migration_authorized=false")
-    print("railway_rollback_required=true")
+    print("cloudflare_version_rollback_required=true")
     print("production_package_certifiable_without_deploy=true")
     return 0
 
