@@ -88,6 +88,26 @@ jobs:
           authorized_version = policy.get("authorized_version")
           authorized_source_ref = policy.get("authorized_source_ref")
           authorization_record = policy.get("authorization_record")
+          candidate = policy.get("candidate") or {}
+
+          if policy.get("status") != "authorized_not_released":
+              raise SystemExit("Production cutover policy is not in authorized_not_released state.")
+          if candidate.get("released") is not False:
+              raise SystemExit("Authorized production candidate is not unreleased.")
+          if authorized_version != candidate.get("version"):
+              raise SystemExit("Authorized version does not match the repository candidate.")
+          if authorized_source_ref != candidate.get("source_ref"):
+              raise SystemExit("Authorized source ref does not match the repository candidate.")
+
+          expected_digest = os.environ["EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST"]
+          expected_shop_count = int(os.environ["EXPECTED_SUBSCRIPTION_SHOP_COUNT"])
+          expected_active_count = int(os.environ["EXPECTED_ACTIVE_SUBSCRIPTION_COUNT"])
+          if expected_digest != candidate.get("subscription_snapshot_digest"):
+              raise SystemExit("Requested subscription snapshot digest does not match the authorized candidate.")
+          if expected_shop_count != candidate.get("subscription_shop_count"):
+              raise SystemExit("Requested subscription shop count does not match the authorized candidate.")
+          if expected_active_count != candidate.get("active_subscription_count"):
+              raise SystemExit("Requested active subscription count does not match the authorized candidate.")
 
           if authorized_version != target_version:
               raise SystemExit(
