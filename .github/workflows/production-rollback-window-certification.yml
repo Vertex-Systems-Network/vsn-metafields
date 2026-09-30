@@ -1,0 +1,229 @@
+name: Production Rollback Window Certification
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type CERTIFY_ROLLBACK_WINDOW_CLOSURE after the minimum rollback window has elapsed"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-rollback-window-certification
+  cancel-in-progress: false
+
+jobs:
+  certify-rollback-window:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'CERTIFY_ROLLBACK_WINDOW_CLOSURE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Require rollback window maturity and load certified expectations
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "Missing required cloudflare-production environment secret: DATABASE_URL" >&2
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          rollback = policy.get("rollback") or {}
+          window = rollback.get("window") or {}
+          candidate = policy.get("candidate") or {}
+          release = policy.get("release") or {}
+          worker = policy.get("production_worker") or {}
+
+          if policy.get("status") != "released_post_cutover_verified":
+              raise SystemExit("Production cutover is not in the verified released state.")
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("Release authorization must remain consumed.")
+          if candidate.get("released") is not True:
+              raise SystemExit("Production candidate is not recorded as released.")
+          if release.get("subscriptions_preserved") is not True:
+              raise SystemExit("Post-release subscription preservation evidence is missing.")
+          if rollback.get("keep_railway_available") is not True:
+              raise SystemExit("Railway rollback must remain available until closure.")
+          if window.get("status") != "active":
+              raise SystemExit("Rollback window is not active.")
+          if window.get("closure_authorized") is not False:
+              raise SystemExit("Rollback-window closure must not be pre-authorized.")
+
+          earliest_text = window.get("earliest_close_at")
+          if not isinstance(earliest_text, str):
+              raise SystemExit("Rollback-window earliest close time is missing.")
+          earliest = datetime.fromisoformat(earliest_text.replace("Z", "+00:00"))
+          now = datetime.now(timezone.utc)
+          if now < earliest:
+              raise SystemExit(
+                  f"Rollback window is still active until {earliest_text}; current UTC is {now.isoformat()}."
+              )
+
+          env = os.environ["GITHUB_ENV"]
+          with open(env, "a", encoding="utf-8") as handle:
+              handle.write(
+                  "EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST="
+                  + str(candidate["subscription_snapshot_digest"])
+                  + "\n"
+              )
+              handle.write(
+                  "EXPECTED_SUBSCRIPTION_SHOP_COUNT="
+                  + str(candidate["subscription_shop_count"])
+                  + "\n"
+              )
+              handle.write(
+                  "EXPECTED_ACTIVE_SUBSCRIPTION_COUNT="
+                  + str(candidate["active_subscription_count"])
+                  + "\n"
+              )
+              handle.write("EXPECTED_SESSION_COUNT=4\n")
+              handle.write("EXPECTED_SESSION_TOKEN_COUNT=4\n")
+              handle.write("EXPECTED_OFFLINE_SESSION_COUNT=2\n")
+              handle.write("EXPECTED_OFFLINE_READY_COUNT=2\n")
+              handle.write(
+                  "EXPECTED_SOURCE_SHA="
+                  + str(worker["accepted_source_sha"])
+                  + "\n"
+              )
+
+          print(f"rollback_window_opened_at={window.get('opened_at')}")
+          print(f"rollback_window_earliest_close_at={earliest_text}")
+          print("rollback_window_elapsed=pass")
+          print("production_release_authorized=false")
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Cloudflare live Worker health and certified runtime source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz"
+          expected_sha = os.environ["EXPECTED_SOURCE_SHA"]
+
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-metafields-rollback-window-cloudflare/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("Cloudflare Worker did not report ok=true.")
+                  if payload.get("commitSha") != expected_sha:
+                      raise RuntimeError("Cloudflare Worker runtime source SHA drifted.")
+                  plan = payload.get("plan") or {}
+                  if float(plan.get("amount", 0)) != 55:
+                      raise RuntimeError("Production billing amount drifted.")
+                  if int(plan.get("trialDays", -1)) != 5:
+                      raise RuntimeError("Production billing trial drifted.")
+                  break
+              except Exception:
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          print("rollback_window_cloudflare_health=pass")
+          print("rollback_window_cloudflare_source=certified")
+          print("rollback_window_billing_metadata=pass")
+          PY
+
+      - name: Verify current production subscriptions are unchanged
+        run: node scripts/cloudflare/audit-production-subscriptions.mjs
+
+      - name: Verify production Session and expiring-token readiness
+        run: node scripts/cloudflare/audit-production-session-readiness.mjs
+
+      - name: Verify Railway rollback runtime is still reachable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          url = "https://vsn-metafields-production.up.railway.app/healthz"
+          last_error = None
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-metafields-rollback-window-railway/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      if response.status != 200:
+                          raise RuntimeError(
+                              f"Railway rollback health returned HTTP {response.status}"
+                          )
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("Railway rollback runtime did not report ok=true.")
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          if last_error is not None:
+              print("rollback_window_railway_transient_retry_observed=true")
+          print("rollback_window_railway_runtime=pass")
+          PY
+
+      - name: Verify Railway rollback source and workflow remain intact
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+          grep -F 'ROLLBACK_TO_RAILWAY' .github/workflows/shopify-production-rollback-railway.yml >/dev/null
+          grep -F -- '--allow-updates' .github/workflows/shopify-production-rollback-railway.yml >/dev/null
+          if grep -F -- '--allow-deletes' .github/workflows/shopify-production-rollback-railway.yml >/dev/null; then
+            echo "Railway rollback workflow must not allow deletes." >&2
+            exit 1
+          fi
+          echo "rollback_window_railway_source=preserved"
+          echo "rollback_window_rollback_workflow=ready"
+
+      - name: Certify rollback-window closure readiness
+        run: |
+          echo "production_rollback_window_certification=pass"
+          echo "production_rollback_window_closure_eligible=true"
+          echo "production_railway_retirement_performed=false"
+          echo "production_supabase_cleanup_performed=false"

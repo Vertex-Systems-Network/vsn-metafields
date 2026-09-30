@@ -68,7 +68,29 @@
   },
   "rollback": {
     "keep_railway_available": true,
-    "prepared_workflow": "shopify-production-rollback-railway.yml"
+    "prepared_workflow": "shopify-production-rollback-railway.yml",
+    "window": {
+      "status": "active",
+      "opened_at": "2026-09-30T01:55:25Z",
+      "minimum_hours": 24,
+      "earliest_close_at": "2026-10-01T01:55:25Z",
+      "certification_workflow": "production-rollback-window-certification.yml",
+      "closure_authorized": false,
+      "certification_run_id": null,
+      "certified_at": null,
+      "closed_at": null,
+      "criteria": {
+        "cloudflare_health_and_source_sha": true,
+        "billing_metadata_55_usd_5_day_trial": true,
+        "subscription_snapshot_unchanged": true,
+        "production_session_count_and_token_coverage": true,
+        "expiring_offline_tokens_ready": true,
+        "railway_runtime_reachable": true,
+        "railway_rollback_source_preserved": true,
+        "no_railway_retirement_before_certification": true,
+        "no_supabase_cleanup_before_certification": true
+      }
+    }
   },
   "authorized_version": "cloudflare-production-cutover-8d201357d738-4",
   "authorized_source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",

@@ -887,3 +887,64 @@ test("production cutover preflight watches runtime-critical release paths", () =
   assert.match(workflow, /migrate-production-sessions\.mjs/);
   assert.match(workflow, /resolve-production-neon-urls\.py/);
 });
+
+
+test("production rollback window closure is time-gated and evidence-based", () => {
+  const policy = JSON.parse(read("config/cloudflare/production-cutover.json"));
+  const workflow = read(".github/workflows/production-rollback-window-certification.yml");
+  const sessionAudit = read("scripts/cloudflare/audit-production-session-readiness.mjs");
+  const rollback = policy.rollback;
+  const window = rollback.window;
+
+  assert.equal(policy.status, "released_post_cutover_verified");
+  assert.equal(rollback.keep_railway_available, true);
+  assert.equal(window.status, "active");
+  assert.equal(window.opened_at, "2026-09-30T01:55:25Z");
+  assert.equal(window.minimum_hours, 24);
+  assert.equal(window.earliest_close_at, "2026-10-01T01:55:25Z");
+  assert.equal(
+    window.certification_workflow,
+    "production-rollback-window-certification.yml"
+  );
+  assert.equal(window.closure_authorized, false);
+  assert.equal(window.certification_run_id, null);
+  assert.equal(window.certified_at, null);
+  assert.equal(window.closed_at, null);
+  for (const value of Object.values(window.criteria)) {
+    assert.equal(value, true);
+  }
+
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /\npush:/);
+  assert.match(workflow, /CERTIFY_ROLLBACK_WINDOW_CLOSURE/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /ref: main/);
+  assert.match(workflow, /environment: cloudflare-production/);
+  assert.match(workflow, /earliest_close_at/);
+  assert.match(workflow, /rollback_window_elapsed=pass/);
+  assert.match(
+    workflow,
+    /vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev\/healthz/
+  );
+  assert.match(
+    workflow,
+    /vsn-metafields-production\.up\.railway\.app\/healthz/
+  );
+  assert.match(workflow, /audit-production-subscriptions\.mjs/);
+  assert.match(workflow, /audit-production-session-readiness\.mjs/);
+  assert.match(workflow, /production_rollback_window_certification=pass/);
+  assert.match(workflow, /production_rollback_window_closure_eligible=true/);
+  assert.match(workflow, /production_railway_retirement_performed=false/);
+  assert.match(workflow, /production_supabase_cleanup_performed=false/);
+  assert.doesNotMatch(
+    workflow,
+    /app release|appSubscriptionCreate|appSubscriptionCancel/
+  );
+
+  assert.match(sessionAudit, /production_session_readiness=pass/);
+  assert.match(sessionAudit, /production_session_credentials_logged=false/);
+  assert.match(sessionAudit, /"isOnline" = false/);
+  assert.match(sessionAudit, /"refreshToken" IS NOT NULL/);
+  assert.match(sessionAudit, /"refreshTokenExpires" IS NOT NULL/);
+  assert.doesNotMatch(sessionAudit, /console\.log\(row/);
+});
