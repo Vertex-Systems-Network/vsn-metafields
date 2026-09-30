@@ -46,6 +46,8 @@ Contract tests for GraphQL/validation/entitlement; staging create/write/read/del
 Per-shop authentication and server-side entitlement; least-privilege scopes; public/private access separation; safe Liquid escaping; data classification/retention; deletion previews; import limits and audit; protected production release path.
 
 ## 15. Deployment / Operations Implications
+Mandatory sequence: local work on `development` or a feature branch based on it → local checks → manual deployment of `development` to isolated staging → staging evidence → reviewed `development → main` PR → exact-SHA manual live deployment/acceptance. User reports local setup, but its actual runtime is unverified. See `docs/development-release-flow.md` and `config/development-flow.json`.
+
 No feature production deploy during planning. Staging first, rollback/health/subscription snapshot verification and existing Cloudflare rollback certification remain independent. Add migration/runbook and diagnostics before release.
 
 ## 16. Unresolved Human Decisions
