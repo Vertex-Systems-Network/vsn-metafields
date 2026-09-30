@@ -311,7 +311,7 @@ def main() -> int:
         require(rollback_criteria.get(criterion) is True, f"rollback-window criterion missing: {criterion}")
 
 
-    workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration, rollback_window_certification]
+    workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
@@ -586,6 +586,9 @@ def main() -> int:
     require("production_rollback_window_certification=pass" in rollback_window_certification, "rollback-window certification success evidence missing")
     require("production_railway_retirement_performed=false" in rollback_window_certification, "rollback-window certification must prove no Railway retirement")
     require("production_supabase_cleanup_performed=false" in rollback_window_certification, "rollback-window certification must prove no Supabase cleanup")
+    require("npx --yes @shopify/cli" not in rollback_window_certification, "rollback-window certification must not invoke Shopify CLI mutations")
+    require("app deploy" not in rollback_window_certification, "rollback-window certification must not deploy Shopify config")
+    require("app release" not in rollback_window_certification, "rollback-window certification must never release Shopify config")
     require("app release" not in rollback_window_certification, "rollback-window certification must never release Shopify config")
     require("appSubscriptionCreate" not in rollback_window_certification, "rollback-window certification must never create subscriptions")
     require("appSubscriptionCancel" not in rollback_window_certification, "rollback-window certification must never cancel subscriptions")
