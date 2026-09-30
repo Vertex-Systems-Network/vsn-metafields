@@ -427,7 +427,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.production_worker.certified_source_sha,
-    "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+    "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
   );
   assert.equal(
     policy.authorized_version,
