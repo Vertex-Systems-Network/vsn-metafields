@@ -1,8 +1,64 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
+  "status": "active_registry",
   "activation_scope": "child_project_only",
-  "risks": [],
+  "risks": [
+    {
+      "id": "RISK-0001",
+      "category": "operational",
+      "title": "Subscription or rollback regression during feature rollout",
+      "description": "New scopes/extension/release could disturb certified Cloudflare app and two active subscriptions.",
+      "evidence_refs": [
+        "EVID-000007"
+      ],
+      "likelihood": "unknown",
+      "impact": "high",
+      "owner": "project release operator (assignment pending)",
+      "mitigations": [
+        "Keep current PHASE-01 rollback certification independent",
+        "Staging E2E, billing fingerprint and production acceptance before rollout"
+      ],
+      "residual_risk": "unknown",
+      "linked_requirements": [
+        "REQ-META-005"
+      ],
+      "linked_modules_or_findings": [
+        "MOD-META-OPERATIONS"
+      ],
+      "disposition": "open",
+      "consent_ref": null,
+      "accepted_at": null,
+      "review_or_expiry_at": null
+    },
+    {
+      "id": "RISK-0002",
+      "category": "privacy",
+      "title": "Protected owner value disclosed in storefront",
+      "description": "Admin owner support might be mistaken for public Liquid access.",
+      "evidence_refs": [
+        "EVID-000002"
+      ],
+      "likelihood": "unknown",
+      "impact": "high",
+      "owner": "feature security reviewer (assignment pending)",
+      "mitigations": [
+        "Capability registry with explicit storefront access",
+        "Never proxy protected values without separate privacy design"
+      ],
+      "residual_risk": "unknown",
+      "linked_requirements": [
+        "REQ-META-004"
+      ],
+      "linked_modules_or_findings": [
+        "MOD-META-CAPABILITY",
+        "MOD-META-THEME"
+      ],
+      "disposition": "open",
+      "consent_ref": null,
+      "accepted_at": null,
+      "review_or_expiry_at": null
+    }
+  ],
   "risk_template": {
     "id": "RISK-0001",
     "category": "security",
@@ -21,8 +77,23 @@
     "accepted_at": null,
     "review_or_expiry_at": null
   },
-  "allowed_categories": ["security", "privacy", "ai", "product", "operational", "financial", "compliance", "architecture"],
-  "allowed_dispositions": ["open", "mitigating", "accepted", "resolved", "expired_acceptance"],
+  "allowed_categories": [
+    "security",
+    "privacy",
+    "ai",
+    "product",
+    "operational",
+    "financial",
+    "compliance",
+    "architecture"
+  ],
+  "allowed_dispositions": [
+    "open",
+    "mitigating",
+    "accepted",
+    "resolved",
+    "expired_acceptance"
+  ],
   "rules": {
     "material_risk_requires_owner": true,
     "risk_acceptance_requires_authenticated_consent_when_policy_requires": true,
