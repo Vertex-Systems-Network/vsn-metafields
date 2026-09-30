@@ -82,6 +82,17 @@ export default function Index() {
     });
   };
 
+  const handleDelete = (field) => {
+    if (!window.confirm(`Remove only ${ownerType} definition ${field.key}? Existing values will be retained.`)) return;
+    const formData = new FormData();
+    formData.set("actionType", "delete");
+    formData.set("ownerType", ownerType);
+    formData.set("id", field.id);
+    formData.set("key", field.key);
+    formData.set("confirm", `DELETE_VSN_METAFIELD:${field.key}`);
+    actionFetcher.submit(formData, { method: "post", action: `/app/api/fields${window.location.search}` });
+  };
+
   const isActionLoading = actionFetcher.state !== "idle";
 
   // ✅ Fixed loading states
@@ -206,6 +217,7 @@ export default function Index() {
               <s-table-header>Name</s-table-header>
               <s-table-header>Key</s-table-header>
               <s-table-header>Type</s-table-header>
+              <s-table-header>Action</s-table-header>
             </s-table-header-row>
             <s-table-body>
               {fields.map((field) => (
@@ -213,6 +225,11 @@ export default function Index() {
                   <s-table-cell>{field.name}</s-table-cell>
                   <s-table-cell>{field.key}</s-table-cell>
                   <s-table-cell>{field.type}</s-table-cell>
+                  <s-table-cell>
+                    <s-button tone="critical" disabled={isActionLoading} onClick={() => handleDelete(field)}>
+                      Remove
+                    </s-button>
+                  </s-table-cell>
                 </s-table-row>
               ))}
             </s-table-body>
