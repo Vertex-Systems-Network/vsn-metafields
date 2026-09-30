@@ -1,0 +1,208 @@
+{%- liquid
+  assign owner = product
+  if request.page_type == 'collection'
+    assign owner = collection
+  endif
+  assign field = nil
+  if owner != blank and block.settings.namespace != blank and block.settings.field_key != blank
+    assign field = owner.metafields[block.settings.namespace][block.settings.field_key]
+  endif
+  assign supported = false
+  if field != blank
+    case field.type
+      when 'boolean', 'date', 'url', 'single_line_text_field', 'multi_line_text_field', 'number_integer'
+        assign supported = true
+    endcase
+  endif
+  assign has_value = false
+  if supported and field.value != blank
+    assign has_value = true
+  elsif supported and field.type == 'boolean' and field.value == false
+    assign has_value = true
+  endif
+-%}
+{%- if has_value or block.settings.fallback != blank or request.design_mode -%}
+  <div class="vsn-metafield-block" style="--vsn-width: {{ block.settings.width }}px; --vsn-padding: {{ block.settings.padding }}px; --vsn-radius: {{ block.settings.radius }}px; --vsn-gap: {{ block.settings.gap }}px; --vsn-size: {{ block.settings.font_size }}px; --vsn-align: {{ block.settings.alignment }}; --vsn-background: {{ block.settings.background }}; --vsn-color: {{ block.settings.text_color }}; --vsn-border: {{ block.settings.border_color }};" {{ block.shopify_attributes }}>
+    {%- if block.settings.show_label and block.settings.label != blank -%}
+      <span class="vsn-metafield-block__label">{{ block.settings.label | escape }}</span>
+    {%- endif -%}
+    <div class="vsn-metafield-block__value">
+      {%- if has_value -%}
+        {%- render 'vsn-field-value', field: field, true_text: block.settings.true_text, false_text: block.settings.false_text, link_text: block.settings.link_text, date_format: block.settings.date_format -%}
+      {%- elsif block.settings.fallback != blank -%}
+        {{- block.settings.fallback | escape -}}
+      {%- elsif request.design_mode -%}
+        Set a namespace and key for a product or collection metafield.
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+{% schema %}
+{
+  "name": "VSN single field",
+  "target": "section",
+  "enabled_on": {
+    "templates": [
+      "product",
+      "collection"
+    ]
+  },
+  "stylesheet": "vsn-metafields.css",
+  "settings": [
+    {
+      "type": "text",
+      "id": "namespace",
+      "label": "Namespace",
+      "default": "vsn_metafields"
+    },
+    {
+      "type": "text",
+      "id": "field_key",
+      "label": "Metafield key"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label",
+      "label": "Show label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "Details"
+    },
+    {
+      "type": "text",
+      "id": "fallback",
+      "label": "Text when value is missing"
+    },
+    {
+      "type": "text",
+      "id": "true_text",
+      "label": "True label",
+      "default": "Yes"
+    },
+    {
+      "type": "text",
+      "id": "false_text",
+      "label": "False label",
+      "default": "No"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link text",
+      "default": "Learn more"
+    },
+    {
+      "type": "select",
+      "id": "date_format",
+      "label": "Date format",
+      "options": [
+        {
+          "value": "%b %d, %Y",
+          "label": "Sep 30, 2026"
+        },
+        {
+          "value": "%Y-%m-%d",
+          "label": "2026-09-30"
+        },
+        {
+          "value": "%d/%m/%Y",
+          "label": "30/09/2026"
+        }
+      ],
+      "default": "%b %d, %Y"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Value font size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Padding",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Label gap",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "width",
+      "label": "Maximum width",
+      "min": 300,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#dddddd"
+    }
+  ]
+}
+{% endschema %}
