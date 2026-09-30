@@ -707,7 +707,7 @@ def main() -> int:
     require("production_merchant_reinstall_required=false" in runtime_hotfix, "runtime hotfix must prove no merchant reinstall")
     require("production_rollback_window_reset_required=true" in runtime_hotfix, "runtime hotfix must require rollback-window reset")
     require("wrangler@4.141.0 deploy" in runtime_hotfix, "runtime hotfix Worker deploy command missing")
-    require("SHOPIFY_APP_URL:https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" in runtime_hotfix, "runtime hotfix must stay on Cloudflare production URL")
+    require("SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" in runtime_hotfix, "runtime hotfix must stay on Cloudflare production URL")
     require("npx --yes @shopify/cli" not in runtime_hotfix, "runtime hotfix must never invoke Shopify CLI")
     require("appSubscriptionCreate" not in runtime_hotfix, "runtime hotfix must never create subscriptions")
     require("appSubscriptionCancel" not in runtime_hotfix, "runtime hotfix must never cancel subscriptions")
