@@ -14,6 +14,10 @@ class DevelopmentRouteTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Only development"):
             validate_route("main", "feature/metafield-definitions")
 
+    def test_fork_named_development_cannot_release_to_main(self):
+        with self.assertRaisesRegex(ValueError, "Only development"):
+            validate_route("main", "development", "other/repo", "Vertex-Systems-Network/vsn-metafields")
+
     def test_main_cannot_be_feature_source(self):
         with self.assertRaisesRegex(ValueError, "separate source branch"):
             validate_route("development", "main")
