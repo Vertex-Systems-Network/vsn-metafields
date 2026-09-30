@@ -34,12 +34,12 @@ export default function Index() {
   // Reload fields after successful action
   useEffect(() => {
     if (actionFetcher.data?.success) {
-      fieldsFetcher.load(`/app/api/fields${window.location.search}`);
+      fieldsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}`);
       setName("");
       setKey("");
       setType("single_line_text_field");
     }
-  }, [actionFetcher.data, ownerType]);
+  }, [actionFetcher.data?.success]);
 
   const typeOptions = [
     { label: "Text (Single Line)", value: "single_line_text_field" },
