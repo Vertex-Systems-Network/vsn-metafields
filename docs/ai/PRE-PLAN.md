@@ -36,6 +36,8 @@ MOD-META-CAPABILITY, MOD-META-DEFINITIONS, MOD-META-VALUES, MOD-META-METAOBJECTS
 ## 11. Phase / Milestone Strategy
 Feature milestone F0: discovery, capability and market evidence; F1: product/variant/collection definition manager; F2: typed values and first field/specifications blocks; F3: metaobjects and specialized renderers; F4: broader eligible owner support, bulk operations and release. These are feature milestone names, not replacements for existing PHASE-01.
 
+The first block's content/options, typed renderer boundaries and theme acceptance are specified in `docs/ai/STOREFRONT-BLOCK-BLUEPRINT.md`.
+
 ## 12. Dependency and Critical Path
 Preserve rollback window; establish API capability/scope/namespace decision; then definitions → values → typed rendering → theme verification → gradual production release. Scope upgrades and subscription entitlements may block rollout.
 
