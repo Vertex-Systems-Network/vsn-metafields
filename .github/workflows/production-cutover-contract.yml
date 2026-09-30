@@ -144,7 +144,7 @@ jobs:
           set -euo pipefail
           grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
 
-      - name: Confirm production release remains unauthorized
+      - name: Confirm production pre-release state is policy-safe
         shell: bash
         run: |
           set -euo pipefail
@@ -153,10 +153,21 @@ jobs:
           from pathlib import Path
 
           policy = json.loads(Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8"))
-          if policy.get("release_authorized") is not False:
-              raise SystemExit("production release unexpectedly authorized")
-          print("production_cutover_prepared=true")
-          print("production_release_authorized=false")
+          status = policy.get("status")
+          authorized = policy.get("release_authorized")
+          candidate = policy.get("candidate") or {}
+
+          if status not in {"prepared_not_authorized", "authorized_not_released"}:
+              raise SystemExit("production cutover policy is not in a supported pre-release state")
+          if candidate.get("released") is not False:
+              raise SystemExit("production candidate must remain unreleased during certification")
+          if status == "prepared_not_authorized" and authorized is not False:
+              raise SystemExit("prepared production cutover unexpectedly authorized")
+          if status == "authorized_not_released" and authorized is not True:
+              raise SystemExit("authorized production cutover missing release authorization")
+
+          print(f"production_release_state={status}")
+          print(f"production_release_authorized={str(authorized).lower()}")
           print("production_worker_certification=dry_run_only")
           print("production_shopify_cutover_performed=false")
           PY
