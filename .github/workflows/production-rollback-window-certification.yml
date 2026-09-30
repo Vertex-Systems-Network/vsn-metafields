@@ -24,6 +24,8 @@ jobs:
     env:
       CI: "true"
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: f63cf3af0868a5c8a0b26ebee5dd039f
 
     steps:
       - name: Checkout protected main
@@ -77,8 +79,13 @@ jobs:
               raise SystemExit("Production candidate is not recorded as released.")
           if release.get("subscriptions_preserved") is not True:
               raise SystemExit("Post-release subscription preservation evidence is missing.")
-          if rollback.get("keep_railway_available") is not True:
-              raise SystemExit("Railway rollback must remain available until closure.")
+          if rollback.get("strategy") != "cloudflare_worker_version":
+              raise SystemExit("Cloudflare Worker version rollback must remain the active rollback strategy until closure.")
+          if rollback.get("prepared_workflow") != "cloudflare-production-version-rollback.yml":
+              raise SystemExit("Cloudflare rollback workflow policy drifted.")
+          rollback_version = rollback.get("cloudflare_rollback_version_id")
+          if not isinstance(rollback_version, str) or not rollback_version:
+              raise SystemExit("Certified Cloudflare rollback version is missing.")
           if window.get("status") != "active":
               raise SystemExit("Rollback window is not active.")
           if window.get("closure_authorized") is not False:
@@ -118,6 +125,11 @@ jobs:
               handle.write(
                   "EXPECTED_SOURCE_SHA="
                   + str(worker["accepted_source_sha"])
+                  + "\n"
+              )
+              handle.write(
+                  "ROLLBACK_VERSION_ID="
+                  + str(rollback["cloudflare_rollback_version_id"])
                   + "\n"
               )
 
@@ -177,60 +189,26 @@ jobs:
       - name: Verify production Session and expiring-token readiness
         run: node scripts/cloudflare/audit-production-session-readiness.mjs
 
-      - name: Verify Railway rollback runtime is still reachable
+      - name: Verify certified Cloudflare rollback version and workflow remain available
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json
-          import time
-          import urllib.request
-
-          url = "https://vsn-metafields-production.up.railway.app/healthz"
-          last_error = None
-          for attempt in range(1, 7):
-              try:
-                  request = urllib.request.Request(
-                      url,
-                      headers={"User-Agent": "vsn-metafields-rollback-window-railway/1.0"},
-                  )
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      if response.status != 200:
-                          raise RuntimeError(
-                              f"Railway rollback health returned HTTP {response.status}"
-                          )
-                      payload = json.loads(response.read().decode("utf-8"))
-                  if payload.get("ok") is not True:
-                      raise RuntimeError("Railway rollback runtime did not report ok=true.")
-                  break
-              except Exception as exc:
-                  last_error = exc
-                  if attempt == 6:
-                      raise
-                  time.sleep(attempt * 2)
-
-          if last_error is not None:
-              print("rollback_window_railway_transient_retry_observed=true")
-          print("rollback_window_railway_runtime=pass")
-          PY
-
-      - name: Verify Railway rollback source and workflow remain intact
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
-          grep -F 'ROLLBACK_TO_RAILWAY' .github/workflows/shopify-production-rollback-railway.yml >/dev/null
-          grep -F -- '--allow-updates' .github/workflows/shopify-production-rollback-railway.yml >/dev/null
-          if grep -F -- '--allow-deletes' .github/workflows/shopify-production-rollback-railway.yml >/dev/null; then
-            echo "Railway rollback workflow must not allow deletes." >&2
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo "Missing required cloudflare-production environment secret: CLOUDFLARE_API_TOKEN" >&2
             exit 1
           fi
-          echo "rollback_window_railway_source=preserved"
+          npx --yes wrangler@4.141.0 versions view "$ROLLBACK_VERSION_ID" \
+            --name vsn-metafields-production \
+            --json > /tmp/vsn-metafields-rollback-window-version.json
+          grep -F "$ROLLBACK_VERSION_ID" /tmp/vsn-metafields-rollback-window-version.json >/dev/null
+          grep -F 'ROLLBACK_CLOUDFLARE_PRODUCTION_VERSION' .github/workflows/cloudflare-production-version-rollback.yml >/dev/null
+          grep -F 'wrangler@4.141.0 rollback' .github/workflows/cloudflare-production-version-rollback.yml >/dev/null
+          echo "rollback_window_cloudflare_rollback_version=available"
           echo "rollback_window_rollback_workflow=ready"
 
       - name: Certify rollback-window closure readiness
         run: |
           echo "production_rollback_window_certification=pass"
           echo "production_rollback_window_closure_eligible=true"
-          echo "production_railway_retirement_performed=false"
+          echo "production_cloudflare_rollback_version_cleanup_performed=false"
           echo "production_supabase_cleanup_performed=false"

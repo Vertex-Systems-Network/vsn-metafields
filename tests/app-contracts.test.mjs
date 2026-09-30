@@ -411,7 +411,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   const acceptance = read(".github/workflows/cloudflare-production-acceptance.yml");
   const candidate = read(".github/workflows/shopify-production-cutover-version.yml");
   const release = read(".github/workflows/shopify-production-cutover-release.yml");
-  const rollback = read(".github/workflows/shopify-production-rollback-railway.yml");
+  const rollback = read(".github/workflows/cloudflare-production-version-rollback.yml");
   const subscriptionAudit = read("scripts/cloudflare/audit-production-subscriptions.mjs");
 
   assert.match(current, /client_id = "f5266ba8dba403005deb695fedad053a"/);
@@ -503,7 +503,21 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.production_schema_completed_migrations, 1);
   assert.equal(policy.database.require_empty_session_store_before_migration, true);
   assert.equal(policy.database.require_distinct_neon_projects, true);
-  assert.equal(policy.rollback.keep_railway_available, true);
+  assert.equal(policy.rollback.keep_railway_available, false);
+  assert.equal(policy.rollback.strategy, "cloudflare_worker_version");
+  assert.equal(
+    policy.rollback.prepared_workflow,
+    "cloudflare-production-version-rollback.yml"
+  );
+  assert.equal(
+    policy.rollback.cloudflare_rollback_version_id,
+    "8a0d51eb-74d4-4041-8216-89aef63e1a52"
+  );
+  assert.equal(
+    policy.rollback.cloudflare_rollback_source_sha,
+    "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+  );
+  assert.equal(policy.rollback.railway_endpoint_status, "unreachable_http_404");
   assert.equal(policy.production_worker.deployment_completed, true);
   assert.equal(policy.production_worker.acceptance_completed, true);
   assert.equal(
@@ -591,10 +605,13 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(subscriptionAudit, /production_subscription_credentials_logged=false/);
   assert.doesNotMatch(subscriptionAudit, /appSubscriptionCreate|appSubscriptionCancel/);
 
-  assert.match(rollback, /ROLLBACK_TO_RAILWAY/);
-  assert.match(rollback, /railway-rollback-/);
-  assert.match(rollback, /--allow-updates/);
-  assert.doesNotMatch(rollback, /--allow-deletes/);
+  assert.match(rollback, /ROLLBACK_CLOUDFLARE_PRODUCTION_VERSION/);
+  assert.match(rollback, /REQUESTED_ROLLBACK_VERSION_ID/);
+  assert.match(rollback, /wrangler@4\.141\.0 rollback/);
+  assert.match(rollback, /production_cloudflare_version_rollback=pass/);
+  assert.match(rollback, /production_shopify_config_mutation_performed=false/);
+  assert.match(rollback, /production_billing_mutation_performed=false/);
+  assert.match(rollback, /production_database_mutation_performed=false/);
 
   for (const workflow of [deploy, candidate, release, rollback]) {
     assert.doesNotMatch(workflow, /appSubscriptionCreate/);
@@ -845,7 +862,7 @@ test("all production mutation workflows require protected main dispatch and chec
     read(".github/workflows/production-session-migration.yml"),
     read(".github/workflows/shopify-production-cutover-version.yml"),
     read(".github/workflows/shopify-production-cutover-release.yml"),
-    read(".github/workflows/shopify-production-rollback-railway.yml"),
+    read(".github/workflows/cloudflare-production-version-rollback.yml"),
   ];
 
   for (const workflow of workflows) {
@@ -921,7 +938,16 @@ test("production rollback window closure is time-gated and evidence-based", () =
   const window = rollback.window;
 
   assert.equal(policy.status, "released_post_cutover_verified");
-  assert.equal(rollback.keep_railway_available, true);
+  assert.equal(rollback.keep_railway_available, false);
+  assert.equal(rollback.strategy, "cloudflare_worker_version");
+  assert.equal(
+    rollback.prepared_workflow,
+    "cloudflare-production-version-rollback.yml"
+  );
+  assert.equal(
+    rollback.cloudflare_rollback_version_id,
+    "8a0d51eb-74d4-4041-8216-89aef63e1a52"
+  );
   assert.equal(window.status, "active");
   assert.equal(window.opened_at, "2026-09-30T01:55:25Z");
   assert.equal(window.minimum_hours, 24);
@@ -950,15 +976,16 @@ test("production rollback window closure is time-gated and evidence-based", () =
     workflow,
     /vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev\/healthz/
   );
-  assert.match(
-    workflow,
-    /vsn-metafields-production\.up\.railway\.app\/healthz/
-  );
+  assert.match(workflow, /wrangler@4\.141\.0 versions view/);
+  assert.match(workflow, /ROLLBACK_VERSION_ID/);
   assert.match(workflow, /audit-production-subscriptions\.mjs/);
   assert.match(workflow, /audit-production-session-readiness\.mjs/);
   assert.match(workflow, /production_rollback_window_certification=pass/);
   assert.match(workflow, /production_rollback_window_closure_eligible=true/);
-  assert.match(workflow, /production_railway_retirement_performed=false/);
+  assert.match(
+    workflow,
+    /production_cloudflare_rollback_version_cleanup_performed=false/
+  );
   assert.match(workflow, /production_supabase_cleanup_performed=false/);
   assert.doesNotMatch(
     workflow,
@@ -1023,7 +1050,7 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.match(hotfix, /production_runtime_hotfix_already_live=\$HOTFIX_ALREADY_LIVE/);
   assert.match(hotfix, /production_runtime_hotfix_post_health=pass/);
   assert.match(hotfix, /production_runtime_hotfix_subscriptions_preserved=pass/);
-  assert.match(hotfix, /production_runtime_hotfix_railway_rollback=pass/);
+  assert.match(hotfix, /production_runtime_hotfix_cloudflare_rollback=pass/);
   assert.match(hotfix, /production_shopify_config_mutation_performed=false/);
   assert.match(hotfix, /production_billing_mutation_performed=false/);
   assert.match(hotfix, /refresh-production-offline-tokens\.mjs/);

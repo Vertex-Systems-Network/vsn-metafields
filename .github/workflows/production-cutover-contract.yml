@@ -26,7 +26,7 @@ on:
       - ".github/workflows/cloudflare-production-acceptance.yml"
       - ".github/workflows/shopify-production-cutover-version.yml"
       - ".github/workflows/shopify-production-cutover-release.yml"
-      - ".github/workflows/shopify-production-rollback-railway.yml"
+      - ".github/workflows/cloudflare-production-version-rollback.yml"
       - ".github/workflows/production-cutover-contract.yml"
       - "app/shopify.server.js"
       - "app/billing-config.js"
@@ -63,7 +63,7 @@ on:
       - ".github/workflows/cloudflare-production-acceptance.yml"
       - ".github/workflows/shopify-production-cutover-version.yml"
       - ".github/workflows/shopify-production-cutover-release.yml"
-      - ".github/workflows/shopify-production-rollback-railway.yml"
+      - ".github/workflows/cloudflare-production-version-rollback.yml"
       - ".github/workflows/production-cutover-contract.yml"
       - "app/shopify.server.js"
       - "app/billing-config.js"
@@ -148,11 +148,12 @@ jobs:
           test -d /tmp/vsn-metafields-production-dry-run
           echo "production_worker_dry_run=pass"
 
-      - name: Confirm Railway rollback source remains preserved
+      - name: Confirm certified Cloudflare rollback workflow remains preserved
         shell: bash
         run: |
           set -euo pipefail
-          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+          grep -F 'ROLLBACK_CLOUDFLARE_PRODUCTION_VERSION' .github/workflows/cloudflare-production-version-rollback.yml >/dev/null
+          grep -F 'wrangler@4.141.0 rollback' .github/workflows/cloudflare-production-version-rollback.yml >/dev/null
 
       - name: Confirm production pre-release state is policy-safe
         shell: bash

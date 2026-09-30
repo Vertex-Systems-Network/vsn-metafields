@@ -67,8 +67,8 @@
     "session_migration_full_row_verified": true
   },
   "rollback": {
-    "keep_railway_available": true,
-    "prepared_workflow": "shopify-production-rollback-railway.yml",
+    "keep_railway_available": false,
+    "prepared_workflow": "cloudflare-production-version-rollback.yml",
     "window": {
       "status": "active",
       "opened_at": "2026-09-30T01:55:25Z",
@@ -85,12 +85,17 @@
         "subscription_snapshot_unchanged": true,
         "production_session_count_and_token_coverage": true,
         "expiring_offline_tokens_ready": true,
-        "railway_runtime_reachable": true,
-        "railway_rollback_source_preserved": true,
-        "no_railway_retirement_before_certification": true,
+        "cloudflare_previous_version_rollback_available": true,
+        "cloudflare_rollback_source_preserved": true,
+        "no_cloudflare_rollback_version_cleanup_before_certification": true,
         "no_supabase_cleanup_before_certification": true
       }
-    }
+    },
+    "strategy": "cloudflare_worker_version",
+    "cloudflare_rollback_version_id": "8a0d51eb-74d4-4041-8216-89aef63e1a52",
+    "cloudflare_rollback_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "railway_endpoint_status": "unreachable_http_404",
+    "railway_endpoint_last_verified_run_id": 36688847964
   },
   "authorized_version": "cloudflare-production-cutover-8d201357d738-4",
   "authorized_source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",
