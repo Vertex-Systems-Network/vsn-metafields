@@ -128,6 +128,36 @@ export const action = async ({ request }) => {
     const actionType = String(formData.get("actionType") || "create");
     const ownerType = requireOwnerType(formData.get("ownerType"));
 
+    if (actionType === "delete") {
+      const id = String(formData.get("id") || "");
+      const key = String(formData.get("key") || "");
+      if (!id || !key || formData.get("confirm") !== `DELETE_VSN_METAFIELD:${key}`) {
+        return Response.json({ ok: false, success: false, error: "Definition confirmation is required." }, { status: 400 });
+      }
+
+      const definitions = await getVsnMetafieldDefinitions(admin, ownerType);
+      const selected = definitions.find((field) => field.id === id && field.key === key);
+      if (!selected) {
+        return Response.json({ ok: false, success: false, error: "Definition not found for this resource." }, { status: 404 });
+      }
+
+      const response = await admin.graphql(`#graphql
+        mutation DeleteSelectedMetafieldDefinition($id: ID!) {
+          metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: false) {
+            deletedDefinitionId
+            userErrors { field message }
+          }
+        }
+      `, { variables: { id: selected.id } });
+      const result = await response.json();
+      const deletion = result?.data?.metafieldDefinitionDelete;
+      const error = result?.errors?.[0]?.message || deletion?.userErrors?.[0]?.message;
+      if (error || deletion?.deletedDefinitionId !== selected.id) {
+        return Response.json({ ok: false, success: false, error: error || "Definition deletion was not confirmed." }, { status: 400 });
+      }
+      return Response.json({ ok: true, success: true, message: `${key} definition removed from ${ownerType}; associated values were retained.` });
+    }
+
     if (actionType === "reset") {
       if (formData.get("confirm") !== RESET_CONFIRMATION) {
         return Response.json(
