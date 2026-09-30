@@ -383,6 +383,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   const policy = JSON.parse(read("config/cloudflare/production-cutover.json"));
   const validator = read("scripts/cloudflare/validate_production_cutover_contract.py");
   const deploy = read(".github/workflows/cloudflare-production-deploy.yml");
+  const acceptance = read(".github/workflows/cloudflare-production-acceptance.yml");
   const candidate = read(".github/workflows/shopify-production-cutover-version.yml");
   const release = read(".github/workflows/shopify-production-cutover-release.yml");
   const rollback = read(".github/workflows/shopify-production-rollback-railway.yml");
@@ -467,6 +468,10 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.doesNotMatch(deploy, /prisma migrate deploy/);
   assert.match(deploy, /--config wrangler\.production\.jsonc/);
   assert.match(deploy, /production_shopify_cutover_performed=false/);
+  assert.match(deploy, /vsn-metafields-production-smoke\/1\.0/);
+  assert.match(deploy, /for attempt in range\(1, 7\)/);
+  assert.match(acceptance, /vsn-metafields-production-smoke\/1\.0/);
+  assert.match(acceptance, /for attempt in range\(1, 7\)/);
 
   assert.match(candidate, /CREATE_PRODUCTION_CUTOVER_VERSION/);
   assert.match(candidate, /--config cloudflare-production/);
