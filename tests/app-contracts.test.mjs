@@ -387,6 +387,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   const candidate = read(".github/workflows/shopify-production-cutover-version.yml");
   const release = read(".github/workflows/shopify-production-cutover-release.yml");
   const rollback = read(".github/workflows/shopify-production-rollback-railway.yml");
+  const subscriptionAudit = read("scripts/cloudflare/audit-production-subscriptions.mjs");
 
   assert.match(current, /client_id = "f5266ba8dba403005deb695fedad053a"/);
   assert.ok(current.includes('application_url = "https://vsn-metafields-production.up.railway.app"'));
@@ -439,6 +440,12 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.require_empty_session_store_before_migration, true);
   assert.equal(policy.database.require_distinct_neon_projects, true);
   assert.equal(policy.rollback.keep_railway_available, true);
+  assert.equal(policy.production_worker.deployment_completed, true);
+  assert.equal(policy.production_worker.acceptance_completed, true);
+  assert.equal(
+    policy.production_worker.accepted_source_sha,
+    policy.production_worker.certified_source_sha
+  );
 
   assert.match(validator, /production_release_authorized=false/);
   assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
@@ -478,6 +485,12 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(candidate, /--no-release/);
   assert.match(candidate, /SOURCE_PREFIX="\$\{GITHUB_SHA:0:12\}"/);
   assert.match(candidate, /candidate_source_ref=\$GITHUB_SHA/);
+  assert.match(candidate, /Require accepted production Worker evidence/);
+  assert.match(candidate, /audit-production-subscriptions\.mjs/);
+  assert.match(candidate, /candidate_subscription_digest=/);
+  assert.match(candidate, /candidate_subscription_shop_count=/);
+  assert.match(candidate, /candidate_active_subscription_count=/);
+  assert.match(candidate, /DATABASE_URL/);
   assert.doesNotMatch(candidate, /app release/);
 
   assert.match(release, /RELEASE_PRODUCTION_CUTOVER/);
@@ -487,7 +500,26 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(release, /authorization_record/);
   assert.match(release, /cloudflare-production-cutover-/);
   assert.match(release, /--allow-updates/);
+  assert.match(release, /subscription_snapshot_digest:/);
+  assert.match(release, /subscription_shop_count:/);
+  assert.match(release, /subscription_active_count:/);
+  assert.match(release, /audit-production-subscriptions\.mjs/);
+  assert.match(release, /EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST/);
+  assert.match(release, /production_existing_subscriptions_preserved=pass/);
+  assert.match(release, /vsn-metafields-production-release-smoke\/1\.0/);
+  assert.match(release, /vsn-metafields-production-post-release-smoke\/1\.0/);
+  assert.match(release, /for attempt in range\(1, 7\)/);
   assert.doesNotMatch(release, /--allow-deletes/);
+
+  assert.match(subscriptionAudit, /currentAppInstallation/);
+  assert.match(subscriptionAudit, /activeSubscriptions/);
+  assert.match(subscriptionAudit, /"isOnline" = false/);
+  assert.match(subscriptionAudit, /X-Shopify-Access-Token/);
+  assert.match(subscriptionAudit, /createHash\("sha256"\)/);
+  assert.match(subscriptionAudit, /EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST/);
+  assert.match(subscriptionAudit, /production_existing_subscriptions_preserved=pass/);
+  assert.match(subscriptionAudit, /production_subscription_credentials_logged=false/);
+  assert.doesNotMatch(subscriptionAudit, /appSubscriptionCreate|appSubscriptionCancel/);
 
   assert.match(rollback, /ROLLBACK_TO_RAILWAY/);
   assert.match(rollback, /railway-rollback-/);

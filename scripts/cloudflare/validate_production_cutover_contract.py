@@ -25,6 +25,7 @@ SESSION_MIGRATION = ROOT / ".github" / "workflows" / "production-session-migrati
 SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-sessions.mjs"
 NEON_URL_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-neon-urls.py"
 SUPABASE_SOURCE_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-supabase-source.py"
+SUBSCRIPTION_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-subscriptions.mjs"
 
 
 class ValidationError(RuntimeError):
@@ -71,6 +72,7 @@ def main() -> int:
     session_migration_script = read(SESSION_MIGRATION_SCRIPT)
     neon_url_resolver = read(NEON_URL_RESOLVER)
     supabase_source_resolver = read(SUPABASE_SOURCE_RESOLVER)
+    subscription_audit = read(SUBSCRIPTION_AUDIT)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -118,6 +120,20 @@ def main() -> int:
     require(wrangler.get("main") == "./workers/app.js", "production Worker entry drifted")
     require("routes" not in wrangler and "route" not in wrangler, "production Worker preparation must not bind production routes")
     require(worker.get("public_route_binding") is False, "public production route binding must remain disabled during preparation")
+
+    require(worker.get("deployment_completed") is True, "production Worker deployment evidence is not certified")
+    require(worker.get("acceptance_completed") is True, "production Worker acceptance evidence is not certified")
+    require(
+        worker.get("accepted_source_sha") == certified_source_sha,
+        "accepted production Worker source must match the certified runtime source",
+    )
+    require(isinstance(worker.get("deployment_run_id"), int), "production Worker deployment run ID missing")
+    require(isinstance(worker.get("acceptance_run_id"), int), "production Worker acceptance run ID missing")
+    require(
+        isinstance(worker.get("cloudflare_version_id"), str)
+        and bool(worker.get("cloudflare_version_id")),
+        "production Worker Cloudflare version evidence missing",
+    )
 
     require(billing.get("mutate_during_cutover") is False, "billing mutations must remain forbidden during cutover")
     require(billing.get("status_source") == "currentAppInstallation.activeSubscriptions", "subscription status source drifted")
@@ -343,6 +359,18 @@ def main() -> int:
     require(cloudflare_url in acceptance, "production acceptance must pin expected Cloudflare URL")
     require(railway_url in acceptance, "production acceptance must pin Railway live URL")
 
+    require("currentAppInstallation" in subscription_audit, "subscription audit must query current app installation")
+    require("activeSubscriptions" in subscription_audit, "subscription audit must read active subscriptions")
+    require('"isOnline" = false' in subscription_audit, "subscription audit must use offline Shopify sessions")
+    require("X-Shopify-Access-Token" in subscription_audit, "subscription audit must authenticate Admin API reads")
+    require('createHash("sha256")' in subscription_audit, "subscription audit must produce a SHA-256 fingerprint")
+    require("EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST" in subscription_audit, "subscription audit must support exact snapshot verification")
+    require("production_existing_subscriptions_preserved=pass" in subscription_audit, "subscription audit preservation evidence missing")
+    require("production_subscription_credentials_logged=false" in subscription_audit, "subscription audit must prove credentials are not logged")
+    require("appSubscriptionCreate" not in subscription_audit, "subscription audit must never create subscriptions")
+    require("appSubscriptionCancel" not in subscription_audit, "subscription audit must never cancel subscriptions")
+    require("console.log(row" not in subscription_audit, "subscription audit must not log Session rows")
+
     require("CREATE_PRODUCTION_CUTOVER_VERSION" in candidate, "production cutover candidate confirmation missing")
     require("github.ref == 'refs/heads/main'" in candidate, "production cutover candidate must require protected main")
     require("ref: main" in candidate, "production cutover candidate checkout must pin main")
@@ -351,6 +379,12 @@ def main() -> int:
     require("app release" not in candidate, "candidate workflow must not release Shopify config")
     require('SOURCE_PREFIX="${GITHUB_SHA:0:12}"' in candidate, "candidate version must bind to source ref")
     require("candidate_source_ref=$GITHUB_SHA" in candidate, "candidate source ref evidence missing")
+    require("accepted production Worker evidence" in candidate, "candidate must gate on accepted Worker evidence")
+    require("audit-production-subscriptions.mjs" in candidate, "candidate must capture pre-cutover subscription state")
+    require("candidate_subscription_digest=" in candidate, "candidate subscription digest evidence missing")
+    require("candidate_subscription_shop_count=" in candidate, "candidate shop-count evidence missing")
+    require("candidate_active_subscription_count=" in candidate, "candidate active-subscription count evidence missing")
+    require("DATABASE_URL" in candidate, "candidate subscription audit requires production DATABASE_URL")
 
     require("RELEASE_PRODUCTION_CUTOVER" in release, "production release confirmation missing")
     require("github.ref == 'refs/heads/main'" in release, "production release must require protected main")
@@ -362,6 +396,16 @@ def main() -> int:
     require("cloudflare-production-cutover-([0-9a-f]{12})-([0-9]+)" in release, "production release version format guard missing")
     require("app release" in release and "--allow-updates" in release, "production release command missing")
     require(cloudflare_url in release, "production release must verify Cloudflare production health")
+    require("subscription_snapshot_digest:" in release, "production release must bind the candidate subscription digest")
+    require("subscription_shop_count:" in release, "production release must bind the candidate shop count")
+    require("subscription_active_count:" in release, "production release must bind the candidate active subscription count")
+    require("audit-production-subscriptions.mjs" in release, "production release must verify subscriptions before and after cutover")
+    require("EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST" in release, "production release snapshot digest binding missing")
+    require("production_existing_subscriptions_preserved=pass" in release, "post-cutover subscription preservation evidence missing")
+    require("vsn-metafields-production-release-smoke/1.0" in release, "release preflight health retry identity missing")
+    require("vsn-metafields-production-post-release-smoke/1.0" in release, "post-release health retry identity missing")
+    require("for attempt in range(1, 7)" in release, "production release health checks must be retried")
+    require("DATABASE_URL" in release, "production release subscription verification requires production DATABASE_URL")
 
     require("ROLLBACK_TO_RAILWAY" in rollback, "Railway rollback confirmation missing")
     require("github.ref == 'refs/heads/main'" in rollback, "Railway rollback must require protected main")

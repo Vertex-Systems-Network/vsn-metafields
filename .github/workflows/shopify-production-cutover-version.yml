@@ -19,13 +19,14 @@ jobs:
   create-production-cutover-candidate:
     if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'CREATE_PRODUCTION_CUTOVER_VERSION'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     environment: cloudflare-production
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout protected main
@@ -38,12 +39,13 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22.13.0"
+          cache: npm
 
       - name: Require production Shopify identity
         shell: bash
         run: |
           set -euo pipefail
-          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_APP_URL
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_APP_URL DATABASE_URL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
@@ -68,22 +70,63 @@ jobs:
             exit 1
           fi
 
+      - name: Require accepted production Worker evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          worker = policy.get("production_worker") or {}
+          if worker.get("deployment_completed") is not True:
+              raise SystemExit("Production Worker deployment is not repository-certified.")
+          if worker.get("acceptance_completed") is not True:
+              raise SystemExit("Production Worker independent acceptance is not repository-certified.")
+          if worker.get("accepted_source_sha") != worker.get("certified_source_sha"):
+              raise SystemExit("Accepted production Worker source does not match certified runtime source.")
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("Candidate creation requires release_authorized=false.")
+          print("production_worker_acceptance_evidence=certified")
+          print("production_release_authorized=false")
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Validate prepared production cutover contract
         run: python scripts/cloudflare/validate_production_cutover_contract.py
 
+      - name: Capture pre-cutover production subscription snapshot
+        id: subscription-snapshot
+        run: node scripts/cloudflare/audit-production-subscriptions.mjs
+
       - name: Create unreleased production cutover version
         shell: bash
+        env:
+          SNAPSHOT_DIGEST: ${{ steps.subscription-snapshot.outputs.subscription_snapshot_digest }}
+          SNAPSHOT_SHOP_COUNT: ${{ steps.subscription-snapshot.outputs.subscription_shop_count }}
+          SNAPSHOT_ACTIVE_COUNT: ${{ steps.subscription-snapshot.outputs.subscription_active_count }}
         run: |
           set -euo pipefail
           SOURCE_PREFIX="${GITHUB_SHA:0:12}"
           VERSION="cloudflare-production-cutover-${SOURCE_PREFIX}-${GITHUB_RUN_NUMBER}"
           echo "candidate_version=$VERSION"
           echo "candidate_source_ref=$GITHUB_SHA"
+          echo "candidate_subscription_digest=$SNAPSHOT_DIGEST"
+          echo "candidate_subscription_shop_count=$SNAPSHOT_SHOP_COUNT"
+          echo "candidate_active_subscription_count=$SNAPSHOT_ACTIVE_COUNT"
           {
             echo "## Production cutover candidate"
             echo ""
             echo "- Version: `$VERSION`"
             echo "- Source ref: `$GITHUB_SHA`"
+            echo "- Pre-cutover subscription digest: `$SNAPSHOT_DIGEST`"
+            echo "- Audited shops: `$SNAPSHOT_SHOP_COUNT`"
+            echo "- Active subscriptions: `$SNAPSHOT_ACTIVE_COUNT`"
             echo "- Released: **no**"
           } >> "$GITHUB_STEP_SUMMARY"
           npx --yes @shopify/cli@4.8.2 app deploy \
