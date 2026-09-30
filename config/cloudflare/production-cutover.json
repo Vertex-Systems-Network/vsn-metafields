@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "issue": 4,
-  "status": "authorized_not_released",
-  "release_authorized": true,
+  "status": "released_post_cutover_verified",
+  "release_authorized": false,
   "production_worker": {
     "name": "vsn-metafields-production",
     "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
@@ -20,7 +20,9 @@
     "current_railway_url": "https://vsn-metafields-production.up.railway.app",
     "target_cloudflare_url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
     "preserve_app_identity": true,
-    "merchant_reinstall_allowed": false
+    "merchant_reinstall_allowed": false,
+    "live_target": "cloudflare",
+    "live_url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
   },
   "billing": {
     "mutate_during_cutover": false,
@@ -78,6 +80,21 @@
     "subscription_snapshot_digest": "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76",
     "subscription_shop_count": 2,
     "active_subscription_count": 2,
-    "released": false
+    "released": true
+  },
+  "release": {
+    "workflow_run_id": 36657352966,
+    "version": "cloudflare-production-cutover-8d201357d738-4",
+    "source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",
+    "released_at": "2026-09-30T01:55:25Z",
+    "pre_subscription_snapshot_digest": "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76",
+    "post_subscription_snapshot_digest": "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76",
+    "subscription_shop_count": 2,
+    "active_subscription_count": 2,
+    "pre_release_worker_health": true,
+    "post_release_worker_health": true,
+    "subscriptions_preserved": true,
+    "compliance_webhooks_enqueued": 3,
+    "railway_rollback_preserved": true
   }
 }
