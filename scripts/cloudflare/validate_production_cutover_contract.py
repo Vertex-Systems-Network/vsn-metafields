@@ -286,8 +286,8 @@ def main() -> int:
     require(rollback_policy.get("keep_railway_available") is False, "Dead Railway rollback endpoint must not remain an active dependency")
     require(rollback_policy.get("strategy") == "cloudflare_worker_version", "production rollback strategy must be Cloudflare Worker version rollback")
     require(rollback_policy.get("prepared_workflow") == "cloudflare-production-version-rollback.yml", "production rollback workflow drifted")
-    require(rollback_policy.get("cloudflare_rollback_version_id") == worker.get("cloudflare_version_id"), "Cloudflare rollback version must match the certified pre-hotfix Worker version")
-    require(rollback_policy.get("cloudflare_rollback_source_sha") == worker.get("accepted_source_sha"), "Cloudflare rollback source must match the certified pre-hotfix source")
+    require(rollback_policy.get("cloudflare_rollback_version_id") == "8a0d51eb-74d4-4041-8216-89aef63e1a52", "Cloudflare rollback version must preserve the certified pre-hotfix Worker version")
+    require(rollback_policy.get("cloudflare_rollback_source_sha") == "c184b25628fc5c59a1110c6fe9ec49e11ce31b05", "Cloudflare rollback source must preserve the certified pre-hotfix source")
     require(rollback_policy.get("railway_endpoint_status") == "unreachable_http_404", "Railway endpoint failure evidence must remain explicit")
 
     runtime_update = policy.get("runtime_update")
@@ -325,13 +325,29 @@ def main() -> int:
         if runtime_update.get("status") == "prepared":
             require(runtime_update.get("deployment_run_id") is None, "prepared runtime hotfix must not have deployment evidence")
             require(runtime_update.get("accepted") is False, "prepared runtime hotfix must remain unaccepted")
+        else:
+            require(runtime_update.get("previous_source_sha") == "c184b25628fc5c59a1110c6fe9ec49e11ce31b05", "accepted runtime hotfix previous source drifted")
+            require(runtime_update.get("current_source_sha") == runtime_update.get("target_source_sha"), "accepted runtime hotfix current source must equal target source")
+            require(runtime_update.get("deployment_run_id") == 36688847964, "accepted runtime hotfix deployment run drifted")
+            require(runtime_update.get("deployment_cloudflare_version_id") == "f25977a9-b02e-492c-9e01-6d3de120c5a8", "accepted runtime hotfix Cloudflare version drifted")
+            require(runtime_update.get("acceptance_run_id") == 36690095989, "accepted runtime hotfix acceptance run drifted")
+            require(runtime_update.get("accepted") is True, "accepted runtime hotfix must set accepted=true")
+            require(runtime_update.get("accepted_at") == "2026-09-30T08:31:09Z", "accepted runtime hotfix timestamp drifted")
+            require(runtime_update.get("acceptance_subscription_snapshot_digest") == candidate_policy.get("subscription_snapshot_digest"), "accepted runtime hotfix subscription digest drifted")
+            require(runtime_update.get("acceptance_subscription_shop_count") == candidate_policy.get("subscription_shop_count"), "accepted runtime hotfix subscription shop count drifted")
+            require(runtime_update.get("acceptance_active_subscription_count") == candidate_policy.get("active_subscription_count"), "accepted runtime hotfix active subscription count drifted")
+            require(runtime_update.get("acceptance_worker_health") is True, "accepted runtime hotfix Worker health evidence missing")
+            require(runtime_update.get("acceptance_billing_metadata") is True, "accepted runtime hotfix billing metadata evidence missing")
+            require(runtime_update.get("acceptance_cloudflare_rollback_available") is True, "accepted runtime hotfix rollback evidence missing")
+            require(runtime_update.get("session_credential_refresh_run_id") == 36688847964, "runtime token refresh run evidence drifted")
+            require(runtime_update.get("session_credential_refresh_performed") is True, "runtime token refresh evidence missing")
 
     rollback_window = rollback_policy.get("window")
     require(isinstance(rollback_window, dict), "rollback window policy missing")
     require(rollback_window.get("status") == "active", "rollback window must remain active until certified closure")
-    require(rollback_window.get("opened_at") == "2026-09-30T01:55:25Z", "rollback window open time drifted")
+    require(rollback_window.get("opened_at") == "2026-09-30T08:31:09Z", "rollback window open time drifted")
     require(rollback_window.get("minimum_hours") == 24, "rollback window minimum duration must remain 24 hours")
-    require(rollback_window.get("earliest_close_at") == "2026-10-01T01:55:25Z", "rollback window earliest close time drifted")
+    require(rollback_window.get("earliest_close_at") == "2026-10-01T08:31:09Z", "rollback window earliest close time drifted")
     require(
         rollback_window.get("certification_workflow") == "production-rollback-window-certification.yml",
         "rollback window certification workflow drifted",
@@ -340,6 +356,9 @@ def main() -> int:
     require(rollback_window.get("certification_run_id") is None, "rollback-window certification run must remain unset while active")
     require(rollback_window.get("certified_at") is None, "rollback-window certification time must remain unset while active")
     require(rollback_window.get("closed_at") is None, "rollback window must not be marked closed before certification")
+    require(rollback_window.get("reset_at") == "2026-09-30T08:31:09Z", "rollback window reset time drifted")
+    require(rollback_window.get("reset_run_id") == 36690095989, "rollback window reset run drifted")
+    require(rollback_window.get("reset_reason") == "production_runtime_entitlement_hotfix_accepted", "rollback window reset reason drifted")
     rollback_criteria = rollback_window.get("criteria")
     require(isinstance(rollback_criteria, dict), "rollback-window closure criteria missing")
     for criterion in (
@@ -358,7 +377,7 @@ def main() -> int:
 
     runtime_update = policy.get("runtime_update")
     require(isinstance(runtime_update, dict), "production runtime hotfix request missing")
-    require(runtime_update.get("status") == "prepared", "production runtime hotfix must remain prepared before deployment")
+    require(runtime_update.get("status") == "accepted", "production runtime hotfix must be accepted after successful verification")
     require(
         runtime_update.get("reason") == "restore_existing_active_test_subscription_entitlement",
         "production runtime hotfix reason drifted",
@@ -368,8 +387,8 @@ def main() -> int:
         "production runtime hotfix target source drifted",
     )
     require(
-        runtime_update.get("current_source_sha") == worker.get("accepted_source_sha"),
-        "production runtime hotfix current source must match accepted runtime",
+        runtime_update.get("current_source_sha") == worker.get("accepted_source_sha") == worker.get("certified_source_sha"),
+        "production runtime hotfix accepted source must match current certified Worker runtime",
     )
     require(
         runtime_update.get("workflow") == "cloudflare-production-runtime-hotfix.yml",
@@ -380,8 +399,12 @@ def main() -> int:
     require(runtime_update.get("database_mutation_allowed") is False, "runtime hotfix must forbid database mutation")
     require(runtime_update.get("preserve_subscription_snapshot") is True, "runtime hotfix must preserve subscription snapshot")
     require(runtime_update.get("reset_rollback_window_after_success") is True, "runtime hotfix must reset rollback window after success")
-    require(runtime_update.get("deployment_run_id") is None, "runtime hotfix deployment evidence must remain unset before deployment")
-    require(runtime_update.get("accepted") is False, "runtime hotfix must remain unaccepted before deployment")
+    require(runtime_update.get("deployment_run_id") == 36688847964, "runtime hotfix deployment evidence drifted")
+    require(runtime_update.get("acceptance_run_id") == 36690095989, "runtime hotfix acceptance evidence drifted")
+    require(runtime_update.get("accepted") is True, "runtime hotfix must remain accepted after successful verification")
+    require(worker.get("deployment_run_id") == 36688847964, "production Worker deployment evidence must point to the hotfix deployment run")
+    require(worker.get("acceptance_run_id") == 36690095989, "production Worker acceptance evidence must point to the successful hotfix acceptance run")
+    require(worker.get("cloudflare_version_id") == "f25977a9-b02e-492c-9e01-6d3de120c5a8", "production Worker hotfix version evidence drifted")
 
     workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration]
     for workflow in workflows:
