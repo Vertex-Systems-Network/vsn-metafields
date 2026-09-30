@@ -372,7 +372,8 @@ test("production cutover certification performs build and Worker dry-run without
   assert.match(workflow, /production_worker_dry_run=pass/);
   assert.match(workflow, /production_release_authorized=/);
   assert.match(workflow, /production_release_state=/);
-  assert.match(workflow, /production_shopify_cutover_performed=false/);
+  assert.match(workflow, /released_post_cutover_verified/);
+  assert.match(workflow, /production_shopify_cutover_performed=/);
   assert.doesNotMatch(workflow, /shopify app release/);
   assert.doesNotMatch(workflow, /prisma migrate deploy/);
 });
@@ -399,8 +400,8 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(wrangler.main, "./workers/app.js");
   assert.equal(Object.hasOwn(wrangler, "routes"), false);
 
-  assert.equal(policy.status, "authorized_not_released");
-  assert.equal(policy.release_authorized, true);
+  assert.equal(policy.status, "released_post_cutover_verified");
+  assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.production_worker.certified_source_sha,
     "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
@@ -422,7 +423,30 @@ test("production cutover package preserves Shopify identity, billing, database, 
   );
   assert.equal(policy.candidate.subscription_shop_count, 2);
   assert.equal(policy.candidate.active_subscription_count, 2);
-  assert.equal(policy.candidate.released, false);
+  assert.equal(policy.candidate.released, true);
+  assert.equal(policy.shopify.live_target, "cloudflare");
+  assert.equal(
+    policy.shopify.live_url,
+    "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
+  );
+  assert.equal(policy.release.workflow_run_id, 36657352966);
+  assert.equal(policy.release.version, policy.authorized_version);
+  assert.equal(policy.release.source_ref, policy.authorized_source_ref);
+  assert.equal(
+    policy.release.pre_subscription_snapshot_digest,
+    policy.candidate.subscription_snapshot_digest
+  );
+  assert.equal(
+    policy.release.post_subscription_snapshot_digest,
+    policy.candidate.subscription_snapshot_digest
+  );
+  assert.equal(policy.release.subscription_shop_count, 2);
+  assert.equal(policy.release.active_subscription_count, 2);
+  assert.equal(policy.release.pre_release_worker_health, true);
+  assert.equal(policy.release.post_release_worker_health, true);
+  assert.equal(policy.release.subscriptions_preserved, true);
+  assert.equal(policy.release.compliance_webhooks_enqueued, 3);
+  assert.equal(policy.release.railway_rollback_preserved, true);
   assert.equal(policy.shopify.preserve_app_identity, true);
   assert.equal(policy.shopify.merchant_reinstall_allowed, false);
   assert.equal(policy.billing.mutate_during_cutover, false);
@@ -465,6 +489,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   );
 
   assert.match(validator, /authorized_not_released/);
+  assert.match(validator, /released_post_cutover_verified/);
   assert.match(validator, /production_release_authorized=/);
   assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
   assert.match(deploy, /source_sha:/);
