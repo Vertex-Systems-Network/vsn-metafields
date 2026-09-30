@@ -723,7 +723,7 @@ def main() -> int:
     require("production_runtime_hotfix_pre_health=pass" in runtime_hotfix, "runtime hotfix pre-health evidence missing")
     require("production_runtime_hotfix_post_health=pass" in runtime_hotfix, "runtime hotfix post-health evidence missing")
     require("production_runtime_hotfix_subscriptions_preserved=pass" in runtime_hotfix, "runtime hotfix subscription preservation evidence missing")
-    require("production_runtime_hotfix_railway_rollback=pass" in runtime_hotfix, "runtime hotfix Railway rollback evidence missing")
+    require("production_runtime_hotfix_cloudflare_rollback=pass" in runtime_hotfix, "runtime hotfix Cloudflare rollback evidence missing")
     require("production_shopify_config_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no Shopify config mutation")
     require("production_billing_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no billing mutation")
     require("production_subscription_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no subscription mutation")
