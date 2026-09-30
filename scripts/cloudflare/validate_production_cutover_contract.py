@@ -31,7 +31,7 @@ OFFLINE_TOKEN_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-produc
 ROLLBACK_WINDOW_CERTIFICATION = ROOT / ".github" / "workflows" / "production-rollback-window-certification.yml"
 SESSION_READINESS_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-session-readiness.mjs"
 RUNTIME_HOTFIX = ROOT / ".github" / "workflows" / "cloudflare-production-runtime-hotfix.yml"
-RUNTIME_HOTFIX = ROOT / ".github" / "workflows" / "cloudflare-production-runtime-hotfix.yml"
+RUNTIME_TOKEN_REFRESH = ROOT / "scripts" / "database" / "refresh-production-offline-tokens.mjs"
 
 
 class ValidationError(RuntimeError):
@@ -84,7 +84,7 @@ def main() -> int:
     rollback_window_certification = read(ROLLBACK_WINDOW_CERTIFICATION)
     session_readiness_audit = read(SESSION_READINESS_AUDIT)
     runtime_hotfix = read(RUNTIME_HOTFIX)
-    runtime_hotfix = read(RUNTIME_HOTFIX)
+    runtime_token_refresh = read(RUNTIME_TOKEN_REFRESH)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -308,7 +308,13 @@ def main() -> int:
         )
         require(runtime_update.get("shopify_config_mutation_allowed") is False, "runtime hotfix must forbid Shopify config mutation")
         require(runtime_update.get("billing_mutation_allowed") is False, "runtime hotfix must forbid billing mutation")
-        require(runtime_update.get("database_mutation_allowed") is False, "runtime hotfix must forbid database mutation")
+        require(runtime_update.get("database_mutation_allowed") is False, "runtime hotfix must forbid arbitrary database mutation")
+        require(runtime_update.get("session_credential_refresh_allowed") is True, "runtime hotfix must authorize narrow Session credential refresh")
+        require(
+            runtime_update.get("session_credential_refresh_fields")
+            == ["accessToken", "expires", "refreshToken", "refreshTokenExpires", "scope"],
+            "runtime hotfix Session credential refresh field allowlist drifted",
+        )
         require(runtime_update.get("preserve_subscription_snapshot") is True, "runtime hotfix must preserve subscription snapshot")
         require(runtime_update.get("reset_rollback_window_after_success") is True, "runtime hotfix must reset rollback window after success")
         if runtime_update.get("status") == "prepared":
@@ -393,7 +399,11 @@ def main() -> int:
     require("production_runtime_hotfix_railway_rollback=pass" in runtime_hotfix, "production runtime hotfix Railway rollback evidence missing")
     require("production_shopify_config_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no Shopify config mutation")
     require("production_billing_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no billing mutation")
-    require("production_database_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no database mutation")
+    require("refresh-production-offline-tokens.mjs" in runtime_hotfix, "production runtime hotfix must refresh expired offline tokens safely")
+    require("production_session_credential_refresh_authorized=true" in runtime_hotfix, "production runtime hotfix Session credential refresh authorization missing")
+    require("production_subscription_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no subscription mutation")
+    require("production_schema_or_business_data_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no schema/business-data mutation")
+    require("production_session_credential_refresh_performed=$SESSION_CREDENTIAL_REFRESH_PERFORMED" in runtime_hotfix, "production runtime hotfix must report Session credential refresh evidence")
     require("production_merchant_reinstall_required=false" in runtime_hotfix, "production runtime hotfix must prove no merchant reinstall")
     require("production_rollback_window_reset_required=true" in runtime_hotfix, "production runtime hotfix must require rollback-window reset")
     require("wrangler@4.141.0 deploy" in runtime_hotfix, "production runtime hotfix Worker deploy command missing")
@@ -403,6 +413,13 @@ def main() -> int:
     require("appSubscriptionCreate" not in runtime_hotfix, "production runtime hotfix must never create subscriptions")
     require("appSubscriptionCancel" not in runtime_hotfix, "production runtime hotfix must never cancel subscriptions")
     require("prisma migrate deploy" not in runtime_hotfix, "production runtime hotfix must never apply database migrations")
+    require('grant_type: "refresh_token"' in runtime_token_refresh, "production token refresh must use Shopify refresh_token grant")
+    require('"refreshToken" = $3' in runtime_token_refresh, "production token refresh must persist the rotated refresh token")
+    require('"refreshTokenExpires" = $4' in runtime_token_refresh, "production token refresh must persist refresh-token expiry")
+    require('AND "refreshToken" = $7' in runtime_token_refresh, "production token refresh must use atomic refresh-token compare-and-swap")
+    require("production_subscription_mutation_performed=false" in runtime_token_refresh, "production token refresh must prove no subscription mutation")
+    require("production_schema_mutation_performed=false" in runtime_token_refresh, "production token refresh must prove no schema mutation")
+    require("console.log(row" not in runtime_token_refresh, "production token refresh must not log Session rows")
 
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in staging_deploy, "staging deploy must pin the certified Neon endpoint")
     require("staging_neon_identity=pass" in staging_deploy, "staging Neon identity evidence missing")
