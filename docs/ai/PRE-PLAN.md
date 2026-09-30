@@ -18,7 +18,7 @@ Merchant: discover standard template or create custom definition → assign type
 ## 5. Validated Requirements
 User intent: REQ-META-001 broad standard/custom definition coverage; REQ-META-002 storefront blocks and merchant customization; REQ-META-003 ANPOS planning before implementation. Derived safeguards: REQ-META-004 capability truth by owner/type/API/scope/context; REQ-META-005 existing data/subscription safety; REQ-META-006 verified end-to-end acceptance. Derived items are proposals pending product validation.
 
-## 6. Assumptions Still Requiring Validation
+Reference inventory: `docs/ai/METAFIELDS-CAPABILITY-MATRIX.md` records the complete 2026-07 owner enum from Shopify docs and the type families; actual shop probes and scopes remain unverified. `docs/ai/METAFIELDS-DISCOVERY.md` compares Shopify native plus three publicly listed apps, separating vendor claims from outcomes. Canonical phases/work units are now in `config/ai/execution-plan.json` and linked from traceability.\n\n## 6. Assumptions Still Requiring Validation
 Full owner/type list for pinned 2026-07 Admin API; scope upgrades; what users need beyond Shopify's native dynamic sources and bulk editor; whether all display presets are valuable; theme compatibility and translations; pricing/entitlement boundaries.
 
 ## 7. Constraints and Risks
@@ -53,8 +53,8 @@ PM provider selection or skip; Development AI selection/identity verification; m
 
 ## 17. Execution Readiness
 - [x] User objective captured and repository baseline read.
-- [x] Proposed options, modules and milestones decomposed.
-- [ ] Shopify capability matrix and full competitor evidence validated.
+- [x] Proposed options, modules and milestones decomposed and registered in the canonical execution plan.
+- [x] Shopify 2026-07 documentation owner inventory and multi-app public market comparison recorded.\n- [ ] Shop-level owner/type/scope probes and merchant outcome validation completed.
 - [ ] System design and ADRs accepted.
 - [ ] Applicable technology consent/agent/PM selections resolved.
 - [ ] Work units entered in canonical queue with verified runtime identity when used.
