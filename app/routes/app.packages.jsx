@@ -17,9 +17,7 @@ export default function PackagesPage() {
   const subscription =
     subscriptions.find((sub) => sub.status === "ACTIVE") || null;
 
-  const isProActive =
-    subscription?.name === "pro-plan" &&
-    subscription?.status === "ACTIVE";
+  const isProActive = subscription?.status === "ACTIVE";
   const isLoading =
     statusFetcher.state !== "idle" ||
     actionFetcher.state !== "idle";
@@ -114,7 +112,9 @@ export default function PackagesPage() {
 
                 {isProActive ? (
                   <s-stack gap="small">
-                    <s-badge tone="success">Active Plan</s-badge>
+                    <s-badge tone="success">
+                      {subscription?.test ? "Active Test Plan" : "Active Plan"}
+                    </s-badge>
                     <s-button
                       tone="critical"
                       loading={isLoading}
