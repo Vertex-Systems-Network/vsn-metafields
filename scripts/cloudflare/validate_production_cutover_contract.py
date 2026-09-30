@@ -89,18 +89,18 @@ def main() -> int:
     candidate_policy = policy.get("candidate")
 
     require(
-        status in {"prepared_not_authorized", "authorized_not_released"},
+        status in {"prepared_not_authorized", "authorized_not_released", "released_post_cutover_verified"},
         "production cutover status drifted",
     )
     require(isinstance(candidate_policy, dict), "production cutover candidate evidence missing")
-    require(candidate_policy.get("released") is False, "pre-release policy must keep candidate unreleased")
 
     if status == "prepared_not_authorized":
         require(release_authorized is False, "prepared cutover must remain unauthorized")
         require(authorized_version is None, "prepared cutover version must remain unset")
         require(authorized_source_ref is None, "prepared cutover source ref must remain unset")
         require(authorization_record is None, "prepared cutover authorization record must remain unset")
-    else:
+    elif status == "authorized_not_released":
+        require(candidate_policy.get("released") is False, "authorized candidate must remain unreleased")
         require(release_authorized is True, "authorized cutover must set release_authorized=true")
         require(
             authorized_version == candidate_policy.get("version"),
@@ -128,6 +128,51 @@ def main() -> int:
             str(authorized_version).split("-")[-2] == authorized_source_ref[:12],
             "authorized candidate version/source prefix mismatch",
         )
+    else:
+        release_policy = policy.get("release")
+        require(candidate_policy.get("released") is True, "released policy must mark candidate released")
+        require(release_authorized is False, "release authorization must be consumed after successful release")
+        require(
+            authorized_version == candidate_policy.get("version"),
+            "released production version must equal the authorized candidate version",
+        )
+        require(
+            authorized_source_ref == candidate_policy.get("source_ref"),
+            "released production source must equal the authorized candidate source",
+        )
+        require(
+            isinstance(authorization_record, str) and authorization_record.strip(),
+            "released production cutover must retain its authorization record",
+        )
+        require(isinstance(release_policy, dict), "production release evidence missing")
+        require(release_policy.get("workflow_run_id") == 36657352966, "production release run evidence drifted")
+        require(release_policy.get("version") == authorized_version, "released version evidence drifted")
+        require(release_policy.get("source_ref") == authorized_source_ref, "released source evidence drifted")
+        require(
+            release_policy.get("pre_subscription_snapshot_digest")
+            == candidate_policy.get("subscription_snapshot_digest"),
+            "pre-release subscription digest drifted",
+        )
+        require(
+            release_policy.get("post_subscription_snapshot_digest")
+            == candidate_policy.get("subscription_snapshot_digest"),
+            "post-release subscription digest drifted",
+        )
+        require(
+            release_policy.get("subscription_shop_count")
+            == candidate_policy.get("subscription_shop_count"),
+            "released subscription shop count drifted",
+        )
+        require(
+            release_policy.get("active_subscription_count")
+            == candidate_policy.get("active_subscription_count"),
+            "released active subscription count drifted",
+        )
+        require(release_policy.get("pre_release_worker_health") is True, "pre-release Worker health evidence missing")
+        require(release_policy.get("post_release_worker_health") is True, "post-release Worker health evidence missing")
+        require(release_policy.get("subscriptions_preserved") is True, "subscription preservation evidence missing")
+        require(release_policy.get("compliance_webhooks_enqueued") == 3, "compliance webhook evidence drifted")
+        require(release_policy.get("railway_rollback_preserved") is True, "Railway rollback preservation evidence missing")
 
     worker = policy.get("production_worker")
     shopify = policy.get("shopify")
@@ -156,6 +201,13 @@ def main() -> int:
     require(target.get("application_url") == cloudflare_url, "Cloudflare production target URL drifted")
     require(shopify.get("preserve_app_identity") is True, "Shopify app identity must be preserved")
     require(shopify.get("merchant_reinstall_allowed") is False, "merchant reinstall must remain forbidden")
+
+    if status == "released_post_cutover_verified":
+        require(shopify.get("live_target") == "cloudflare", "released production live target must be Cloudflare")
+        require(shopify.get("live_url") == cloudflare_url, "released production live URL must match Cloudflare target")
+    else:
+        require(shopify.get("live_target") in {None, "railway"}, "pre-release live target must remain Railway")
+
 
     auth = target.get("auth")
     require(isinstance(auth, dict), "target auth config missing")
