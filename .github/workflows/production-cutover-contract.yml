@@ -138,7 +138,7 @@ jobs:
           test -d /tmp/vsn-metafields-production-dry-run
           echo "production_worker_dry_run=pass"
 
-      - name: Confirm active production Shopify config still targets Railway
+      - name: Confirm Railway rollback source remains preserved
         shell: bash
         run: |
           set -euo pipefail
@@ -157,17 +157,23 @@ jobs:
           authorized = policy.get("release_authorized")
           candidate = policy.get("candidate") or {}
 
-          if status not in {"prepared_not_authorized", "authorized_not_released"}:
-              raise SystemExit("production cutover policy is not in a supported pre-release state")
-          if candidate.get("released") is not False:
-              raise SystemExit("production candidate must remain unreleased during certification")
-          if status == "prepared_not_authorized" and authorized is not False:
-              raise SystemExit("prepared production cutover unexpectedly authorized")
-          if status == "authorized_not_released" and authorized is not True:
-              raise SystemExit("authorized production cutover missing release authorization")
+          if status not in {"prepared_not_authorized", "authorized_not_released", "released_post_cutover_verified"}:
+              raise SystemExit("production cutover policy is not in a supported lifecycle state")
+          if status == "prepared_not_authorized":
+              if candidate.get("released") is not False or authorized is not False:
+                  raise SystemExit("prepared production cutover state is inconsistent")
+          elif status == "authorized_not_released":
+              if candidate.get("released") is not False or authorized is not True:
+                  raise SystemExit("authorized production cutover state is inconsistent")
+          else:
+              if candidate.get("released") is not True or authorized is not False:
+                  raise SystemExit("released production cutover state is inconsistent")
 
           print(f"production_release_state={status}")
           print(f"production_release_authorized={str(authorized).lower()}")
           print("production_worker_certification=dry_run_only")
-          print("production_shopify_cutover_performed=false")
+          print(
+              "production_shopify_cutover_performed="
+              + ("true" if status == "released_post_cutover_verified" else "false")
+          )
           PY
