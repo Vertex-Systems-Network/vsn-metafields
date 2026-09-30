@@ -264,16 +264,38 @@ jobs:
           python - <<'PY'
           import json
           import os
+          import time
           import urllib.request
 
           expected_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
           if os.environ["SHOPIFY_APP_URL"] != expected_url:
               raise SystemExit("production Worker URL mismatch")
 
-          with urllib.request.urlopen(expected_url + "/healthz", timeout=20) as response:
-              if response.status != 200:
-                  raise SystemExit(f"unexpected production health status: {response.status}")
-              payload = json.loads(response.read().decode("utf-8"))
+          payload = None
+          last_error = None
+          health_url = expected_url + "/healthz"
+
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      health_url,
+                      headers={"User-Agent": "vsn-metafields-production-smoke/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      if response.status != 200:
+                          raise RuntimeError(
+                              f"unexpected production health status: {response.status}"
+                          )
+                      payload = json.loads(response.read().decode("utf-8"))
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          if payload is None:
+              raise last_error or RuntimeError("production Worker health returned no payload")
 
           expected_source_sha = os.environ["EXPECTED_SOURCE_SHA"]
           if payload.get("commitSha") != expected_source_sha:
