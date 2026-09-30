@@ -289,7 +289,11 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /process\.env\.NODE_ENV === "production"/);
   assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
   assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
-  assert.match(status, /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/);
+  assert.doesNotMatch(
+    status,
+    /subscriptions\.filter\(\(subscription\) => !subscription\.test\)/
+  );
+  assert.match(status, /subscriptions:\s*activeSubscriptions/);
   assert.match(status, /subscription\.id === id && subscription\.status === "ACTIVE"/);
   assert.match(status, /duplicateActivePlan/);
   assert.match(status, /subscription\.status === "ACTIVE"/);
@@ -300,6 +304,25 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /test:\s*!isProductionBilling\(\)/);
   assert.match(status, /variables:\s*\{\s*id\s*\}/);
   assert.doesNotMatch(status, /appSubscriptionCancel\([^\n]*\$\{/);
+});
+
+test("active Shopify test subscriptions remain valid app entitlements in production", () => {
+  const status = read("app/routes/app.api.status.jsx");
+  const packages = read("app/routes/app.packages.jsx");
+
+  assert.match(status, /activeSubscriptions\.some\(/);
+  assert.match(status, /subscription\.status === "ACTIVE"/);
+  assert.match(status, /subscriptions:\s*activeSubscriptions/);
+  assert.doesNotMatch(
+    status,
+    /isProductionBilling\(\)[\s\S]{0,160}filter\(\(subscription\) => !subscription\.test\)/
+  );
+
+  // New production charges remain real; only existing active test/demo charges
+  // are accepted as entitlement evidence.
+  assert.match(status, /test:\s*!isProductionBilling\(\)/);
+  assert.match(packages, /subscription\?\.status === "ACTIVE"/);
+  assert.match(packages, /Active Test Plan/);
 });
 
 test("metafield mutations stay namespace-scoped and destructive reset keeps values", () => {
