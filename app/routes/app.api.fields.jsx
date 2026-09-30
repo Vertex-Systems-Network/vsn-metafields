@@ -1,4 +1,5 @@
 import { authenticate } from "../shopify.server";
+import { hasActivePlan } from "../active-plan.server";
 
 const NAMESPACE = "vsn_metafields";
 const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS";
@@ -18,23 +19,6 @@ function requireOwnerType(value) {
     throw new RangeError("Unsupported metafield owner type.");
   }
   return ownerType;
-}
-
-async function hasActivePlan(admin) {
-  const response = await admin.graphql(`#graphql
-    query MetafieldAccessSubscription {
-      currentAppInstallation {
-        activeSubscriptions { status }
-      }
-    }
-  `);
-  const result = await response.json();
-  if (result?.errors?.length || !result?.data?.currentAppInstallation) {
-    throw new Error("Could not verify the active subscription.");
-  }
-  return result.data.currentAppInstallation.activeSubscriptions?.some(
-    (subscription) => subscription.status === "ACTIVE"
-  ) ?? false;
 }
 
 const planRequiredResponse = () => Response.json(
