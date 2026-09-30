@@ -24,7 +24,6 @@ jobs:
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
 
     steps:
       - name: Checkout protected main
@@ -42,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
@@ -51,15 +50,16 @@ jobs:
           done
 
           python - <<'PY'
-          import os
           import tomllib
 
           with open("shopify.app.toml", "rb") as handle:
-              config = tomllib.load(handle)
+              current = tomllib.load(handle)
+          with open("shopify.app.cloudflare-production.toml", "rb") as handle:
+              target = tomllib.load(handle)
 
-          if config["client_id"] != os.environ["SHOPIFY_API_KEY"]:
-              raise SystemExit("Railway rollback Shopify client_id mismatch")
-          if config["application_url"] != "https://vsn-metafields-production.up.railway.app":
+          if current.get("client_id") != target.get("client_id"):
+              raise SystemExit("Railway rollback Shopify app identity mismatch")
+          if current.get("application_url") != "https://vsn-metafields-production.up.railway.app":
               raise SystemExit("Railway rollback source URL drifted")
           PY
 
