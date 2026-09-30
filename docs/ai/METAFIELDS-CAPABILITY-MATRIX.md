@@ -45,3 +45,18 @@ Only expose a block source when all are true: definition/value exists, Liquid co
 ## Evidence gaps
 
 Live 2026-07 shop introspection; exact per-owner OAuth scopes; permission upgrade effect on installed shops; representative standard template list; Liquid/theme tests on product, collection, page and article; limits and list/validation combinations; customer/order privacy review. These gaps block implementation claims, not this documentation inventory.
+
+## First staging probe: product, variant, collection
+
+The current app configurations pin Admin API `2026-07` and request `read_products,write_products` (plus existing metaobject and order scopes). Shopify's scope list associates Product, ProductVariant and Collection with product scopes; this does **not** prove the installed staging app has those grants or that each definition mutation succeeds. Source: https://shopify.dev/docs/api/usage/access-scopes (checked 2026-10-01).
+
+| Gate | PRODUCT | PRODUCTVARIANT | COLLECTION | Pass evidence |
+| --- | --- | --- | --- | --- |
+| Installed app scopes | Check granted `read_products,write_products` | Same | Same | Staging app identity and granted-scope query; redact token |
+| Definition read | List owner definitions and preserve pagination | Same | Same | Owner-filtered response, no cross-owner data |
+| Definition create | Create a unique disposable `vsn_metafields` key | Same | Same | Definition ID and empty GraphQL/userErrors |
+| Value round trip | Write and read on a staging product | Write and read on a selected variant | Write and read on a staging collection | Exact typed value and owner GID; test only disposable resources |
+| Storefront | Product Liquid context | Selected-variant behavior on two variants | Collection Liquid context | Theme editor and rendered storefront evidence on the target theme |
+| Removal | Remove only the disposable definition after recording value behavior | Same | Same | Exact ID and associated-value policy recorded; never use bulk reset for a probe |
+
+Each gate records API version, shop/app identity, branch/SHA, timestamp, request operation, safe response summary and observed result. A failed owner remains disabled in the UI until the cause and scope upgrade path are understood. The draft PR #148 adds only definition-list/create/reset owner routing; it does **not** implement value round trips or storefront blocks. Its local build cannot satisfy this staging gate.
