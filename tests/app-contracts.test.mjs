@@ -1018,7 +1018,7 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.match(hotfix, /wrangler@4\.141\.0 deploy/);
   assert.match(
     hotfix,
-    /SHOPIFY_APP_URL:https:\/\/vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev/
+    /SHOPIFY_APP_URL:\\s*https:\/\/vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev/
   );
   assert.doesNotMatch(hotfix, /npx --yes @shopify\/cli/);
   assert.doesNotMatch(hotfix, /appSubscriptionCreate|appSubscriptionCancel/);
