@@ -427,7 +427,7 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.release_authorized, false);
   assert.equal(
     policy.production_worker.certified_source_sha,
-    "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+    "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
   );
   assert.equal(
     policy.authorized_version,
@@ -949,9 +949,9 @@ test("production rollback window closure is time-gated and evidence-based", () =
     "8a0d51eb-74d4-4041-8216-89aef63e1a52"
   );
   assert.equal(window.status, "active");
-  assert.equal(window.opened_at, "2026-09-30T01:55:25Z");
+  assert.equal(window.opened_at, "2026-09-30T08:31:09Z");
   assert.equal(window.minimum_hours, 24);
-  assert.equal(window.earliest_close_at, "2026-10-01T01:55:25Z");
+  assert.equal(window.earliest_close_at, "2026-10-01T08:31:09Z");
   assert.equal(
     window.certification_workflow,
     "production-rollback-window-certification.yml"
@@ -960,6 +960,9 @@ test("production rollback window closure is time-gated and evidence-based", () =
   assert.equal(window.certification_run_id, null);
   assert.equal(window.certified_at, null);
   assert.equal(window.closed_at, null);
+  assert.equal(window.reset_at, "2026-09-30T08:31:09Z");
+  assert.equal(window.reset_run_id, 36690095989);
+  assert.equal(window.reset_reason, "production_runtime_entitlement_hotfix_accepted");
   for (const value of Object.values(window.criteria)) {
     assert.equal(value, true);
   }
@@ -1007,7 +1010,7 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   const refresh = read("scripts/database/refresh-production-offline-tokens.mjs");
   const rollbackWindow = read(".github/workflows/production-rollback-window-certification.yml");
 
-  assert.equal(policy.runtime_update.status, "prepared");
+  assert.equal(policy.runtime_update.status, "accepted");
   assert.equal(
     policy.runtime_update.reason,
     "restore_existing_active_test_subscription_entitlement"
@@ -1029,8 +1032,41 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   ]);
   assert.equal(policy.runtime_update.preserve_subscription_snapshot, true);
   assert.equal(policy.runtime_update.reset_rollback_window_after_success, true);
-  assert.equal(policy.runtime_update.deployment_run_id, null);
-  assert.equal(policy.runtime_update.accepted, false);
+  assert.equal(policy.runtime_update.previous_source_sha, "c184b25628fc5c59a1110c6fe9ec49e11ce31b05");
+  assert.equal(policy.runtime_update.current_source_sha, "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b");
+  assert.equal(policy.runtime_update.deployment_run_id, 36688847964);
+  assert.equal(
+    policy.runtime_update.deployment_cloudflare_version_id,
+    "f25977a9-b02e-492c-9e01-6d3de120c5a8"
+  );
+  assert.equal(policy.runtime_update.acceptance_run_id, 36690095989);
+  assert.equal(policy.runtime_update.accepted, true);
+  assert.equal(policy.runtime_update.accepted_at, "2026-09-30T08:31:09Z");
+  assert.equal(
+    policy.runtime_update.acceptance_subscription_snapshot_digest,
+    "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76"
+  );
+  assert.equal(policy.runtime_update.acceptance_subscription_shop_count, 2);
+  assert.equal(policy.runtime_update.acceptance_active_subscription_count, 2);
+  assert.equal(policy.runtime_update.acceptance_worker_health, true);
+  assert.equal(policy.runtime_update.acceptance_billing_metadata, true);
+  assert.equal(policy.runtime_update.acceptance_cloudflare_rollback_available, true);
+  assert.equal(policy.runtime_update.session_credential_refresh_run_id, 36688847964);
+  assert.equal(policy.runtime_update.session_credential_refresh_performed, true);
+  assert.equal(
+    policy.production_worker.certified_source_sha,
+    "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
+  );
+  assert.equal(policy.production_worker.deployment_run_id, 36688847964);
+  assert.equal(
+    policy.production_worker.cloudflare_version_id,
+    "f25977a9-b02e-492c-9e01-6d3de120c5a8"
+  );
+  assert.equal(policy.production_worker.acceptance_run_id, 36690095989);
+  assert.equal(
+    policy.production_worker.accepted_source_sha,
+    "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
+  );
 
   assert.match(hotfix, /workflow_dispatch:/);
   assert.doesNotMatch(hotfix, /\npush:/);
