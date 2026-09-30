@@ -139,6 +139,10 @@ When applicable, enforce `AI-NATIVE-GOVERNANCE-ASSURANCE.md`:
 - Material risks and exceptions use owners, mitigation, consent where required, and review/expiry; expired acceptance does not remain authority.
 - Requirements 83–96 are tracked through the assurance state and require project-specific evidence to pass.
 
+## VSN environment sequence — mandatory for feature development
+
+Follow `docs/development-release-flow.md` and `config/development-flow.json`: local work on `development` or a feature branch based on it → manual deployment of `development` to isolated staging after local checks → staging evidence → reviewed `development → main` release PR → guarded manual live production from an exact protected-main SHA. Do not treat a development push as staging deployment or a main merge as live deployment. Before each stage verify branch, Shopify app identity, database endpoint, Worker and source SHA. The user's local installation exists by report; its runtime state needs direct verification. Keep the separate Cloudflare production rollback-window gate intact.
+
 ## Repository-backed memory and traceability
 
 Use `AI-NATIVE-EXECUTION.md`, `config/ai/**`, `config/ai/memory-provenance.json` and `config/traceability/requirements-traceability.json`.
