@@ -17,6 +17,7 @@ export default function Index() {
   const [name, setName] = useState("");
   const [key, setKey] = useState("");
   const [type, setType] = useState("single_line_text_field");
+  const [ownerType, setOwnerType] = useState("PRODUCT");
 
   // Load status on mount
   useEffect(() => {
@@ -26,9 +27,9 @@ export default function Index() {
   // Load fields once we know there's an active plan
   useEffect(() => {
     if (statusFetcher.data?.hasActivePlan) {
-      fieldsFetcher.load(`/app/api/fields${window.location.search}`);
+      fieldsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}`);
     }
-  }, [statusFetcher.data?.hasActivePlan]);
+  }, [statusFetcher.data?.hasActivePlan, ownerType]);
 
   // Reload fields after successful action
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function Index() {
       setKey("");
       setType("single_line_text_field");
     }
-  }, [actionFetcher.data]);
+  }, [actionFetcher.data, ownerType]);
 
   const typeOptions = [
     { label: "Text (Single Line)", value: "single_line_text_field" },
@@ -54,6 +55,7 @@ export default function Index() {
     formData.set("name", name);
     formData.set("key", key);
     formData.set("type", type);
+    formData.set("ownerType", ownerType);
     actionFetcher.submit(formData, {
       method: "post",
       action: `/app/api/fields${window.location.search}`,
@@ -63,7 +65,7 @@ export default function Index() {
   const handleReset = () => {
     if (
       !window.confirm(
-        "Reset all VSN metafield definitions? Existing product metafield values will not be deleted, but the definitions will be removed."
+        "Reset all VSN ${ownerType} metafield definitions? Existing metafield values will not be deleted, but these definitions will be removed."
       )
     ) {
       return;
@@ -71,6 +73,7 @@ export default function Index() {
 
     const formData = new FormData();
     formData.set("actionType", "reset");
+    formData.set("ownerType", ownerType);
     formData.set("confirm", "RESET_VSN_METAFIELDS");
 
     actionFetcher.submit(formData, {
@@ -143,6 +146,15 @@ export default function Index() {
 
       <s-section heading="Create New Field">
         <s-stack direction="inline" gap="base">
+          <s-select
+            label="Resource"
+            value={ownerType}
+            onInput={(event) => setOwnerType(event.target.value)}
+          >
+            <s-option value="PRODUCT">Product</s-option>
+            <s-option value="PRODUCTVARIANT">Product variant</s-option>
+            <s-option value="COLLECTION">Collection</s-option>
+          </s-select>
           <s-text-field
             label="Field Name"
             name="name"
@@ -184,7 +196,7 @@ export default function Index() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <s-heading>Registered Fields</s-heading>
           <s-button tone="critical" loading={isActionLoading} onClick={handleReset}>
-            Reset All Fields
+            Reset {ownerType} Fields
           </s-button>
         </div>
 
@@ -197,7 +209,7 @@ export default function Index() {
             </s-table-header-row>
             <s-table-body>
               {fields.map((field) => (
-                <s-table-row key={field.key}>
+                <s-table-row key={`${ownerType}:${field.key}`}>
                   <s-table-cell>{field.name}</s-table-cell>
                   <s-table-cell>{field.key}</s-table-cell>
                   <s-table-cell>{field.type}</s-table-cell>
