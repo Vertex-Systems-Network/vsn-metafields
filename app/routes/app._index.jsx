@@ -12,6 +12,9 @@ export default function Index() {
   const statusFetcher = useFetcher();
   const fieldsFetcher = useFetcher();
   const standardsFetcher = useFetcher();
+  const resourcesFetcher = useFetcher();
+  const valueFetcher = useFetcher();
+  const valueActionFetcher = useFetcher();
   const actionFetcher = useFetcher();
   const location = useLocation();
 
@@ -22,6 +25,10 @@ export default function Index() {
   const [templateId, setTemplateId] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [editedName, setEditedName] = useState("");
+  const [resourceId, setResourceId] = useState("");
+  const [valueKey, setValueKey] = useState("");
+  const [fieldValue, setFieldValue] = useState("");
+  const [resourceSearch, setResourceSearch] = useState("");
 
   // Load status on mount
   useEffect(() => {
@@ -33,6 +40,7 @@ export default function Index() {
     if (statusFetcher.data?.hasActivePlan) {
       fieldsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}`);
       standardsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}&catalog=standard`);
+      resourcesFetcher.load(`/app/api/values${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}&mode=resources`);
     }
   }, [statusFetcher.data?.hasActivePlan, ownerType]);
 
@@ -46,7 +54,33 @@ export default function Index() {
       setType("single_line_text_field");
       setEditingField(null);
     }
-  }, [actionFetcher.data?.success]);
+  }, [actionFetcher.data]);
+
+  useEffect(() => {
+    if (statusFetcher.data?.hasActivePlan && resourceId && valueKey) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("ownerType", ownerType);
+      params.set("ownerId", resourceId);
+      params.set("key", valueKey);
+      valueFetcher.load(`/app/api/values?${params}`);
+    }
+  }, [statusFetcher.data?.hasActivePlan, ownerType, resourceId, valueKey]);
+
+  useEffect(() => {
+    if (valueFetcher.data?.ok && valueFetcher.data.ownerId === resourceId && valueFetcher.data.key === valueKey) {
+      setFieldValue(valueFetcher.data.value ?? "");
+    }
+  }, [valueFetcher.data, resourceId, valueKey]);
+
+  useEffect(() => {
+    if (valueActionFetcher.data?.success && resourceId && valueKey) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("ownerType", ownerType);
+      params.set("ownerId", resourceId);
+      params.set("key", valueKey);
+      valueFetcher.load(`/app/api/values?${params}`);
+    }
+  }, [valueActionFetcher.data]);
 
   const typeOptions = [
     { label: "Text (Single Line)", value: "single_line_text_field" },
@@ -120,6 +154,27 @@ export default function Index() {
     actionFetcher.submit(formData, { method: "post", action: `/app/api/fields${window.location.search}` });
   };
 
+  const searchResources = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("ownerType", ownerType);
+    params.set("mode", "resources");
+    params.set("search", resourceSearch);
+    resourcesFetcher.load(`/app/api/values?${params}`);
+  };
+
+  const submitValue = (actionType) => {
+    if (!resourceId || !valueKey) return;
+    if (actionType === "delete" && !window.confirm(`Remove ${valueKey} value from this ${ownerType}?`)) return;
+    const form = new FormData();
+    form.set("actionType", actionType);
+    form.set("ownerType", ownerType);
+    form.set("ownerId", resourceId);
+    form.set("key", valueKey);
+    if (actionType === "set") form.set("value", fieldValue);
+    if (actionType === "delete") form.set("confirm", `REMOVE_VALUE:${resourceId}:${valueKey}`);
+    valueActionFetcher.submit(form, { method: "post", action: `/app/api/values${window.location.search}` });
+  };
+
   const isActionLoading = actionFetcher.state !== "idle";
 
   // ✅ Fixed loading states
@@ -167,6 +222,10 @@ export default function Index() {
   const templates = standardsFetcher.data?.ownerType === ownerType ? standardsFetcher.data.templates || [] : [];
   const availableTemplates = templates.filter((item) => !item.enabled);
   const selectedTemplateId = availableTemplates.some((item) => item.id === templateId) ? templateId : "";
+  const resources = resourcesFetcher.data?.ownerType === ownerType ? resourcesFetcher.data.resources || [] : [];
+  const selectedDefinition = fields.find((field) => field.key === valueKey);
+  const valueReady = valueFetcher.data?.ok && valueFetcher.data.ownerType === ownerType &&
+    valueFetcher.data.ownerId === resourceId && valueFetcher.data.key === valueKey;
 
   return (
     <s-page heading="VSN Metafields">
@@ -187,13 +246,14 @@ export default function Index() {
       {standardsFetcher.data && !standardsFetcher.data.ok && (
         <s-banner tone="critical">{standardsFetcher.data.error || "Failed to load standard definitions."}</s-banner>
       )}
+      {resourcesFetcher.data && !resourcesFetcher.data.ok && <s-banner tone="critical">{resourcesFetcher.data.error}</s-banner>}
 
       <s-section heading="Create Custom Definition">
         <s-stack direction="inline" gap="base">
           <s-select
             label="Resource"
             value={ownerType}
-            onInput={(event) => { setOwnerType(event.target.value); setTemplateId(""); setEditingField(null); }}
+            onInput={(event) => { setOwnerType(event.target.value); setTemplateId(""); setEditingField(null); setResourceId(""); setValueKey(""); setFieldValue(""); }}
           >
             <s-option value="PRODUCT">Product</s-option>
             <s-option value="PRODUCTVARIANT">Product variant</s-option>
@@ -234,6 +294,41 @@ export default function Index() {
             Create Field
           </s-button>
         </s-stack>
+      </s-section>
+
+      <s-section heading="Set Resource Value">
+        <s-text>Select a resource and one of your custom definitions. Shopify standard definitions can be enabled below; their value editor will follow the staging capability probe.</s-text>
+        <s-stack direction="inline" gap="base">
+          <s-text-field label="Find resource by title" value={resourceSearch} onInput={(event) => setResourceSearch(event.target.value)} />
+          <s-button onClick={searchResources}>Search</s-button>
+          <s-select label="Resource" value={resourceId} onInput={(event) => { setResourceId(event.target.value); setFieldValue(""); }}>
+            <s-option value="">Select a resource</s-option>
+            {resources.map((resource) => <s-option key={resource.id} value={resource.id}>{resource.title}</s-option>)}
+          </s-select>
+          <s-select label="Definition" value={valueKey} onInput={(event) => { setValueKey(event.target.value); setFieldValue(""); }}>
+            <s-option value="">Select a definition</s-option>
+            {fields.map((field) => <s-option key={field.id} value={field.key}>{field.name}</s-option>)}
+          </s-select>
+        </s-stack>
+        {resourcesFetcher.state === "loading" && <s-text>Loading resources...</s-text>}
+        {valueFetcher.data && !valueFetcher.data.ok && <s-banner tone="critical">{valueFetcher.data.error}</s-banner>}
+        {valueReady && selectedDefinition && (
+          <s-stack direction="inline" gap="base">
+            {selectedDefinition.type === "boolean" ? (
+              <s-select label="Value" value={fieldValue} onInput={(event) => setFieldValue(event.target.value)}>
+                <s-option value="">Choose a value</s-option>
+                <s-option value="true">True</s-option>
+                <s-option value="false">False</s-option>
+              </s-select>
+            ) : (
+              <s-text-field label={`${selectedDefinition.name} value (${selectedDefinition.type})`} value={fieldValue} onInput={(event) => setFieldValue(event.target.value)} />
+            )}
+            <s-button variant="primary" disabled={!fieldValue || valueActionFetcher.state !== "idle"} onClick={() => submitValue("set")}>Save value</s-button>
+            <s-button tone="critical" disabled={valueFetcher.data.value === null || valueActionFetcher.state !== "idle"} onClick={() => submitValue("delete")}>Remove value</s-button>
+          </s-stack>
+        )}
+        {valueActionFetcher.data?.error && <s-banner tone="critical">{valueActionFetcher.data.error}</s-banner>}
+        {valueActionFetcher.data?.success && <s-banner tone="success">{valueActionFetcher.data.message}</s-banner>}
       </s-section>
 
       <s-section heading="Enable Shopify Standard Definition">
