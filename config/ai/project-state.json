@@ -3,34 +3,35 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-exact-cutover-candidate-authorized-awaiting-release",
-  "last_verified_completion": "Explicit production Shopify cutover authorization was received for exact candidate cloudflare-production-cutover-8d201357d738-4. Authorization is recorded on Issue #4 comment 5902461299. Repository policy now authorizes only source 8d201357d738bb715dd4e53fc09d841685126aef with the certified 2-shop / 2-active-subscription snapshot digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76. Candidate remains unreleased and Shopify production still targets Railway.",
-  "next_valid_work_unit": "Run the guarded Shopify Production Cutover Release workflow for exactly cloudflare-production-cutover-8d201357d738-4 using the repository-recorded subscription digest/counts. Verify pre-release snapshot, release exact version, post-release Worker health, subscription preservation, compliance webhooks, and keep Railway rollback available.",
+  "current_work_unit": "ISSUE-4-post-cutover-rollback-window-active",
+  "last_verified_completion": "Shopify Production Cutover Release run 36657352966 succeeded for exact authorized candidate cloudflare-production-cutover-8d201357d738-4. Shopify CLI reported 'Version released to users'. Pre- and post-release subscription snapshots were identical at 2 shops / 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76. Cloudflare Worker health passed before and after release, three compliance webhooks were enqueued successfully, and the Railway rollback source remained preserved.",
+  "next_valid_work_unit": "Keep Railway available during the post-cutover rollback window, monitor/verify production behavior, define and satisfy rollback-window closure criteria, then retire Railway only when rollback is no longer required. Supabase source cleanup remains deferred until the migration rollback window is closed.",
   "progress": {
-    "total_work_units": 6,
+    "total_work_units": 7,
     "complete": 6,
-    "in_progress": 0,
+    "in_progress": 1,
     "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Release exactly cloudflare-production-cutover-8d201357d738-4 with the repository-recorded subscription snapshot digest/counts; no alternate candidate is authorized.",
-    "After release, verify existing merchant/subscription behavior and keep Railway rollback available through the rollback window.",
-    "After post-cutover validation and rollback-window closure, remove temporary Supabase source secret/infrastructure only when no longer required."
+    "Keep Railway available while the post-cutover rollback window is active and verify Cloudflare production behavior remains stable.",
+    "Define and satisfy explicit rollback-window closure criteria before retiring Railway.",
+    "After rollback-window closure, remove temporary Supabase source secret/infrastructure only when no longer required."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
     "Issue #68: GitHub-managed refs/pull/* server-side dereference/garbage-collection follow-up; not a PHASE-00 project-ref blocker.",
     "Choose a Project Management System or explicitly skip PM integration.",
     "Choose and identity-verify the Development AI agent pool available in the current host.",
-    "Resolve capability-dependent GitHub security checks before making them required."
+    "Resolve capability-dependent GitHub security checks before making them required.",
+    "Rollback-window duration/closure criteria are not yet repository-defined."
   ],
   "critical_defects": [],
-  "qa_readiness": "exact_production_cutover_candidate_authorized_release_workflow_next",
-  "security_readiness": "exact_candidate_and_subscription_snapshot_authorized_candidate_unreleased_railway_still_live",
-  "last_reconciled_repository_ref": "47a247500a81cc99a060c20f648f53985646f3c5",
-  "last_reconciled_at": "2026-09-30T01:47:00+00:00",
-  "notes": "Explicit cutover authorization is recorded as github-issue-4-comment-5902461299. Repository release policy authorizes only cloudflare-production-cutover-8d201357d738-4 / 8d201357d738bb715dd4e53fc09d841685126aef with the recorded subscription snapshot. Release has not yet executed."
+  "qa_readiness": "production_cutover_released_and_post_release_verified_rollback_window_active",
+  "security_readiness": "cloudflare_live_subscriptions_preserved_railway_rollback_preserved_release_authorization_consumed",
+  "last_reconciled_repository_ref": "032a7d22e54bf855d657a3c97c659aee099bde71",
+  "last_reconciled_at": "2026-09-30T01:55:45+00:00",
+  "notes": "Release run 36657352966 completed the authorized Shopify production cutover. Existing subscription fingerprint remained unchanged before/after release, Worker health passed post-release, compliance webhooks were enqueued, and Railway rollback remains preserved. Issue #4 stays open until the rollback window closes and Railway can be retired safely."
 }
