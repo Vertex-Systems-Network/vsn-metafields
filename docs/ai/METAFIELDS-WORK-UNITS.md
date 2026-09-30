@@ -1,6 +1,6 @@
 # Metafields feature work units — planning only
 
-This queue is a feature proposal; it does not claim a Supervisor lease, Worker claim, agent identity, implementation, test pass or production readiness. It does not replace PHASE-01's rollback certification.
+Execution stage for every work unit: local/development branch and local verification, then manual development-to-staging dispatch and staging verification, then reviewed development-to-main promotion and guarded live release only where applicable. An unverified local setup is never accepted as staging evidence. See `docs/development-release-flow.md`.\n\nThis queue is a feature proposal; it does not claim a Supervisor lease, Worker claim, agent identity, implementation, test pass or production readiness. It does not replace PHASE-01's rollback certification.
 
 | ID | Module | Work unit | Dependencies | Acceptance evidence |
 | --- | --- | --- | --- | --- |
