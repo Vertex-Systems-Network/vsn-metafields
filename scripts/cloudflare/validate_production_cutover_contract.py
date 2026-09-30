@@ -403,7 +403,15 @@ def main() -> int:
     require("pooled_id != production_id" in deploy, "deploy must require URLs to match the certified production Neon endpoint")
     require("pooled_id == staging_id" in deploy, "production deploy must reject the staging Neon endpoint")
     require("production_neon_identity=certified_and_distinct" in deploy, "production deploy Neon isolation evidence missing")
-    require("production_shopify_cutover_performed=false" in read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml"), "cutover certification must explicitly prove no Shopify cutover occurred")
+    cutover_contract_workflow = read(ROOT / ".github" / "workflows" / "production-cutover-contract.yml")
+    require(
+        "production_shopify_cutover_performed=" in cutover_contract_workflow,
+        "cutover certification must explicitly report whether Shopify cutover occurred",
+    )
+    require(
+        "released_post_cutover_verified" in cutover_contract_workflow,
+        "cutover certification must understand the verified post-release lifecycle state",
+    )
     require("DEPLOY_PRODUCTION_WORKER_ONLY" in deploy, "production Worker deploy confirmation gate missing")
     require("source_sha:" in deploy, "production Worker deploy immutable source input missing")
     require("EXPECTED_SOURCE_SHA" in deploy, "production Worker deploy expected source binding missing")
