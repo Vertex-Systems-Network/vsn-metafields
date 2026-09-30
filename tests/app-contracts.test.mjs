@@ -361,7 +361,7 @@ test("development flow keeps local and staging changes away from live production
   assert.doesNotMatch(production, /github\.event_name == 'push'/);
 });
 
-test("production cutover certification performs build and Worker dry-run without authorizing release", () => {
+test("production cutover certification performs build and Worker dry-run without executing release", () => {
   const workflow = read(".github/workflows/production-cutover-contract.yml");
 
   assert.match(workflow, /npm ci/);
@@ -370,7 +370,8 @@ test("production cutover certification performs build and Worker dry-run without
   assert.match(workflow, /--config wrangler\.production\.jsonc/);
   assert.match(workflow, /--dry-run/);
   assert.match(workflow, /production_worker_dry_run=pass/);
-  assert.match(workflow, /production_release_authorized=false/);
+  assert.match(workflow, /production_release_authorized=/);
+  assert.match(workflow, /production_release_state=/);
   assert.match(workflow, /production_shopify_cutover_performed=false/);
   assert.doesNotMatch(workflow, /shopify app release/);
   assert.doesNotMatch(workflow, /prisma migrate deploy/);
@@ -398,14 +399,30 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(wrangler.main, "./workers/app.js");
   assert.equal(Object.hasOwn(wrangler, "routes"), false);
 
-  assert.equal(policy.release_authorized, false);
+  assert.equal(policy.status, "authorized_not_released");
+  assert.equal(policy.release_authorized, true);
   assert.equal(
     policy.production_worker.certified_source_sha,
     "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
   );
-  assert.equal(policy.authorized_version, null);
-  assert.equal(policy.authorized_source_ref, null);
-  assert.equal(policy.authorization_record, null);
+  assert.equal(
+    policy.authorized_version,
+    "cloudflare-production-cutover-8d201357d738-4"
+  );
+  assert.equal(
+    policy.authorized_source_ref,
+    "8d201357d738bb715dd4e53fc09d841685126aef"
+  );
+  assert.equal(policy.authorization_record, "github-issue-4-comment-5902461299");
+  assert.equal(policy.candidate.version, policy.authorized_version);
+  assert.equal(policy.candidate.source_ref, policy.authorized_source_ref);
+  assert.equal(
+    policy.candidate.subscription_snapshot_digest,
+    "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76"
+  );
+  assert.equal(policy.candidate.subscription_shop_count, 2);
+  assert.equal(policy.candidate.active_subscription_count, 2);
+  assert.equal(policy.candidate.released, false);
   assert.equal(policy.shopify.preserve_app_identity, true);
   assert.equal(policy.shopify.merchant_reinstall_allowed, false);
   assert.equal(policy.billing.mutate_during_cutover, false);
@@ -447,7 +464,8 @@ test("production cutover package preserves Shopify identity, billing, database, 
     policy.production_worker.certified_source_sha
   );
 
-  assert.match(validator, /production_release_authorized=false/);
+  assert.match(validator, /authorized_not_released/);
+  assert.match(validator, /production_release_authorized=/);
   assert.match(deploy, /DEPLOY_PRODUCTION_WORKER_ONLY/);
   assert.match(deploy, /source_sha:/);
   assert.match(deploy, /EXPECTED_SOURCE_SHA/);
@@ -505,6 +523,10 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.match(release, /subscription_active_count:/);
   assert.match(release, /audit-production-subscriptions\.mjs/);
   assert.match(release, /EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST/);
+  assert.match(release, /authorized_not_released/);
+  assert.match(release, /candidate\.get\("subscription_snapshot_digest"\)/);
+  assert.match(release, /candidate\.get\("subscription_shop_count"\)/);
+  assert.match(release, /candidate\.get\("active_subscription_count"\)/);
   assert.match(release, /production_existing_subscriptions_preserved=pass/);
   assert.match(release, /vsn-metafields-production-release-smoke\/1\.0/);
   assert.match(release, /vsn-metafields-production-post-release-smoke\/1\.0/);
