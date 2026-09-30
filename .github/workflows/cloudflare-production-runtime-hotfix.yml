@@ -213,7 +213,9 @@ jobs:
           import urllib.request
 
           url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz"
-          expected = os.environ["CURRENT_RUNTIME_SHA"]
+          baseline = os.environ["CURRENT_RUNTIME_SHA"]
+          target = os.environ["EXPECTED_SOURCE_SHA"]
+          already_live = False
 
           for attempt in range(1, 7):
               try:
@@ -225,9 +227,13 @@ jobs:
                       payload = json.loads(response.read().decode("utf-8"))
                   if payload.get("ok") is not True:
                       raise RuntimeError("Current production Worker is unhealthy.")
-                  if payload.get("commitSha") != expected:
+
+                  observed = payload.get("commitSha")
+                  if observed == target:
+                      already_live = True
+                  elif observed != baseline:
                       raise RuntimeError(
-                          f"Current production source drifted: expected {expected}, got {payload.get('commitSha')!r}"
+                          f"Current production source drifted: expected baseline {baseline} or already-deployed target {target}, got {observed!r}"
                       )
                   break
               except Exception:
@@ -235,7 +241,16 @@ jobs:
                       raise
                   time.sleep(attempt * 2)
 
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as handle:
+              handle.write(
+                  "HOTFIX_ALREADY_LIVE=" + ("true" if already_live else "false") + "\n"
+              )
+
           print("production_runtime_hotfix_pre_health=pass")
+          print(
+              "production_runtime_hotfix_resume_state="
+              + ("already_live" if already_live else "needs_deploy")
+          )
           PY
 
       - name: Verify subscription snapshot before hotfix
@@ -245,6 +260,7 @@ jobs:
         run: npm run build
 
       - name: Create ephemeral production secrets file
+        if: env.HOTFIX_ALREADY_LIVE != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -263,6 +279,7 @@ jobs:
           chmod 600 /tmp/vsn-metafields-production-hotfix-secrets.json
 
       - name: Deploy exact Cloudflare production Worker hotfix
+        if: env.HOTFIX_ALREADY_LIVE != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -359,6 +376,7 @@ jobs:
       - name: Record non-mutating hotfix evidence
         run: |
           echo "production_runtime_hotfix=pass"
+          echo "production_runtime_hotfix_already_live=$HOTFIX_ALREADY_LIVE"
           echo "production_shopify_config_mutation_performed=false"
           echo "production_billing_mutation_performed=false"
           echo "production_database_mutation_performed=false"
