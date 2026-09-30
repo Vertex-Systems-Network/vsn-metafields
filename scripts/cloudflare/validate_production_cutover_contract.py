@@ -28,6 +28,8 @@ SUPABASE_SOURCE_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-s
 SUBSCRIPTION_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-subscriptions.mjs"
 OFFLINE_TOKEN_MIGRATION = ROOT / ".github" / "workflows" / "production-offline-token-migration.yml"
 OFFLINE_TOKEN_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-offline-tokens.mjs"
+ROLLBACK_WINDOW_CERTIFICATION = ROOT / ".github" / "workflows" / "production-rollback-window-certification.yml"
+SESSION_READINESS_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-session-readiness.mjs"
 
 
 class ValidationError(RuntimeError):
@@ -77,6 +79,8 @@ def main() -> int:
     subscription_audit = read(SUBSCRIPTION_AUDIT)
     offline_token_migration = read(OFFLINE_TOKEN_MIGRATION)
     offline_token_migration_script = read(OFFLINE_TOKEN_MIGRATION_SCRIPT)
+    rollback_window_certification = read(ROLLBACK_WINDOW_CERTIFICATION)
+    session_readiness_audit = read(SESSION_READINESS_AUDIT)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -277,7 +281,37 @@ def main() -> int:
     require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
-    workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration]
+    rollback_window = rollback_policy.get("window")
+    require(isinstance(rollback_window, dict), "rollback window policy missing")
+    require(rollback_window.get("status") == "active", "rollback window must remain active until certified closure")
+    require(rollback_window.get("opened_at") == "2026-09-30T01:55:25Z", "rollback window open time drifted")
+    require(rollback_window.get("minimum_hours") == 24, "rollback window minimum duration must remain 24 hours")
+    require(rollback_window.get("earliest_close_at") == "2026-10-01T01:55:25Z", "rollback window earliest close time drifted")
+    require(
+        rollback_window.get("certification_workflow") == "production-rollback-window-certification.yml",
+        "rollback window certification workflow drifted",
+    )
+    require(rollback_window.get("closure_authorized") is False, "rollback-window closure must remain unauthorized before certification")
+    require(rollback_window.get("certification_run_id") is None, "rollback-window certification run must remain unset while active")
+    require(rollback_window.get("certified_at") is None, "rollback-window certification time must remain unset while active")
+    require(rollback_window.get("closed_at") is None, "rollback window must not be marked closed before certification")
+    rollback_criteria = rollback_window.get("criteria")
+    require(isinstance(rollback_criteria, dict), "rollback-window closure criteria missing")
+    for criterion in (
+        "cloudflare_health_and_source_sha",
+        "billing_metadata_55_usd_5_day_trial",
+        "subscription_snapshot_unchanged",
+        "production_session_count_and_token_coverage",
+        "expiring_offline_tokens_ready",
+        "railway_runtime_reachable",
+        "railway_rollback_source_preserved",
+        "no_railway_retirement_before_certification",
+        "no_supabase_cleanup_before_certification",
+    ):
+        require(rollback_criteria.get(criterion) is True, f"rollback-window criterion missing: {criterion}")
+
+
+    workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration, rollback_window_certification]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
@@ -537,6 +571,31 @@ def main() -> int:
     require("vsn-metafields-production-post-release-smoke/1.0" in release, "post-release health retry identity missing")
     require("for attempt in range(1, 7)" in release, "production release health checks must be retried")
     require("DATABASE_URL" in release, "production release subscription verification requires production DATABASE_URL")
+
+    require("workflow_dispatch:" in rollback_window_certification and "push:" not in rollback_window_certification, "rollback-window certification must remain manual-only")
+    require("CERTIFY_ROLLBACK_WINDOW_CLOSURE" in rollback_window_certification, "rollback-window certification confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in rollback_window_certification, "rollback-window certification must require protected main")
+    require("ref: main" in rollback_window_certification, "rollback-window certification checkout must pin main")
+    require("environment: cloudflare-production" in rollback_window_certification, "rollback-window certification environment missing")
+    require("earliest_close_at" in rollback_window_certification, "rollback-window certification must enforce earliest close time")
+    require("rollback_window_elapsed=pass" in rollback_window_certification, "rollback-window elapsed-time evidence missing")
+    require("vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz" in rollback_window_certification, "rollback-window Cloudflare health check missing")
+    require("vsn-metafields-production.up.railway.app/healthz" in rollback_window_certification, "rollback-window Railway health check missing")
+    require("audit-production-subscriptions.mjs" in rollback_window_certification, "rollback-window subscription audit missing")
+    require("audit-production-session-readiness.mjs" in rollback_window_certification, "rollback-window Session readiness audit missing")
+    require("production_rollback_window_certification=pass" in rollback_window_certification, "rollback-window certification success evidence missing")
+    require("production_railway_retirement_performed=false" in rollback_window_certification, "rollback-window certification must prove no Railway retirement")
+    require("production_supabase_cleanup_performed=false" in rollback_window_certification, "rollback-window certification must prove no Supabase cleanup")
+    require("app release" not in rollback_window_certification, "rollback-window certification must never release Shopify config")
+    require("appSubscriptionCreate" not in rollback_window_certification, "rollback-window certification must never create subscriptions")
+    require("appSubscriptionCancel" not in rollback_window_certification, "rollback-window certification must never cancel subscriptions")
+
+    require("production_session_readiness=pass" in session_readiness_audit, "Session readiness audit success evidence missing")
+    require("production_session_credentials_logged=false" in session_readiness_audit, "Session readiness audit must prove credentials are not logged")
+    require('"isOnline" = false' in session_readiness_audit, "Session readiness audit must verify offline sessions")
+    require('"refreshToken" IS NOT NULL' in session_readiness_audit, "Session readiness audit must verify refresh tokens")
+    require('"refreshTokenExpires" IS NOT NULL' in session_readiness_audit, "Session readiness audit must verify refresh-token expiry")
+    require("console.log(row" not in session_readiness_audit, "Session readiness audit must not log Session rows")
 
     require("ROLLBACK_TO_RAILWAY" in rollback, "Railway rollback confirmation missing")
     require("github.ref == 'refs/heads/main'" in rollback, "Railway rollback must require protected main")
