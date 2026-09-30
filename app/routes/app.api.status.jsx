@@ -56,13 +56,6 @@ function isProductionBilling() {
   );
 }
 
-function getValidSubscriptions(subscriptions) {
-  return isProductionBilling()
-    ? subscriptions.filter((subscription) => !subscription.test)
-    : subscriptions;
-}
-
-
 // ─── GET: fetch subscription status ───────────────────────────────────────────
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
@@ -93,8 +86,10 @@ export const loader = async ({ request }) => {
 
   try {
     const activeSubscriptions = await getActiveSubscriptions(admin);
-    const validSubscriptions = getValidSubscriptions(activeSubscriptions);
-    const hasActivePlan = validSubscriptions.some(
+    // Shopify's test flag describes how the subscription is billed, not whether
+    // an already-active subscription grants app access. Existing demo/test-store
+    // subscriptions must stay valid after a production hosting migration.
+    const hasActivePlan = activeSubscriptions.some(
       (subscription) => subscription.status === "ACTIVE"
     );
 
@@ -102,7 +97,7 @@ export const loader = async ({ request }) => {
       ok: true,
       shop: session.shop,
       hasActivePlan,
-      subscriptions: validSubscriptions,
+      subscriptions: activeSubscriptions,
     });
   } catch (error) {
     if (error instanceof Response) {
@@ -185,10 +180,8 @@ export const action = async ({ request }) => {
 		}
 
     try {
-      const validSubscriptions = getValidSubscriptions(
-        await getActiveSubscriptions(admin)
-      );
-      const subscriptionToCancel = validSubscriptions.find(
+      const activeSubscriptions = await getActiveSubscriptions(admin);
+      const subscriptionToCancel = activeSubscriptions.find(
         (subscription) =>
           subscription.id === id && subscription.status === "ACTIVE"
       );
@@ -269,10 +262,8 @@ export const action = async ({ request }) => {
 		}
 
     try {
-      const validSubscriptions = getValidSubscriptions(
-        await getActiveSubscriptions(admin)
-      );
-      const duplicateActivePlan = validSubscriptions.find(
+      const activeSubscriptions = await getActiveSubscriptions(admin);
+      const duplicateActivePlan = activeSubscriptions.find(
         (subscription) =>
           subscription.status === "ACTIVE" &&
           subscription.name === selectedPlan.name
