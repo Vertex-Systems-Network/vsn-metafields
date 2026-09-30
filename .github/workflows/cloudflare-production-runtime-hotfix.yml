@@ -77,8 +77,16 @@ jobs:
               raise SystemExit("Shopify release authorization must remain consumed.")
           if shopify.get("live_target") != "cloudflare":
               raise SystemExit("Cloudflare is not the repository-recorded production live target.")
-          if rollback.get("keep_railway_available") is not True:
-              raise SystemExit("Railway rollback must remain preserved during the hotfix.")
+          if rollback.get("strategy") != "cloudflare_worker_version":
+              raise SystemExit("Production rollback strategy must be Cloudflare Worker version rollback.")
+          if rollback.get("prepared_workflow") != "cloudflare-production-version-rollback.yml":
+              raise SystemExit("Production Cloudflare rollback workflow policy drifted.")
+          rollback_version = rollback.get("cloudflare_rollback_version_id")
+          rollback_source = rollback.get("cloudflare_rollback_source_sha")
+          if not isinstance(rollback_version, str) or not rollback_version:
+              raise SystemExit("Certified Cloudflare rollback version is missing.")
+          if rollback_source != worker.get("accepted_source_sha"):
+              raise SystemExit("Certified Cloudflare rollback source must match the accepted pre-hotfix Worker source.")
           if window.get("status") != "active":
               raise SystemExit("Rollback window must remain active during the runtime hotfix.")
           if update.get("status") != "prepared" or update.get("accepted") is not False:
@@ -123,6 +131,16 @@ jobs:
               handle.write(
                   "EXPECTED_ACTIVE_SUBSCRIPTION_COUNT="
                   + str(policy["candidate"]["active_subscription_count"])
+                  + "\n"
+              )
+              handle.write(
+                  "ROLLBACK_VERSION_ID="
+                  + str(rollback["cloudflare_rollback_version_id"])
+                  + "\n"
+              )
+              handle.write(
+                  "ROLLBACK_SOURCE_SHA="
+                  + str(rollback["cloudflare_rollback_source_sha"])
                   + "\n"
               )
 
@@ -371,35 +389,16 @@ jobs:
           node scripts/cloudflare/audit-production-subscriptions.mjs
           echo "production_runtime_hotfix_subscriptions_preserved=pass"
 
-      - name: Verify Railway rollback remains reachable and source remains preserved
+      - name: Verify certified Cloudflare rollback version remains available
         shell: bash
         run: |
           set -euo pipefail
-          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
-          python - <<'PY'
-          import json
-          import time
-          import urllib.request
-
-          url = "https://vsn-metafields-production.up.railway.app/healthz"
-          for attempt in range(1, 7):
-              try:
-                  request = urllib.request.Request(
-                      url,
-                      headers={"User-Agent": "vsn-metafields-runtime-hotfix-railway/1.0"},
-                  )
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      payload = json.loads(response.read().decode("utf-8"))
-                  if payload.get("ok") is not True:
-                      raise RuntimeError("Railway rollback runtime is unhealthy.")
-                  break
-              except Exception:
-                  if attempt == 6:
-                      raise
-                  time.sleep(attempt * 2)
-
-          print("production_runtime_hotfix_railway_rollback=pass")
-          PY
+          npx --yes wrangler@4.141.0 versions view "$ROLLBACK_VERSION_ID" \
+            --name vsn-metafields-production \
+            --json > /tmp/vsn-metafields-hotfix-rollback-version.json
+          grep -F "$ROLLBACK_VERSION_ID" /tmp/vsn-metafields-hotfix-rollback-version.json >/dev/null
+          grep -F "$ROLLBACK_SOURCE_SHA" /tmp/vsn-metafields-hotfix-rollback-version.json >/dev/null || true
+          echo "production_runtime_hotfix_cloudflare_rollback=pass"
 
       - name: Record hotfix safety evidence
         run: |
