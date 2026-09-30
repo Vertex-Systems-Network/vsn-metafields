@@ -11,11 +11,7 @@
       "module_ids": [
         "MOD-META-DEFINITIONS"
       ],
-      "work_unit_ids": [
-        "META-001",
-        "META-002",
-        "META-003"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
@@ -48,11 +44,7 @@
       "module_ids": [
         "MOD-META-THEME"
       ],
-      "work_unit_ids": [
-        "META-005",
-        "META-006",
-        "META-009"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
@@ -85,9 +77,7 @@
       "module_ids": [
         "MOD-META-CAPABILITY"
       ],
-      "work_unit_ids": [
-        "META-001"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
@@ -120,9 +110,7 @@
       "module_ids": [
         "MOD-META-CAPABILITY"
       ],
-      "work_unit_ids": [
-        "META-001"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
@@ -155,11 +143,7 @@
       "module_ids": [
         "MOD-META-OPERATIONS"
       ],
-      "work_unit_ids": [
-        "META-002",
-        "META-011",
-        "META-012"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
@@ -194,11 +178,7 @@
         "MOD-META-VALUES",
         "MOD-META-THEME"
       ],
-      "work_unit_ids": [
-        "META-004",
-        "META-005",
-        "META-011"
-      ],
+      "work_unit_ids": [],
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
