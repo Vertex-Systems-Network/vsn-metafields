@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "issue": 4,
-  "status": "prepared_not_authorized",
-  "release_authorized": false,
+  "status": "authorized_not_released",
+  "release_authorized": true,
   "production_worker": {
     "name": "vsn-metafields-production",
     "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
@@ -68,9 +68,9 @@
     "keep_railway_available": true,
     "prepared_workflow": "shopify-production-rollback-railway.yml"
   },
-  "authorized_version": null,
-  "authorized_source_ref": null,
-  "authorization_record": null,
+  "authorized_version": "cloudflare-production-cutover-8d201357d738-4",
+  "authorized_source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",
+  "authorization_record": "github-issue-4-comment-5902461299",
   "candidate": {
     "version": "cloudflare-production-cutover-8d201357d738-4",
     "source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",

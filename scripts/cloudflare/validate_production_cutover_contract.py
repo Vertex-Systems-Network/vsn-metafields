@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the prepared production cutover contract without authorizing release."""
+"""Validate production cutover policy across prepared and authorized pre-release states."""
 
 from __future__ import annotations
 
@@ -80,11 +80,54 @@ def main() -> int:
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
-    require(policy.get("status") == "prepared_not_authorized", "production cutover status drifted")
-    require(policy.get("release_authorized") is False, "production release must remain unauthorized during preparation")
-    require(policy.get("authorized_version") is None, "authorized production version must remain unset during preparation")
-    require(policy.get("authorized_source_ref") is None, "authorized production source ref must remain unset during preparation")
-    require(policy.get("authorization_record") is None, "production authorization record must remain unset during preparation")
+
+    status = policy.get("status")
+    release_authorized = policy.get("release_authorized")
+    authorized_version = policy.get("authorized_version")
+    authorized_source_ref = policy.get("authorized_source_ref")
+    authorization_record = policy.get("authorization_record")
+    candidate_policy = policy.get("candidate")
+
+    require(
+        status in {"prepared_not_authorized", "authorized_not_released"},
+        "production cutover status drifted",
+    )
+    require(isinstance(candidate_policy, dict), "production cutover candidate evidence missing")
+    require(candidate_policy.get("released") is False, "pre-release policy must keep candidate unreleased")
+
+    if status == "prepared_not_authorized":
+        require(release_authorized is False, "prepared cutover must remain unauthorized")
+        require(authorized_version is None, "prepared cutover version must remain unset")
+        require(authorized_source_ref is None, "prepared cutover source ref must remain unset")
+        require(authorization_record is None, "prepared cutover authorization record must remain unset")
+    else:
+        require(release_authorized is True, "authorized cutover must set release_authorized=true")
+        require(
+            authorized_version == candidate_policy.get("version"),
+            "authorized production version must equal the recorded candidate version",
+        )
+        require(
+            authorized_source_ref == candidate_policy.get("source_ref"),
+            "authorized production source ref must equal the recorded candidate source",
+        )
+        require(
+            isinstance(authorization_record, str) and authorization_record.strip(),
+            "authorized production cutover requires an audit authorization record",
+        )
+        require(
+            re.fullmatch(r"cloudflare-production-cutover-[0-9a-f]{12}-[0-9]+", str(authorized_version))
+            is not None,
+            "authorized production version format is invalid",
+        )
+        require(
+            isinstance(authorized_source_ref, str)
+            and re.fullmatch(r"[0-9a-f]{40}", authorized_source_ref) is not None,
+            "authorized production source ref is invalid",
+        )
+        require(
+            str(authorized_version).split("-")[-2] == authorized_source_ref[:12],
+            "authorized candidate version/source prefix mismatch",
+        )
 
     worker = policy.get("production_worker")
     shopify = policy.get("shopify")
@@ -441,8 +484,8 @@ def main() -> int:
     require(railway_url in rollback, "Railway rollback URL guard missing")
     require("app release" in rollback and "--allow-updates" in rollback, "Railway rollback release command missing")
 
-    print("production_cutover_contract=prepared")
-    print("production_release_authorized=false")
+    print(f"production_cutover_contract={status}")
+    print(f"production_release_authorized={str(release_authorized).lower()}")
     print(f"production_shopify_client_id={client_id}")
     print(f"production_current_url={railway_url}")
     print(f"production_target_url={cloudflare_url}")
