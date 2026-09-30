@@ -7,7 +7,13 @@
     "name": "vsn-metafields-production",
     "url": "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev",
     "public_route_binding": false,
-    "certified_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
+    "certified_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "deployment_completed": true,
+    "deployment_run_id": 36652638277,
+    "cloudflare_version_id": "8a0d51eb-74d4-4041-8216-89aef63e1a52",
+    "acceptance_completed": true,
+    "acceptance_run_id": 36652893746,
+    "accepted_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05"
   },
   "shopify": {
     "client_id": "f5266ba8dba403005deb695fedad053a",
