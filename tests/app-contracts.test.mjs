@@ -909,6 +909,7 @@ test("production cutover preflight watches runtime-critical release paths", () =
   assert.match(workflow, /production-session-migration\.yml/);
   assert.match(workflow, /migrate-production-sessions\.mjs/);
   assert.match(workflow, /resolve-production-neon-urls\.py/);
+  assert.match(workflow, /refresh-production-offline-tokens\.mjs/);
 });
 
 
@@ -976,6 +977,7 @@ test("production rollback window closure is time-gated and evidence-based", () =
 test("production runtime entitlement hotfix is exact-source and subscription-safe", () => {
   const policy = JSON.parse(read("config/cloudflare/production-cutover.json"));
   const hotfix = read(".github/workflows/cloudflare-production-runtime-hotfix.yml");
+  const refresh = read("scripts/database/refresh-production-offline-tokens.mjs");
   const rollbackWindow = read(".github/workflows/production-rollback-window-certification.yml");
 
   assert.equal(policy.runtime_update.status, "prepared");
@@ -990,6 +992,14 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.equal(policy.runtime_update.shopify_config_mutation_allowed, false);
   assert.equal(policy.runtime_update.billing_mutation_allowed, false);
   assert.equal(policy.runtime_update.database_mutation_allowed, false);
+  assert.equal(policy.runtime_update.session_credential_refresh_allowed, true);
+  assert.deepEqual(policy.runtime_update.session_credential_refresh_fields, [
+    "accessToken",
+    "expires",
+    "refreshToken",
+    "refreshTokenExpires",
+    "scope",
+  ]);
   assert.equal(policy.runtime_update.preserve_subscription_snapshot, true);
   assert.equal(policy.runtime_update.reset_rollback_window_after_success, true);
   assert.equal(policy.runtime_update.deployment_run_id, null);
@@ -1016,7 +1026,11 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.match(hotfix, /production_runtime_hotfix_railway_rollback=pass/);
   assert.match(hotfix, /production_shopify_config_mutation_performed=false/);
   assert.match(hotfix, /production_billing_mutation_performed=false/);
-  assert.match(hotfix, /production_database_mutation_performed=false/);
+  assert.match(hotfix, /refresh-production-offline-tokens\.mjs/);
+  assert.match(hotfix, /production_session_credential_refresh_authorized=true/);
+  assert.match(hotfix, /production_subscription_mutation_performed=false/);
+  assert.match(hotfix, /production_schema_or_business_data_mutation_performed=false/);
+  assert.match(hotfix, /production_session_credential_refresh_performed=\$SESSION_CREDENTIAL_REFRESH_PERFORMED/);
   assert.match(hotfix, /production_merchant_reinstall_required=false/);
   assert.match(hotfix, /production_rollback_window_reset_required=true/);
   assert.match(hotfix, /wrangler@4\.141\.0 deploy/);
@@ -1028,6 +1042,16 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.doesNotMatch(hotfix, /appSubscriptionCreate|appSubscriptionCancel/);
   assert.doesNotMatch(hotfix, /prisma migrate deploy/);
   assert.doesNotMatch(hotfix, /--allow-deletes/);
+
+  assert.match(refresh, /grant_type:\s*"refresh_token"/);
+  assert.match(refresh, /refresh_token:\s*refreshToken/);
+  assert.match(refresh, /"refreshToken" = \$3/);
+  assert.match(refresh, /"refreshTokenExpires" = \$4/);
+  assert.match(refresh, /AND "refreshToken" = \$7/);
+  assert.match(refresh, /production_offline_token_refresh=pass/);
+  assert.match(refresh, /production_subscription_mutation_performed=false/);
+  assert.match(refresh, /production_schema_mutation_performed=false/);
+  assert.doesNotMatch(refresh, /console\.log\(row/);
 
   assert.match(
     rollbackWindow,
