@@ -3,24 +3,23 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-worker-deploy-and-acceptance",
-  "last_verified_completion": "Supabase-to-Neon production Session migration completed through authenticated Supabase and Neon connectors after workflow password authentication remained unavailable. The direct connector transaction first verified source count=4, token coverage=4, and pinned Session-ID SHA-256 cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46; Neon target was verified empty; all 4 Session rows were copied atomically; exact full-row equality was checked inside the Neon transaction before commit. Independent post-copy verification confirms Supabase=4 sessions/4 tokens and Neon=4 sessions/4 tokens with matching Session-ID MD5 27e17f3195d48e3050d62c86c3dd17f2.",
-  "next_valid_work_unit": "Merge session migration certification, then run the isolated Cloudflare Production Prepare workflow against certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. After Worker deploy succeeds, run independent Cloudflare Production Acceptance. Shopify production must remain on Railway and release_authorized=false until separate explicit cutover authorization.",
+  "current_work_unit": "ISSUE-4-production-worker-accepted-cutover-candidate-next",
+  "last_verified_completion": "Cloudflare production Worker deployment and independent acceptance are complete for certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Production Prepare run 36652638277 deployed Cloudflare Worker version 8a0d51eb-74d4-4041-8216-89aef63e1a52 and passed post-deploy health verification. Independent Production Acceptance run 36652893746 passed read-only migration status, Session table read, runtime source SHA, health, and billing metadata checks while proving Shopify live still targets Railway, release_authorized=false, no Shopify cutover, and no billing mutation.",
+  "next_valid_work_unit": "Create an unreleased Shopify production cutover candidate with confirm=CREATE_PRODUCTION_CUTOVER_VERSION. Do not release it until the exact candidate version/source ref are repository-authorized in a separate explicit cutover authorization record.",
   "progress": {
     "total_work_units": 6,
-    "complete": 5,
-    "in_progress": 1,
+    "complete": 6,
+    "in_progress": 0,
     "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Merge direct connector Session migration certification.",
-    "Run Cloudflare Production Prepare with confirm=DEPLOY_PRODUCTION_WORKER_ONLY and source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05.",
-    "Run independent Cloudflare Production Acceptance with confirm=VERIFY_PRODUCTION_WORKER_ONLY and the same certified runtime source SHA.",
-    "Keep Shopify production URL on Railway and release_authorized=false until a separate explicit cutover authorization.",
-    "After the migration/cutover program is fully accepted, remove the temporary Supabase source secret and decommission source infrastructure only after rollback requirements are satisfied."
+    "Create an unreleased Shopify production cutover candidate from protected main using the guarded candidate workflow.",
+    "Repository-authorize the exact candidate version and source ref only after explicit production cutover authorization.",
+    "Release the exact authorized candidate, verify existing merchant/subscription behavior, and keep Railway rollback available through the rollback window.",
+    "After post-cutover validation and rollback-window closure, remove temporary Supabase source secret/infrastructure only when no longer required."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,12 +27,12 @@
     "Choose a Project Management System or explicitly skip PM integration.",
     "Choose and identity-verify the Development AI agent pool available in the current host.",
     "Resolve capability-dependent GitHub security checks before making them required.",
-    "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
+    "Explicit production Shopify URL cutover authorization is still required before release; Issue #4 alone does not authorize cutover."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_session_migration_certified_worker_prepare_next",
-  "security_readiness": "four_sessions_atomically_copied_full_row_verified_shopify_cutover_still_blocked",
-  "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
-  "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Password-based GitHub migration runs remained blocked by Supabase DB authentication, so no failed workflow was misrepresented as successful. Migration instead used authenticated platform connectors with no secret values emitted: source identity fingerprint verified, target empty state verified, atomic copy performed, full-row equality enforced before commit, and post-copy counts independently matched at 4/4. Production Worker deploy and Shopify cutover remain separate gates."
+  "qa_readiness": "production_worker_deployed_and_independently_accepted_cutover_candidate_next",
+  "security_readiness": "production_worker_accepted_shopify_still_on_railway_release_unauthorized_billing_unchanged",
+  "last_reconciled_repository_ref": "c2d6e9b6922587e90af1e35eaf078d710894ac94",
+  "last_reconciled_at": "2026-09-30T00:59:18+00:00",
+  "notes": "Production Prepare run 36652638277 and independent Acceptance run 36652893746 are green against certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Cloudflare Worker is prepared and accepted; Shopify production URL remains Railway, release authorization is false, and billing mutations remain forbidden. Next gate is unreleased Shopify cutover candidate creation, followed by separate explicit repository authorization before release."
 }
