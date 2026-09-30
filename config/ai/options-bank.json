@@ -1,28 +1,247 @@
 {
   "schema_version": 1,
-  "options": [],
+  "options": [
+    {
+      "id": "OPT-META-001",
+      "name": "Standard and custom definitions",
+      "category": "metafield_expansion",
+      "description": "Discover official templates, enable standards and manage custom definitions",
+      "status": "selected",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "high",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-002",
+      "name": "Versioned capability registry",
+      "category": "metafield_expansion",
+      "description": "Track owner/type/API/scope/storefront compatibility",
+      "status": "selected",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "high",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-003",
+      "name": "Type-aware value editor",
+      "category": "metafield_expansion",
+      "description": "Edit and validate resource metafield values by type",
+      "status": "selected",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "high",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-004",
+      "name": "Typed storefront app blocks",
+      "category": "metafield_expansion",
+      "description": "Render eligible values in contextual Liquid blocks with merchant controls",
+      "status": "selected",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "high",
+      "dependencies": [
+        "OPT-META-002",
+        "OPT-META-003"
+      ],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-005",
+      "name": "Metaobject management",
+      "category": "metafield_expansion",
+      "description": "Manage reusable structured definitions and entries",
+      "status": "candidate",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "later",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-006",
+      "name": "Bulk jobs and import/export",
+      "category": "metafield_expansion",
+      "description": "Preview, validate and retry large value edits",
+      "status": "candidate",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "later",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-007",
+      "name": "Protected owner storefront data",
+      "category": "metafield_expansion",
+      "description": "Explore safe customer/order use cases only after privacy design",
+      "status": "deferred",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "later",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    },
+    {
+      "id": "OPT-META-008",
+      "name": "Checkout display extension",
+      "category": "metafield_expansion",
+      "description": "Separate checkout UI surface if business need is validated",
+      "status": "deferred",
+      "requirement_source": [
+        "PROJECT-IDEA.md"
+      ],
+      "priority": "later",
+      "dependencies": [],
+      "conflicts": [],
+      "technical_implications": [
+        "Verify versioned Shopify capability and existing app compatibility"
+      ],
+      "ux_implications": [
+        "Validate merchant workflow and clear unsupported states"
+      ],
+      "data_implications": [
+        "Shopify remains authoritative for definitions and values"
+      ],
+      "security_implications": [
+        "Least-privilege scopes and storefront access classification"
+      ],
+      "qa_implications": [
+        "Staging API and storefront E2E evidence required"
+      ],
+      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+    }
+  ],
   "status_values": [
     "candidate",
     "selected",
     "rejected",
     "deferred",
     "deprecated"
-  ],
-  "option_template": {
-    "id": "OPT-EXAMPLE",
-    "name": "Example option",
-    "category": "example",
-    "description": "Reusable capability definition.",
-    "status": "candidate",
-    "requirement_source": [],
-    "priority": null,
-    "dependencies": [],
-    "conflicts": [],
-    "technical_implications": [],
-    "ux_implications": [],
-    "data_implications": [],
-    "security_implications": [],
-    "qa_implications": [],
-    "rationale": null
-  }
+  ]
 }
