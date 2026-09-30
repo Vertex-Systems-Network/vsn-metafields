@@ -1,0 +1,82 @@
+name: Production Offline Token Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type MIGRATE_PRODUCTION_OFFLINE_TOKENS to migrate legacy production offline tokens to expiring token pairs"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-offline-token-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate-production-offline-tokens:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'MIGRATE_PRODUCTION_OFFLINE_TOKENS'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Resolve repository-certified production Shopify client ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          CLIENT_ID="$(python - <<'PY'
+          import tomllib
+          with open("shopify.app.toml", "rb") as handle:
+              print(tomllib.load(handle)["client_id"])
+          PY
+          )"
+          if [ -z "$CLIENT_ID" ]; then
+            echo "Production Shopify client ID is missing from repository config." >&2
+            exit 1
+          fi
+          echo "SHOPIFY_API_KEY=$CLIENT_ID" >> "$GITHUB_ENV"
+
+      - name: Require production migration credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DATABASE_URL SHOPIFY_API_SECRET SHOPIFY_API_KEY
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required production token-migration value: $name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Migrate and verify production offline tokens
+        run: node scripts/database/migrate-production-offline-tokens.mjs
+
+      - name: Prove Shopify production URL remains Railway
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+          echo "production_shopify_live_target=railway"
+          echo "production_shopify_cutover_performed=false"
