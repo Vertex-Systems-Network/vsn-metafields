@@ -92,7 +92,18 @@ jobs:
           if update.get("billing_mutation_allowed") is not False:
               raise SystemExit("Runtime hotfix must not authorize billing mutation.")
           if update.get("database_mutation_allowed") is not False:
-              raise SystemExit("Runtime hotfix must not authorize database mutation.")
+              raise SystemExit("Runtime hotfix must not authorize arbitrary database mutation.")
+          if update.get("session_credential_refresh_allowed") is not True:
+              raise SystemExit("Runtime hotfix must explicitly authorize narrow Session credential refresh.")
+          allowed_refresh_fields = update.get("session_credential_refresh_fields")
+          if allowed_refresh_fields != [
+              "accessToken",
+              "expires",
+              "refreshToken",
+              "refreshTokenExpires",
+              "scope",
+          ]:
+              raise SystemExit("Runtime hotfix Session credential refresh field allowlist drifted.")
           if update.get("preserve_subscription_snapshot") is not True:
               raise SystemExit("Runtime hotfix must preserve the certified subscription snapshot.")
 
@@ -118,8 +129,16 @@ jobs:
           print("production_runtime_hotfix_request=certified")
           print("production_shopify_config_mutation_authorized=false")
           print("production_billing_mutation_authorized=false")
-          print("production_database_mutation_authorized=false")
+          print("production_arbitrary_database_mutation_authorized=false")
+          print("production_session_credential_refresh_authorized=true")
           PY
+
+      - name: Stage protected-main token refresh helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp scripts/database/refresh-production-offline-tokens.mjs /tmp/vsn-metafields-refresh-production-offline-tokens.mjs
+          test -s /tmp/vsn-metafields-refresh-production-offline-tokens.mjs
 
       - name: Require protected-main ancestry for hotfix source
         shell: bash
@@ -191,6 +210,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Refresh expired production offline Shopify tokens
+        shell: bash
+        run: |
+          set -euo pipefail
+          HELPER="scripts/database/.runtime-refresh-production-offline-tokens.mjs"
+          cp /tmp/vsn-metafields-refresh-production-offline-tokens.mjs "$HELPER"
+          trap 'rm -f "$HELPER"' EXIT
+          node "$HELPER"
 
       - name: Validate application and production migration status
         shell: bash
@@ -373,13 +401,15 @@ jobs:
           print("production_runtime_hotfix_railway_rollback=pass")
           PY
 
-      - name: Record non-mutating hotfix evidence
+      - name: Record hotfix safety evidence
         run: |
           echo "production_runtime_hotfix=pass"
           echo "production_runtime_hotfix_already_live=$HOTFIX_ALREADY_LIVE"
           echo "production_shopify_config_mutation_performed=false"
           echo "production_billing_mutation_performed=false"
-          echo "production_database_mutation_performed=false"
+          echo "production_subscription_mutation_performed=false"
+          echo "production_schema_or_business_data_mutation_performed=false"
+          echo "production_session_credential_refresh_performed=$SESSION_CREDENTIAL_REFRESH_PERFORMED"
           echo "production_merchant_reinstall_required=false"
           echo "production_rollback_window_reset_required=true"
 
