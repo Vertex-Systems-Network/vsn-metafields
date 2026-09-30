@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-migrate-production-sessions-to-neon",
-  "last_verified_completion": "Production Session Migration run 36646759216 on protected main 5a0ccf7d55a68a12232b364288119dc1d6074aba passed exact pooler resolution, Neon URL/isolation/schema preflights, and reached Supabase Supavisor session mode. Source authentication failed with PostgreSQL code 28P01 before any source audit or Neon write. Supabase server logs confirm the request reached the correct project/region/session pooler.",
-  "next_valid_work_unit": "Merge bounded password interpretation fallback. The resolver will try the exact raw password literal first and, only when percent escapes are present, a percent-decoded interpretation second. Both stay on the exact certified aws-1 pooler host and must pass the audited 4-row Session fingerprint before Neon is connected. If both return 28P01, the stored database password is definitively incorrect and must be replaced with the real Supabase DB password.",
+  "current_work_unit": "ISSUE-4-production-worker-deploy-and-acceptance",
+  "last_verified_completion": "Supabase-to-Neon production Session migration completed through authenticated Supabase and Neon connectors after workflow password authentication remained unavailable. The direct connector transaction first verified source count=4, token coverage=4, and pinned Session-ID SHA-256 cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46; Neon target was verified empty; all 4 Session rows were copied atomically; exact full-row equality was checked inside the Neon transaction before commit. Independent post-copy verification confirms Supabase=4 sessions/4 tokens and Neon=4 sessions/4 tokens with matching Session-ID MD5 27e17f3195d48e3050d62c86c3dd17f2.",
+  "next_valid_work_unit": "Merge session migration certification, then run the isolated Cloudflare Production Prepare workflow against certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. After Worker deploy succeeds, run independent Cloudflare Production Acceptance. Shopify production must remain on Railway and release_authorized=false until separate explicit cutover authorization.",
   "progress": {
     "total_work_units": 6,
     "complete": 5,
@@ -16,11 +16,11 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Merge schema provisioning certification for successful run 36635943764.",
-    "Add cloudflare-production SUPABASE_SOURCE_DATABASE_URL for the restored VSN Metafields Supabase source.",
-    "Run Production Session Migration from protected main with confirm=MIGRATE_SUPABASE_SESSIONS_TO_NEON and expected_source_session_count=4.",
-    "After migration passes, independently verify Neon Session count/integrity and certify session_migration_completed=true.",
-    "Only after session certification proceed to isolated production Worker deploy and independent acceptance; Shopify remains on Railway until a separate cutover authorization."
+    "Merge direct connector Session migration certification.",
+    "Run Cloudflare Production Prepare with confirm=DEPLOY_PRODUCTION_WORKER_ONLY and source_sha=c184b25628fc5c59a1110c6fe9ec49e11ce31b05.",
+    "Run independent Cloudflare Production Acceptance with confirm=VERIFY_PRODUCTION_WORKER_ONLY and the same certified runtime source SHA.",
+    "Keep Shopify production URL on Railway and release_authorized=false until a separate explicit cutover authorization.",
+    "After the migration/cutover program is fully accepted, remove the temporary Supabase source secret and decommission source infrastructure only after rollback requirements are satisfied."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -31,9 +31,9 @@
     "Explicitly authorize the isolated Cloudflare production Worker deployment before running cloudflare-production workflow_dispatch."
   ],
   "critical_defects": [],
-  "qa_readiness": "supabase_password_interpretation_fallback_pending",
-  "security_readiness": "correct_pooler_reached_auth_failed_no_target_writes_bounded_secret_interpretations",
+  "qa_readiness": "production_session_migration_certified_worker_prepare_next",
+  "security_readiness": "four_sessions_atomically_copied_full_row_verified_shopify_cutover_still_blocked",
   "last_reconciled_repository_ref": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
   "last_reconciled_at": "2026-09-29T20:38:51+00:00",
-  "notes": "Run 36646759216 made no Neon Session writes. Error 28P01 is authentication failure. This patch eliminates URL encoding ambiguity without logging credentials or changing the Supabase database password."
+  "notes": "Password-based GitHub migration runs remained blocked by Supabase DB authentication, so no failed workflow was misrepresented as successful. Migration instead used authenticated platform connectors with no secret values emitted: source identity fingerprint verified, target empty state verified, atomic copy performed, full-row equality enforced before commit, and post-copy counts independently matched at 4/4. Production Worker deploy and Shopify cutover remain separate gates."
 }

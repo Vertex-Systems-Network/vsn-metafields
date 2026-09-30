@@ -30,7 +30,7 @@
     "migrate_during_cutover": false,
     "require_migration_status_clean": true,
     "session_migration_required": true,
-    "session_migration_completed": false,
+    "session_migration_completed": true,
     "expected_source_session_count": 4,
     "migration_workflow": "production-session-migration.yml",
     "runtime_connection": "pooled",
@@ -49,7 +49,14 @@
     "production_project_id": "nameless-breeze-35836648",
     "production_schema_provisioning_run_id": 36635943764,
     "production_schema_session_count": 0,
-    "production_schema_completed_migrations": 1
+    "production_schema_completed_migrations": 1,
+    "session_migration_method": "direct_connector_transaction",
+    "session_migration_source_session_count": 4,
+    "session_migration_target_session_count": 4,
+    "session_migration_access_token_count": 4,
+    "session_migration_source_id_sha256": "cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46",
+    "session_migration_id_md5": "27e17f3195d48e3050d62c86c3dd17f2",
+    "session_migration_full_row_verified": true
   },
   "rollback": {
     "keep_railway_available": true,

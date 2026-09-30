@@ -411,8 +411,15 @@ test("production cutover package preserves Shopify identity, billing, database, 
   assert.equal(policy.database.source_provider, "supabase_postgresql");
   assert.equal(policy.database.migrate_during_cutover, false);
   assert.equal(policy.database.session_migration_required, true);
-  assert.equal(policy.database.session_migration_completed, false);
+  assert.equal(policy.database.session_migration_completed, true);
   assert.equal(policy.database.expected_source_session_count, 4);
+  assert.equal(policy.database.session_migration_method, "direct_connector_transaction");
+  assert.equal(policy.database.session_migration_source_session_count, 4);
+  assert.equal(policy.database.session_migration_target_session_count, 4);
+  assert.equal(policy.database.session_migration_access_token_count, 4);
+  assert.equal(policy.database.session_migration_source_id_sha256, "cd2b7f872a359ea49cce397a1879c1cc4053d359b15674caa09d036d2fdb2e46");
+  assert.equal(policy.database.session_migration_id_md5, "27e17f3195d48e3050d62c86c3dd17f2");
+  assert.equal(policy.database.session_migration_full_row_verified, true);
   assert.equal(policy.database.runtime_connection, "pooled");
   assert.equal(policy.database.migration_connection, "direct");
   assert.equal(policy.database.staging_project_current_name, "vsn-metafields");
