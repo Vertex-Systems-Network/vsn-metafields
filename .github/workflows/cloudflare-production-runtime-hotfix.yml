@@ -1,0 +1,370 @@
+name: Cloudflare Production Runtime Hotfix
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY_PRODUCTION_RUNTIME_HOTFIX to deploy the exact repository-prepared Worker hotfix only"
+        required: true
+        type: string
+      source_sha:
+        description: "Exact 40-character hotfix source SHA recorded in production policy"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production-runtime-hotfix
+  cancel-in-progress: false
+
+jobs:
+  deploy-runtime-hotfix:
+    if: github.ref == 'refs/heads/main' && github.event.inputs.confirm == 'DEPLOY_PRODUCTION_RUNTIME_HOTFIX'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: cloudflare-production
+    env:
+      CI: "true"
+      EXPECTED_SOURCE_SHA: ${{ github.event.inputs.source_sha }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: f63cf3af0868a5c8a0b26ebee5dd039f
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a
+      SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
+      SCOPES: read_products,write_metaobject_definitions,write_metaobjects,write_products,read_orders
+      STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf
+      EXPECTED_PRODUCTION_ENDPOINT_ID: ep-flat-mouse-b5z1wu54
+
+    steps:
+      - name: Checkout protected main control plane
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require exact prepared runtime hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! [[ "$EXPECTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Runtime hotfix source must be an exact 40-character lowercase commit SHA." >&2
+            exit 1
+          fi
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          policy = json.loads(
+              Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
+          )
+          update = policy.get("runtime_update") or {}
+          worker = policy.get("production_worker") or {}
+          shopify = policy.get("shopify") or {}
+          rollback = policy.get("rollback") or {}
+          window = rollback.get("window") or {}
+
+          requested = os.environ["EXPECTED_SOURCE_SHA"]
+          if policy.get("status") != "released_post_cutover_verified":
+              raise SystemExit("Production cutover must already be released and verified.")
+          if policy.get("release_authorized") is not False:
+              raise SystemExit("Shopify release authorization must remain consumed.")
+          if shopify.get("live_target") != "cloudflare":
+              raise SystemExit("Cloudflare is not the repository-recorded production live target.")
+          if rollback.get("keep_railway_available") is not True:
+              raise SystemExit("Railway rollback must remain preserved during the hotfix.")
+          if window.get("status") != "active":
+              raise SystemExit("Rollback window must remain active during the runtime hotfix.")
+          if update.get("status") != "prepared" or update.get("accepted") is not False:
+              raise SystemExit("Runtime hotfix request is not in prepared state.")
+          if update.get("target_source_sha") != requested:
+              raise SystemExit("Requested runtime source is not the repository-prepared hotfix source.")
+          if update.get("current_source_sha") != worker.get("accepted_source_sha"):
+              raise SystemExit("Runtime hotfix baseline source drifted.")
+          if update.get("shopify_config_mutation_allowed") is not False:
+              raise SystemExit("Runtime hotfix must not authorize Shopify config mutation.")
+          if update.get("billing_mutation_allowed") is not False:
+              raise SystemExit("Runtime hotfix must not authorize billing mutation.")
+          if update.get("database_mutation_allowed") is not False:
+              raise SystemExit("Runtime hotfix must not authorize database mutation.")
+          if update.get("preserve_subscription_snapshot") is not True:
+              raise SystemExit("Runtime hotfix must preserve the certified subscription snapshot.")
+
+          env = os.environ["GITHUB_ENV"]
+          with open(env, "a", encoding="utf-8") as handle:
+              handle.write("CURRENT_RUNTIME_SHA=" + str(worker["accepted_source_sha"]) + "\n")
+              handle.write(
+                  "EXPECTED_SUBSCRIPTION_SNAPSHOT_DIGEST="
+                  + str(policy["candidate"]["subscription_snapshot_digest"])
+                  + "\n"
+              )
+              handle.write(
+                  "EXPECTED_SUBSCRIPTION_SHOP_COUNT="
+                  + str(policy["candidate"]["subscription_shop_count"])
+                  + "\n"
+              )
+              handle.write(
+                  "EXPECTED_ACTIVE_SUBSCRIPTION_COUNT="
+                  + str(policy["candidate"]["active_subscription_count"])
+                  + "\n"
+              )
+
+          print("production_runtime_hotfix_request=certified")
+          print("production_shopify_config_mutation_authorized=false")
+          print("production_billing_mutation_authorized=false")
+          print("production_database_mutation_authorized=false")
+          PY
+
+      - name: Require protected-main ancestry for hotfix source
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN_HEAD="$(git rev-parse HEAD)"
+          if ! git cat-file -e "$EXPECTED_SOURCE_SHA^{commit}" 2>/dev/null; then
+            echo "Prepared runtime hotfix commit is not available in repository history." >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$EXPECTED_SOURCE_SHA" "$MAIN_HEAD"; then
+            echo "Prepared runtime hotfix source is not an ancestor of protected main." >&2
+            exit 1
+          fi
+          echo "production_runtime_hotfix_main_head=$MAIN_HEAD"
+          echo "production_runtime_hotfix_source=$EXPECTED_SOURCE_SHA"
+
+      - name: Checkout exact hotfix source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --detach "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Resolve production Neon direct URL
+        run: python scripts/database/resolve-production-neon-urls.py
+
+      - name: Require production-only credentials and database identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in CLOUDFLARE_API_TOKEN DATABASE_URL SHOPIFY_API_SECRET
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          python - <<'PY'
+          import os
+          from urllib.parse import urlparse
+
+          database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
+          direct_host = urlparse(os.environ["DIRECT_URL"]).hostname or ""
+          expected = os.environ["EXPECTED_PRODUCTION_ENDPOINT_ID"]
+          staging = os.environ["STAGING_NEON_ENDPOINT_ID"]
+
+          pooled_id = database_host.split(".", 1)[0].removesuffix("-pooler")
+          direct_id = direct_host.split(".", 1)[0].removesuffix("-pooler")
+
+          if not database_host.endswith(".neon.tech") or not direct_host.endswith(".neon.tech"):
+              raise SystemExit("Production database URLs must be Neon PostgreSQL endpoints.")
+          if pooled_id != direct_id or pooled_id != expected:
+              raise SystemExit("Production database URLs do not match the certified production endpoint.")
+          if pooled_id == staging:
+              raise SystemExit("Runtime hotfix must not use the staging Neon endpoint.")
+          if "-pooler." not in database_host or "-pooler." in direct_host:
+              raise SystemExit("Production pooled/direct Neon URL roles are invalid.")
+
+          print("production_runtime_hotfix_database=certified")
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate application and production migration status
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx prisma validate
+          npx prisma migrate status
+          npm run lint
+          npm run typecheck
+          node --test tests/app-contracts.test.mjs
+
+      - name: Verify current live Worker before hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz"
+          expected = os.environ["CURRENT_RUNTIME_SHA"]
+
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-metafields-runtime-hotfix-pre/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("Current production Worker is unhealthy.")
+                  if payload.get("commitSha") != expected:
+                      raise RuntimeError(
+                          f"Current production source drifted: expected {expected}, got {payload.get('commitSha')!r}"
+                      )
+                  break
+              except Exception:
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          print("production_runtime_hotfix_pre_health=pass")
+          PY
+
+      - name: Verify subscription snapshot before hotfix
+        run: node scripts/cloudflare/audit-production-subscriptions.mjs
+
+      - name: Build production Worker hotfix
+        run: npm run build
+
+      - name: Create ephemeral production secrets file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          payload = {
+              "DATABASE_URL": os.environ["DATABASE_URL"],
+              "DIRECT_URL": os.environ["DIRECT_URL"],
+              "SHOPIFY_API_SECRET": os.environ["SHOPIFY_API_SECRET"],
+          }
+          with open("/tmp/vsn-metafields-production-hotfix-secrets.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle)
+          PY
+          chmod 600 /tmp/vsn-metafields-production-hotfix-secrets.json
+
+      - name: Deploy exact Cloudflare production Worker hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.141.0 deploy \
+            --config wrangler.production.jsonc \
+            --secrets-file /tmp/vsn-metafields-production-hotfix-secrets.json \
+            --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY" \
+            --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL" \
+            --var "SCOPES:$SCOPES" \
+            --var "APP_COMMIT_SHA:$EXPECTED_SOURCE_SHA" \
+            --var "NODE_ENV:production"
+
+      - name: Verify hotfix Worker health and billing metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev/healthz"
+          expected = os.environ["EXPECTED_SOURCE_SHA"]
+          expected_plan = {
+              "id": "pro-plan",
+              "amount": 55,
+              "currencyCode": "USD",
+              "interval": "EVERY_30_DAYS",
+              "trialDays": 5,
+          }
+
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-metafields-runtime-hotfix-post/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("Hotfix production Worker is unhealthy.")
+                  if payload.get("commitSha") != expected:
+                      raise RuntimeError(
+                          f"Hotfix production source mismatch: expected {expected}, got {payload.get('commitSha')!r}"
+                      )
+                  if payload.get("plan") != expected_plan:
+                      raise RuntimeError("Hotfix billing metadata drifted.")
+                  break
+              except Exception:
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          print("production_runtime_hotfix_post_health=pass")
+          print("production_runtime_hotfix_billing_metadata=pass")
+          PY
+
+      - name: Verify subscription snapshot after hotfix
+        run: |
+          node scripts/cloudflare/audit-production-subscriptions.mjs
+          echo "production_runtime_hotfix_subscriptions_preserved=pass"
+
+      - name: Verify Railway rollback remains reachable and source remains preserved
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'application_url = "https://vsn-metafields-production.up.railway.app"' shopify.app.toml >/dev/null
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          url = "https://vsn-metafields-production.up.railway.app/healthz"
+          for attempt in range(1, 7):
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={"User-Agent": "vsn-metafields-runtime-hotfix-railway/1.0"},
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if payload.get("ok") is not True:
+                      raise RuntimeError("Railway rollback runtime is unhealthy.")
+                  break
+              except Exception:
+                  if attempt == 6:
+                      raise
+                  time.sleep(attempt * 2)
+
+          print("production_runtime_hotfix_railway_rollback=pass")
+          PY
+
+      - name: Record non-mutating hotfix evidence
+        run: |
+          echo "production_runtime_hotfix=pass"
+          echo "production_shopify_config_mutation_performed=false"
+          echo "production_billing_mutation_performed=false"
+          echo "production_database_mutation_performed=false"
+          echo "production_merchant_reinstall_required=false"
+          echo "production_rollback_window_reset_required=true"
+
+      - name: Remove ephemeral production secrets file
+        if: always()
+        run: rm -f /tmp/vsn-metafields-production-hotfix-secrets.json
