@@ -131,6 +131,14 @@
     "preserve_subscription_snapshot": true,
     "reset_rollback_window_after_success": true,
     "deployment_run_id": null,
-    "accepted": false
+    "accepted": false,
+    "session_credential_refresh_allowed": true,
+    "session_credential_refresh_fields": [
+      "accessToken",
+      "expires",
+      "refreshToken",
+      "refreshTokenExpires",
+      "scope"
+    ]
   }
 }
