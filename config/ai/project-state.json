@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-worker-accepted-cutover-candidate-next",
-  "last_verified_completion": "Cloudflare production Worker deployment and independent acceptance are complete for certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Production Prepare run 36652638277 deployed Cloudflare Worker version 8a0d51eb-74d4-4041-8216-89aef63e1a52 and passed post-deploy health verification. Independent Production Acceptance run 36652893746 passed read-only migration status, Session table read, runtime source SHA, health, and billing metadata checks while proving Shopify live still targets Railway, release_authorized=false, no Shopify cutover, and no billing mutation.",
-  "next_valid_work_unit": "Create an unreleased Shopify production cutover candidate with confirm=CREATE_PRODUCTION_CUTOVER_VERSION. Do not release it until the exact candidate version/source ref are repository-authorized in a separate explicit cutover authorization record.",
+  "current_work_unit": "ISSUE-4-cutover-candidate-prepared-awaiting-explicit-authorization",
+  "last_verified_completion": "Shopify Production Cutover Candidate run 36656394999 succeeded from protected main. Unreleased candidate cloudflare-production-cutover-8d201357d738-4 was created from source 8d201357d738bb715dd4e53fc09d841685126aef after repository-certified Worker acceptance and read-only production subscription audit. The snapshot covered 2 shops and 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76. Shopify live remains Railway and release_authorized=false.",
+  "next_valid_work_unit": "Obtain explicit production Shopify cutover authorization, then repository-authorize exactly candidate cloudflare-production-cutover-8d201357d738-4 with source ref 8d201357d738bb715dd4e53fc09d841685126aef and the recorded subscription snapshot. Do not release any other candidate.",
   "progress": {
     "total_work_units": 6,
     "complete": 6,
@@ -16,9 +16,8 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Create an unreleased Shopify production cutover candidate from protected main using the guarded candidate workflow.",
-    "Repository-authorize the exact candidate version and source ref only after explicit production cutover authorization.",
-    "Release the exact authorized candidate, verify existing merchant/subscription behavior, and keep Railway rollback available through the rollback window.",
+    "Repository-authorize exactly candidate cloudflare-production-cutover-8d201357d738-4 and source ref 8d201357d738bb715dd4e53fc09d841685126aef only after explicit production cutover authorization.",
+    "Release the exact authorized candidate with the recorded subscription snapshot digest/counts, verify existing merchant/subscription behavior, and keep Railway rollback available through the rollback window.",
     "After post-cutover validation and rollback-window closure, remove temporary Supabase source secret/infrastructure only when no longer required."
   ],
   "outstanding_removals": [],
@@ -30,9 +29,9 @@
     "Explicit production Shopify URL cutover authorization is still required before release; Issue #4 alone does not authorize cutover."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_worker_deployed_and_independently_accepted_cutover_candidate_next",
-  "security_readiness": "production_worker_accepted_shopify_still_on_railway_release_unauthorized_billing_unchanged",
-  "last_reconciled_repository_ref": "c2d6e9b6922587e90af1e35eaf078d710894ac94",
-  "last_reconciled_at": "2026-09-30T00:59:18+00:00",
-  "notes": "Production Prepare run 36652638277 and independent Acceptance run 36652893746 are green against certified runtime source c184b25628fc5c59a1110c6fe9ec49e11ce31b05. Cloudflare Worker is prepared and accepted; Shopify production URL remains Railway, release authorization is false, and billing mutations remain forbidden. Next gate is unreleased Shopify cutover candidate creation, followed by separate explicit repository authorization before release."
+  "qa_readiness": "unreleased_production_cutover_candidate_prepared_waiting_for_explicit_release_authorization",
+  "security_readiness": "candidate_unreleased_shopify_still_on_railway_billing_snapshot_certified",
+  "last_reconciled_repository_ref": "8d201357d738bb715dd4e53fc09d841685126aef",
+  "last_reconciled_at": "2026-09-30T01:43:04+00:00",
+  "notes": "Production offline-token migration run 36655885762 migrated and verified 2/2 legacy production offline tokens without reinstall or billing mutation. Production cutover candidate run 36656394999 then succeeded and recorded 2 shops / 2 active subscriptions. Release remains unauthorized; the next gate is explicit production Shopify cutover authorization for the exact recorded candidate."
 }

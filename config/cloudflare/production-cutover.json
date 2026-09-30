@@ -70,5 +70,14 @@
   },
   "authorized_version": null,
   "authorized_source_ref": null,
-  "authorization_record": null
+  "authorization_record": null,
+  "candidate": {
+    "version": "cloudflare-production-cutover-8d201357d738-4",
+    "source_ref": "8d201357d738bb715dd4e53fc09d841685126aef",
+    "workflow_run_id": 36656394999,
+    "subscription_snapshot_digest": "af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76",
+    "subscription_shop_count": 2,
+    "active_subscription_count": 2,
+    "released": false
+  }
 }
