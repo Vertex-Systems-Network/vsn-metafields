@@ -24,8 +24,8 @@ jobs:
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
-      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+      SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a
+      SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_APP_URL DATABASE_URL
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN DATABASE_URL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
