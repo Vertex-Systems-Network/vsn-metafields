@@ -24,8 +24,6 @@ jobs:
     env:
       CI: "true"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
-      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
@@ -45,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_APP_URL DATABASE_URL
+          for name in SHOPIFY_APP_AUTOMATION_TOKEN DATABASE_URL
           do
             if [ -z "${!name:-}" ]; then
               echo "Missing required cloudflare-production environment secret: $name" >&2
@@ -53,22 +51,21 @@ jobs:
             fi
           done
 
-          EXPECTED_CLIENT_ID="$(python - <<'PY'
+          python - <<'PY'
           import tomllib
+
           with open("shopify.app.toml", "rb") as handle:
-              print(tomllib.load(handle)["client_id"])
+              current = tomllib.load(handle)
+          with open("shopify.app.cloudflare-production.toml", "rb") as handle:
+              target = tomllib.load(handle)
+
+          if current.get("client_id") != target.get("client_id"):
+              raise SystemExit("Production cutover candidate Shopify app identity mismatch.")
+          if target.get("application_url") != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev":
+              raise SystemExit("Production cutover candidate target URL mismatch.")
+
+          print("production_shopify_identity=repository_certified")
           PY
-          )"
-
-          if [ "$SHOPIFY_API_KEY" != "$EXPECTED_CLIENT_ID" ]; then
-            echo "Refusing production cutover candidate with a different Shopify app identity." >&2
-            exit 1
-          fi
-
-          if [ "$SHOPIFY_APP_URL" != "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" ]; then
-            echo "Refusing production cutover candidate for an unexpected target URL." >&2
-            exit 1
-          fi
 
       - name: Require accepted production Worker evidence
         shell: bash
