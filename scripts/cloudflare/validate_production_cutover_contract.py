@@ -26,6 +26,8 @@ SESSION_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-s
 NEON_URL_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-neon-urls.py"
 SUPABASE_SOURCE_RESOLVER = ROOT / "scripts" / "database" / "resolve-production-supabase-source.py"
 SUBSCRIPTION_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-subscriptions.mjs"
+OFFLINE_TOKEN_MIGRATION = ROOT / ".github" / "workflows" / "production-offline-token-migration.yml"
+OFFLINE_TOKEN_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-offline-tokens.mjs"
 
 
 class ValidationError(RuntimeError):
@@ -73,6 +75,8 @@ def main() -> int:
     neon_url_resolver = read(NEON_URL_RESOLVER)
     supabase_source_resolver = read(SUPABASE_SOURCE_RESOLVER)
     subscription_audit = read(SUBSCRIPTION_AUDIT)
+    offline_token_migration = read(OFFLINE_TOKEN_MIGRATION)
+    offline_token_migration_script = read(OFFLINE_TOKEN_MIGRATION_SCRIPT)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -370,6 +374,30 @@ def main() -> int:
     require("appSubscriptionCreate" not in subscription_audit, "subscription audit must never create subscriptions")
     require("appSubscriptionCancel" not in subscription_audit, "subscription audit must never cancel subscriptions")
     require("console.log(row" not in subscription_audit, "subscription audit must not log Session rows")
+
+    require("workflow_dispatch:" in offline_token_migration and "push:" not in offline_token_migration, "offline token migration must remain manual-only")
+    require("MIGRATE_PRODUCTION_OFFLINE_TOKENS" in offline_token_migration, "offline token migration confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in offline_token_migration, "offline token migration must require protected main")
+    require("ref: main" in offline_token_migration, "offline token migration checkout must pin main")
+    require("environment: cloudflare-production" in offline_token_migration, "offline token migration environment missing")
+    require("SHOPIFY_API_SECRET" in offline_token_migration, "offline token migration requires production Shopify secret")
+    require("DATABASE_URL" in offline_token_migration, "offline token migration requires production database URL")
+    require("production_shopify_live_target=railway" in offline_token_migration, "offline token migration must prove Railway remains live")
+    require("production_shopify_cutover_performed=false" in offline_token_migration, "offline token migration must prove no Shopify cutover")
+    require("app release" not in offline_token_migration, "offline token migration must never release Shopify config")
+    require("appSubscriptionCreate" not in offline_token_migration, "offline token migration must never create subscriptions")
+    require("appSubscriptionCancel" not in offline_token_migration, "offline token migration must never cancel subscriptions")
+
+    require("legacy_non_expiring_token_rejected" in offline_token_migration_script, "offline token migration must classify the Shopify legacy-token 403")
+    require("token-exchange" in offline_token_migration_script, "offline token migration must use Shopify token exchange")
+    require("offline-access-token" in offline_token_migration_script, "offline token migration must request offline access")
+    require('expiring: "1"' in offline_token_migration_script, "offline token migration must request expiring offline tokens")
+    require("refresh_token" in offline_token_migration_script, "offline token migration must persist refresh tokens")
+    require("refresh_token_expires_in" in offline_token_migration_script, "offline token migration must persist refresh-token expiry")
+    require("production_offline_token_migration=pass" in offline_token_migration_script, "offline token migration success evidence missing")
+    require("production_billing_mutation_performed=false" in offline_token_migration_script, "offline token migration must prove no billing mutation")
+    require("production_shopify_reinstall_required=false" in offline_token_migration_script, "offline token migration must prove no merchant reinstall")
+    require("console.log(row" not in offline_token_migration_script, "offline token migration must not log Session rows")
 
     require("CREATE_PRODUCTION_CUTOVER_VERSION" in candidate, "production cutover candidate confirmation missing")
     require("github.ref == 'refs/heads/main'" in candidate, "production cutover candidate must require protected main")
