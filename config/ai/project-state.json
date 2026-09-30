@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-post-cutover-24h-rollback-window-active",
+  "current_work_unit": "ISSUE-4-production-entitlement-hotfix-prepared",
   "last_verified_completion": "Shopify Production Cutover Release run 36657352966 succeeded for exact authorized candidate cloudflare-production-cutover-8d201357d738-4. Shopify CLI reported 'Version released to users'. Pre- and post-release subscription snapshots were identical at 2 shops / 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76. Cloudflare Worker health passed before and after release, three compliance webhooks were enqueued successfully, and the Railway rollback source remained preserved.",
-  "next_valid_work_unit": "Keep Railway available until at least 2026-10-01T01:55:25Z, then run Production Rollback Window Certification with CERTIFY_ROLLBACK_WINDOW_CLOSURE. Closure is eligible only if Cloudflare health/source, $55/5-day billing metadata, exact 2-shop/2-subscription fingerprint, 4-session token coverage, 2/2 expiring offline-token readiness, Railway runtime reachability, and rollback source/workflow all pass. Do not retire Railway or clean Supabase before certification.",
+  "next_valid_work_unit": "Deploy exact Cloudflare production runtime hotfix source e706ce3cdbcc8998f4686ee039e0e59aeaa6574b with the guarded Cloudflare Production Runtime Hotfix workflow. Require pre/post subscription fingerprint equality, Worker health, and Railway rollback reachability. Do not mutate Shopify config, billing subscriptions, database schema, or merchant installs. After successful deployment, record acceptance evidence and restart the 24-hour rollback window from the hotfix deployment.",
   "progress": {
     "total_work_units": 7,
     "complete": 6,
@@ -16,9 +16,9 @@
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Keep Railway available until the 24-hour minimum rollback window matures at 2026-10-01T01:55:25Z.",
-    "After maturity, run Production Rollback Window Certification and require every repository-defined closure criterion to pass.",
-    "Only after successful certification and explicit closure recording may Railway retirement and temporary Supabase source cleanup proceed."
+    "Deploy the exact prepared production Worker hotfix e706ce3cdbcc8998f4686ee039e0e59aeaa6574b through the guarded runtime-hotfix workflow.",
+    "Verify the existing active test/demo subscriptions remain entitled on the live Cloudflare app while new production subscription creation remains test=false.",
+    "After successful hotfix acceptance, reset the 24-hour rollback window; keep Railway available until the new window closes."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_cutover_verified_24h_rollback_window_active_certification_workflow_prepared",
-  "security_readiness": "cloudflare_live_railway_rollback_preserved_cleanup_blocked_until_certification",
-  "last_reconciled_repository_ref": "bd4e663ad607f1970eba2c9428abfdd24b31397b",
-  "last_reconciled_at": "2026-09-30T02:05:00+00:00",
-  "notes": "Rollback-window policy is now repository-defined: 24 hours from release at 2026-09-30T01:55:25Z, earliest closure 2026-10-01T01:55:25Z. The manual certification workflow is read-only and checks Cloudflare health/source SHA, billing metadata, exact subscription fingerprint, production Session/token readiness, Railway runtime reachability, and rollback-source integrity. Railway retirement and Supabase cleanup remain forbidden before successful certification."
+  "qa_readiness": "production_entitlement_hotfix_prepared_exact_source_and_subscription_snapshot_guarded",
+  "security_readiness": "cloudflare_live_hotfix_manual_only_no_shopify_billing_or_database_mutation_railway_preserved",
+  "last_reconciled_repository_ref": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
+  "last_reconciled_at": "2026-09-30T02:40:00+00:00",
+  "notes": "Plan ID remains pro-plan. Root cause of the live demo-store entitlement regression was production filtering of Shopify activeSubscriptions where test=true. PR #141 removed that entitlement filter while retaining test=false for newly created production subscriptions. Runtime hotfix deployment is prepared but not yet executed."
 }

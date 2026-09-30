@@ -971,3 +971,62 @@ test("production rollback window closure is time-gated and evidence-based", () =
   assert.match(sessionAudit, /"refreshTokenExpires" IS NOT NULL/);
   assert.doesNotMatch(sessionAudit, /console\.log\(row/);
 });
+
+
+test("production runtime entitlement hotfix is exact-source and subscription-safe", () => {
+  const policy = JSON.parse(read("config/cloudflare/production-cutover.json"));
+  const hotfix = read(".github/workflows/cloudflare-production-runtime-hotfix.yml");
+  const rollbackWindow = read(".github/workflows/production-rollback-window-certification.yml");
+
+  assert.equal(policy.runtime_update.status, "prepared");
+  assert.equal(
+    policy.runtime_update.reason,
+    "restore_existing_active_test_subscription_entitlement"
+  );
+  assert.equal(
+    policy.runtime_update.target_source_sha,
+    "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b"
+  );
+  assert.equal(policy.runtime_update.shopify_config_mutation_allowed, false);
+  assert.equal(policy.runtime_update.billing_mutation_allowed, false);
+  assert.equal(policy.runtime_update.database_mutation_allowed, false);
+  assert.equal(policy.runtime_update.preserve_subscription_snapshot, true);
+  assert.equal(policy.runtime_update.reset_rollback_window_after_success, true);
+  assert.equal(policy.runtime_update.deployment_run_id, null);
+  assert.equal(policy.runtime_update.accepted, false);
+
+  assert.match(hotfix, /workflow_dispatch:/);
+  assert.doesNotMatch(hotfix, /\npush:/);
+  assert.match(hotfix, /DEPLOY_PRODUCTION_RUNTIME_HOTFIX/);
+  assert.match(hotfix, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(hotfix, /ref: main/);
+  assert.match(hotfix, /environment: cloudflare-production/);
+  assert.match(hotfix, /EXPECTED_SOURCE_SHA/);
+  assert.match(hotfix, /target_source_sha/);
+  assert.match(hotfix, /git merge-base --is-ancestor/);
+  assert.match(hotfix, /git checkout --detach/);
+  assert.match(hotfix, /audit-production-subscriptions\.mjs/);
+  assert.match(hotfix, /production_runtime_hotfix_pre_health=pass/);
+  assert.match(hotfix, /production_runtime_hotfix_post_health=pass/);
+  assert.match(hotfix, /production_runtime_hotfix_subscriptions_preserved=pass/);
+  assert.match(hotfix, /production_runtime_hotfix_railway_rollback=pass/);
+  assert.match(hotfix, /production_shopify_config_mutation_performed=false/);
+  assert.match(hotfix, /production_billing_mutation_performed=false/);
+  assert.match(hotfix, /production_database_mutation_performed=false/);
+  assert.match(hotfix, /production_merchant_reinstall_required=false/);
+  assert.match(hotfix, /production_rollback_window_reset_required=true/);
+  assert.match(hotfix, /wrangler@4\.141\.0 deploy/);
+  assert.match(
+    hotfix,
+    /SHOPIFY_APP_URL:\s*https:\/\/vsn-metafields-production\.vertexsystemsnetwork\.workers\.dev/
+  );
+  assert.doesNotMatch(hotfix, /npx --yes @shopify\/cli/);
+  assert.doesNotMatch(hotfix, /appSubscriptionCreate|appSubscriptionCancel/);
+  assert.doesNotMatch(hotfix, /prisma migrate deploy/);
+  assert.doesNotMatch(hotfix, /--allow-deletes/);
+
+  assert.match(
+    rollbackWindow,
+    /Rollback-window closure is blocked while a production runtime hotfix is pending acceptance/
+  );
+});

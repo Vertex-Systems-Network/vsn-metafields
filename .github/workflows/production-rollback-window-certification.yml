@@ -61,6 +61,13 @@ jobs:
           candidate = policy.get("candidate") or {}
           release = policy.get("release") or {}
           worker = policy.get("production_worker") or {}
+          runtime_update = policy.get("runtime_update")
+
+          if runtime_update is not None:
+              if runtime_update.get("status") != "accepted" or runtime_update.get("accepted") is not True:
+                  raise SystemExit(
+                      "Rollback-window closure is blocked while a production runtime hotfix is pending acceptance."
+                  )
 
           if policy.get("status") != "released_post_cutover_verified":
               raise SystemExit("Production cutover is not in the verified released state.")

@@ -30,6 +30,8 @@ OFFLINE_TOKEN_MIGRATION = ROOT / ".github" / "workflows" / "production-offline-t
 OFFLINE_TOKEN_MIGRATION_SCRIPT = ROOT / "scripts" / "database" / "migrate-production-offline-tokens.mjs"
 ROLLBACK_WINDOW_CERTIFICATION = ROOT / ".github" / "workflows" / "production-rollback-window-certification.yml"
 SESSION_READINESS_AUDIT = ROOT / "scripts" / "cloudflare" / "audit-production-session-readiness.mjs"
+RUNTIME_HOTFIX = ROOT / ".github" / "workflows" / "cloudflare-production-runtime-hotfix.yml"
+RUNTIME_HOTFIX = ROOT / ".github" / "workflows" / "cloudflare-production-runtime-hotfix.yml"
 
 
 class ValidationError(RuntimeError):
@@ -81,6 +83,8 @@ def main() -> int:
     offline_token_migration_script = read(OFFLINE_TOKEN_MIGRATION_SCRIPT)
     rollback_window_certification = read(ROLLBACK_WINDOW_CERTIFICATION)
     session_readiness_audit = read(SESSION_READINESS_AUDIT)
+    runtime_hotfix = read(RUNTIME_HOTFIX)
+    runtime_hotfix = read(RUNTIME_HOTFIX)
 
     require(policy.get("schema_version") == 1, "unsupported production cutover schema")
     require(policy.get("issue") == 4, "production cutover policy must target Issue #4")
@@ -281,6 +285,36 @@ def main() -> int:
     require(database.get("require_distinct_neon_projects") is True, "staging and production Neon projects must remain distinct")
     require(rollback_policy.get("keep_railway_available") is True, "Railway rollback must remain available")
 
+    runtime_update = policy.get("runtime_update")
+    if runtime_update is not None:
+        require(isinstance(runtime_update, dict), "runtime update policy must be an object")
+        require(runtime_update.get("status") in {"prepared", "accepted"}, "runtime update status drifted")
+        require(
+            runtime_update.get("reason") == "restore_existing_active_test_subscription_entitlement",
+            "runtime hotfix reason drifted",
+        )
+        require(
+            runtime_update.get("target_source_sha") == "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
+            "runtime hotfix target source drifted",
+        )
+        require(
+            isinstance(runtime_update.get("current_source_sha"), str)
+            and re.fullmatch(r"[0-9a-f]{40}", runtime_update.get("current_source_sha")) is not None,
+            "runtime hotfix baseline source is invalid",
+        )
+        require(
+            runtime_update.get("workflow") == "cloudflare-production-runtime-hotfix.yml",
+            "runtime hotfix workflow drifted",
+        )
+        require(runtime_update.get("shopify_config_mutation_allowed") is False, "runtime hotfix must forbid Shopify config mutation")
+        require(runtime_update.get("billing_mutation_allowed") is False, "runtime hotfix must forbid billing mutation")
+        require(runtime_update.get("database_mutation_allowed") is False, "runtime hotfix must forbid database mutation")
+        require(runtime_update.get("preserve_subscription_snapshot") is True, "runtime hotfix must preserve subscription snapshot")
+        require(runtime_update.get("reset_rollback_window_after_success") is True, "runtime hotfix must reset rollback window after success")
+        if runtime_update.get("status") == "prepared":
+            require(runtime_update.get("deployment_run_id") is None, "prepared runtime hotfix must not have deployment evidence")
+            require(runtime_update.get("accepted") is False, "prepared runtime hotfix must remain unaccepted")
+
     rollback_window = rollback_policy.get("window")
     require(isinstance(rollback_window, dict), "rollback window policy missing")
     require(rollback_window.get("status") == "active", "rollback window must remain active until certified closure")
@@ -311,11 +345,64 @@ def main() -> int:
         require(rollback_criteria.get(criterion) is True, f"rollback-window criterion missing: {criterion}")
 
 
+    runtime_update = policy.get("runtime_update")
+    require(isinstance(runtime_update, dict), "production runtime hotfix request missing")
+    require(runtime_update.get("status") == "prepared", "production runtime hotfix must remain prepared before deployment")
+    require(
+        runtime_update.get("reason") == "restore_existing_active_test_subscription_entitlement",
+        "production runtime hotfix reason drifted",
+    )
+    require(
+        runtime_update.get("target_source_sha") == "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
+        "production runtime hotfix target source drifted",
+    )
+    require(
+        runtime_update.get("current_source_sha") == worker.get("accepted_source_sha"),
+        "production runtime hotfix current source must match accepted runtime",
+    )
+    require(
+        runtime_update.get("workflow") == "cloudflare-production-runtime-hotfix.yml",
+        "production runtime hotfix workflow drifted",
+    )
+    require(runtime_update.get("shopify_config_mutation_allowed") is False, "runtime hotfix must forbid Shopify config mutation")
+    require(runtime_update.get("billing_mutation_allowed") is False, "runtime hotfix must forbid billing mutation")
+    require(runtime_update.get("database_mutation_allowed") is False, "runtime hotfix must forbid database mutation")
+    require(runtime_update.get("preserve_subscription_snapshot") is True, "runtime hotfix must preserve subscription snapshot")
+    require(runtime_update.get("reset_rollback_window_after_success") is True, "runtime hotfix must reset rollback window after success")
+    require(runtime_update.get("deployment_run_id") is None, "runtime hotfix deployment evidence must remain unset before deployment")
+    require(runtime_update.get("accepted") is False, "runtime hotfix must remain unaccepted before deployment")
+
     workflows = [deploy, acceptance, candidate, release, rollback, production_neon_provisioning, session_migration]
     for workflow in workflows:
         require("appSubscriptionCreate" not in workflow, "production migration workflow must not create billing subscriptions")
         require("appSubscriptionCancel" not in workflow, "production migration workflow must not cancel billing subscriptions")
         require("--allow-deletes" not in workflow, "Shopify config deletes are forbidden during migration")
+
+    require("workflow_dispatch:" in runtime_hotfix and "push:" not in runtime_hotfix, "production runtime hotfix must remain manual-only")
+    require("DEPLOY_PRODUCTION_RUNTIME_HOTFIX" in runtime_hotfix, "production runtime hotfix confirmation gate missing")
+    require("source_sha:" in runtime_hotfix, "production runtime hotfix immutable source input missing")
+    require("github.ref == 'refs/heads/main'" in runtime_hotfix, "production runtime hotfix must require protected main")
+    require("ref: main" in runtime_hotfix, "production runtime hotfix control-plane checkout must pin main")
+    require("environment: cloudflare-production" in runtime_hotfix, "production runtime hotfix environment missing")
+    require("git merge-base --is-ancestor" in runtime_hotfix, "production runtime hotfix must prove protected-main ancestry")
+    require("git checkout --detach" in runtime_hotfix, "production runtime hotfix must checkout the exact prepared source")
+    require("audit-production-subscriptions.mjs" in runtime_hotfix, "production runtime hotfix must verify subscriptions")
+    require("production_runtime_hotfix_pre_health=pass" in runtime_hotfix, "production runtime hotfix pre-health evidence missing")
+    require("production_runtime_hotfix_post_health=pass" in runtime_hotfix, "production runtime hotfix post-health evidence missing")
+    require("production_runtime_hotfix_subscriptions_preserved=pass" in runtime_hotfix, "production runtime hotfix subscription preservation evidence missing")
+    require("production_runtime_hotfix_railway_rollback=pass" in runtime_hotfix, "production runtime hotfix Railway rollback evidence missing")
+    require("production_shopify_config_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no Shopify config mutation")
+    require("production_billing_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no billing mutation")
+    require("production_database_mutation_performed=false" in runtime_hotfix, "production runtime hotfix must prove no database mutation")
+    require("production_merchant_reinstall_required=false" in runtime_hotfix, "production runtime hotfix must prove no merchant reinstall")
+    require("production_rollback_window_reset_required=true" in runtime_hotfix, "production runtime hotfix must require rollback-window reset")
+    require("wrangler@4.141.0 deploy" in runtime_hotfix, "production runtime hotfix Worker deploy command missing")
+    require("--config wrangler.production.jsonc" in runtime_hotfix, "production runtime hotfix Wrangler config missing")
+    require("APP_COMMIT_SHA:$EXPECTED_SOURCE_SHA" in runtime_hotfix, "production runtime hotfix must publish runtime source SHA")
+    require("@shopify/cli" not in runtime_hotfix, "production runtime hotfix must not invoke Shopify CLI")
+    require("appSubscriptionCreate" not in runtime_hotfix, "production runtime hotfix must never create subscriptions")
+    require("appSubscriptionCancel" not in runtime_hotfix, "production runtime hotfix must never cancel subscriptions")
+    require("prisma migrate deploy" not in runtime_hotfix, "production runtime hotfix must never apply database migrations")
 
     require("STAGING_NEON_ENDPOINT_ID: ep-snowy-surf-b3gxl2wf" in staging_deploy, "staging deploy must pin the certified Neon endpoint")
     require("staging_neon_identity=pass" in staging_deploy, "staging Neon identity evidence missing")
@@ -599,6 +686,33 @@ def main() -> int:
     require('"refreshToken" IS NOT NULL' in session_readiness_audit, "Session readiness audit must verify refresh tokens")
     require('"refreshTokenExpires" IS NOT NULL' in session_readiness_audit, "Session readiness audit must verify refresh-token expiry")
     require("console.log(row" not in session_readiness_audit, "Session readiness audit must not log Session rows")
+
+    require("workflow_dispatch:" in runtime_hotfix and "push:" not in runtime_hotfix, "runtime hotfix must remain manual-only")
+    require("DEPLOY_PRODUCTION_RUNTIME_HOTFIX" in runtime_hotfix, "runtime hotfix confirmation gate missing")
+    require("github.ref == 'refs/heads/main'" in runtime_hotfix, "runtime hotfix must require protected main")
+    require("ref: main" in runtime_hotfix, "runtime hotfix control-plane checkout must pin main")
+    require("environment: cloudflare-production" in runtime_hotfix, "runtime hotfix production environment missing")
+    require("EXPECTED_SOURCE_SHA" in runtime_hotfix, "runtime hotfix exact source input missing")
+    require("target_source_sha" in runtime_hotfix, "runtime hotfix must bind repository-prepared target source")
+    require("git merge-base --is-ancestor" in runtime_hotfix, "runtime hotfix must require protected-main ancestry")
+    require("git checkout --detach" in runtime_hotfix, "runtime hotfix must checkout exact immutable source")
+    require("audit-production-subscriptions.mjs" in runtime_hotfix, "runtime hotfix must audit subscriptions")
+    require("production_runtime_hotfix_pre_health=pass" in runtime_hotfix, "runtime hotfix pre-health evidence missing")
+    require("production_runtime_hotfix_post_health=pass" in runtime_hotfix, "runtime hotfix post-health evidence missing")
+    require("production_runtime_hotfix_subscriptions_preserved=pass" in runtime_hotfix, "runtime hotfix subscription preservation evidence missing")
+    require("production_runtime_hotfix_railway_rollback=pass" in runtime_hotfix, "runtime hotfix Railway rollback evidence missing")
+    require("production_shopify_config_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no Shopify config mutation")
+    require("production_billing_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no billing mutation")
+    require("production_database_mutation_performed=false" in runtime_hotfix, "runtime hotfix must prove no database mutation")
+    require("production_merchant_reinstall_required=false" in runtime_hotfix, "runtime hotfix must prove no merchant reinstall")
+    require("production_rollback_window_reset_required=true" in runtime_hotfix, "runtime hotfix must require rollback-window reset")
+    require("wrangler@4.141.0 deploy" in runtime_hotfix, "runtime hotfix Worker deploy command missing")
+    require("SHOPIFY_APP_URL: https://vsn-metafields-production.vertexsystemsnetwork.workers.dev" in runtime_hotfix, "runtime hotfix must stay on Cloudflare production URL")
+    require("npx --yes @shopify/cli" not in runtime_hotfix, "runtime hotfix must never invoke Shopify CLI")
+    require("appSubscriptionCreate" not in runtime_hotfix, "runtime hotfix must never create subscriptions")
+    require("appSubscriptionCancel" not in runtime_hotfix, "runtime hotfix must never cancel subscriptions")
+    require("prisma migrate deploy" not in runtime_hotfix, "runtime hotfix must never mutate production schema")
+    require("--allow-deletes" not in runtime_hotfix, "runtime hotfix must never authorize Shopify config deletes")
 
     require("ROLLBACK_TO_RAILWAY" in rollback, "Railway rollback confirmation missing")
     require("github.ref == 'refs/heads/main'" in rollback, "Railway rollback must require protected main")

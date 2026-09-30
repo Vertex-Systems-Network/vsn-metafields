@@ -118,5 +118,19 @@
     "subscriptions_preserved": true,
     "compliance_webhooks_enqueued": 3,
     "railway_rollback_preserved": true
+  },
+  "runtime_update": {
+    "status": "prepared",
+    "reason": "restore_existing_active_test_subscription_entitlement",
+    "target_source_sha": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
+    "current_source_sha": "c184b25628fc5c59a1110c6fe9ec49e11ce31b05",
+    "workflow": "cloudflare-production-runtime-hotfix.yml",
+    "shopify_config_mutation_allowed": false,
+    "billing_mutation_allowed": false,
+    "database_mutation_allowed": false,
+    "preserve_subscription_snapshot": true,
+    "reset_rollback_window_after_success": true,
+    "deployment_run_id": null,
+    "accepted": false
   }
 }
