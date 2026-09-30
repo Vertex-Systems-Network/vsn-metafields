@@ -3,22 +3,22 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-entitlement-hotfix-prepared",
-  "last_verified_completion": "Shopify Production Cutover Release run 36657352966 succeeded for exact authorized candidate cloudflare-production-cutover-8d201357d738-4. Shopify CLI reported 'Version released to users'. Pre- and post-release subscription snapshots were identical at 2 shops / 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76. Cloudflare Worker health passed before and after release, three compliance webhooks were enqueued successfully, and the Railway rollback source remained preserved.",
-  "next_valid_work_unit": "Deploy exact Cloudflare production runtime hotfix source e706ce3cdbcc8998f4686ee039e0e59aeaa6574b with the guarded Cloudflare Production Runtime Hotfix workflow. Require pre/post subscription fingerprint equality, Worker health, and Railway rollback reachability. Do not mutate Shopify config, billing subscriptions, database schema, or merchant installs. After successful deployment, record acceptance evidence and restart the 24-hour rollback window from the hotfix deployment.",
+  "current_work_unit": "ISSUE-4-production-entitlement-hotfix-accepted",
+  "last_verified_completion": "Cloudflare Production Runtime Hotfix run 36690095989 succeeded on protected main. The live Worker already served exact source e706ce3cdbcc8998f4686ee039e0e59aeaa6574b, production health and $55/5-day billing metadata passed, the subscription snapshot remained exactly 2 shops / 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76, and certified Cloudflare rollback version 8a0d51eb-74d4-4041-8216-89aef63e1a52 remained available. Actual Worker deployment occurred in run 36688847964 as Cloudflare version f25977a9-b02e-492c-9e01-6d3de120c5a8.",
+  "next_valid_work_unit": "Keep the Cloudflare pre-hotfix rollback version and production safety dependencies intact until the reset rollback window matures at 2026-10-01T08:31:09Z. At or after that time, run Production Rollback Window Certification and record closure evidence if all health, billing, subscription, Session-token, and rollback-version checks pass.",
   "progress": {
     "total_work_units": 7,
-    "complete": 6,
-    "in_progress": 1,
+    "complete": 7,
+    "in_progress": 0,
     "blocked": 0,
     "deferred": 0,
     "needs_update": 0,
     "needs_removal": 0
   },
   "outstanding_updates": [
-    "Deploy the exact prepared production Worker hotfix e706ce3cdbcc8998f4686ee039e0e59aeaa6574b through the guarded runtime-hotfix workflow.",
-    "Verify the existing active test/demo subscriptions remain entitled on the live Cloudflare app while new production subscription creation remains test=false.",
-    "After successful hotfix acceptance, reset the 24-hour rollback window; keep Railway available until the new window closes."
+    "At or after 2026-10-01T08:31:09Z, run Production Rollback Window Certification.",
+    "Keep certified Cloudflare rollback version 8a0d51eb-74d4-4041-8216-89aef63e1a52 available until rollback-window certification completes.",
+    "Do not perform Supabase cleanup before rollback-window certification completes."
   ],
   "outstanding_removals": [],
   "unresolved_decisions": [
@@ -28,9 +28,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_entitlement_hotfix_prepared_exact_source_and_subscription_snapshot_guarded",
-  "security_readiness": "cloudflare_live_hotfix_manual_only_no_shopify_billing_or_database_mutation_railway_preserved",
-  "last_reconciled_repository_ref": "e706ce3cdbcc8998f4686ee039e0e59aeaa6574b",
-  "last_reconciled_at": "2026-09-30T02:40:00+00:00",
-  "notes": "Plan ID remains pro-plan. Root cause of the live demo-store entitlement regression was production filtering of Shopify activeSubscriptions where test=true. PR #141 removed that entitlement filter while retaining test=false for newly created production subscriptions. Runtime hotfix deployment is prepared but not yet executed."
+  "qa_readiness": "production_entitlement_hotfix_accepted_subscription_snapshot_preserved",
+  "security_readiness": "cloudflare_live_hotfix_accepted_native_version_rollback_preserved",
+  "last_reconciled_repository_ref": "b2113625242cce4c04c67b12983bbfe062d932c2",
+  "last_reconciled_at": "2026-09-30T08:31:09+00:00",
+  "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance."
 }
