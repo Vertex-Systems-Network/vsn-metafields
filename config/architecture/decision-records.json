@@ -2,7 +2,40 @@
   "schema_version": 1,
   "status": "active_registry",
   "activation_scope": "child_project",
-  "decisions": [],
+  "decisions": [
+    {
+      "id": "ADR-0001",
+      "title": "Metafield capability and storefront rendering boundary",
+      "status": "proposed",
+      "context": "Broad owner/type support must not imply Liquid access or unsafe public exposure.",
+      "alternatives": [
+        "Hardcode all owner/type combinations",
+        "Versioned capability registry with staging probes and typed Liquid renderers"
+      ],
+      "evidence_refs": [
+        "EVID-000002",
+        "EVID-000003"
+      ],
+      "decision": "Propose registry-driven Admin capabilities and contextual theme app blocks; retain existing stack.",
+      "consequences": [
+        "Unsupported combinations are explicit",
+        "More compatibility maintenance"
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "Avoid public Admin-token access",
+        "Scope expansion reviewed per owner"
+      ],
+      "reversibility": "high",
+      "affected_modules_or_contracts": [
+        "MOD-META-CAPABILITY",
+        "MOD-META-THEME"
+      ],
+      "decided_by": null,
+      "decided_at": null,
+      "supersedes": [],
+      "superseded_by": null
+    }
+  ],
   "decision_template": {
     "id": "ADR-0001",
     "title": "",
