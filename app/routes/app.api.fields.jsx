@@ -20,6 +20,28 @@ function requireOwnerType(value) {
   return ownerType;
 }
 
+async function hasActivePlan(admin) {
+  const response = await admin.graphql(`#graphql
+    query MetafieldAccessSubscription {
+      currentAppInstallation {
+        activeSubscriptions { status }
+      }
+    }
+  `);
+  const result = await response.json();
+  if (result?.errors?.length || !result?.data?.currentAppInstallation) {
+    throw new Error("Could not verify the active subscription.");
+  }
+  return result.data.currentAppInstallation.activeSubscriptions?.some(
+    (subscription) => subscription.status === "ACTIVE"
+  ) ?? false;
+}
+
+const planRequiredResponse = () => Response.json(
+  { ok: false, success: false, fields: [], error: "An active plan is required." },
+  { status: 403 }
+);
+
 async function getVsnMetafieldDefinitions(admin, ownerType) {
   const definitions = [];
   let after = null;
@@ -78,6 +100,7 @@ export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
   try {
+    if (!(await hasActivePlan(admin))) return planRequiredResponse();
     const ownerType = requireOwnerType(new URL(request.url).searchParams.get("ownerType"));
     const fields = await getVsnMetafieldDefinitions(admin, ownerType);
 
@@ -116,6 +139,7 @@ export const action = async ({ request }) => {
   }
 
   try {
+    if (!(await hasActivePlan(admin))) return planRequiredResponse();
     const formData = await request.formData();
     const actionType = String(formData.get("actionType") || "create");
     const ownerType = requireOwnerType(formData.get("ownerType"));
