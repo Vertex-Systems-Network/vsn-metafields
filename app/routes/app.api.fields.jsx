@@ -93,7 +93,7 @@ export const loader = async ({ request }) => {
         fields: [],
         error: error?.message || "Failed to load fields.",
       },
-      { status: 500 }
+      { status: error instanceof RangeError ? 400 : 500 }
     );
   }
 };
