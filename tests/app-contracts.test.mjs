@@ -1007,6 +1007,10 @@ test("production runtime entitlement hotfix is exact-source and subscription-saf
   assert.match(hotfix, /git checkout --detach/);
   assert.match(hotfix, /audit-production-subscriptions\.mjs/);
   assert.match(hotfix, /production_runtime_hotfix_pre_health=pass/);
+  assert.match(hotfix, /HOTFIX_ALREADY_LIVE/);
+  assert.match(hotfix, /production_runtime_hotfix_resume_state=/);
+  assert.match(hotfix, /if: env\.HOTFIX_ALREADY_LIVE != 'true'/);
+  assert.match(hotfix, /production_runtime_hotfix_already_live=\$HOTFIX_ALREADY_LIVE/);
   assert.match(hotfix, /production_runtime_hotfix_post_health=pass/);
   assert.match(hotfix, /production_runtime_hotfix_subscriptions_preserved=pass/);
   assert.match(hotfix, /production_runtime_hotfix_railway_rollback=pass/);
