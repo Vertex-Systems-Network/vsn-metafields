@@ -1,9 +1,10 @@
 import { authenticate } from "../shopify.server";
 import { hasActivePlan } from "../active-plan.server";
 import { removeDefinition } from "../definition-removal.server";
+import { renameDefinition } from "../definition-update.server";
+import { getStandardTemplates, enableStandardTemplate } from "../standard-definitions.server";
 
 const NAMESPACE = "vsn_metafields";
-const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS";
 const ALLOWED_OWNERS = new Set(["PRODUCT", "PRODUCTVARIANT", "COLLECTION"]);
 const ALLOWED_TYPES = new Set([
   "single_line_text_field",
@@ -27,7 +28,7 @@ const planRequiredResponse = () => Response.json(
   { status: 403 }
 );
 
-async function getVsnMetafieldDefinitions(admin, ownerType) {
+async function getMetafieldDefinitions(admin, ownerType) {
   const definitions = [];
   let after = null;
   let hasNextPage = true;
@@ -64,15 +65,20 @@ async function getVsnMetafieldDefinitions(admin, ownerType) {
     }
 
     const connection = data?.data?.metafieldDefinitions;
-    definitions.push(...(connection?.nodes || []));
+    if (!Array.isArray(connection?.nodes) || !connection?.pageInfo) {
+      throw new Error("Could not load metafield definitions.");
+    }
+    definitions.push(...connection.nodes);
 
     hasNextPage = Boolean(connection?.pageInfo?.hasNextPage);
-    after = connection?.pageInfo?.endCursor || null;
+    const nextCursor = connection.pageInfo.endCursor;
+    if (hasNextPage && (!nextCursor || nextCursor === after)) {
+      throw new Error("Definition pagination did not advance.");
+    }
+    after = nextCursor;
   }
 
-  return definitions
-    .filter((field) => field.namespace === NAMESPACE)
-    .map((field) => ({
+  return definitions.map((field) => ({
       id: field.id,
       name: field.name,
       key: field.key,
@@ -81,12 +87,26 @@ async function getVsnMetafieldDefinitions(admin, ownerType) {
     }));
 }
 
+async function getVsnMetafieldDefinitions(admin, ownerType) {
+  return (await getMetafieldDefinitions(admin, ownerType)).filter((field) => field.namespace === NAMESPACE);
+}
+
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
   try {
     if (!(await hasActivePlan(admin))) return planRequiredResponse();
     const ownerType = requireOwnerType(new URL(request.url).searchParams.get("ownerType"));
+    if (new URL(request.url).searchParams.get("catalog") === "standard") {
+      const [templates, definitions] = await Promise.all([
+        getStandardTemplates(admin, ownerType), getMetafieldDefinitions(admin, ownerType),
+      ]);
+      const existing = new Set(definitions.map((field) => `${field.namespace}.${field.key}`));
+      return Response.json({ ok: true, ownerType, templates: templates.map((item) => ({
+        id: item.id, name: item.name, namespace: item.namespace, key: item.key,
+        type: item.type?.name, enabled: existing.has(`${item.namespace}.${item.key}`),
+      })) });
+    }
     const fields = await getVsnMetafieldDefinitions(admin, ownerType);
 
     return Response.json({
@@ -129,6 +149,24 @@ export const action = async ({ request }) => {
     const actionType = String(formData.get("actionType") || "create");
     const ownerType = requireOwnerType(formData.get("ownerType"));
 
+    if (actionType === "enable-standard") {
+      const id = String(formData.get("templateId") || "");
+      const templates = await getStandardTemplates(admin, ownerType);
+      const enabled = await enableStandardTemplate(admin, templates, ownerType, id);
+      if (!enabled.ok) return Response.json({ ok: false, success: false, error: enabled.error }, { status: enabled.status });
+      return Response.json({ ok: true, success: true, message: `${enabled.definition.name} standard definition enabled for ${ownerType}.` });
+    }
+
+    if (actionType === "update") {
+      const definitions = await getVsnMetafieldDefinitions(admin, ownerType);
+      const updated = await renameDefinition(admin, definitions, ownerType, {
+        id: String(formData.get("id") || ""), key: String(formData.get("key") || ""),
+        name: formData.get("name"),
+      });
+      if (!updated.ok) return Response.json({ ok: false, success: false, error: updated.error }, { status: updated.status });
+      return Response.json({ ok: true, success: true, message: `${updated.name} updated.` });
+    }
+
     if (actionType === "delete") {
       const id = String(formData.get("id") || "");
       const key = String(formData.get("key") || "");
@@ -143,7 +181,7 @@ export const action = async ({ request }) => {
     }
 
     if (actionType === "reset") {
-      if (formData.get("confirm") !== RESET_CONFIRMATION) {
+      if (formData.get("confirm") !== `RESET_VSN_METAFIELDS:${ownerType}`) {
         return Response.json(
           {
             ok: false,

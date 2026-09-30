@@ -11,6 +11,7 @@ export const loader = async ({ request }) => {
 export default function Index() {
   const statusFetcher = useFetcher();
   const fieldsFetcher = useFetcher();
+  const standardsFetcher = useFetcher();
   const actionFetcher = useFetcher();
   const location = useLocation();
 
@@ -18,6 +19,9 @@ export default function Index() {
   const [key, setKey] = useState("");
   const [type, setType] = useState("single_line_text_field");
   const [ownerType, setOwnerType] = useState("PRODUCT");
+  const [templateId, setTemplateId] = useState("");
+  const [editingField, setEditingField] = useState(null);
+  const [editedName, setEditedName] = useState("");
 
   // Load status on mount
   useEffect(() => {
@@ -28,6 +32,7 @@ export default function Index() {
   useEffect(() => {
     if (statusFetcher.data?.hasActivePlan) {
       fieldsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}`);
+      standardsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}&catalog=standard`);
     }
   }, [statusFetcher.data?.hasActivePlan, ownerType]);
 
@@ -35,9 +40,11 @@ export default function Index() {
   useEffect(() => {
     if (actionFetcher.data?.success) {
       fieldsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}`);
+      standardsFetcher.load(`/app/api/fields${window.location.search}${window.location.search ? "&" : "?"}ownerType=${ownerType}&catalog=standard`);
       setName("");
       setKey("");
       setType("single_line_text_field");
+      setEditingField(null);
     }
   }, [actionFetcher.data?.success]);
 
@@ -74,7 +81,7 @@ export default function Index() {
     const formData = new FormData();
     formData.set("actionType", "reset");
     formData.set("ownerType", ownerType);
-    formData.set("confirm", "RESET_VSN_METAFIELDS");
+    formData.set("confirm", `RESET_VSN_METAFIELDS:${ownerType}`);
 
     actionFetcher.submit(formData, {
       method: "post",
@@ -90,6 +97,26 @@ export default function Index() {
     formData.set("id", field.id);
     formData.set("key", field.key);
     formData.set("confirm", `DELETE_VSN_METAFIELD:${field.key}`);
+    actionFetcher.submit(formData, { method: "post", action: `/app/api/fields${window.location.search}` });
+  };
+
+  const handleEnableStandard = () => {
+    if (!templateId) return;
+    const formData = new FormData();
+    formData.set("actionType", "enable-standard");
+    formData.set("ownerType", ownerType);
+    formData.set("templateId", templateId);
+    actionFetcher.submit(formData, { method: "post", action: `/app/api/fields${window.location.search}` });
+  };
+
+  const handleUpdate = () => {
+    if (!editingField || !editedName.trim()) return;
+    const formData = new FormData();
+    formData.set("actionType", "update");
+    formData.set("ownerType", ownerType);
+    formData.set("id", editingField.id);
+    formData.set("key", editingField.key);
+    formData.set("name", editedName.trim());
     actionFetcher.submit(formData, { method: "post", action: `/app/api/fields${window.location.search}` });
   };
 
@@ -137,6 +164,9 @@ export default function Index() {
   }
 
   const fields = fieldsData?.ownerType === ownerType ? fieldsData.fields : [];
+  const templates = standardsFetcher.data?.ownerType === ownerType ? standardsFetcher.data.templates || [] : [];
+  const availableTemplates = templates.filter((item) => !item.enabled);
+  const selectedTemplateId = availableTemplates.some((item) => item.id === templateId) ? templateId : "";
 
   return (
     <s-page heading="VSN Metafields">
@@ -154,13 +184,16 @@ export default function Index() {
       {isLoadingFields && (
         <s-banner tone="info">Loading registered fields...</s-banner>
       )}
+      {standardsFetcher.data && !standardsFetcher.data.ok && (
+        <s-banner tone="critical">{standardsFetcher.data.error || "Failed to load standard definitions."}</s-banner>
+      )}
 
-      <s-section heading="Create New Field">
+      <s-section heading="Create Custom Definition">
         <s-stack direction="inline" gap="base">
           <s-select
             label="Resource"
             value={ownerType}
-            onInput={(event) => setOwnerType(event.target.value)}
+            onInput={(event) => { setOwnerType(event.target.value); setTemplateId(""); setEditingField(null); }}
           >
             <s-option value="PRODUCT">Product</s-option>
             <s-option value="PRODUCTVARIANT">Product variant</s-option>
@@ -203,6 +236,21 @@ export default function Index() {
         </s-stack>
       </s-section>
 
+      <s-section heading="Enable Shopify Standard Definition">
+        <s-text>Official Shopify templates keep their reserved namespace and type. Available templates depend on the selected resource.</s-text>
+        <s-stack direction="inline" gap="base">
+          <s-select label="Standard definition" value={selectedTemplateId} onInput={(event) => setTemplateId(event.target.value)}>
+            <s-option value="">Select a template</s-option>
+            {availableTemplates.map((item) => (
+              <s-option key={item.id} value={item.id}>{item.name} ({item.namespace}.{item.key})</s-option>
+            ))}
+          </s-select>
+          <s-button disabled={!selectedTemplateId || isActionLoading} onClick={handleEnableStandard}>Enable standard</s-button>
+        </s-stack>
+        {standardsFetcher.state === "loading" && <s-text>Loading templates...</s-text>}
+        {standardsFetcher.data?.ok && availableTemplates.length === 0 && <s-text>All available templates are already enabled, or none apply to this resource.</s-text>}
+      </s-section>
+
       <s-section>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <s-heading>Registered Fields</s-heading>
@@ -226,6 +274,9 @@ export default function Index() {
                   <s-table-cell>{field.key}</s-table-cell>
                   <s-table-cell>{field.type}</s-table-cell>
                   <s-table-cell>
+                    <s-button disabled={isActionLoading} onClick={() => { setEditingField(field); setEditedName(field.name); }}>
+                      Edit name
+                    </s-button>
                     <s-button tone="critical" disabled={isActionLoading} onClick={() => handleDelete(field)}>
                       Remove
                     </s-button>
@@ -235,6 +286,13 @@ export default function Index() {
             </s-table-body>
           </s-table>
         </s-section>
+        {editingField && (
+          <s-section heading={`Edit ${editingField.key}`}>
+            <s-text-field label="Definition name" value={editedName} onInput={(event) => setEditedName(event.target.value)} />
+            <s-button disabled={!editedName.trim() || isActionLoading} onClick={handleUpdate}>Save name</s-button>
+            <s-button disabled={isActionLoading} onClick={() => setEditingField(null)}>Cancel</s-button>
+          </s-section>
+        )}
       </s-section>
     </s-page>
   );

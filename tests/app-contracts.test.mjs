@@ -330,8 +330,7 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   const pinFields = read("app/routes/app.api.pin-fields.jsx");
 
   assert.match(fields, /const NAMESPACE = "vsn_metafields"/);
-  assert.match(fields, /const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS"/);
-  assert.match(fields, /formData\.get\("confirm"\) !== RESET_CONFIRMATION/);
+  assert.match(fields, /formData\.get\("confirm"\) !== `RESET_VSN_METAFIELDS:\$\{ownerType\}`/);
   assert.match(fields, /deleteAllAssociatedMetafields:\s*false/);
   assert.match(fields, /ALLOWED_TYPES\.has\(type\)/);
   assert.match(fields, /ALLOWED_OWNERS = new Set\(\["PRODUCT", "PRODUCTVARIANT", "COLLECTION"\]\)/);
