@@ -65,7 +65,7 @@ export default function Index() {
   const handleReset = () => {
     if (
       !window.confirm(
-        "Reset all VSN ${ownerType} metafield definitions? Existing metafield values will not be deleted, but these definitions will be removed."
+        `Reset all VSN ${ownerType} metafield definitions? Existing metafield values will not be deleted, but these definitions will be removed.`
       )
     ) {
       return;
@@ -125,7 +125,7 @@ export default function Index() {
     );
   }
 
-  const fields = fieldsData?.fields || [];
+  const fields = fieldsData?.ownerType === ownerType ? fieldsData.fields : [];
 
   return (
     <s-page heading="VSN Metafields">
