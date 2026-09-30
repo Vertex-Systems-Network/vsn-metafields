@@ -69,8 +69,6 @@ jobs:
           print("production_shopify_identity=repository_certified")
           PY
 
-i
-
       - name: Require accepted production Worker evidence
         shell: bash
         run: |
