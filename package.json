@@ -2,8 +2,9 @@
   "name": "vsn-metafields",
   "private": true,
   "scripts": {
-    "build": "prisma generate && react-router build",
-    "dev": "npx --yes shopify@4.8.2 app dev --config local",
+    "build": "prisma generate && prisma generate --schema prisma/local/schema.prisma && react-router build",
+    "dev": "node scripts/local-sqlite.mjs --serve",
+    "dev:shopify": "npx --yes shopify@4.8.2 app dev --config local",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
@@ -19,9 +20,11 @@
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "test:contracts": "node --test tests/app-contracts.test.mjs",
+    "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs",
     "dev:local": "npm run dev",
-    "check:release": "npm run lint && npm run typecheck && npm run test:contracts && npm run build"
+    "db:local:setup": "node scripts/local-sqlite.mjs",
+    "check:db-contract": "node scripts/check-db-contract.mjs",
+    "check:release": "npm run lint && npm run typecheck && npm run check:db-contract && npm run test:contracts && npm run build"
   },
   "type": "module",
   "engines": {

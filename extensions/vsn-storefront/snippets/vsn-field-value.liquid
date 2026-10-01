@@ -1,0 +1,20 @@
+{%- liquid
+  assign rendered_value = field.value
+  assign true_label = true_text | default: 'Yes'
+  assign false_label = false_text | default: 'No'
+  assign display_format = date_format | default: '%b %d, %Y'
+-%}
+{%- case field.type -%}
+  {%- when 'boolean' -%}
+    {%- if rendered_value == true -%}{{ true_label | escape }}{%- else -%}{{ false_label | escape }}{%- endif -%}
+  {%- when 'date' -%}
+    {{- rendered_value | date: display_format | escape -}}
+  {%- when 'url' -%}
+    {%- assign value_url = rendered_value | strip -%}
+    {%- assign url_prefix = value_url | slice: 0, 8 -%}
+    {%- if url_prefix == 'https://' -%}
+      <a href="{{ value_url | escape }}" rel="noopener noreferrer">{{ link_text | default: value_url | escape }}</a>
+    {%- endif -%}
+  {%- when 'single_line_text_field', 'multi_line_text_field', 'number_integer' -%}
+    {{- rendered_value | escape -}}
+{%- endcase -%}

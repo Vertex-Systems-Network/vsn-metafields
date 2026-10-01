@@ -1,0 +1,25 @@
+.vsn-metafield-block {
+  box-sizing: border-box;
+  max-width: var(--vsn-width, 100%);
+  margin: 0 auto;
+  padding: var(--vsn-padding, 16px);
+  border: 1px solid var(--vsn-border, transparent);
+  border-radius: var(--vsn-radius, 0px);
+  background: var(--vsn-background, transparent);
+  color: var(--vsn-color, inherit);
+  text-align: var(--vsn-align, left);
+  overflow-wrap: anywhere;
+}
+.vsn-metafield-block a { color: inherit; text-decoration: underline; }
+.vsn-metafield-block__label { display: block; font-weight: 600; margin-bottom: var(--vsn-gap, 8px); }
+.vsn-metafield-block__value { font-size: var(--vsn-size, 16px); line-height: 1.5; white-space: pre-line; }
+.vsn-metafield-block__rows { display: grid; gap: var(--vsn-gap, 8px); margin: 0; }
+.vsn-metafield-block__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; }
+.vsn-metafield-block--cards .vsn-metafield-block__row { padding: 12px; border: 1px solid var(--vsn-border, currentColor); border-radius: var(--vsn-radius, 0px); }
+.vsn-metafield-block--rows .vsn-metafield-block__row + .vsn-metafield-block__row { border-top: 1px solid var(--vsn-border, currentColor); padding-top: var(--vsn-gap, 8px); }
+.vsn-metafield-block__row dt { font-weight: 600; }
+.vsn-metafield-block__row dd { margin: 0; white-space: pre-line; }
+@media (max-width: 600px) {
+  .vsn-metafield-block { max-width: 100%; }
+  .vsn-metafield-block__row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
