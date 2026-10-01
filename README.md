@@ -15,7 +15,7 @@
 - **Active P0 blocker:** none — protected project history rewrite is complete and ruleset protections are restored
 - **PHASE-00 progress:** 100% complete
 - **PHASE-01 progress:** 7/7 current production entitlement work units complete; live hotfix accepted
-- **Active work:** Issue #4 — entitlement hotfix accepted; reset 24-hour Cloudflare version rollback window is active until certification eligibility
+- **Active work:** Issue #4 rollback window certified and closure recorded; physical legacy asset cleanup remains separate
 
 The protected project history has been rewritten and `main` is the sole live branch. The application tree was preserved exactly across the rewrite. AI Native Quality Gates now perform a normal fresh clone of `main`, require zero reachable accidental `..git/` paths, and run `git fsck --full`. GitHub-managed `refs/pull/*` retain legacy PR snapshots outside normal project branch/tag control; that platform-side dereference/GC item is tracked separately and is not treated as a live project-ref blocker.
 
@@ -37,3 +37,5 @@ Release baseline: the currently certified production runtime source is `e706ce3c
 
 
 Rollback window: successful entitlement-hotfix acceptance reset the 24-hour window at `2026-09-30T08:31:09Z`, so the earliest permitted closure is `2026-10-01T08:31:09Z`. Until then, certified Cloudflare rollback version `8a0d51eb-74d4-4041-8216-89aef63e1a52` must remain available. The guarded `Production Rollback Window Certification` workflow must pass Cloudflare health/current source, USD 55 / 5-day billing metadata, the exact 2-shop / 2-active-subscription fingerprint, production Session/token readiness, and previous Worker-version rollback availability. Temporary Supabase cleanup remains forbidden until certification is recorded.
+
+Closure evidence: certification run [`36926166869`](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/36926166869) succeeded on protected `main` SHA `6fb39e14592d8aec75740385e2b247021690f73f` at `2026-10-01T21:05:13Z`. It refreshed and verified both production offline tokens, confirmed the unchanged subscription digest `af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76` (2 shops / 2 active), verified 4 Session rows / 4 tokens, Worker health, source and billing metadata, and availability of the previous Cloudflare version. The 24-hour window was recorded closed at `2026-10-01T21:08:53Z`. Certification performed no Cloudflare rollback-version deletion or Supabase cleanup. Both assets remain retained pending separate inventory, retention and provider-verified cleanup decisions. The manual version rollback workflow is gated to an active window and no longer operates under the closed state.

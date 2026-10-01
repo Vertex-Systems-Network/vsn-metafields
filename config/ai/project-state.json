@@ -3,9 +3,9 @@
   "lifecycle_stage": "engineering",
   "current_phase": "PHASE-01",
   "current_module": "cloudflare-subscription-safe-migration",
-  "current_work_unit": "ISSUE-4-production-entitlement-hotfix-accepted",
-  "last_verified_completion": "Cloudflare Production Runtime Hotfix run 36690095989 succeeded on protected main. The live Worker already served exact source e706ce3cdbcc8998f4686ee039e0e59aeaa6574b, production health and $55/5-day billing metadata passed, the subscription snapshot remained exactly 2 shops / 2 active subscriptions with SHA-256 digest af26a6fe5b407c4ca07f05a65c6c332cad54649739961013705d0f56ebd81c76, and certified Cloudflare rollback version 8a0d51eb-74d4-4041-8216-89aef63e1a52 remained available. Actual Worker deployment occurred in run 36688847964 as Cloudflare version f25977a9-b02e-492c-9e01-6d3de120c5a8.",
-  "next_valid_work_unit": "Keep the Cloudflare pre-hotfix rollback version and production safety dependencies intact until the reset rollback window matures at 2026-10-01T08:31:09Z. At or after that time, run Production Rollback Window Certification and record closure evidence if all health, billing, subscription, Session-token, and rollback-version checks pass.",
+  "current_work_unit": "ISSUE-4-production-rollback-window-closed",
+  "last_verified_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed.",
+  "next_valid_work_unit": "Continue metafield expansion from development through isolated staging and reviewed main PRs. Plan separate, verified retention and cleanup decisions for legacy Supabase and Worker rollback version; do not claim deletion without provider evidence.",
   "progress": {
     "total_work_units": 7,
     "complete": 7,
@@ -15,12 +15,11 @@
     "needs_update": 0,
     "needs_removal": 0
   },
-  "outstanding_updates": [
-    "At or after 2026-10-01T08:31:09Z, run Production Rollback Window Certification.",
-    "Keep certified Cloudflare rollback version 8a0d51eb-74d4-4041-8216-89aef63e1a52 available until rollback-window certification completes.",
-    "Do not perform Supabase cleanup before rollback-window certification completes."
+  "outstanding_updates": [],
+  "outstanding_removals": [
+    "Legacy Supabase source cleanup remains unperformed and needs a separate inventory, retention and backup decision.",
+    "Previous Cloudflare Worker rollback version is retained; any deletion needs its own provider-verified cleanup procedure."
   ],
-  "outstanding_removals": [],
   "unresolved_decisions": [
     "Issue #68: GitHub-managed refs/pull/* server-side dereference/garbage-collection follow-up; not a PHASE-00 project-ref blocker.",
     "Choose a Project Management System or explicitly skip PM integration.",
@@ -28,9 +27,9 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "production_entitlement_hotfix_accepted_subscription_snapshot_preserved",
-  "security_readiness": "cloudflare_live_hotfix_accepted_native_version_rollback_preserved",
-  "last_reconciled_repository_ref": "b2113625242cce4c04c67b12983bbfe062d932c2",
-  "last_reconciled_at": "2026-09-30T08:31:09+00:00",
-  "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance."
+  "qa_readiness": "production_rollback_window_certified_and_closed",
+  "security_readiness": "cloudflare_live_verified_previous_version_retained_after_closure",
+  "last_reconciled_repository_ref": "6fb39e14592d8aec75740385e2b247021690f73f",
+  "last_reconciled_at": "2026-10-01T21:08:53+00:00",
+  "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows."
 }
