@@ -1,6 +1,314 @@
 {
   "schema_version": 1,
-  "modules": [],
+  "modules": [
+    {
+      "id": "MOD-META-CAPABILITY",
+      "name": "Capability and access registry",
+      "objective": "Capability and access registry with verified merchant outcome",
+      "scope": [
+        "Capability and access registry"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [],
+      "option_ids": [
+        "OPT-META-002"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-DEFINITIONS",
+      "name": "Standard and custom definition manager",
+      "objective": "Standard and custom definition manager with verified merchant outcome",
+      "scope": [
+        "Standard and custom definition manager"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-CAPABILITY"
+      ],
+      "option_ids": [
+        "OPT-META-001"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-VALUES",
+      "name": "Typed resource values",
+      "objective": "Typed resource values with verified merchant outcome",
+      "scope": [
+        "Typed resource values"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-DEFINITIONS"
+      ],
+      "option_ids": [
+        "OPT-META-003"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-METAOBJECTS",
+      "name": "Metaobject definitions and entries",
+      "objective": "Metaobject definitions and entries with verified merchant outcome",
+      "scope": [
+        "Metaobject definitions and entries"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-CAPABILITY"
+      ],
+      "option_ids": [
+        "OPT-META-005"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-THEME",
+      "name": "Contextual theme app blocks",
+      "objective": "Contextual theme app blocks with verified merchant outcome",
+      "scope": [
+        "Contextual theme app blocks"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-VALUES"
+      ],
+      "option_ids": [
+        "OPT-META-004"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-BULK",
+      "name": "Bulk value jobs",
+      "objective": "Bulk value jobs with verified merchant outcome",
+      "scope": [
+        "Bulk value jobs"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-VALUES"
+      ],
+      "option_ids": [
+        "OPT-META-006"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    },
+    {
+      "id": "MOD-META-OPERATIONS",
+      "name": "UX, observability and release safety",
+      "objective": "UX, observability and release safety with verified merchant outcome",
+      "scope": [
+        "UX, observability and release safety"
+      ],
+      "boundaries": [
+        "No production mutation or unsupported storefront exposure from planning"
+      ],
+      "dependencies": [
+        "MOD-META-THEME"
+      ],
+      "option_ids": [
+        "OPT-META-001",
+        "OPT-META-004"
+      ],
+      "data_entities": [
+        "Shopify metafield definition/value or app configuration as applicable"
+      ],
+      "contracts": [
+        "Versioned Shopify Admin API and theme extension compatibility"
+      ],
+      "ui_surfaces": [
+        "Embedded app or theme editor as applicable"
+      ],
+      "security_responsibilities": [
+        "Shop authentication, entitlement and least-privilege access"
+      ],
+      "acceptance_criteria": [
+        "Representative staging end-to-end behavior verified",
+        "Existing product values and billing invariants preserved"
+      ],
+      "quality_gates": [
+        "Typecheck/lint/contracts/build",
+        "Relevant accessibility/security/performance checks",
+        "Traceable staging evidence"
+      ],
+      "status": "not_started",
+      "completion_evidence": [],
+      "update_notes": [
+        "Proposed by 2026-10-01 user intake; not implemented"
+      ],
+      "removal_or_deprecation_notes": []
+    }
+  ],
   "status_values": [
     "not_started",
     "ready",
@@ -12,24 +320,5 @@
     "complete",
     "deferred",
     "deprecated"
-  ],
-  "module_template": {
-    "id": "MOD-EXAMPLE",
-    "name": "Example module",
-    "objective": "Coherent product or engineering responsibility.",
-    "scope": [],
-    "boundaries": [],
-    "dependencies": [],
-    "option_ids": [],
-    "data_entities": [],
-    "contracts": [],
-    "ui_surfaces": [],
-    "security_responsibilities": [],
-    "acceptance_criteria": [],
-    "quality_gates": [],
-    "status": "not_started",
-    "completion_evidence": [],
-    "update_notes": [],
-    "removal_or_deprecation_notes": []
-  }
+  ]
 }

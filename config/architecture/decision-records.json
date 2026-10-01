@@ -2,7 +2,104 @@
   "schema_version": 1,
   "status": "active_registry",
   "activation_scope": "child_project",
-  "decisions": [],
+  "decisions": [
+    {
+      "id": "ADR-0001",
+      "title": "Metafield capability and storefront rendering boundary",
+      "status": "proposed",
+      "context": "Broad owner/type support must not imply Liquid access or unsafe public exposure.",
+      "alternatives": [
+        "Hardcode all owner/type combinations",
+        "Versioned capability registry with staging probes and typed Liquid renderers"
+      ],
+      "evidence_refs": [
+        "EVID-000002",
+        "EVID-000003"
+      ],
+      "decision": "Propose registry-driven Admin capabilities and contextual theme app blocks; retain existing stack.",
+      "consequences": [
+        "Unsupported combinations are explicit",
+        "More compatibility maintenance"
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "Avoid public Admin-token access",
+        "Scope expansion reviewed per owner"
+      ],
+      "reversibility": "high",
+      "affected_modules_or_contracts": [
+        "MOD-META-CAPABILITY",
+        "MOD-META-THEME"
+      ],
+      "decided_by": null,
+      "decided_at": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "ADR-0002",
+      "title": "Standard templates and existing custom namespace",
+      "status": "proposed",
+      "context": "The app currently creates custom definitions in vsn_metafields. Standard definitions have Shopify template IDs and reserved namespace/key; existing merchant values must not be rewritten or deleted by a new catalog.",
+      "alternatives": [
+        "Treat standards as ordinary custom definitions in vsn_metafields",
+        "Enable official standard templates separately and retain existing custom definitions in place"
+      ],
+      "evidence_refs": [
+        "EVID-000001",
+        "EVID-000004"
+      ],
+      "decision": "Propose separate standard-template enable flow and custom-definition flow. Preserve vsn_metafields in place. Any namespace migration needs an inventory, per-shop conflict report, value mapping, opt-in/rollback plan and staging evidence before approval.",
+      "consequences": [
+        "No silent migration or duplicate standard key",
+        "Custom namespace remains visible until a later approved migration"
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "Definition deletion and value migration can lose or orphan data",
+        "Owner scopes and storefront access must be verified for each enabled template"
+      ],
+      "reversibility": "medium",
+      "affected_modules_or_contracts": [
+        "MOD-META-DEFINITIONS",
+        "MOD-META-VALUES"
+      ],
+      "decided_by": null,
+      "decided_at": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "ADR-0003",
+      "title": "Theme block source and presentation configuration",
+      "status": "proposed",
+      "context": "Merchants need extensive block customization, while Liquid context, dynamic source compatibility and safe storefront access vary by template and type.",
+      "alternatives": [
+        "A universal block with arbitrary namespace/key and raw value output",
+        "Contextual typed blocks using compatible dynamic sources and bounded presentation controls"
+      ],
+      "evidence_refs": [
+        "EVID-000002",
+        "EVID-000003"
+      ],
+      "decision": "Propose contextual Single Field and Specifications blocks with typed renderers, native dynamic sources when compatible, bounded controls and explicit empty states. Defer any external block configuration service until theme schema limits are verified in two themes.",
+      "consequences": [
+        "Editor exposes only applicable controls",
+        "Theme compatibility and per-type renderer work required"
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "Never expose Admin tokens or protected owner values to Liquid",
+        "Bound list and reference rendering, escape output and verify accessibility/performance"
+      ],
+      "reversibility": "high",
+      "affected_modules_or_contracts": [
+        "MOD-META-THEME",
+        "MOD-META-CAPABILITY"
+      ],
+      "decided_by": null,
+      "decided_at": null,
+      "supersedes": [],
+      "superseded_by": null
+    }
+  ],
   "decision_template": {
     "id": "ADR-0001",
     "title": "",

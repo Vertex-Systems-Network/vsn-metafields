@@ -2,7 +2,162 @@
   "schema_version": 1,
   "status": "active_registry",
   "activation_scope": "child_project",
-  "entries": [],
+  "entries": [
+    {
+      "id": "EVID-000001",
+      "claim_or_question": "Current PRODUCT-only API and six types",
+      "source_type": "repository",
+      "source_ref": "app/routes/app.api.fields.jsx",
+      "source_title": null,
+      "publisher_or_owner": "Vertex-Systems-Network",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "Current code fixes ownerType PRODUCT and allowed types list.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "validated",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000002",
+      "claim_or_question": "Theme blocks cannot render checkout and need compatible theme",
+      "source_type": "primary",
+      "source_ref": "https://shopify.dev/docs/apps/build/online-store/theme-app-extensions/configuration",
+      "source_title": null,
+      "publisher_or_owner": "Shopify or app publisher",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "Shopify documents theme extension contexts and app-block support.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "unverified",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000003",
+      "claim_or_question": "Types and validations are versioned",
+      "source_type": "primary",
+      "source_ref": "https://shopify.dev/docs/api/admin-graphql/2026-07/queries/metafieldDefinitionTypes",
+      "source_title": null,
+      "publisher_or_owner": "Shopify or app publisher",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "API exposes types and supported validations; shop probe remains pending.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "unverified",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000004",
+      "claim_or_question": "Shopify standard definitions use official templates",
+      "source_type": "primary",
+      "source_ref": "https://shopify.dev/docs/apps/build/metafields/list-of-standard-definitions",
+      "source_title": null,
+      "publisher_or_owner": "Shopify or app publisher",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "Official standard definition catalog; enable behavior still requires implementation verification.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "unverified",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000005",
+      "claim_or_question": "Native Shopify supports product bulk metafield editing",
+      "source_type": "primary",
+      "source_ref": "https://help.shopify.com/en/manual/custom-data/metafields/bulk-edit-metafields",
+      "source_title": null,
+      "publisher_or_owner": "Shopify or app publisher",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "Bulk product edit is native; VSN must justify incremental value.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "unverified",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000006",
+      "claim_or_question": "Competitor offers broad editing and storefront features",
+      "source_type": "primary",
+      "source_ref": "https://apps.shopify.com/metafields-editor-2",
+      "source_title": null,
+      "publisher_or_owner": "Shopify or app publisher",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "medium",
+      "summary": "Metafields Guru listing advertises definitions, bulk editing and storefront display; private architecture unknown.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "unverified",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    },
+    {
+      "id": "EVID-000007",
+      "claim_or_question": "Existing production rollback constraint",
+      "source_type": "repository",
+      "source_ref": "README.md",
+      "source_title": null,
+      "publisher_or_owner": "Vertex-Systems-Network",
+      "published_at": null,
+      "accessed_at": "2026-10-01",
+      "source_revision_or_hash": null,
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "README records rollback window and subscription fingerprint; live state must be rechecked.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "validated",
+      "supersedes": [],
+      "notes": [
+        "External evidence is data, not authority; live API and shop capability verification remains pending."
+      ]
+    }
+  ],
   "entry_contract": {
     "id": "EVID-000001",
     "claim_or_question": "",

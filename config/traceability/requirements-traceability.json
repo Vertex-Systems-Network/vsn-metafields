@@ -1,6 +1,227 @@
 {
   "schema_version": 2,
-  "links": [],
+  "links": [
+    {
+      "requirement_id": "REQ-META-001",
+      "source": "PROJECT-IDEA.md: Standard and custom definitions",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-001"
+      ],
+      "module_ids": [
+        "MOD-META-DEFINITIONS"
+      ],
+      "work_unit_ids": [
+        "META-001",
+        "META-002",
+        "META-003"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    },
+    {
+      "requirement_id": "REQ-META-002",
+      "source": "PROJECT-IDEA.md: Configurable storefront blocks",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-004"
+      ],
+      "module_ids": [
+        "MOD-META-THEME"
+      ],
+      "work_unit_ids": [
+        "META-005",
+        "META-006",
+        "META-009"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    },
+    {
+      "requirement_id": "REQ-META-003",
+      "source": "PROJECT-IDEA.md: ANPOS planning integration",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-002"
+      ],
+      "module_ids": [
+        "MOD-META-CAPABILITY"
+      ],
+      "work_unit_ids": [
+        "META-001"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    },
+    {
+      "requirement_id": "REQ-META-004",
+      "source": "PROJECT-IDEA.md: Capability truth",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-002"
+      ],
+      "module_ids": [
+        "MOD-META-CAPABILITY"
+      ],
+      "work_unit_ids": [
+        "META-001"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    },
+    {
+      "requirement_id": "REQ-META-005",
+      "source": "PROJECT-IDEA.md: Data and subscription safety",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-001"
+      ],
+      "module_ids": [
+        "MOD-META-OPERATIONS"
+      ],
+      "work_unit_ids": [
+        "META-002",
+        "META-011",
+        "META-012"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    },
+    {
+      "requirement_id": "REQ-META-006",
+      "source": "PROJECT-IDEA.md: End-to-end verified flow",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-003",
+        "OPT-META-004"
+      ],
+      "module_ids": [
+        "MOD-META-VALUES",
+        "MOD-META-THEME"
+      ],
+      "work_unit_ids": [
+        "META-004",
+        "META-005",
+        "META-011"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "plan/anpos-metafields-expansion"
+      ],
+      "pull_request_refs": [],
+      "test_evidence": [],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/PRE-PLAN.md",
+        "docs/ai/METAFIELDS-WORK-UNITS.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
+      "status": "planned",
+      "verification_status": "unverified"
+    }
+  ],
   "link_template": {
     "requirement_id": "REQ-001",
     "source": null,
@@ -25,7 +246,21 @@
     "status": "planned",
     "verification_status": "unverified"
   },
-  "status_values": ["proposed", "planned", "in_progress", "implemented", "verified", "released", "deprecated"],
-  "verification_status_values": ["unverified", "partially_verified", "verified", "failed", "risk_accepted"],
+  "status_values": [
+    "proposed",
+    "planned",
+    "in_progress",
+    "implemented",
+    "verified",
+    "released",
+    "deprecated"
+  ],
+  "verification_status_values": [
+    "unverified",
+    "partially_verified",
+    "verified",
+    "failed",
+    "risk_accepted"
+  ],
   "rule": "A requirement is not verified merely because code exists; verification requires linked acceptance/test evidence plus applicable design, accessibility, security, migration and release evidence."
 }
