@@ -1,6 +1,6 @@
 # Shopify metafield capability matrix — planning evidence
 
-Reference API: repository config uses Admin GraphQL 2026-07. Shopify currently labels 2026-07 as latest. Source: https://shopify.dev/docs/api/admin-graphql/2026-07/enums/MetafieldOwnerType (accessed 2026-10-01). This is a documentation inventory, **not a shop-level probe**. Definition support, scopes, value access and Liquid storefront availability require verification per owner.
+Reference API: repository config uses Admin GraphQL 2026-07. The app remains pinned to 2026-07; do not follow the moving latest alias. Source: https://shopify.dev/docs/api/admin-graphql/2026-07/enums/MetafieldOwnerType (accessed 2026-10-01). This is a documentation inventory, **not a shop-level probe**. Definition support, scopes, value access and Liquid storefront availability require verification per owner.
 
 ## Owner inventory
 
@@ -36,7 +36,7 @@ GraphQL stores values as strings regardless of type; renderer must use typed Liq
 
 ## Standard versus custom
 
-Use Shopify standard template IDs and official enable flow, not a duplicate custom namespace/key. Source: https://shopify.dev/docs/apps/build/metafields/list-of-standard-definitions and https://shopify.dev/docs/apps/build/metafields/definitions. Custom namespace strategy and existing `vsn_metafields` migration remain proposed ADR work.
+Use Shopify standard template IDs and official enable flow, not a duplicate custom namespace/key. Source: https://shopify.dev/docs/apps/build/metafields/list-of-standard-definitions and https://shopify.dev/docs/apps/build/metafields/definitions. The implemented namespace/access decision is in `docs/adr/0006-metafield-definition-ownership.md`. Existing `vsn_metafields` data remains in place.
 
 ## Block eligibility decision
 

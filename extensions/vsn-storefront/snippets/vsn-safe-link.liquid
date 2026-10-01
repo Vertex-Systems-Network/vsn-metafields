@@ -1,0 +1,13 @@
+{%- liquid
+  assign url = destination | strip
+  assign protocol = url | slice: 0, 8
+  assign first_char = url | slice: 0, 1
+  assign first_two = url | slice: 0, 2
+  assign allowed = false
+  if protocol == 'https://'
+    assign allowed = true
+  elsif first_char == '/' and first_two != '//'
+    assign allowed = true
+  endif
+-%}
+{%- if allowed -%}<a href="{{ url | escape }}"{% if settings.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ caption | default: url | escape }}</a>{%- endif -%}

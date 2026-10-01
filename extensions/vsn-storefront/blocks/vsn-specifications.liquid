@@ -1,0 +1,544 @@
+{%- liquid
+  assign product_owner = block.settings.source_product | default: product
+  assign collection_owner = block.settings.source_collection | default: collection
+  assign source = block.settings.source
+  assign owner = nil
+  assign track_variant = false
+  if request.page_type == 'product' and product_owner.id == product.id
+    assign track_variant = true
+  endif
+  if source == 'auto'
+    case request.page_type
+      when 'product'
+        assign owner = product_owner
+      when 'collection'
+        assign owner = collection_owner
+      when 'article'
+        assign owner = article
+      when 'blog'
+        assign owner = blog
+      when 'page'
+        assign owner = page
+      else
+        assign owner = shop
+    endcase
+  else
+    case source
+      when 'product'
+        assign owner = product_owner
+      when 'variant'
+        assign owner = product_owner.selected_or_first_available_variant
+      when 'collection'
+        assign owner = collection_owner
+      when 'shop'
+        assign owner = shop
+      when 'article'
+        assign owner = article
+      when 'blog'
+        assign owner = blog
+      when 'page'
+        assign owner = page
+    endcase
+  endif
+-%}
+{%- capture rows -%}
+{%- for index in (1..5) -%}
+  {%- liquid
+    assign key_setting = 'key_' | append: index
+    assign label_setting = 'label_' | append: index
+    assign field_identity = block.settings[key_setting] | split: '.'
+    assign field_namespace = block.settings.namespace
+    assign field_key = field_identity | first
+    if field_identity.size > 1
+      assign field_namespace = field_identity | first
+      assign field_key = field_identity | last
+    endif
+    assign field = owner.metafields[field_namespace][field_key]
+  -%}
+  {%- capture value_output -%}{%- render 'vsn-field-value', field: field, settings: block.settings -%}{%- endcapture -%}
+  {%- if field_key != blank -%}
+    {%- if value_output != blank or block.settings.hide_empty == false -%}
+      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | escape }}{% endif %}</dd></div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- endcapture -%}
+{%- if rows != blank or block.settings.fallback != blank or request.design_mode or source == 'variant' -%}
+<div id="vsn-{{ block.id }}" class="vsn-metafield-block vsn-metafield-block--{{ block.settings.layout }} vsn-visibility--{{ block.settings.visibility }}" data-vsn-block data-vsn-track="{{ track_variant }}" data-vsn-source="{{ source }}" data-vsn-section="{{ section.id }}" data-vsn-product="{{ product_owner.id }}" data-vsn-variant="{{ product_owner.selected_or_first_available_variant.id }}" style="{% render 'vsn-block-style', settings: block.settings %}" {{ block.shopify_attributes }} data-vsn-columns="{{ block.settings.columns }}" {% if rows == blank and block.settings.fallback == blank and request.design_mode == false %}hidden{% endif %}>
+  {% if block.settings.heading != blank %}<h2 class="vsn-metafield-block__label">{{ block.settings.heading | escape }}</h2>{% endif %}
+  {% if rows != blank %}<dl class="vsn-metafield-block__rows vsn-metafield-block__value">{{ rows }}</dl>
+  {% elsif block.settings.fallback != blank %}{{ block.settings.fallback | escape }}
+  {% elsif request.design_mode %}Add field keys in display order; use namespace.key to mix namespaces. Empty or private fields are hidden.{% endif %}
+</div>
+{%- endif -%}
+{% schema %}
+{
+  "name": "Specifications",
+  "target": "section",
+  "stylesheet": "vsn-metafields.css",
+  "javascript": "vsn-metafields.js",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Data source"
+    },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Resource",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Current page"
+        },
+        {
+          "value": "product",
+          "label": "Product"
+        },
+        {
+          "value": "variant",
+          "label": "Selected product variant"
+        },
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "shop",
+          "label": "Shop"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        },
+        {
+          "value": "article",
+          "label": "Article"
+        },
+        {
+          "value": "blog",
+          "label": "Blog"
+        }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "product",
+      "id": "source_product",
+      "label": "Product override"
+    },
+    {
+      "type": "collection",
+      "id": "source_collection",
+      "label": "Collection override"
+    },
+    {
+      "type": "text",
+      "id": "namespace",
+      "label": "Default namespace",
+      "default": "vsn_metafields"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Specifications"
+    },
+    {
+      "type": "text",
+      "id": "key_1",
+      "label": "Field 1 key or namespace.key"
+    },
+    {
+      "type": "text",
+      "id": "label_1",
+      "label": "Field 1 label"
+    },
+    {
+      "type": "text",
+      "id": "key_2",
+      "label": "Field 2 key or namespace.key"
+    },
+    {
+      "type": "text",
+      "id": "label_2",
+      "label": "Field 2 label"
+    },
+    {
+      "type": "text",
+      "id": "key_3",
+      "label": "Field 3 key or namespace.key"
+    },
+    {
+      "type": "text",
+      "id": "label_3",
+      "label": "Field 3 label"
+    },
+    {
+      "type": "text",
+      "id": "key_4",
+      "label": "Field 4 key or namespace.key"
+    },
+    {
+      "type": "text",
+      "id": "label_4",
+      "label": "Field 4 label"
+    },
+    {
+      "type": "text",
+      "id": "key_5",
+      "label": "Field 5 key or namespace.key"
+    },
+    {
+      "type": "text",
+      "id": "label_5",
+      "label": "Field 5 label"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_empty",
+      "label": "Hide empty rows",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty row text",
+      "default": "\u2014"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "rows",
+          "label": "Rows"
+        },
+        {
+          "value": "table",
+          "label": "Table style"
+        },
+        {
+          "value": "cards",
+          "label": "Cards"
+        }
+      ],
+      "default": "rows"
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Card columns",
+      "options": [
+        {
+          "value": "1",
+          "label": "One"
+        },
+        {
+          "value": "2",
+          "label": "Two"
+        },
+        {
+          "value": "3",
+          "label": "Three"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "width",
+      "label": "Maximum width",
+      "min": 300,
+      "max": 1200,
+      "step": 50,
+      "default": 1200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Desktop padding",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Mobile padding",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top space",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom space",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Value size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_size",
+      "label": "Mobile value size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "label_weight",
+      "label": "Label weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "header",
+      "content": "Color and border"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Value color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "default": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Value format"
+    },
+    {
+      "type": "text",
+      "id": "true_text",
+      "label": "True label",
+      "default": "Yes"
+    },
+    {
+      "type": "text",
+      "id": "false_text",
+      "label": "False label",
+      "default": "No"
+    },
+    {
+      "type": "select",
+      "id": "date_format",
+      "label": "Date format",
+      "options": [
+        {
+          "value": "%b %d, %Y",
+          "label": "Oct 2, 2026"
+        },
+        {
+          "value": "%Y-%m-%d",
+          "label": "2026-10-02"
+        },
+        {
+          "value": "%d/%m/%Y",
+          "label": "02/10/2026"
+        }
+      ],
+      "default": "%b %d, %Y"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link label",
+      "default": "Learn more"
+    },
+    {
+      "type": "checkbox",
+      "id": "new_tab",
+      "label": "Open links in new tab",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "list_style",
+      "label": "List layout",
+      "options": [
+        {
+          "value": "bullets",
+          "label": "Bullets"
+        },
+        {
+          "value": "inline",
+          "label": "Inline"
+        },
+        {
+          "value": "plain",
+          "label": "Stacked"
+        }
+      ],
+      "default": "bullets"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Media width",
+      "min": 100,
+      "max": 800,
+      "step": 50,
+      "default": 400,
+      "unit": "px"
+    },
+    {
+      "type": "text",
+      "id": "fallback",
+      "label": "Text when no value is available"
+    },
+    {
+      "type": "select",
+      "id": "visibility",
+      "label": "Device visibility",
+      "options": [
+        {
+          "value": "all",
+          "label": "All devices"
+        },
+        {
+          "value": "desktop",
+          "label": "Desktop only"
+        },
+        {
+          "value": "mobile",
+          "label": "Mobile only"
+        }
+      ],
+      "default": "all"
+    }
+  ]
+}
+{% endschema %}

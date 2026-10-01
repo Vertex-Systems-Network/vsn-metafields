@@ -1,323 +1,62 @@
 import { authenticate } from "../shopify.server";
+import { hasActivePlan } from "../active-plan.server";
+import { requireOwnerType, storefrontAccess } from "../metafield-capabilities.js";
+import { getDefinitions, getCapabilities, createDefinition, updateDefinition } from "../definitions.server.js";
+import { getStandardTemplates, enableStandardTemplate } from "../standard-definitions.server.js";
+import { removeDefinition } from "../definition-removal.server.js";
 
 const NAMESPACE = "vsn_metafields";
-const RESET_CONFIRMATION = "RESET_VSN_METAFIELDS";
-const ALLOWED_TYPES = new Set([
-  "single_line_text_field",
-  "multi_line_text_field",
-  "number_integer",
-  "date",
-  "boolean",
-  "url",
-]);
-
-async function getVsnMetafieldDefinitions(admin) {
-  const definitions = [];
-  let after = null;
-  let hasNextPage = true;
-
-  while (hasNextPage) {
-    const res = await admin.graphql(
-      `#graphql
-      query GetMetafieldDefinitions($after: String) {
-        metafieldDefinitions(first: 100, after: $after, ownerType: PRODUCT) {
-          nodes {
-            id
-            name
-            key
-            namespace
-            type {
-              name
-            }
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-        }
-      }`,
-      { variables: { after } }
-    );
-
-    const data = await res.json();
-
-    if (data?.errors?.length) {
-      throw new Error(
-        data.errors[0]?.message || "Failed to fetch metafield definitions."
-      );
-    }
-
-    const connection = data?.data?.metafieldDefinitions;
-    definitions.push(...(connection?.nodes || []));
-
-    hasNextPage = Boolean(connection?.pageInfo?.hasNextPage);
-    after = connection?.pageInfo?.endCursor || null;
-  }
-
-  return definitions
-    .filter((field) => field.namespace === NAMESPACE)
-    .map((field) => ({
-      id: field.id,
-      name: field.name,
-      key: field.key,
-      namespace: field.namespace,
-      type: field.type?.name,
-    }));
-}
-
+const failure = (error, status = 400, ownerType) => Response.json({ ok: false, success: false, fields: [], ownerType, error }, { status });
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
+  let ownerType;
   try {
-    const fields = await getVsnMetafieldDefinitions(admin);
-
-    return Response.json({
-      ok: true,
-      fields,
-    });
-  } catch (error) {
-    return Response.json(
-      {
-        ok: false,
-        fields: [],
-        error: error?.message || "Failed to load fields.",
-      },
-      { status: 500 }
-    );
-  }
+    if (!(await hasActivePlan(admin))) return failure("An active plan is required.", 403);
+    const params = new URL(request.url).searchParams;
+    ownerType = requireOwnerType(params.get("ownerType"));
+    if (params.get("catalog") === "standard") {
+      const [templates, fields] = await Promise.all([getStandardTemplates(admin, ownerType), getDefinitions(admin, ownerType)]);
+      const existing = new Set(fields.map(field => `${field.namespace}.${field.key}`));
+      return Response.json({ ok: true, ownerType, templates: templates.map(item => ({ ...item, type: item.type?.name, enabled: existing.has(`${item.namespace}.${item.key}`) })) });
+    }
+    const capabilities = await getCapabilities(admin, ownerType);
+    return Response.json({ ok: true, ownerType, ...capabilities });
+  } catch (error) { return failure(error.message || "Definitions are unavailable for this owner. Check app permissions.", error instanceof RangeError ? 400 : 502, ownerType); }
 };
-
 export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
-  if (request.method.toUpperCase() !== "POST") {
-    return Response.json(
-      {
-        ok: false,
-        success: false,
-        error: "Method not allowed.",
-      },
-      {
-        status: 405,
-        headers: { Allow: "POST" },
-      }
-    );
-  }
-
+  if (request.method.toUpperCase() !== "POST") return Response.json({ ok: false, error: "Method not allowed." }, { status: 405, headers: { Allow: "POST" } });
+  let ownerType;
   try {
-    const formData = await request.formData();
-    const actionType = String(formData.get("actionType") || "create");
-
-    if (actionType === "reset") {
-      if (formData.get("confirm") !== RESET_CONFIRMATION) {
-        return Response.json(
-          {
-            ok: false,
-            success: false,
-            error: "Reset confirmation is required.",
-          },
-          { status: 400 }
-        );
-      }
-
-      const fields = await getVsnMetafieldDefinitions(admin);
+    if (!(await hasActivePlan(admin))) return failure("An active plan is required.", 403);
+    const form = await request.formData();
+    ownerType = requireOwnerType(form.get("ownerType"));
+    const command = String(form.get("actionType") || "create");
+    const input = Object.fromEntries(form.entries());
+    let result;
+    if (command === "create") result = await createDefinition(admin, ownerType, input);
+    else if (command === "enable-standard") {
+      const templates = await getStandardTemplates(admin, ownerType);
+      const access = storefrontAccess(ownerType, String(form.get("storefront") || "NONE"));
+      result = await enableStandardTemplate(admin, templates, ownerType, String(form.get("templateId") || ""), access);
+    } else if (command === "update") result = await updateDefinition(admin, ownerType, await getDefinitions(admin, ownerType), input);
+    else if (command === "delete") {
+      const fields = await getDefinitions(admin, ownerType);
+      const selected = fields.find(field => field.id === input.id && field.namespace === input.namespace && field.key === input.key && field.editable);
+      if (!selected || input.confirm !== `DELETE_DEFINITION:${ownerType}:${selected.namespace}:${selected.key}`) return failure("Confirm the selected definition identity.");
+      result = await removeDefinition(admin, [selected], input);
+    } else if (command === "reset") {
+      if (input.confirm !== `RESET_VSN_METAFIELDS:${ownerType}`) return failure("Reset confirmation is required.");
+      const fields = (await getDefinitions(admin, ownerType)).filter(field => field.namespace === NAMESPACE);
       let deletedCount = 0;
-      const deleteErrors = [];
-
       for (const field of fields) {
-        const deleteRes = await admin.graphql(
-          `#graphql
-          mutation DeleteMetafieldDefinition($id: ID!) {
-            metafieldDefinitionDelete(
-              id: $id
-              deleteAllAssociatedMetafields: false
-            ) {
-              deletedDefinitionId
-              userErrors {
-                field
-                message
-              }
-            }
-          }`,
-          {
-            variables: {
-              id: field.id,
-            },
-          }
-        );
-
-        const deleteData = await deleteRes.json();
-
-        if (deleteData?.errors?.length) {
-          deleteErrors.push(
-            deleteData.errors[0]?.message || "Delete GraphQL error."
-          );
-          continue;
-        }
-
-        const userErrors =
-          deleteData?.data?.metafieldDefinitionDelete?.userErrors || [];
-
-        if (userErrors.length > 0) {
-          deleteErrors.push(userErrors[0]?.message || "Delete user error.");
-          continue;
-        }
-
+        const removed = await removeDefinition(admin, [field], field);
+        if (!removed.ok) return failure(`${deletedCount} removed before failure: ${removed.error}`);
         deletedCount++;
       }
-
-      if (deleteErrors.length > 0) {
-        return Response.json(
-          {
-            ok: false,
-            success: false,
-            deletedCount,
-            failedCount: deleteErrors.length,
-            error: deleteErrors[0],
-          },
-          { status: 400 }
-        );
-      }
-
-      return Response.json({
-        ok: true,
-        success: true,
-        message: `${deletedCount} metafield definition(s) deleted.`,
-      });
-    }
-
-    if (actionType !== "create") {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: "Unknown actionType.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const name = formData.get("name");
-    const key = formData.get("key");
-    const type = String(formData.get("type") || "");
-
-    if (!name || !key || !type) {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: "Missing fields.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const cleanName = String(name).trim();
-    const cleanKey = String(key)
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
-
-    if (!cleanName || !cleanKey) {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: "Invalid field name or key.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!ALLOWED_TYPES.has(type)) {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: "Unsupported metafield type.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const mutation = await admin.graphql(
-      `#graphql
-      mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
-        metafieldDefinitionCreate(definition: $definition) {
-          createdDefinition {
-            id
-            name
-            namespace
-            key
-            type {
-              name
-            }
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }`,
-      {
-        variables: {
-          definition: {
-            name: cleanName,
-            key: cleanKey,
-            namespace: NAMESPACE,
-            type,
-            ownerType: "PRODUCT",
-            pin: true,
-            access: {
-              storefront: "PUBLIC_READ",
-            },
-          },
-        },
-      }
-    );
-
-    const result = await mutation.json();
-
-    if (result?.errors?.length) {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: result.errors[0]?.message || "Create GraphQL error.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const userErrors =
-      result?.data?.metafieldDefinitionCreate?.userErrors || [];
-
-    if (userErrors.length > 0) {
-      return Response.json(
-        {
-          ok: false,
-          success: false,
-          error: userErrors[0]?.message || "Failed to create metafield.",
-        },
-        { status: 400 }
-      );
-    }
-
-    return Response.json({
-      ok: true,
-      success: true,
-      message: "Metafield created successfully.",
-      metafield: result?.data?.metafieldDefinitionCreate?.createdDefinition,
-    });
-  } catch (error) {
-    return Response.json(
-      {
-        ok: false,
-        success: false,
-        error: error?.message || "Fields action failed.",
-      },
-      { status: 500 }
-    );
-  }
+      result = { ok: true, deletedCount };
+    } else return failure("Unknown actionType.");
+    if (!result.ok) return failure(result.error);
+    return Response.json({ ...result, ok: true, success: true, ownerType, message: command === "delete" || command === "reset" ? "Definition removed; existing values retained." : "Definition saved." });
+  } catch (error) { return failure(error.message || "Definition action failed.", error instanceof RangeError ? 400 : 502, ownerType); }
 };

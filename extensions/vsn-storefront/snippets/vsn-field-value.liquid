@@ -1,0 +1,20 @@
+{%- liquid
+  assign type = field.type
+  assign value = field.value
+  assign base_type = type | remove: 'list.'
+  assign prefix = type | slice: 0, 5
+-%}
+{%- if prefix == 'list.' -%}
+  {%- if value != blank -%}
+  {%- capture list_items -%}
+    {%- for item in value limit: 50 -%}
+      {%- capture item_output -%}{%- render 'vsn-value-item', value: item, type: base_type, settings: settings -%}{%- endcapture -%}
+      {%- if item_output != blank -%}<li>{{ item_output }}</li>{%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- if list_items != blank -%}<ul class="vsn-value-list vsn-value-list--{{ settings.list_style }}">{{ list_items }}</ul>{%- endif -%}
+  {%- endif -%}
+{%- elsif value != blank or type == 'boolean' -%}
+  {%- if type == 'rich_text_field' -%}{{ field | metafield_tag }}
+  {%- else -%}{%- render 'vsn-value-item', value: value, type: type, settings: settings -%}{%- endif -%}
+{%- endif -%}

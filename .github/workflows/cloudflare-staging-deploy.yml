@@ -320,3 +320,8 @@ jobs:
       - name: Remove ephemeral secrets file
         if: always()
         run: rm -f /tmp/vsn-metafields-staging-secrets.json
+
+      - name: Metafield batch staging lifecycle and retained-value acceptance
+        env:
+          STAGING_SHOP: ${{ steps.staging-shop.outputs.shop }}
+        run: node scripts/metafields/staging-probe.mjs
