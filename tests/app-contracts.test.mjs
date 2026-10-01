@@ -982,6 +982,13 @@ test("production rollback window closure is time-gated and evidence-based", () =
   assert.match(workflow, /wrangler@4\.141\.0 versions view/);
   assert.match(workflow, /ROLLBACK_VERSION_ID/);
   assert.match(workflow, /audit-production-subscriptions\.mjs/);
+  assert.match(workflow, /SHOPIFY_API_SECRET: \$\{\{ secrets\.SHOPIFY_API_SECRET \}\}/);
+  assert.match(workflow, /Refresh expiring production offline Shopify credentials/);
+  assert.ok(
+    workflow.indexOf("refresh-production-offline-tokens.mjs") <
+      workflow.indexOf("audit-production-subscriptions.mjs"),
+    "Offline tokens must be refreshed and verified before subscription audit."
+  );
   assert.match(workflow, /audit-production-session-readiness\.mjs/);
   assert.match(workflow, /production_rollback_window_certification=pass/);
   assert.match(workflow, /production_rollback_window_closure_eligible=true/);

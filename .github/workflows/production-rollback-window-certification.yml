@@ -24,6 +24,8 @@ jobs:
     env:
       CI: "true"
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_API_KEY: f5266ba8dba403005deb695fedad053a
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: f63cf3af0868a5c8a0b26ebee5dd039f
 
@@ -44,16 +46,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "${DATABASE_URL:-}" ]; then
-            echo "Missing required cloudflare-production environment secret: DATABASE_URL" >&2
-            exit 1
-          fi
+          for name in DATABASE_URL SHOPIFY_API_SECRET; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required cloudflare-production environment secret: $name" >&2
+              exit 1
+            fi
+          done
 
           python - <<'PY'
           import json
           import os
           from datetime import datetime, timezone
           from pathlib import Path
+          from urllib.parse import urlparse
 
           policy = json.loads(
               Path("config/cloudflare/production-cutover.json").read_text(encoding="utf-8")
@@ -65,11 +70,23 @@ jobs:
           worker = policy.get("production_worker") or {}
           runtime_update = policy.get("runtime_update")
 
+          production_endpoint = (policy.get("database") or {}).get("production_endpoint_id")
+          database_host = urlparse(os.environ["DATABASE_URL"]).hostname or ""
+          if (not production_endpoint or not database_host.endswith(".neon.tech") or
+              database_host.split(".", 1)[0].removesuffix("-pooler") != production_endpoint or
+              "-pooler." not in database_host):
+              raise SystemExit("Certification DATABASE_URL does not point to the certified production Neon endpoint.")
+
           if runtime_update is not None:
               if runtime_update.get("status") != "accepted" or runtime_update.get("accepted") is not True:
                   raise SystemExit(
                       "Rollback-window closure is blocked while a production runtime hotfix is pending acceptance."
                   )
+              if runtime_update.get("session_credential_refresh_allowed") is not True:
+                  raise SystemExit("Production Session credential refresh is not authorized.")
+              permitted_fields = set(runtime_update.get("session_credential_refresh_fields") or [])
+              if permitted_fields != {"accessToken", "expires", "refreshToken", "refreshTokenExpires", "scope"}:
+                  raise SystemExit("Production Session credential refresh field policy drifted.")
 
           if policy.get("status") != "released_post_cutover_verified":
               raise SystemExit("Production cutover is not in the verified released state.")
@@ -141,6 +158,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Refresh expiring production offline Shopify credentials
+        run: node scripts/database/refresh-production-offline-tokens.mjs
 
       - name: Verify Cloudflare live Worker health and certified runtime source
         shell: bash
