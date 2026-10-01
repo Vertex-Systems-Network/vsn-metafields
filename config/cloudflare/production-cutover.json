@@ -70,15 +70,15 @@
     "keep_railway_available": false,
     "prepared_workflow": "cloudflare-production-version-rollback.yml",
     "window": {
-      "status": "active",
+      "status": "closed",
       "opened_at": "2026-09-30T08:31:09Z",
       "minimum_hours": 24,
       "earliest_close_at": "2026-10-01T08:31:09Z",
       "certification_workflow": "production-rollback-window-certification.yml",
-      "closure_authorized": false,
-      "certification_run_id": null,
-      "certified_at": null,
-      "closed_at": null,
+      "closure_authorized": true,
+      "certification_run_id": 36926166869,
+      "certified_at": "2026-10-01T21:05:13Z",
+      "closed_at": "2026-10-01T21:08:53Z",
       "criteria": {
         "cloudflare_health_and_source_sha": true,
         "billing_metadata_55_usd_5_day_trial": true,
@@ -92,7 +92,9 @@
       },
       "reset_at": "2026-09-30T08:31:09Z",
       "reset_run_id": 36690095989,
-      "reset_reason": "production_runtime_entitlement_hotfix_accepted"
+      "reset_reason": "production_runtime_entitlement_hotfix_accepted",
+      "cloudflare_rollback_version_cleanup_performed": false,
+      "supabase_cleanup_performed": false
     },
     "strategy": "cloudflare_worker_version",
     "cloudflare_rollback_version_id": "8a0d51eb-74d4-4041-8216-89aef63e1a52",

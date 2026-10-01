@@ -948,7 +948,7 @@ test("production rollback window closure is time-gated and evidence-based", () =
     rollback.cloudflare_rollback_version_id,
     "8a0d51eb-74d4-4041-8216-89aef63e1a52"
   );
-  assert.equal(window.status, "active");
+  assert.equal(window.status, "closed");
   assert.equal(window.opened_at, "2026-09-30T08:31:09Z");
   assert.equal(window.minimum_hours, 24);
   assert.equal(window.earliest_close_at, "2026-10-01T08:31:09Z");
@@ -956,10 +956,12 @@ test("production rollback window closure is time-gated and evidence-based", () =
     window.certification_workflow,
     "production-rollback-window-certification.yml"
   );
-  assert.equal(window.closure_authorized, false);
-  assert.equal(window.certification_run_id, null);
-  assert.equal(window.certified_at, null);
-  assert.equal(window.closed_at, null);
+  assert.equal(window.closure_authorized, true);
+  assert.equal(window.certification_run_id, 36926166869);
+  assert.ok(Date.parse(window.certified_at) >= Date.parse(window.earliest_close_at));
+  assert.ok(Date.parse(window.closed_at) >= Date.parse(window.certified_at));
+  assert.equal(window.cloudflare_rollback_version_cleanup_performed, false);
+  assert.equal(window.supabase_cleanup_performed, false);
   assert.equal(window.reset_at, "2026-09-30T08:31:09Z");
   assert.equal(window.reset_run_id, 36690095989);
   assert.equal(window.reset_reason, "production_runtime_entitlement_hotfix_accepted");

@@ -344,7 +344,7 @@ def main() -> int:
 
     rollback_window = rollback_policy.get("window")
     require(isinstance(rollback_window, dict), "rollback window policy missing")
-    require(rollback_window.get("status") == "active", "rollback window must remain active until certified closure")
+    require(rollback_window.get("status") in {"active", "closed"}, "rollback window status invalid")
     require(rollback_window.get("opened_at") == "2026-09-30T08:31:09Z", "rollback window open time drifted")
     require(rollback_window.get("minimum_hours") == 24, "rollback window minimum duration must remain 24 hours")
     require(rollback_window.get("earliest_close_at") == "2026-10-01T08:31:09Z", "rollback window earliest close time drifted")
@@ -352,10 +352,23 @@ def main() -> int:
         rollback_window.get("certification_workflow") == "production-rollback-window-certification.yml",
         "rollback window certification workflow drifted",
     )
-    require(rollback_window.get("closure_authorized") is False, "rollback-window closure must remain unauthorized before certification")
-    require(rollback_window.get("certification_run_id") is None, "rollback-window certification run must remain unset while active")
-    require(rollback_window.get("certified_at") is None, "rollback-window certification time must remain unset while active")
-    require(rollback_window.get("closed_at") is None, "rollback window must not be marked closed before certification")
+    if rollback_window["status"] == "active":
+        require(rollback_window.get("closure_authorized") is False, "rollback-window closure must remain unauthorized before certification")
+        require(rollback_window.get("certification_run_id") is None, "rollback-window certification run must remain unset while active")
+        require(rollback_window.get("certified_at") is None, "rollback-window certification time must remain unset while active")
+        require(rollback_window.get("closed_at") is None, "rollback window must not be marked closed before certification")
+    else:
+        from datetime import datetime, timezone
+
+        require(rollback_window.get("closure_authorized") is True, "certified closure must be authorized")
+        require(rollback_window.get("certification_run_id") == 36926166869, "certification evidence drifted")
+        certified = datetime.fromisoformat(rollback_window["certified_at"].replace("Z", "+00:00"))
+        closed = datetime.fromisoformat(rollback_window["closed_at"].replace("Z", "+00:00"))
+        earliest = datetime.fromisoformat(rollback_window["earliest_close_at"].replace("Z", "+00:00"))
+        require(certified.tzinfo is not None and closed.tzinfo is not None, "closure times must include UTC offset")
+        require(earliest <= certified <= closed <= datetime.now(timezone.utc), "rollback closure chronology invalid")
+        require(rollback_window.get("cloudflare_rollback_version_cleanup_performed") is False, "rollback version deletion is not certified")
+        require(rollback_window.get("supabase_cleanup_performed") is False, "Supabase deletion is not certified")
     require(rollback_window.get("reset_at") == "2026-09-30T08:31:09Z", "rollback window reset time drifted")
     require(rollback_window.get("reset_run_id") == 36690095989, "rollback window reset run drifted")
     require(rollback_window.get("reset_reason") == "production_runtime_entitlement_hotfix_accepted", "rollback window reset reason drifted")
