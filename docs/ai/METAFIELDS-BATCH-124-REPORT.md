@@ -27,3 +27,7 @@ Source: feature/metafield-capability-definition-blocks, based on development 794
 - Advanced value editors, type/data migrations, metaobject/taxonomy renderers and bulk/CSV remain later work. Basic existing value editing supports product/variant/collection and six scalar types.
 
 Acceptance status: implementation prepared; staging/theme verification required. Update this record with actual PR/CI/staging results rather than marking all blueprint tasks complete.
+
+## Publication and remote checks
+
+PR #153 targets development. Initial published commit f3199805247c019231d9e98d6e6fd1b22c50ff41 passed App Validation run 36934316343 and ANPOS repository-integrity run 36934316366. Development requires zero approving reviews and successful checks; no ruleset was changed. Follow-up adds development-only staging extension version/release automation and includes the value-read query in authenticated schema validation. Staging acceptance is still pending actual runs.

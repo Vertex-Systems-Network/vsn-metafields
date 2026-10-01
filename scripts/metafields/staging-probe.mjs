@@ -19,7 +19,8 @@ const report={apiVersion:METAFIELD_API_VERSION,ok:false,sourceSha:process.env.GI
 let admin;
 const must=(result,label)=>{if(!result?.ok)throw new Error(`${label}: ${result?.error||'Unconfirmed result'}`);return result;};
 async function mutation(query,variables,payload){const data=await graph(admin,query,variables);if(data[payload]?.userErrors?.length)throw new Error(`${payload}: ${data[payload].userErrors[0].message}`);return data[payload];}
-async function readValue(ownerId,namespace,key){const data=await graph(admin,`query ProbeValue($id: ID!, $namespace: String!, $key: String!) { node(id:$id) { ... on Product { metafield(namespace:$namespace,key:$key){value} } ... on ProductVariant { metafield(namespace:$namespace,key:$key){value} } ... on Collection { metafield(namespace:$namespace,key:$key){value} } } }`,{id:ownerId,namespace,key});return data.node?.metafield?.value;}
+async function readValue(ownerId,namespace,key){const data=await graph(admin,`#graphql
+query ProbeValue($id: ID!, $namespace: String!, $key: String!) { node(id:$id) { ... on Product { metafield(namespace:$namespace,key:$key){value} } ... on ProductVariant { metafield(namespace:$namespace,key:$key){value} } ... on Collection { metafield(namespace:$namespace,key:$key){value} } } }`,{id:ownerId,namespace,key});return data.node?.metafield?.value;}
 try{
  const session=await prisma.session.findFirst({where:{shop:STAGING_SHOP,isOnline:false}});
  if(!session?.accessToken)throw new Error('Staging offline session unavailable.');
