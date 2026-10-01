@@ -1,7 +1,345 @@
 {
   "schema_version": 1,
-  "phases": [],
-  "work_units": [],
+  "phases": [
+    {
+      "id": "META-PHASE-01",
+      "name": "Capability and definition foundation",
+      "objective": "Capability and definition foundation",
+      "module_ids": [
+        "MOD-META-CAPABILITY",
+        "MOD-META-DEFINITIONS"
+      ],
+      "dependencies": [],
+      "status": "not_started",
+      "exit_criteria": [
+        "Requirements and acceptance evidence linked",
+        "Relevant staging verification complete"
+      ]
+    },
+    {
+      "id": "META-PHASE-02",
+      "name": "Values and initial storefront blocks",
+      "objective": "Values and initial storefront blocks",
+      "module_ids": [
+        "MOD-META-VALUES",
+        "MOD-META-THEME"
+      ],
+      "dependencies": [
+        "META-PHASE-01"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Requirements and acceptance evidence linked",
+        "Relevant staging verification complete"
+      ]
+    },
+    {
+      "id": "META-PHASE-03",
+      "name": "Metaobjects and bulk workflows",
+      "objective": "Metaobjects and bulk workflows",
+      "module_ids": [
+        "MOD-META-METAOBJECTS",
+        "MOD-META-BULK"
+      ],
+      "dependencies": [
+        "META-PHASE-02"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Requirements and acceptance evidence linked",
+        "Relevant staging verification complete"
+      ]
+    },
+    {
+      "id": "META-PHASE-04",
+      "name": "Operations and release assurance",
+      "objective": "Operations and release assurance",
+      "module_ids": [
+        "MOD-META-OPERATIONS"
+      ],
+      "dependencies": [
+        "META-PHASE-03"
+      ],
+      "status": "not_started",
+      "exit_criteria": [
+        "Requirements and acceptance evidence linked",
+        "Relevant staging verification complete"
+      ]
+    }
+  ],
+  "work_units": [
+    {
+      "id": "META-001",
+      "phase_id": "META-PHASE-01",
+      "module_id": "MOD-META-CAPABILITY",
+      "title": "Pin API version and owner/type/scope/storefront matrix",
+      "objective": "Pin API version and owner/type/scope/storefront matrix",
+      "dependencies": [],
+      "priority": 1,
+      "status": "not_started",
+      "blockers": [
+        "Pinned API and shop-level capability probes not yet verified"
+      ],
+      "acceptance_criteria": [
+        "Pin API version and owner/type/scope/storefront matrix verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-002",
+      "phase_id": "META-PHASE-01",
+      "module_id": "MOD-META-DEFINITIONS",
+      "title": "Decide namespace, access and migration",
+      "objective": "Decide namespace, access and migration",
+      "dependencies": [
+        "META-001"
+      ],
+      "priority": 2,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Decide namespace, access and migration verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-003",
+      "phase_id": "META-PHASE-01",
+      "module_id": "MOD-META-DEFINITIONS",
+      "title": "Standard and custom definition lifecycle",
+      "objective": "Standard and custom definition lifecycle",
+      "dependencies": [
+        "META-002"
+      ],
+      "priority": 3,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Standard and custom definition lifecycle verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-004",
+      "phase_id": "META-PHASE-02",
+      "module_id": "MOD-META-VALUES",
+      "title": "Type-aware value editor",
+      "objective": "Type-aware value editor",
+      "dependencies": [
+        "META-003"
+      ],
+      "priority": 4,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Type-aware value editor verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-005",
+      "phase_id": "META-PHASE-02",
+      "module_id": "MOD-META-THEME",
+      "title": "Single Field block",
+      "objective": "Single Field block",
+      "dependencies": [
+        "META-004"
+      ],
+      "priority": 5,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Single Field block verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-006",
+      "phase_id": "META-PHASE-02",
+      "module_id": "MOD-META-THEME",
+      "title": "Specifications block",
+      "objective": "Specifications block",
+      "dependencies": [
+        "META-005"
+      ],
+      "priority": 6,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Specifications block verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-007",
+      "phase_id": "META-PHASE-03",
+      "module_id": "MOD-META-METAOBJECTS",
+      "title": "Metaobject lifecycle",
+      "objective": "Metaobject lifecycle",
+      "dependencies": [
+        "META-001",
+        "META-004"
+      ],
+      "priority": 7,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Metaobject lifecycle verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-008",
+      "phase_id": "META-PHASE-03",
+      "module_id": "MOD-META-BULK",
+      "title": "Previewed bulk value operations",
+      "objective": "Previewed bulk value operations",
+      "dependencies": [
+        "META-004"
+      ],
+      "priority": 8,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Previewed bulk value operations verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-009",
+      "phase_id": "META-PHASE-03",
+      "module_id": "MOD-META-THEME",
+      "title": "Specialized typed storefront blocks",
+      "objective": "Specialized typed storefront blocks",
+      "dependencies": [
+        "META-005",
+        "META-007"
+      ],
+      "priority": 9,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Specialized typed storefront blocks verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-010",
+      "phase_id": "META-PHASE-04",
+      "module_id": "MOD-META-OPERATIONS",
+      "title": "Onboarding, permissions and diagnostics",
+      "objective": "Onboarding, permissions and diagnostics",
+      "dependencies": [
+        "META-003",
+        "META-005"
+      ],
+      "priority": 10,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Onboarding, permissions and diagnostics verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-011",
+      "phase_id": "META-PHASE-04",
+      "module_id": "MOD-META-OPERATIONS",
+      "title": "Staging end-to-end and release preflight",
+      "objective": "Staging end-to-end and release preflight",
+      "dependencies": [
+        "META-006",
+        "META-009",
+        "META-010"
+      ],
+      "priority": 11,
+      "status": "not_started",
+      "blockers": [],
+      "acceptance_criteria": [
+        "Staging end-to-end and release preflight verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    },
+    {
+      "id": "META-012",
+      "phase_id": "META-PHASE-04",
+      "module_id": "MOD-META-OPERATIONS",
+      "title": "Progressive production rollout",
+      "objective": "Progressive production rollout",
+      "dependencies": [
+        "META-011"
+      ],
+      "priority": 12,
+      "status": "not_started",
+      "blockers": [
+        "Separate production rollback certification and staging release gates"
+      ],
+      "acceptance_criteria": [
+        "Progressive production rollout verified against representative staging data",
+        "Existing product data and billing invariants preserved"
+      ],
+      "required_checks": [
+        "ANPOS schema integrity",
+        "Module-specific contract and end-to-end evidence"
+      ],
+      "completion_evidence": []
+    }
+  ],
   "status_values": [
     "not_started",
     "ready",
