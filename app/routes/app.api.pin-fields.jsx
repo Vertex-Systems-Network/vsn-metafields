@@ -1,140 +1,67 @@
 import { authenticate } from "../shopify.server";
+import { hasActivePlan } from "../active-plan.server";
+import { getDefinitions, graph } from "../definitions.server.js";
 
 const NAMESPACE = "vsn_metafields";
-
-async function getVsnMetafieldDefinitions(admin) {
-  const definitions = [];
-  let after = null;
-  let hasNextPage = true;
-
-  while (hasNextPage) {
-    const res = await admin.graphql(
-      `#graphql
-      query GetPinCandidates($after: String) {
-        metafieldDefinitions(first: 100, after: $after, ownerType: PRODUCT) {
-          nodes {
-            id
-            key
-            namespace
-            pinnedPosition
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-        }
-      }`,
-      { variables: { after } }
-    );
-
-    const data = await res.json();
-
-    if (data?.errors?.length) {
-      throw new Error(
-        data.errors[0]?.message || "Failed to fetch metafield definitions."
-      );
-    }
-
-    const connection = data?.data?.metafieldDefinitions;
-    definitions.push(...(connection?.nodes || []));
-    hasNextPage = Boolean(connection?.pageInfo?.hasNextPage);
-    after = connection?.pageInfo?.endCursor || null;
-  }
-
-  return definitions.filter((field) => field.namespace === NAMESPACE);
-}
-
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-
   return Response.json(
-    {
-      ok: false,
-      error: "Method not allowed.",
-    },
-    {
-      status: 405,
-      headers: { Allow: "POST" },
-    }
+    { ok: false, error: "Method not allowed." },
+    { status: 405, headers: { Allow: "POST" } },
   );
 };
-
 export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
-  if (request.method.toUpperCase() !== "POST") {
+  if (request.method.toUpperCase() !== "POST")
     return Response.json(
-      {
-        ok: false,
-        error: "Method not allowed.",
-      },
-      {
-        status: 405,
-        headers: { Allow: "POST" },
-      }
+      { ok: false, error: "Method not allowed." },
+      { status: 405, headers: { Allow: "POST" } },
     );
-  }
-
+  const results = [];
   try {
-    const vsnFields = await getVsnMetafieldDefinitions(admin);
-    const results = [];
-
-    for (const field of vsnFields) {
-      if (field.pinnedPosition !== null) {
+    if (!(await hasActivePlan(admin)))
+      return Response.json(
+        { ok: false, error: "An active plan is required." },
+        { status: 403 },
+      );
+    const fields = (await getDefinitions(admin, "PRODUCT")).filter(
+      (field) => field.namespace === NAMESPACE,
+    );
+    for (const field of fields) {
+      if (Number.isInteger(field.pinnedPosition)) {
         results.push({ key: field.key, status: "already pinned" });
         continue;
       }
-
-      const pinRes = await admin.graphql(
+      // Pinning must never change an existing field's storefront visibility.
+      const data = await graph(
+        admin,
         `#graphql
-        mutation UpdateField($id: ID!) {
-          metafieldDefinitionUpdate(definition: {
-            id: $id
-            pin: true
-            access: {
-              storefront: PUBLIC_READ
-            }
-          }) {
-            updatedDefinition {
-              id
-              key
-              pinnedPosition
-            }
-            userErrors {
-              message
-            }
+        mutation PinLegacyDefinition($id: ID!) {
+          metafieldDefinitionUpdate(definition: { id: $id, pin: true }) {
+            updatedDefinition { id pinnedPosition }
+            userErrors { field message }
           }
         }`,
-        { variables: { id: field.id } }
+        { id: field.id },
       );
-
-      const pinData = await pinRes.json();
-
-      if (pinData?.errors?.length) {
-        results.push({
-          key: field.key,
-          status: `error: ${pinData.errors[0]?.message || "GraphQL error"}`,
-        });
-        continue;
+      const payload = data.metafieldDefinitionUpdate;
+      if (
+        payload?.userErrors?.length ||
+        payload?.updatedDefinition?.id !== field.id ||
+        !Number.isInteger(payload.updatedDefinition.pinnedPosition)
+      ) {
+        throw new Error(
+          payload?.userErrors?.[0]?.message ||
+            "Shopify did not confirm pinning.",
+        );
       }
-
-      const errors =
-        pinData?.data?.metafieldDefinitionUpdate?.userErrors ?? [];
-
-      results.push({
-        key: field.key,
-        status: errors.length > 0 ? `error: ${errors[0].message}` : "pinned",
-      });
+      results.push({ key: field.key, status: "pinned" });
     }
-
     return Response.json({ ok: true, results });
   } catch (error) {
     return Response.json(
-      {
-        ok: false,
-        error: error?.message || "Failed to pin metafield definitions.",
-      },
-      { status: 500 }
+      { ok: false, results, error: error.message || "Pinning failed." },
+      { status: 502 },
     );
   }
 };

@@ -340,6 +340,8 @@ test("metafield mutations stay namespace-scoped and destructive reset keeps valu
   assert.match(pinFields, /field\.namespace === NAMESPACE/);
   assert.match(pinFields, /request\.method\.toUpperCase\(\) !== "POST"/);
   assert.match(pinFields, /metafieldDefinitionUpdate/);
+  assert.match(pinFields, /hasActivePlan\(admin\)/);
+  assert.doesNotMatch(pinFields, /PUBLIC_READ/);
 });
 
 test("development pushes run validation but never deployment workflows", () => {

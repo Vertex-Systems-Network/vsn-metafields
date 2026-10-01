@@ -20,7 +20,7 @@ Source: feature/metafield-capability-definition-blocks, based on development 794
 
 - `npm run check:release` passed on Node 22.13.0: lint (zero errors; one existing warning in packages), typecheck, SQLite/Neon Session model contract, 68 contract/render tests, Prisma clients and React Router build.
 - Shopify CLI 4.8.2 theme extension build passed after adding the required locales directory; settings-count advisory remains. ANPOS repository integrity validation passed.
-- Self-review found/fixed empty unsupported-list wrappers, multiline formatting, stale variant response races, cross-owner stale field selection, and deprecated standard visibility input.
+- Self-review found/fixed empty unsupported-list wrappers, multiline formatting, stale variant response races, cross-owner stale field selection, and deprecated standard visibility input, and legacy bulk pinning that silently changed storefront access without the active-plan gate. Pinning now preserves access and confirms each result.
 - Shopify public pinned schema retrieval is unavailable (network failures and an official proxy 404). The staging lifecycle probe now validates the owner inventory and extracted GraphQL documents against the authenticated 2026-07 shop schema before any fixture mutation. Its actual result must be recorded before claiming API compatibility.
 - Staging capability/lifecycle execution, Shopify extension upload/release, two-theme editor/storefront tests, real rich-text/image filters, accessibility and device screenshots are not yet certified. Unit fixtures are not that evidence.
 - All owner enums are inventoried, but writes/values for all 25 active owners are not claimed verified. Unsupported scopes/store capabilities return actual authorization errors.
