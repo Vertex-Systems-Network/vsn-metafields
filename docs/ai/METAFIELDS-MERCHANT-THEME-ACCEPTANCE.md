@@ -2,6 +2,8 @@
 
 This is the execution checklist for the remaining META-004/005/006/007/008/009/010/011 acceptance. Implementation and representative Shopify API evidence exist; these browser tasks are still pending. META-012 remains a separate reviewed production release. No production customer data may be copied into staging.
 
+PR167 fixes passed113 local/CI contracts and were merged as development e90b9f764865f4d10ee7add4bc7de3941bf50a68. Exact-source runtime37066444570 and active staging extension37066820946 passed; all disposable fixture cleanup succeeded. Proof: `docs/evidence/metafields-storefront-qa-2026-10-03.json`. The following browser rows remain pending.
+
 ## Current review findings
 
 Review base: development `25ebf0937fe5bf31abe6ca765d6bdbcd23565f58`. Review is an authorized self-review, not an independent reviewer or a persistent Supervisor certification.

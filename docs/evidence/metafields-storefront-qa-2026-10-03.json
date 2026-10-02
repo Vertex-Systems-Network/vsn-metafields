@@ -3,7 +3,7 @@
   "recorded_at": "2026-10-02T21:19:31.007276+00:00",
   "source_base_sha": "25ebf0937fe5bf31abe6ca765d6bdbcd23565f58",
   "source_branch": "fix/storefront-variant-acceptance",
-  "status": "local_contracts_verified_staging_pending",
+  "status": "development_and_staging_verified_full_browser_acceptance_pending",
   "review_type": "user_authorized_self_review",
   "review_ref": "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
   "file_sha256": {
@@ -46,5 +46,176 @@
     "LiquidJS deliberately rejects Shopify-only rich text/image/video filters",
     "Two-theme editor/storefront, actual billing approval navigation, WCAG acceptance, measured storefront performance and independent webhook delivery remain pending"
   ],
-  "production_changed": false
+  "production_changed": false,
+  "deployment_evidence": {
+    "source_sha": "e90b9f764865f4d10ee7add4bc7de3941bf50a68",
+    "source_tree_sha": "4e54f16ba77e9158da0e908035f554ef0dacb78c",
+    "implementation_pr": 167,
+    "implementation_head_sha": "738113e714fdffb0c000714873ede9d6a055efb1",
+    "required_ci": [
+      {
+        "name": "repository-integrity",
+        "conclusion": "success",
+        "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066223011/job/111034543797"
+      },
+      {
+        "name": "validate",
+        "conclusion": "success",
+        "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066223055/job/111034543331"
+      }
+    ],
+    "staging_runtime": {
+      "run_id": 37066444570,
+      "job_id": 111035293960,
+      "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
+      "conclusion": "success",
+      "completed_at": "2026-10-02T21:25:10Z",
+      "acceptance": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "e90b9f764865f4d10ee7add4bc7de3941bf50a68",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 50,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": [
+              "read_files"
+            ]
+          },
+          "cleanup": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "staging_extension": {
+      "run_id": 37066820946,
+      "job_id": 111036670063,
+      "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+      "conclusion": "success",
+      "completed_at": "2026-10-02T21:27:23Z",
+      "active_version": "staging-metafields-e90b9f764865",
+      "contracts_passed": 113,
+      "production_app_changed": false,
+      "compliance_topics_enqueued": 3,
+      "independent_webhook_delivery_verified": false
+    },
+    "main_sha": "dde3ba16539c892b140cce72b3039dd55d42edf6"
+  }
 }

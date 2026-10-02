@@ -1,6 +1,25 @@
 # Typed values, advanced features and operations — batch table items 3, 5, 6
 
-## Latest verified outcome — 2026-10-02
+## Latest storefront QA follow-up — 2026-10-03 Asia/Karachi
+
+**Variant race/recovery and safe-link fixes are merged to development and released to isolated staging. Full merchant/two-theme acceptance remains pending.**
+
+| Evidence | Actual result |
+| --- | --- |
+| Implementation | [PR167](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167), head738113e714fdffb0c000714873ede9d6a055efb1, merged development e90b9f764865f4d10ee7add4bc7de3941bf50a68 |
+| Checks | Exact Node22.13.0 local release checks passed: 113 tests, zero lint errors/warnings, typecheck, SQLite/Postgres contract and build. App Validation37066223055 and repository-integrity37066223011 passed. |
+| Meaningful regressions | Nine deterministic tests execute the shipped JS; six fail against the prior asset, all nine pass after the fixes. Supported storefront fixtures also pass. |
+| Exact-source staging runtime | [37066444570](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570)/job111035293960 passed at2026-10-02T21:25:10Z: 21 typed cases, stale-write protection, metaobjects, bulk, diagnostics, retained values and complete disposable cleanup |
+| Exact-source staging extension | [37066820946](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946)/job111036670063 passed at2026-10-02T21:27:23Z. All five blocks,113 contracts; active version staging-metafields-e90b9f764865; production_app_changed=false. |
+| Main/live | Main remains dde3ba16539c892b140cce72b3039dd55d42edf6. No production release or provider cleanup performed. |
+
+Fixed: invalidate requests at selection time, including a return to the original variant; hide stale content until a verified response; start eligible blocks together; preserve the current request's busy state; recover hidden/empty anchors; abort stalled requests after eight seconds. Safe links reject backslashes and embedded tab/newline/carriage return that can normalize into external destinations. Locale-relative links and escaped captions remain supported.
+
+Review findings and the combined remaining merchant/theme/accessibility/performance tasks are in `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md`. Structured exact-source evidence is `docs/evidence/metafields-storefront-qa-2026-10-03.json`. The tests use LiquidJS and VM event/network/DOM doubles: they do not certify actual Shopify filters, theme events or browser accessibility. Full acceptance counts remain3 complete,7 verification_required,1 in_progress,1 not_started (9 work units pending). No signed-in Shopify tab was available and the prior declined sign-in handoff was not repeated. Three compliance topics were again enqueued; independent delivery remains unverified. Actual billing approval navigation remains pending; read-only metadata still shows the ACTIVE test pro-plan.
+
+Evidence-only follow-up commits are not staging runtime deployments. The following baseline and chronological failure records are preserved.
+
+## Batch 3/5/6 verified baseline — 2026-10-02
 
 **Development implementation, required CI, representative staging API acceptance and staging extension release passed. Full merchant/theme acceptance remains pending; this batch is not certified complete end-to-end or promoted live.**
 
