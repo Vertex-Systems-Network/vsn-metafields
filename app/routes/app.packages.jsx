@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { submitBilling } from "../billing-client";
 import { PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
+import { LoadingState } from "../components/LoadingState";
 
 export default function PackagesPage() {
   const statusFetcher = useFetcher();
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingAction, setPendingAction] = useState("");
   const inFlight = useRef(false);
   const location = useLocation();
   const load = statusFetcher.load;
@@ -28,6 +30,11 @@ export default function PackagesPage() {
     if (inFlight.current) return;
     inFlight.current = true;
     setSubmitting(true);
+    setPendingAction(
+      formData.get("actionType") === "cancel"
+        ? "cancel"
+        : String(formData.get("plan")),
+    );
     setResult(null);
     try {
       const response = await submitBilling(formData, {
@@ -51,6 +58,7 @@ export default function PackagesPage() {
     } finally {
       inFlight.current = false;
       setSubmitting(false);
+      setPendingAction("");
     }
   };
   const choosePlan = (plan) => {
@@ -83,14 +91,12 @@ export default function PackagesPage() {
       <PageIntro
         eyebrow="Room to grow"
         title="Choose the right fit for your store."
-        description="The same core tools, with clear limits as your content grows. All plans include unlimited products and all five theme blocks."
+        description="Start with essential editing, then unlock larger imports, public metaobjects and recovery tools in Pro. Unlimited products and all five theme blocks are included in every plan."
       >
         <HelpLink topic="plans">Billing & plan help</HelpLink>
       </PageIntro>
       {!statusFetcher.data && (
-        <div className="vsn-loading" role="status">
-          Checking your Shopify subscription…
-        </div>
+        <LoadingState label="Checking your Shopify subscription…" skeleton />
       )}
       {statusFetcher.data && !statusFetcher.data.ok && (
         <div className="vsn-notice error" role="alert">
@@ -133,17 +139,17 @@ export default function PackagesPage() {
           const current = currentPlan?.id === plan.id;
           return (
             <article
-              className={`vsn-plan ${plan.id === "growth-plan" ? "featured" : ""}`}
+              className={`vsn-plan ${plan.id === "pro-plan" ? "featured" : ""}`}
               key={plan.id}
               aria-label={`${plan.label} plan`}
             >
               <div className="vsn-plan-label">
                 {current
                   ? "Your current plan"
-                  : plan.id === "growth-plan"
-                    ? "Balanced for growing stores"
-                    : plan.id === "pro-plan"
-                      ? "Maximum capacity"
+                  : plan.id === "pro-plan"
+                    ? "Recommended · Full content workflow"
+                    : plan.id === "growth-plan"
+                      ? "More room for private content"
                       : "Start with the essentials"}
               </div>
               <h2>{plan.label}</h2>
@@ -169,13 +175,35 @@ export default function PackagesPage() {
                   metaobject definition
                 </li>
                 <li>Standard & custom definitions</li>
-                <li>Typed values & reusable metaobjects</li>
+                <li>Typed values & private draft metaobjects</li>
                 <li>All 5 customizable theme blocks</li>
                 <li>Import preview, conflict checks & exports</li>
                 <li>Unlimited products</li>
+                <li
+                  className={
+                    plan.features.publicMetaobjects
+                      ? "vsn-included"
+                      : "vsn-pro-feature"
+                  }
+                >
+                  {plan.features.publicMetaobjects
+                    ? "✓ Public metaobject publishing"
+                    : "Public metaobject publishing · Pro only"}
+                </li>
+                <li
+                  className={
+                    plan.features.retryImports
+                      ? "vsn-included"
+                      : "vsn-pro-feature"
+                  }
+                >
+                  {plan.features.retryImports
+                    ? "✓ Failed-import retry preparation"
+                    : "Failed-import retry preparation · Pro only"}
+                </li>
               </ul>
               <button
-                className={`vsn-button ${!current ? "primary" : ""}`}
+                className={`vsn-button ${!current && plan.id === "pro-plan" ? "primary" : "secondary"}`}
                 disabled={
                   !verified ||
                   isLoading ||
@@ -184,7 +212,7 @@ export default function PackagesPage() {
                 }
                 onClick={() => choosePlan(plan)}
               >
-                {submitting
+                {submitting && pendingAction === plan.id
                   ? "Opening Shopify…"
                   : current
                     ? "Current plan"
@@ -196,7 +224,7 @@ export default function PackagesPage() {
                 {plan.id === "pro-plan"
                   ? "Existing Pro price and 5-day trial preserved."
                   : plan.id === "growth-plan"
-                    ? "Everything in Starter, with larger limits."
+                    ? "4× Starter import and list capacity."
                     : "All the core tools in one workspace."}
               </div>
             </article>
@@ -229,15 +257,33 @@ export default function PackagesPage() {
                 ))}
               </tr>
             ))}
+            {[
+              [
+                "Public metaobject access & Active entry saves",
+                "publicMetaobjects",
+              ],
+              ["Prepare failed import rows for retry", "retryImports"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <th scope="row">{label}</th>
+                {PLANS.map((p) => (
+                  <td key={p.id}>
+                    {p.features[key] ? "Included" : "Pro only"}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
       <div className="vsn-notice">
         Limits apply to each import, list value or new definition, rather than
         your total number of products or monthly usage. A smaller plan keeps
-        existing content, logs and exports. Edits and new imports must meet its
-        limits. Shopify shows the billing and replacement terms before you
-        approve; switching an active plan does not start another trial.
+        existing content, public entries, logs and exports. New writes must fit
+        its limits; saving Active public metaobject entries and preparing
+        failed-row retries require Pro. Metadata edits and selected removals
+        remain available. Shopify shows the billing and replacement terms before
+        you approve; switching an active plan does not start another trial.
       </div>
       <div className="vsn-hero-actions">
         <button
@@ -252,14 +298,25 @@ export default function PackagesPage() {
         </button>
         {subscription && (
           <button
-            className="vsn-button"
+            className="vsn-button danger"
             disabled={isLoading || Boolean(result?.confirmationUrl)}
             onClick={cancel}
           >
-            Cancel active subscription
+            {pendingAction === "cancel"
+              ? "Cancelling subscription…"
+              : "Cancel active subscription"}
           </button>
         )}
       </div>
+      {submitting && (
+        <LoadingState
+          label={
+            pendingAction === "cancel"
+              ? "Waiting for Shopify cancellation confirmation…"
+              : "Opening Shopify plan approval…"
+          }
+        />
+      )}
     </s-page>
   );
 }

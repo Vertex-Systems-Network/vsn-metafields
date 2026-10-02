@@ -1,4 +1,5 @@
-export const HELP_TOPICS = [
+import { PLANS } from "./billing-config.js";
+const TOPICS = [
   {
     id: "fields",
     title: "Create your first field",
@@ -55,7 +56,7 @@ export const HELP_TOPICS = [
     steps: [
       "Create a definition, such as Size guide, with a merchant-owned type and fields: Title, Size and Fit notes.",
       "Add an entry with a unique handle and save it as Draft.",
-      "For public content, review its fields, enable Public API access and explicitly confirm publishing an Active entry.",
+      "For public content on Pro, review its fields, enable Public API access and explicitly confirm publishing an Active entry. Starter and Growth include private draft metaobjects.",
     ],
     faqs: [
       [
@@ -82,7 +83,7 @@ export const HELP_TOPICS = [
     faqs: [
       [
         "What happens to invalid or changed rows?",
-        "Invalid rows are skipped. Changed rows are conflicts and require a fresh preview. Failed rows can be prepared for retry; retries still check the original snapshot.",
+        "Invalid rows are skipped. Changed rows are conflicts and require a fresh preview. On Pro, failed rows can be prepared for retry; retries still check the original snapshot. Every plan can create a fresh preview within its limits.",
       ],
       [
         "Does removing a job undo its changes?",
@@ -120,14 +121,18 @@ export const HELP_TOPICS = [
     link: "/app/packages",
     action: "Compare plans",
     steps: [
-      "Starter: $19 USD/30 days, 10 import rows, 16 list items and 3 fields per new metaobject definition. Growth: $35, 50 rows, 64 items and 10 fields. Pro: $55, 100 rows, 128 items and 25 fields.",
+      PLANS.map(
+        (p) =>
+          `${p.label}: $${p.amount} USD/30 days, ${p.limits.importRows} rows per import, ${p.limits.listItems} items per list and ${p.limits.metaobjectFields} fields per new metaobject definition.`,
+      ).join(" ") +
+        " Pro also includes public metaobject publishing and failed-import retry preparation.",
       "Start a 5-day trial for a new subscription. Shopify displays the billing details for your approval; switching an active plan does not start a new trial.",
       "Return to the app and refresh subscription status. Existing Pro subscriptions keep pro-plan, $55 USD/30 days and their original trial terms.",
     ],
     faqs: [
       [
         "Does a smaller plan delete content?",
-        "No. Existing Shopify content and saved exports remain. New writes and imports must fit the smaller plan. Metadata edits and selected removals remain available while the subscription is active.",
+        "No. Existing Shopify content and saved exports remain. Existing public entries remain published. New writes and imports must fit the smaller plan; saving Active public entries and preparing failed-row retries require Pro. Metadata edits and selected removals remain available while the subscription is active.",
       ],
       [
         "The plan button only refreshes. What should I do?",
@@ -143,7 +148,7 @@ export const HELP_TOPICS = [
     action: "Open connection diagnostics",
     steps: [
       "Refresh the affected page and inspect its visible error. A changed value needs a fresh read; it cannot be forced over another editor's change.",
-      "Check connection diagnostics for permissions, database availability and active-plan state. Request only permissions configured for this app.",
+      "Open Connection and permissions below. Select Enable page references or Enable file references, approve the Shopify permission modal as store owner, then refresh status. Declining keeps the other tools available.",
       "Copy support diagnostics and include the page, action and visible error. Diagnostics exclude tokens and session content.",
     ],
     faqs: [
@@ -152,9 +157,49 @@ export const HELP_TOPICS = [
         "It does not prove that a write failed. Reload Shopify data or the saved import job before retrying a mutation. Avoid submitting the same change repeatedly.",
       ],
       [
+        "Why are page or file references unavailable?",
+        "Pages and articles need optional read_content access; files and media need read_files. In Connection and permissions, select the corresponding Enable button and approve the Shopify modal. Readiness is checked again from Shopify after approval. If you decline, your other tools keep working.",
+      ],
+      [
         "Can two people edit the same metaobject?",
         "A last-read timestamp detects earlier edits, but Shopify metaobject updates have no atomic compare-digest operation. Coordinate simultaneous edits; metafield values use Shopify's atomic stale-write protection.",
       ],
     ],
   },
 ];
+
+const LOCATIONS = {
+  fields: [
+    "Fields & values → Custom definitions → Save definition",
+    "The Fields & values screen with Name, Namespace, Key and Type inputs; 1 marks the inputs and 2 marks Save definition.",
+  ],
+  values: [
+    "Fields & values → Resource values → Save value",
+    "The Resource values panel; 1 marks Resource and Definition, 2 marks the Value input and 3 marks Save value.",
+  ],
+  metaobjects: [
+    "Metaobjects → Definition → Create definition; then Create an entry",
+    "The Metaobjects Definition panel; 1 marks Name and Merchant-owned type, 2 marks fields and 3 marks Create definition.",
+  ],
+  imports: [
+    "Import & export → CSV input → Validate and preview → Saved jobs",
+    "CSV input and a saved preview; 1 marks file/content, 2 marks Validate and preview and 3 marks the confirmation and Apply action.",
+  ],
+  storefront: [
+    "Shopify Admin → Online Store → Themes → open theme editor → Add block → Apps",
+    "Illustrated theme editor path; 1 marks Add block, 2 marks the VSN | Metafields app group and 3 marks namespace/key settings.",
+  ],
+  plans: [
+    "Plans → compare cards → Start trial or Switch to plan → Shopify approval",
+    "Three plan cards with disclosed limits; 1 marks the recommended Pro card, 2 marks Start Pro trial and 3 describes Shopify approval.",
+  ],
+  recovery: [
+    "Help center → Connection and permissions → Enable references or Refresh status",
+    "Connection and permissions cards; 1 marks Pages & articles, 2 marks Files & media and 3 marks the Shopify approval step.",
+  ],
+};
+export const HELP_TOPICS = TOPICS.map((topic) => ({
+  ...topic,
+  where: LOCATIONS[topic.id][0],
+  preview: { src: `/help/${topic.id}.svg`, alt: LOCATIONS[topic.id][1] },
+}));

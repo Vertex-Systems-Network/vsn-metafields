@@ -1,3 +1,4 @@
+import ActionButton from "../components/ActionButton";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
@@ -5,6 +6,7 @@ import { authenticate } from "../shopify.server";
 import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
+import { LoadingState } from "../components/LoadingState";
 import { APP_NAME } from "../product-config";
 import {
   OWNER_TYPES,
@@ -229,7 +231,7 @@ export default function Index() {
   if (!statusFetcher.data)
     return (
       <s-page heading={APP_NAME}>
-        <s-banner tone="info">Checking app status…</s-banner>
+        <LoadingState label="Checking app status…" skeleton />
       </s-page>
     );
   if (!statusFetcher.data.ok)
@@ -320,6 +322,21 @@ export default function Index() {
         <a href="#value-editor">Values</a>
         <HelpLink topic="storefront">Show content in your theme</HelpLink>
       </nav>
+      {fieldsFetcher.state !== "idle" && (
+        <LoadingState
+          label="Loading definitions and supported field types…"
+          skeleton={!fieldsFetcher.data}
+        />
+      )}
+      {resourcesFetcher.state !== "idle" && (
+        <LoadingState label="Loading resources…" />
+      )}
+      {valueFetcher.state !== "idle" && (
+        <LoadingState label="Loading the saved value…" />
+      )}
+      {referencesFetcher.state !== "idle" && (
+        <LoadingState label="Finding references…" />
+      )}
       <s-section heading="Resource and capabilities">
         <s-select
           label="Metafield resource"
@@ -367,9 +384,9 @@ export default function Index() {
             {PUBLIC_OWNERS.has(ownerType) ? "supported" : "unavailable"}.
           </s-text>
         )}
-        <s-button disabled={busy} onClick={reload}>
+        <ActionButton disabled={busy} onClick={reload}>
           Refresh capabilities
-        </s-button>
+        </ActionButton>
       </s-section>
       {actionFetcher.data?.success && (
         <s-banner tone="success">{actionFetcher.data.message}</s-banner>
@@ -467,15 +484,16 @@ export default function Index() {
               separately previewed data migration.
             </s-text>
           )}
-          <s-button
+          <ActionButton
             variant="primary"
             disabled={!ready || busy || !name.trim() || !key.trim()}
+            loading={busy}
             onClick={saveDefinition}
           >
             Save definition
-          </s-button>
+          </ActionButton>
           {editingField && (
-            <s-button
+            <ActionButton
               onClick={() => {
                 setEditingField(null);
                 setName("");
@@ -486,7 +504,7 @@ export default function Index() {
               }}
             >
               Cancel edit
-            </s-button>
+            </ActionButton>
           )}
         </s-stack>
       </s-section>
@@ -523,7 +541,7 @@ export default function Index() {
             </s-option>
           ))}
         </s-select>
-        <s-button
+        <ActionButton
           disabled={
             !ready ||
             busy ||
@@ -534,7 +552,7 @@ export default function Index() {
           }
         >
           Enable template
-        </s-button>
+        </ActionButton>
       </s-section>
       <s-section heading="Registered definitions">
         <s-text-field
@@ -566,13 +584,13 @@ export default function Index() {
                     {field.type} / {field.storefront}
                   </s-table-cell>
                   <s-table-cell>
-                    <s-button
+                    <ActionButton
                       disabled={!ready || busy || !field.editable}
                       onClick={() => edit(field)}
                     >
                       Edit
-                    </s-button>
-                    <s-button
+                    </ActionButton>
+                    <ActionButton
                       tone="critical"
                       disabled={!ready || busy || !field.editable}
                       onClick={() => {
@@ -591,7 +609,7 @@ export default function Index() {
                       }}
                     >
                       Remove
-                    </s-button>
+                    </ActionButton>
                   </s-table-cell>
                 </s-table-row>
               ))}
@@ -613,7 +631,7 @@ export default function Index() {
             value={resourceSearch}
             onInput={(event) => setResourceSearch(event.target.value)}
           />
-          <s-button
+          <ActionButton
             onClick={() =>
               resourcesFetcher.load(
                 apiUrl("/app/api/values", {
@@ -625,7 +643,7 @@ export default function Index() {
             }
           >
             Search
-          </s-button>
+          </ActionButton>
           <s-select
             label="Resource"
             value={resourceId}
@@ -667,6 +685,7 @@ export default function Index() {
           {valueReady && (
             <>
               <TypedValueInput
+                referencesLoading={referencesFetcher.state !== "idle"}
                 key={`${resourceId}:${valueIdentity}`}
                 type={selectedDefinition.type}
                 value={fieldValue}
@@ -688,13 +707,15 @@ export default function Index() {
                   {referencesFetcher.data.error}
                 </s-banner>
               )}
-              <s-button
+              <ActionButton
                 disabled={!fieldValue || valueActionFetcher.state !== "idle"}
+                variant="primary"
+                loading={valueActionFetcher.state !== "idle"}
                 onClick={() => submitValue("set")}
               >
                 Save value
-              </s-button>
-              <s-button
+              </ActionButton>
+              <ActionButton
                 tone="critical"
                 disabled={
                   valueFetcher.data.value === null ||
@@ -703,7 +724,7 @@ export default function Index() {
                 onClick={() => submitValue("delete")}
               >
                 Remove value
-              </s-button>
+              </ActionButton>
             </>
           )}
           {valueFetcher.data?.error && (

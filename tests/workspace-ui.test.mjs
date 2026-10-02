@@ -5,6 +5,8 @@ import { createRequire } from "node:module";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { HELP_TOPICS } from "../app/help-content.js";
 
 const require = createRequire(import.meta.url);
 const cache = new Map();
@@ -32,6 +34,8 @@ async function renderRoute(name, fetchers = []) {
   const module = { exports: {} };
   let index = 0;
   const router = {
+    useNavigation: () => ({ state: "idle" }),
+    useFetchers: () => [],
     useLocation: () => ({
       search: "?shop=example.myshopify.com&host=embedded",
       pathname: "/app",
@@ -119,4 +123,59 @@ test("help center and import initial state render their real recovery and empty 
     { data: { ok: true, jobs: [] } },
   ]);
   assert.match(html, /No saved imports yet/);
+});
+test("help includes seven accessible illustrated previews and exact location instructions", async () => {
+  const guide = await renderRoute("app.guide.jsx");
+  assert.equal((guide.match(/<img /g) || []).length, 7);
+  assert.match(guide, /Illustrated walkthrough/);
+  for (const topic of HELP_TOPICS) {
+    assert.ok(topic.where && topic.preview.alt);
+    assert.match(
+      readFileSync(resolve(`public${topic.preview.src}`), "utf8"),
+      /<title>.+illustrated walkthrough<\/title>/,
+    );
+  }
+});
+test("permission status is separated into cards with specific page and file actions", async () => {
+  const guide = await renderRoute("app.guide.jsx", [
+    {
+      data: {
+        diagnostics: {
+          apiVersion: "2026-07",
+          environment: "staging",
+          database: "reachable",
+          hasActivePlan: true,
+          importJobCount: 0,
+          features: {
+            values: { ready: true, missing: [] },
+            metaobjects: { ready: true, missing: [] },
+            pageReferences: { ready: false, missing: ["read_content"] },
+            fileReferences: { ready: false, missing: ["read_files"] },
+          },
+        },
+      },
+    },
+  ]);
+  for (const text of [
+    "Product &amp; collection values",
+    "Pages &amp; articles",
+    "Files &amp; media",
+    "Enable page references",
+    "Enable file references",
+    "Technical connection details",
+  ])
+    assert.ok(guide.includes(text), text);
+});
+test("initial route fetches include visible skeletons and the Pro comparison discloses gated features", async () => {
+  for (const name of [
+    "app.metaobjects.jsx",
+    "app.import.jsx",
+    "app.packages.jsx",
+    "app.guide.jsx",
+  ])
+    assert.match(await renderRoute(name), /vsn-skeleton/);
+  const html = await renderRoute("app.packages.jsx");
+  assert.match(html, /Recommended · Full content workflow/);
+  assert.match(html, /Public metaobject publishing · Pro only/);
+  assert.match(html, /Failed-import retry preparation · Pro only/);
 });

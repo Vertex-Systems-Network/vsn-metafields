@@ -1,7 +1,9 @@
+import ActionButton from "../components/ActionButton";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { exportValueCsv } from "../bulk-csv";
 import { PageIntro, HelpLink } from "../components/Workspace";
+import { LoadingState } from "../components/LoadingState";
 function download(name, source) {
   const url = URL.createObjectURL(
     new Blob([source], { type: "text/csv;charset=utf-8" }),
@@ -65,9 +67,7 @@ export default function Import() {
         <HelpLink topic="imports">CSV guide & recovery</HelpLink>
       </PageIntro>
       {!list.data && (
-        <div className="vsn-loading" role="status">
-          Loading saved import jobs…
-        </div>
+        <LoadingState label="Loading saved import jobs…" skeleton />
       )}
       <s-text>
         Your plan allows {list.data?.plan?.limits?.importRows || "up to 100"}{" "}
@@ -81,7 +81,7 @@ export default function Import() {
           definition metadata unchanged. Each value is a JSON-encoded string in
           value_json.
         </s-text>
-        <s-button
+        <ActionButton
           onClick={() =>
             download(
               "metafields-template.csv",
@@ -99,7 +99,7 @@ export default function Import() {
           }
         >
           Download CSV template
-        </s-button>
+        </ActionButton>
         <label>
           CSV file{" "}
           <input
@@ -121,12 +121,14 @@ export default function Import() {
           value={csv}
           onInput={(e) => setCsv(e.target.value)}
         />
-        <s-button
+        <ActionButton
+          variant="primary"
+          loading={busy}
           disabled={!csv || busy}
           onClick={() => submit({ action: "preview", csv })}
         >
           Validate and preview
-        </s-button>
+        </ActionButton>
       </s-section>
       <s-section heading="Saved jobs">
         {list.state === "idle" && list.data?.ok && !list.data.jobs?.length && (
@@ -150,12 +152,13 @@ export default function Import() {
             </s-option>
           ))}
         </s-select>
-        <s-button
-          disabled={!selected || busy}
+        <ActionButton
+          loading={detail.state !== "idle"}
+          disabled={!selected || busy || detail.state !== "idle"}
           onClick={() => loadDetail(url({ id: selected }))}
         >
           Refresh selected job
-        </s-button>
+        </ActionButton>
         {job && (
           <>
             <s-text>
@@ -199,7 +202,7 @@ export default function Import() {
               omits new values that must be removed individually if you need to
               undo them.
             </s-text>
-            <s-button
+            <ActionButton
               onClick={() =>
                 download(
                   `metafields-before-${job.id}.csv`,
@@ -212,8 +215,8 @@ export default function Import() {
               }
             >
               Export before snapshot
-            </s-button>
-            <s-button
+            </ActionButton>
+            <ActionButton
               onClick={() =>
                 download(
                   `metafields-proposed-${job.id}.csv`,
@@ -222,7 +225,7 @@ export default function Import() {
               }
             >
               Export proposed values
-            </s-button>
+            </ActionButton>
             {["preview", "paused", "running"].includes(job.status) && (
               <>
                 <s-checkbox
@@ -230,7 +233,9 @@ export default function Import() {
                   checked={confirmed}
                   onChange={(e) => setConfirmed(e.target.checked)}
                 />
-                <s-button
+                <ActionButton
+                  variant="primary"
+                  loading={busy}
                   disabled={
                     busy || !confirmed || !job.rows.some((r) => r.valid)
                   }
@@ -244,13 +249,14 @@ export default function Import() {
                   }
                 >
                   Apply / resume next chunk
-                </s-button>
+                </ActionButton>
               </>
             )}
             {job.status === "complete" &&
               job.results.some((r) => r.status === "failed") && (
-                <s-button
-                  disabled={busy}
+                <ActionButton
+                  loading={busy}
+                  disabled={busy || !list.data?.plan?.features?.retryImports}
                   onClick={() => {
                     if (
                       window.confirm(
@@ -266,9 +272,18 @@ export default function Import() {
                   }}
                 >
                   Prepare failed rows for retry
-                </s-button>
+                </ActionButton>
               )}
-            <s-button
+            {job.status === "complete" &&
+              job.results.some((r) => r.status === "failed") &&
+              !list.data?.plan?.features?.retryImports && (
+                <div className="vsn-notice warning">
+                  Failed-row retry is included in Pro. Your snapshots remain
+                  available; you can also prepare a fresh CSV preview.{" "}
+                  <HelpLink topic="plans">Compare Pro</HelpLink>
+                </div>
+              )}
+            <ActionButton
               tone="critical"
               disabled={busy || job.status === "running"}
               onClick={() => {
@@ -287,10 +302,14 @@ export default function Import() {
               }}
             >
               Remove saved job
-            </s-button>
+            </ActionButton>
           </>
         )}
       </s-section>
+      {selected && detail.state !== "idle" && (
+        <LoadingState label="Loading your saved preview…" skeleton={!job} />
+      )}
+      {busy && <LoadingState label="Processing the confirmed import action…" />}
       {[list, detail, mutation].map((f, i) =>
         f.data?.error ? (
           <s-banner tone="critical" key={i}>

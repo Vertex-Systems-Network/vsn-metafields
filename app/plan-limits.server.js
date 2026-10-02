@@ -38,6 +38,14 @@ export function assertPlanCount(plan, limit, count, label) {
     );
 }
 
+export function assertPlanFeature(plan, feature, label) {
+  if (plan.features?.[feature] !== true)
+    throw new PlanLimitError(
+      `${label} is included in Pro. Compare plans to upgrade; your existing content stays in Shopify.`,
+      plan,
+    );
+}
+
 export function assertListValue(plan, type, value) {
   if (!type?.startsWith("list.")) return;
   let list;

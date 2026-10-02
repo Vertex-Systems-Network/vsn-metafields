@@ -5,6 +5,7 @@ import {
   getPlanEntitlement,
   assertPlanCount,
   assertListValue,
+  assertPlanFeature,
 } from "../plan-limits.server";
 import {
   listMetaobjectDefinitions,
@@ -66,6 +67,12 @@ export const action = async ({ request }) => {
     const input = await boundedJson(request);
     let saved;
     if (input.action === "createDefinition") {
+      if (input.storefront === "PUBLIC_READ")
+        assertPlanFeature(
+          plan,
+          "publicMetaobjects",
+          "Public metaobject access",
+        );
       assertPlanCount(
         plan,
         "metaobjectFields",
@@ -88,9 +95,28 @@ export const action = async ({ request }) => {
       );
       if (!definition || !definition.editable)
         throw new RangeError("Editable merchant-owned definition not found.");
-      if (input.action === "updateDefinition")
+      if (input.action === "updateDefinition") {
+        if (
+          input.storefront === "PUBLIC_READ" &&
+          definition.access?.storefront !== "PUBLIC_READ"
+        )
+          assertPlanFeature(
+            plan,
+            "publicMetaobjects",
+            "Enabling public metaobject access",
+          );
         saved = await updateMetaobjectDefinition(admin, definition, input);
-      else if (input.action === "saveEntry") {
+      } else if (input.action === "saveEntry") {
+        if (
+          definition.access?.storefront === "PUBLIC_READ" &&
+          (input.status === "ACTIVE" ||
+            !definition.capabilities?.publishable?.enabled)
+        )
+          assertPlanFeature(
+            plan,
+            "publicMetaobjects",
+            "Saving published public metaobject entries",
+          );
         for (const field of definition.fieldDefinitions) {
           if (
             input.values?.[field.key] !== undefined &&

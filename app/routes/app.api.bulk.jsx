@@ -4,6 +4,7 @@ import {
   getPlanEntitlement,
   assertPlanCount,
   assertListValue,
+  assertPlanFeature,
 } from "../plan-limits.server";
 import { createPrismaClient } from "../db.server";
 import {
@@ -88,6 +89,11 @@ export const action = async ({ request }) => {
     else if (input.action === "apply")
       job = await runImportChunk(admin, db, session.shop, input, plan);
     else if (input.action === "retry") {
+      assertPlanFeature(
+        plan,
+        "retryImports",
+        "Preparing failed import rows for retry",
+      );
       const existing = publicJob(await readJob(db, session.shop, input.id));
       assertPlanCount(
         plan,

@@ -1,8 +1,10 @@
+import ActionButton from "../components/ActionButton";
 import { useEffect, useState, useCallback } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
+import { LoadingState } from "../components/LoadingState";
 const initialField = () => ({
   key: "title",
   name: "Title",
@@ -90,6 +92,7 @@ export default function Metaobjects() {
       ? entries.data.nodes
       : [];
   const fieldLimit = catalog.data?.plan?.limits?.metaobjectFields || 25;
+  const canPublish = catalog.data?.plan?.features?.publicMetaobjects === true;
   return (
     <s-page heading="Reusable metaobjects">
       <PageIntro
@@ -100,9 +103,10 @@ export default function Metaobjects() {
         <HelpLink topic="metaobjects">Metaobjects guide</HelpLink>
       </PageIntro>
       {!catalog.data && (
-        <div className="vsn-loading" role="status">
-          Loading your definitions and field types…
-        </div>
+        <LoadingState
+          label="Loading your definitions and field types…"
+          skeleton
+        />
       )}
       {catalog.data?.error && (
         <div className="vsn-notice error" role="alert">
@@ -121,6 +125,13 @@ export default function Metaobjects() {
         </div>
       )}
       <s-section heading="Definition">
+        {ready && !canPublish && (
+          <div className="vsn-notice warning">
+            Your plan includes private draft metaobjects. Pro unlocks public
+            access and saving Active public entries.{" "}
+            <HelpLink topic="plans">Compare Pro features</HelpLink>
+          </div>
+        )}
         <s-select
           label="Definition"
           value={definitionId}
@@ -156,7 +167,14 @@ export default function Metaobjects() {
           onInput={(e) => setStorefront(e.target.value)}
         >
           <s-option value="NONE">Private</s-option>
-          <s-option value="PUBLIC_READ">Public API access</s-option>
+          <s-option
+            value="PUBLIC_READ"
+            disabled={
+              !canPublish && definition?.access?.storefront !== "PUBLIC_READ"
+            }
+          >
+            Public API access {!canPublish ? "· Pro" : ""}
+          </s-option>
         </s-select>
         {!definition && (
           <>
@@ -208,17 +226,17 @@ export default function Metaobjects() {
                     }
                   />
                 </details>
-                <s-button
+                <ActionButton
                   disabled={fields.length === 1 || busy}
                   onClick={() =>
                     setFields((f) => f.filter((_, i) => i !== index))
                   }
                 >
                   Remove field
-                </s-button>
+                </ActionButton>
               </s-box>
             ))}
-            <s-button
+            <ActionButton
               disabled={fields.length >= fieldLimit || busy || !ready}
               onClick={() =>
                 setFields((f) => {
@@ -238,10 +256,12 @@ export default function Metaobjects() {
               }
             >
               Add field
-            </s-button>
+            </ActionButton>
           </>
         )}
-        <s-button
+        <ActionButton
+          variant="primary"
+          loading={busy}
           disabled={!ready || busy || (definition && !definition.editable)}
           onClick={() => {
             if (definition) {
@@ -292,7 +312,7 @@ export default function Metaobjects() {
           }}
         >
           {definition ? "Save metadata" : "Create definition"}
-        </s-button>
+        </ActionButton>
         {definition && (
           <>
             <s-text>
@@ -300,7 +320,7 @@ export default function Metaobjects() {
               checks current entries again. Type/key changes and destructive
               field migrations use Shopify’s native editor.
             </s-text>
-            <s-button
+            <ActionButton
               tone="critical"
               disabled={busy || !definition.editable}
               onClick={() => {
@@ -316,7 +336,7 @@ export default function Metaobjects() {
               }}
             >
               Check and remove empty definition
-            </s-button>
+            </ActionButton>
           </>
         )}
       </s-section>
@@ -337,6 +357,7 @@ export default function Metaobjects() {
                 {field.required ? " *" : ""}
               </s-heading>
               <TypedValueInput
+                referencesLoading={references.state !== "idle"}
                 type={field.type.name}
                 value={values[field.key] || ""}
                 onChange={(value) =>
@@ -367,7 +388,17 @@ export default function Metaobjects() {
               }}
             >
               <s-option value="DRAFT">Draft</s-option>
-              <s-option value="ACTIVE">Active</s-option>
+              <s-option
+                value="ACTIVE"
+                disabled={
+                  !canPublish && definition.access?.storefront === "PUBLIC_READ"
+                }
+              >
+                Active{" "}
+                {definition.access?.storefront === "PUBLIC_READ" && !canPublish
+                  ? "· Pro"
+                  : ""}
+              </s-option>
             </s-select>
           )}
           {status === "ACTIVE" &&
@@ -378,10 +409,16 @@ export default function Metaobjects() {
                 onChange={(e) => setPublicConfirm(e.target.checked)}
               />
             )}
-          <s-button
+          <ActionButton
+            variant="primary"
+            loading={busy}
             disabled={
               busy ||
               !definition.editable ||
+              (definition.access?.storefront === "PUBLIC_READ" &&
+                (status === "ACTIVE" ||
+                  !definition.capabilities?.publishable?.enabled) &&
+                !canPublish) ||
               (status === "ACTIVE" &&
                 definition.access?.storefront === "PUBLIC_READ" &&
                 !publicConfirm)
@@ -403,9 +440,9 @@ export default function Metaobjects() {
             }
           >
             Save entry
-          </s-button>
+          </ActionButton>
           {editing && (
-            <s-button
+            <ActionButton
               onClick={() => {
                 setEditing(null);
                 setValues({});
@@ -415,16 +452,14 @@ export default function Metaobjects() {
               }}
             >
               Cancel edit
-            </s-button>
+            </ActionButton>
           )}
         </s-section>
       )}
       {definition && (
         <s-section heading="Entries">
           {entries.state !== "idle" && (
-            <div role="status" className="vsn-loading">
-              Loading entries…
-            </div>
+            <LoadingState label="Loading entries…" />
           )}
           {entries.state === "idle" &&
             entries.data?.ok &&
@@ -455,7 +490,7 @@ export default function Metaobjects() {
                       "Not publishable"}
                   </s-table-cell>
                   <s-table-cell>
-                    <s-button
+                    <ActionButton
                       disabled={busy || !definition.editable}
                       onClick={() => {
                         setEditing(entry);
@@ -472,8 +507,8 @@ export default function Metaobjects() {
                       }}
                     >
                       Edit
-                    </s-button>
-                    <s-button
+                    </ActionButton>
+                    <ActionButton
                       tone="critical"
                       disabled={busy || !definition.editable}
                       onClick={() => {
@@ -493,7 +528,7 @@ export default function Metaobjects() {
                       }}
                     >
                       Remove
-                    </s-button>
+                    </ActionButton>
                   </s-table-cell>
                 </s-table-row>
               ))}
@@ -501,7 +536,7 @@ export default function Metaobjects() {
           </s-table>
           {entries.data?.type === definition.type &&
             entries.data.pageInfo?.hasNextPage && (
-              <s-button
+              <ActionButton
                 onClick={() =>
                   loadEntries(
                     url({
@@ -512,11 +547,13 @@ export default function Metaobjects() {
                 }
               >
                 Next entries
-              </s-button>
+              </ActionButton>
             )}
-          <s-button onClick={() => loadEntries(url({ type: definition.type }))}>
+          <ActionButton
+            onClick={() => loadEntries(url({ type: definition.type }))}
+          >
             Reload from first page
-          </s-button>
+          </ActionButton>
         </s-section>
       )}
       {[catalog, entries, mutation, references].map((f, i) =>
