@@ -4,8 +4,8 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "Batch 3/5/6 representative staging service acceptance run 37060758630 passed on development f94962df65b02fb3e586daffd0d3dbc7aa021aa6 at 2026-10-02T20:30:42Z: 21 typed cases, stale-write protection, metaobjects, durable bulk, diagnostics, exact previous-fixture recovery and all disposable cleanup. Read-only pro-plan metadata ACTIVE/test=true/USD55/five-day trial. This is service evidence, not full merchant UI or production release.",
-  "next_valid_work_unit": "Complete authenticated merchant UI, two-theme editor/storefront, accessibility and applicable release assurance. Representative service run37060758630 and active five-block staging release37061195975 passed on f94962df65b02fb3e586daffd0d3dbc7aa021aa6. Keep full acceptance verification_required; main/live promotion remains separate.",
+  "last_verified_completion": "Storefront QA follow-up PR167 merged development e90b9f764865f4d10ee7add4bc7de3941bf50a68; 113 Node22.13.0 contracts and required CI passed. Exact-source staging runtime37066444570 and active extension37066820946 passed with all21 representative typed cases, metaobjects, bulk, diagnostics and complete disposable cleanup. Full merchant/two-theme/accessibility acceptance remains pending.",
+  "next_valid_work_unit": "Execute the combined merchant/theme acceptance matrix in docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md when authenticated staging Shopify browser access is available. Staging runtime and five-block extension share e90b9f764865f4d10ee7add4bc7de3941bf50a68. Do not renew the prior declined sign-in handoff on generic continue. Preserve required development checks and protected main/live promotion.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -30,8 +30,8 @@
   "critical_defects": [],
   "qa_readiness": "representative_staging_API_passed_merchant_UI_theme_accessibility_pending",
   "security_readiness": "cloudflare_live_verified_previous_version_retained_after_closure",
-  "last_reconciled_repository_ref": "f94962df65b02fb3e586daffd0d3dbc7aa021aa6",
-  "last_reconciled_at": "2026-10-02T20:30:42+00:00",
+  "last_reconciled_repository_ref": "e90b9f764865f4d10ee7add4bc7de3941bf50a68",
+  "last_reconciled_at": "2026-10-02T21:27:23Z",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }
