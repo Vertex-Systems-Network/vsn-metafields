@@ -27,6 +27,9 @@ const value = (type, data) =>
     settings,
   });
 const blocks = ["vsn-single-field", "vsn-specifications"];
+blocks.push("vsn-reference-cards", "vsn-faq", "vsn-media");
+engine.registerFilter("t", (key) => key);
+engine.registerFilter("video_tag", () => {throw new Error("video_tag requires Shopify runtime verification");});
 const schema = (name) =>
   JSON.parse(
     readFileSync(`${root}/blocks/${name}.liquid`, "utf8").match(
@@ -96,6 +99,27 @@ test("lists preserve safe item ordering and references escape their caption", as
     }),
     /&lt;Product&gt;/,
   );
+});
+test("reference cards render only mapped supported public fields, escaping titles",async()=>{
+  const metaobject={title:{type:"single_line_text_field",value:"<Title>"},description:{type:"multi_line_text_field",value:"Body"},link:{type:"url",value:"javascript:alert(1)"}};
+  const product={id:1,metafields:{custom:{cards:{type:"list.metaobject_reference",value:[metaobject]}}}};
+  const result=await renderBlock("vsn-reference-cards",{namespace:"custom",field_key:"cards"},{product});
+  assert.match(result,/&lt;Title&gt;/);assert.match(result,/Body/);assert.doesNotMatch(result,/javascript|<Title>/);
+  const hidden=await renderBlock("vsn-reference-cards",{namespace:"custom",field_key:"cards"},{product:{id:1,metafields:{custom:{cards:{type:"json",value:{secret:"x"}}}}}});
+  assert.equal(hidden.trim(),"");
+});
+test("FAQ keeps semantic keyboard-operable disclosure and suppresses incomplete entries",async()=>{
+  const product={id:1,metafields:{custom:{faq:{type:"list.metaobject_reference",value:[{question:{type:"single_line_text_field",value:"<Question>"},answer:{type:"multi_line_text_field",value:"Answer"}},{question:{type:"single_line_text_field",value:"Missing answer"}}]}}}};
+  const result=await renderBlock("vsn-faq",{namespace:"custom",field_key:"faq",open_first:true},{product});
+  assert.match(result,/<details[^>]*open/);assert.match(result,/<summary>&lt;Question&gt;<\/summary>/);assert.doesNotMatch(result,/Missing answer/);
+});
+test("specialized variant blocks retain empty refresh anchors and exclude arbitrary file URLs",async()=>{
+  const product={id:1,selected_or_first_available_variant:{id:2,metafields:{}}};
+  for(const block of ["vsn-reference-cards","vsn-faq","vsn-media"]){
+    const result=await renderBlock(block,{source:"variant"},{product});
+    assert.match(result,/data-vsn-source="variant"/);assert.match(result,/hidden/);
+  }
+  assert.equal((await renderBlock("vsn-media",{namespace:"custom",field_key:"media"},{product:{id:1,metafields:{custom:{media:{type:"url",value:"javascript:evil"}}}}})).trim(),"");
 });
 test("links reject javascript/protocol relative URLs and protect new tabs", async () => {
   for (const url of [

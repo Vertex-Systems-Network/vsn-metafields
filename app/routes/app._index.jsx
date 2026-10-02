@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
+import TypedValueInput from "../components/TypedValueInput";
+import { editableValueType } from "../value-types";
 import {
   OWNER_TYPES,
   PUBLIC_OWNERS,
@@ -21,6 +23,7 @@ export default function Index() {
   const resourcesFetcher = useFetcher();
   const valueFetcher = useFetcher();
   const valueActionFetcher = useFetcher();
+  const referencesFetcher = useFetcher();
   const location = useLocation();
   const [ownerType, setOwnerType] = useState("PRODUCT");
   const [name, setName] = useState("");
@@ -134,8 +137,8 @@ export default function Index() {
     if (valueReady) setFieldValue(valueFetcher.data.value ?? "");
   }, [valueFetcher.data, valueReady]);
   useEffect(() => {
-    if (valueActionFetcher.data?.success) loadValue();
-  }, [valueActionFetcher.data, loadValue]);
+    if (valueActionFetcher.data?.success && valueActionFetcher.data.ownerType === ownerType && valueActionFetcher.data.ownerId === resourceId && valueActionFetcher.data.namespace === selectedDefinition?.namespace && valueActionFetcher.data.key === selectedDefinition?.key) loadValue();
+  }, [valueActionFetcher.data, loadValue, ownerType, resourceId, selectedDefinition]);
   const submit = (input) => {
     const form = new FormData();
     for (const [key, value] of Object.entries({ ...input, ownerType }))
@@ -199,6 +202,7 @@ export default function Index() {
       namespace: selectedDefinition.namespace,
       key: selectedDefinition.key,
       value: fieldValue,
+      compareDigest: valueFetcher.data.compareDigest || "",
       confirm: `REMOVE_VALUE:${resourceId}:${selectedDefinition.namespace}:${selectedDefinition.key}`,
     };
     for (const [key, value] of Object.entries(input)) form.set(key, value);
@@ -515,8 +519,8 @@ export default function Index() {
       {VALUE_OWNERS.has(ownerType) && (
         <s-section heading="Resource values">
           <s-text>
-            Text, integer, date, boolean and HTTPS URL values can be edited
-            here. Additional types use Shopify’s native value editor.
+            Choose a definition and enter a typed scalar, JSON, rich text,
+            measurement, list or resource reference. Unsupported types remain in Shopify’s native editor.
           </s-text>
           <s-text-field
             label="Search resource title"
@@ -561,16 +565,7 @@ export default function Index() {
           >
             <s-option value="">Choose a field</s-option>
             {fields
-              .filter((item) =>
-                [
-                  "single_line_text_field",
-                  "multi_line_text_field",
-                  "number_integer",
-                  "date",
-                  "boolean",
-                  "url",
-                ].includes(item.type),
-              )
+              .filter((item) => editableValueType(item.type) && !item.namespace.startsWith("app--") && item.namespace !== "shopify" && !item.namespace.startsWith("shopify--"))
               .map((item) => (
                 <s-option key={item.id} value={`${item.namespace}:${item.key}`}>
                   {item.name} — {item.namespace}.{item.key}
@@ -579,11 +574,15 @@ export default function Index() {
           </s-select>
           {valueReady && (
             <>
-              <s-text-field
-                label="Value"
+              <TypedValueInput
+                key={`${resourceId}:${valueIdentity}`}
+                type={selectedDefinition.type}
                 value={fieldValue}
-                onInput={(event) => setFieldValue(event.target.value)}
+                onChange={setFieldValue}
+                references={referencesFetcher.data?.type === selectedDefinition.type.replace(/^list\./,"") ? referencesFetcher.data.references || [] : []}
+                onFindReferences={(type,search)=>referencesFetcher.load(apiUrl("/app/api/references",{type,search}))}
               />
+              {referencesFetcher.data?.error && <s-banner tone="critical">{referencesFetcher.data.error}</s-banner>}
               <s-button
                 disabled={!fieldValue || valueActionFetcher.state !== "idle"}
                 onClick={() => submitValue("set")}

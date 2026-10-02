@@ -23,4 +23,8 @@ At work start, map each ID into the canonical coordination/work queue using auth
 
 ## Batch 1, 2, 4 implementation
 
-Capability, definition lifecycle and Single Field/Specifications code is implemented on a development-derived feature branch. See `docs/ai/METAFIELDS-BATCH-124-REPORT.md`; META-001/002/003/005/006 remain `verification_required` until their actual staging/theme acceptance evidence exists. The user authorized self-review for this batch; enforced repository/environment gates remain in effect.
+Capability, definition lifecycle and Single Field/Specifications code is implemented on a development-derived feature branch. See `docs/ai/METAFIELDS-BATCH-124-REPORT.md`; META-001/002/003 representative staging acceptance is complete; META-005/006 remain `verification_required` until actual theme acceptance exists. The user authorized self-review for this batch; enforced repository/environment gates remain in effect.
+
+## Batch table items 3, 5, 6
+
+The latest conversation table maps 3 to META-004, 5 to META-007/008/009, and 6 to META-010. These are implemented together on a development-derived branch. See `docs/ai/METAFIELDS-BATCH-356-REPORT.md` for exact bounds, failure evidence and pending browser acceptance. This batch does not claim production release or all-type/all-owner mutation verification.

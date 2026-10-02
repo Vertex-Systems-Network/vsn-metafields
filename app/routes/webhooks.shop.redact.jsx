@@ -1,7 +1,13 @@
 import { authenticate } from "../shopify.server";
+import { createPrismaClient } from "../db.server";
 
 export const action = async ({ request }) => {
-  await authenticate.webhook(request);
-  // Shop-scoped session cleanup is handled by the authenticated uninstall webhook.
+  const { shop } = await authenticate.webhook(request);
+  const db = createPrismaClient();
+  try {
+    await db.metafieldJob.deleteMany({ where: { shop } });
+  } finally {
+    await db.$disconnect();
+  }
   return new Response();
 };

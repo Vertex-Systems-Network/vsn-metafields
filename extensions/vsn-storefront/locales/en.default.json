@@ -1,5 +1,8 @@
 {
   "vsn_metafields": {
     "missing_value": "No value available"
+  },
+  "vsn": {
+    "empty_specialized": "Choose a supported public metafield and field mapping. Missing or unsupported content is hidden on the storefront."
   }
 }

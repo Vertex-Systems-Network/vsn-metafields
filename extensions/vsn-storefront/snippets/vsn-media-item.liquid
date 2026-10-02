@@ -1,0 +1,5 @@
+{%- if media.media_type == 'image' -%}
+  {{ media | image_url: width: 1200 | image_tag: loading: 'lazy', widths: '300,600,900,1200', sizes: '(max-width: 600px) 100vw, 800px', alt: media.alt }}
+{%- elsif media.media_type == 'video' -%}
+  {{ media | video_tag: controls: settings.controls, loop: settings.loop, autoplay: false, muted: false, preload: 'none' }}
+{%- endif -%}
