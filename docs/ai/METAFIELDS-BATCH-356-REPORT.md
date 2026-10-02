@@ -1,5 +1,27 @@
 # Typed values, advanced features and operations — batch table items 3, 5, 6
 
+## Latest verified outcome — 2026-10-02
+
+**Development implementation, required CI, representative staging API acceptance and staging extension release passed. Full merchant/theme acceptance remains pending; this batch is not certified complete end-to-end or promoted live.**
+
+| Evidence | Actual result |
+| --- | --- |
+| Final required CI | PR165 head f118213d9236d391e75fe12aec5ce3afc3ca3137: App Validation 37060442804 and AI Native Quality Gates 37060442740 passed |
+| Local release checks | Node22.13.0: 103 tests passed, zero lint errors/warnings, typecheck, SQLite/Postgres parity and build passed |
+| Staging runtime | Run37060758630/job111016550222, source f94962df65b02fb3e586daffd0d3dbc7aa021aa6: full pass |
+| Advanced service lifecycle | 21 representative typed values, stale-write/no-overwrite, wrong references, complete metaobjects, bulk mixed outcomes/isolation/resume and diagnostics passed |
+| Fixture recovery | Current/base cleanup passed; exact prior metaobject definition24588714356 recovered; prior four reference definitions recovered in run36997071272; no reported leftover fixtures |
+| Billing actual read | pro-plan ACTIVE, test=true, five trial days, USD55 EVERY_30_DAYS; no agent billing writes |
+| Staging extension | Run37061195975/job111017989214 passed; active version staging-metafields-f94962df65b0, all five blocks; production_app_changed=false |
+| Main/live | Main unchanged dde3ba16539c892b140cce72b3039dd55d42edf6; no production deployment performed |
+
+Structured proof: `docs/evidence/metafields-batch356-staging-2026-10-02.json`. Runtime and extension share the same exact source. Subsequent evidence-only commits are not runtime deployments. The chronological failed runs below remain part of the record and are superseded by this final service/release acceptance.
+
+Remaining: signed-in merchant value/metaobject/import/onboarding tasks; actual purchase-approval navigation; two-theme Shopify editor/storefront, rich text/image/video/variant/empty/private/mobile states; accessibility/performance and applicable security acceptance before live. The prior browser sign-in request was declined and was not repeated. Read_files is absent; optional media/page pickers report gaps. Do not infer merchant approval navigation or full frontend acceptance from active subscription metadata.
+
+Existing Specifications retains the 45-settings advisory. Three staging compliance webhook topics were enqueued; delivery was not independently verified. Metaobject timestamp updates and actual-empty deletion checks cannot eliminate an external read/write race. All-owner/type discovery remains broader than certified value mutations. Production rollout/cleanup stays separate.
+
+
 The user authorized autonomous implementation and self-review in the prior batch and now requested items 3, 5, 6 together. The most recent conversation table maps 3 to typed values (META-004), 5 to advanced metaobjects/bulk/specialized blocks (META-007/008/009), and 6 to onboarding/permissions/diagnostics (META-010). These table numbers are distinct from META identifiers. An older planning artifact uses a different six-item table; it is not used to silently expand this batch to live release.
 
 Source branch: feature/metafield-values-advanced-operations, based on development d72f3f4f25c561fee4cadc681de73a91e19fbd1f. Target: development, followed by isolated staging. Main and live are separate protected release stages.
@@ -22,7 +44,7 @@ Preview binds resource/definition/type/value and original compareDigest. Apply c
 
 Before export restores previously existing values through a fresh preview. New values have no before value and require selected manual removal. Bulk delete, automatic destructive rollback, unrestricted large background imports, and definition/type migrations are outside this bounded workflow.
 
-Metaobject updates use existing timestamp checks and field patches that preserve omitted fields. Shopify does not offer an atomic compareDigest for these entry updates; an external concurrent edit between the read and write remains possible. Definition type/field keys remain immutable here; destructive field migrations use the native editor. Definition removal is restricted to empty definitions with a second entry check. Those reads and the deletion are separate Shopify operations; creation by another editor between the final check and deletion is a residual race, so this does not claim atomic empty-definition deletion. App/Shopify-owned types are read-only.
+Metaobject updates use existing timestamp checks and field patches that preserve omitted fields. Shopify does not offer an atomic compareDigest for these entry updates; an external concurrent edit between the read and write remains possible. Definition type/field keys remain immutable here; destructive field migrations use the native editor. Definition removal verifies both ID-bound and type-bound actual empty collections. Those reads and the deletion are separate Shopify operations; creation by another editor between the final check and deletion is a residual race, so this does not claim atomic empty-definition deletion. App/Shopify-owned types are read-only.
 
 ## Verification record
 

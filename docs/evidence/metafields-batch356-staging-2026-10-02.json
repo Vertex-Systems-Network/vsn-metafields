@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-02",
+  "repository": "Vertex-Systems-Network/vsn-metafields",
+  "environment": "isolated-staging",
+  "mainSha": "dde3ba16539c892b140cce72b3039dd55d42edf6",
+  "productionDeploymentPerformed": false,
+  "billingMutationsPerformed": false,
+  "localChecks": {
+    "node": "22.13.0",
+    "tests": 103,
+    "passed": 103,
+    "failed": 0,
+    "lint": "pass; zero warnings/errors",
+    "typecheck": "pass",
+    "databaseParity": "pass",
+    "build": "pass",
+    "anposIntegrity": "pass",
+    "shopifyIsolation": "pass"
+  },
+  "previousRepresentativeAcceptance": {
+    "sourceSha": "53fd7b80ebc6ed77932ec4b24e7e6248431017e2",
+    "runId": 37058589257,
+    "jobId": 111009288392,
+    "conclusion": "failure",
+    "base": {
+      "apiVersion": "2026-07",
+      "ok": false,
+      "sourceSha": "53fd7b80ebc6ed77932ec4b24e7e6248431017e2",
+      "readableOwners": [
+        "API_PERMISSION",
+        "ARTICLE",
+        "BLOG",
+        "CARTTRANSFORM",
+        "COLLECTION",
+        "COMPANY",
+        "COMPANY_LOCATION",
+        "CUSTOMER",
+        "DELIVERY_CUSTOMIZATION",
+        "DISCOUNT",
+        "DRAFTORDER",
+        "FULFILLMENT_CONSTRAINT_RULE",
+        "GIFT_CARD_TRANSACTION",
+        "LOCATION",
+        "MARKET",
+        "ORDER",
+        "ORDER_ROUTING_LOCATION_RULE",
+        "PAGE",
+        "PAYMENT_CUSTOMIZATION",
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "SELLING_PLAN",
+        "SHOP",
+        "TRANSFER",
+        "VALIDATION"
+      ],
+      "unavailableOwners": [],
+      "lifecycleOwners": [
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "COLLECTION"
+      ],
+      "standardEnable": true,
+      "valuesRetainedAfterDefinitionRemoval": true,
+      "cleanup": true,
+      "recoveredFailedProbeDefinitions": [],
+      "schema": {
+        "apiVersion": "2026-07",
+        "documents": 49,
+        "ownerInventory": true
+      },
+      "typeCount": 118,
+      "grantedScopes": [
+        "read_orders",
+        "read_products",
+        "write_metaobject_definitions",
+        "write_metaobjects",
+        "write_products",
+        "read_metaobject_definitions",
+        "read_metaobjects"
+      ],
+      "standardTemplateCount": 8516,
+      "cleanupFailures": []
+    },
+    "advanced": {
+      "typedValues": [
+        "single_line_text_field",
+        "multi_line_text_field",
+        "number_integer",
+        "number_decimal",
+        "boolean",
+        "date",
+        "date_time",
+        "url",
+        "color",
+        "json",
+        "rich_text_field",
+        "dimension",
+        "weight",
+        "volume",
+        "list.single_line_text_field",
+        "list.number_integer",
+        "product_reference",
+        "variant_reference",
+        "collection_reference",
+        "list.product_reference",
+        "metaobject_reference"
+      ],
+      "staleDigestRejected": true,
+      "referenceVerification": true,
+      "metaobjects": {
+        "create": true,
+        "list": true,
+        "entryCreate": true,
+        "entryUpdate": true,
+        "omittedFieldsPreserved": true,
+        "definitionRename": true,
+        "referenceWrite": true,
+        "entryDelete": true
+      },
+      "bulk": {
+        "preview": true,
+        "apply": true,
+        "mixedRows": true,
+        "conflict": true,
+        "completedResume": true,
+        "shopIsolation": true
+      },
+      "diagnostics": {
+        "scopesRead": true,
+        "planGatePreserved": true,
+        "actualHasActivePlan": true,
+        "missingOptionalScopes": [
+          "read_files"
+        ]
+      },
+      "cleanup": false,
+      "billingMetadata": [
+        {
+          "name": "pro-plan",
+          "status": "ACTIVE",
+          "test": true,
+          "trialDays": 5,
+          "recurring": [
+            {
+              "price": {
+                "amount": "55.0",
+                "currencyCode": "USD"
+              },
+              "interval": "EVERY_30_DAYS"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": [
+        {
+          "kind": "metaobject definition",
+          "id": "gid://shopify/MetaobjectDefinition/24588714356",
+          "error": "Only confirmed empty definitions can be removed. Remove selected entries first."
+        }
+      ]
+    }
+  },
+  "remainingAcceptance": [
+    "Authenticated merchant value/metaobject/import/onboarding UI",
+    "Actual plan approval navigation in the merchant browser",
+    "Two-theme Shopify editor/storefront with desktop/mobile/variant/private/empty/media states",
+    "Accessibility/performance and relevant security acceptance before live"
+  ],
+  "limitations": [
+    "Value mutation owners are product, variant and collection; catalog discovery does not certify writes to all owners/types.",
+    "100 rows/256 KB CSV, 10-row chunks, 7-day inaccessible expiry; physical purge at next preview/uninstall/shop-redact, no scheduled purge.",
+    "Metaobject updates and empty-definition deletion have separate read/write steps; external concurrent changes remain possible.",
+    "Merchant reference definition removal is blocked for native impact review.",
+    "read_files/read_content optional scope gaps require explicit future scope review, not silent production OAuth expansion."
+  ],
+  "runtimeAcceptance": {
+    "workflowRun": 37060758630,
+    "jobId": 111016550222,
+    "conclusion": "success",
+    "sourceSha": "f94962df65b02fb3e586daffd0d3dbc7aa021aa6",
+    "report": {
+      "apiVersion": "2026-07",
+      "ok": true,
+      "sourceSha": "f94962df65b02fb3e586daffd0d3dbc7aa021aa6",
+      "readableOwners": [
+        "API_PERMISSION",
+        "ARTICLE",
+        "BLOG",
+        "CARTTRANSFORM",
+        "COLLECTION",
+        "COMPANY",
+        "COMPANY_LOCATION",
+        "CUSTOMER",
+        "DELIVERY_CUSTOMIZATION",
+        "DISCOUNT",
+        "DRAFTORDER",
+        "FULFILLMENT_CONSTRAINT_RULE",
+        "GIFT_CARD_TRANSACTION",
+        "LOCATION",
+        "MARKET",
+        "ORDER",
+        "ORDER_ROUTING_LOCATION_RULE",
+        "PAGE",
+        "PAYMENT_CUSTOMIZATION",
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "SELLING_PLAN",
+        "SHOP",
+        "TRANSFER",
+        "VALIDATION"
+      ],
+      "unavailableOwners": [],
+      "lifecycleOwners": [
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "COLLECTION"
+      ],
+      "standardEnable": true,
+      "valuesRetainedAfterDefinitionRemoval": true,
+      "cleanup": true,
+      "recoveredFailedProbeDefinitions": [],
+      "recoveredFailedProbeMetaobjects": [
+        {
+          "id": "gid://shopify/MetaobjectDefinition/24588714356",
+          "type": "vsn_probe_1790971746517_0a4f75"
+        }
+      ],
+      "schema": {
+        "apiVersion": "2026-07",
+        "documents": 50,
+        "ownerInventory": true
+      },
+      "typeCount": 118,
+      "grantedScopes": [
+        "read_orders",
+        "read_products",
+        "write_metaobject_definitions",
+        "write_metaobjects",
+        "write_products",
+        "read_metaobject_definitions",
+        "read_metaobjects"
+      ],
+      "standardTemplateCount": 8516,
+      "advanced": {
+        "typedValues": [
+          "single_line_text_field",
+          "multi_line_text_field",
+          "number_integer",
+          "number_decimal",
+          "boolean",
+          "date",
+          "date_time",
+          "url",
+          "color",
+          "json",
+          "rich_text_field",
+          "dimension",
+          "weight",
+          "volume",
+          "list.single_line_text_field",
+          "list.number_integer",
+          "product_reference",
+          "variant_reference",
+          "collection_reference",
+          "list.product_reference",
+          "metaobject_reference"
+        ],
+        "staleDigestRejected": true,
+        "referenceVerification": true,
+        "metaobjects": {
+          "create": true,
+          "list": true,
+          "entryCreate": true,
+          "entryUpdate": true,
+          "omittedFieldsPreserved": true,
+          "definitionRename": true,
+          "referenceWrite": true,
+          "entryDelete": true,
+          "emptyDefinitionDelete": true
+        },
+        "bulk": {
+          "preview": true,
+          "apply": true,
+          "mixedRows": true,
+          "conflict": true,
+          "completedResume": true,
+          "shopIsolation": true
+        },
+        "diagnostics": {
+          "scopesRead": true,
+          "planGatePreserved": true,
+          "actualHasActivePlan": true,
+          "missingOptionalScopes": [
+            "read_files"
+          ]
+        },
+        "cleanup": true,
+        "billingMetadata": [
+          {
+            "name": "pro-plan",
+            "status": "ACTIVE",
+            "test": true,
+            "trialDays": 5,
+            "recurring": [
+              {
+                "price": {
+                  "amount": "55.0",
+                  "currencyCode": "USD"
+                },
+                "interval": "EVERY_30_DAYS"
+              }
+            ]
+          }
+        ],
+        "cleanupFailures": []
+      },
+      "cleanupFailures": []
+    }
+  },
+  "sourceSha": "f94962df65b02fb3e586daffd0d3dbc7aa021aa6",
+  "cleanup": {
+    "advanced": true,
+    "base": true,
+    "previousReferenceDefinitionsRecoveredInRun": 36997071272,
+    "previousMetaobjectRecovered": [
+      {
+        "id": "gid://shopify/MetaobjectDefinition/24588714356",
+        "type": "vsn_probe_1790971746517_0a4f75"
+      }
+    ],
+    "noRemainingReportedFixtures": true
+  },
+  "requiredCI": {
+    "pullRequest": 165,
+    "headSha": "f118213d9236d391e75fe12aec5ce3afc3ca3137",
+    "appValidation": 37060442804,
+    "repositoryIntegrity": 37060442740,
+    "conclusion": "success"
+  },
+  "extensionRelease": {
+    "workflowRun": 37061195975,
+    "jobId": 111017989214,
+    "conclusion": "success",
+    "sourceSha": "f94962df65b02fb3e586daffd0d3dbc7aa021aa6",
+    "version": "staging-metafields-f94962df65b0",
+    "releasedAt": "2026-10-02T20:32:48Z",
+    "status": "active",
+    "blocks": 5,
+    "productionAppChanged": false,
+    "tests": 103,
+    "complianceWebhooks": "three topics enqueued; actual delivery not independently verified",
+    "warnings": [
+      "Existing Specifications block declares 45 settings: ExcessiveSettingsCount advisory."
+    ]
+  }
+}

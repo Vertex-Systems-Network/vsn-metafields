@@ -2,7 +2,7 @@
 
 Execution stage for every work unit: local/development branch and local verification, then manual development-to-staging dispatch and staging verification, then reviewed development-to-main promotion and guarded live release only where applicable. An unverified local setup is never accepted as staging evidence. See `docs/development-release-flow.md`.
 
-This queue is a feature proposal; it does not claim a Supervisor lease, Worker claim, agent identity, implementation, test pass or production readiness. It does not replace PHASE-01's rollback certification.
+This queue records work and acceptance contracts. Entries alone do not prove implementation, tests or production readiness; use the linked actual evidence. No Supervisor lease, Worker claim or persistent agent runtime is claimed. It does not replace PHASE-01's rollback certification.
 
 | ID | Module | Work unit | Dependencies | Acceptance evidence |
 | --- | --- | --- | --- | --- |
@@ -28,3 +28,18 @@ Capability, definition lifecycle and Single Field/Specifications code is impleme
 ## Batch table items 3, 5, 6
 
 The latest conversation table maps 3 to META-004, 5 to META-007/008/009, and 6 to META-010. These are implemented together on a development-derived branch. See `docs/ai/METAFIELDS-BATCH-356-REPORT.md` for exact bounds, failure evidence and pending browser acceptance. This batch does not claim production release or all-type/all-owner mutation verification.
+
+
+## Current completion boundary
+
+| Work | Verified | Still required |
+| --- | --- | --- |
+| META-004 typed values | Development CI and representative staging scalar/list/reference round-trips; stale write rejected without overwrite | Authenticated merchant editor acceptance and unsupported/native paths |
+| META-007 metaobjects | Representative staging definition/entry lifecycle and omitted-field preservation | Authenticated merchant flow (actual empty-only cleanup passed) |
+| META-008 bulk values | Durable SQLite regression coverage and representative Neon preview/apply, mixed outcomes, isolation/resume | Authenticated CSV UI acceptance |
+| META-009 specialized blocks | Three new blocks plus existing two pass extension build/contracts | Two-theme editor/storefront/media and accessibility; exact-source release evidence is linked in the truth report |
+| META-010 operations | Actual granted-scope, active-plan and DB diagnostics | Signed-in merchant onboarding/task completion |
+| META-011 assurance | Service checks, migration preservation, fail-closed safety, release evidence in progress | Complete applicable browser/accessibility/performance/security acceptance |
+| META-012 production | Protected main unchanged; existing rollback certification preserved | Separate reviewed staging-to-main/live release |
+
+The detailed chronological truth report is `docs/ai/METAFIELDS-BATCH-356-REPORT.md`. `verification_required` means implementation exists but its full acceptance evidence is incomplete. User authorization to self-review does not bypass GitHub required checks or protected production release.

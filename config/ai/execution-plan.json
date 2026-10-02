@@ -44,7 +44,7 @@
       "dependencies": [
         "META-PHASE-02"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "exit_criteria": [
         "Requirements and acceptance evidence linked",
         "Relevant staging verification complete"
@@ -60,7 +60,7 @@
       "dependencies": [
         "META-PHASE-03"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "exit_criteria": [
         "Requirements and acceptance evidence linked",
         "Relevant staging verification complete"
@@ -157,8 +157,10 @@
         "META-003"
       ],
       "priority": 4,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+      ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -168,7 +170,8 @@
         "Module-specific contract and end-to-end evidence"
       ],
       "completion_evidence": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
       ]
     },
     {
@@ -238,8 +241,10 @@
         "META-004"
       ],
       "priority": 7,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+      ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -249,7 +254,8 @@
         "Module-specific contract and end-to-end evidence"
       ],
       "completion_evidence": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
       ]
     },
     {
@@ -262,8 +268,10 @@
         "META-004"
       ],
       "priority": 8,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+      ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -273,7 +281,8 @@
         "Module-specific contract and end-to-end evidence"
       ],
       "completion_evidence": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
       ]
     },
     {
@@ -287,8 +296,10 @@
         "META-007"
       ],
       "priority": 9,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+      ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -298,7 +309,8 @@
         "Module-specific contract and end-to-end evidence"
       ],
       "completion_evidence": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
       ]
     },
     {
@@ -312,8 +324,10 @@
         "META-005"
       ],
       "priority": 10,
-      "status": "in_progress",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+      ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -323,7 +337,8 @@
         "Module-specific contract and end-to-end evidence"
       ],
       "completion_evidence": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
       ]
     },
     {
@@ -338,8 +353,10 @@
         "META-010"
       ],
       "priority": 11,
-      "status": "not_started",
-      "blockers": [],
+      "status": "in_progress",
+      "blockers": [
+        "Full merchant browser flow, two-theme editor/storefront and accessibility evidence remain pending."
+      ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -348,7 +365,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ]
     },
     {
       "id": "META-012",
