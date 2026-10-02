@@ -238,6 +238,34 @@ test("post-preview concurrent changes remain conflicts and same-value resume mak
   );
   assert.equal(admin.writes, 0);
 });
+test("atomic Shopify digest races remain conflicts and cannot enter failed-row retry", async () => {
+  for (const code of ["STALE_OBJECT", "INVALID_COMPARE_DIGEST"]) {
+    const admin = api();
+    const preview = await previewImport(admin, db, shop, exportValueCsv([row(250)]));
+    const original = admin.graphql;
+    admin.graphql = async (query, options) => {
+      if (query.includes("SetVsnValue")) {
+        admin.state.set(row(250).ownerId, {
+          value: "another editor", type: "single_line_text_field",
+          compareDigest: "changed-after-precheck",
+        });
+        return { json: async () => ({ data: { metafieldsSet: {
+          userErrors: [{ message: "Value changed", code }],
+        } } }) };
+      }
+      return original(query, options);
+    };
+    const done = await runImportChunk(admin, db, shop, apply(preview));
+    assert.equal(done.results[0].status, "conflict");
+    assert.equal(done.results[0].code, code);
+    assert.equal(admin.writes, 0);
+    assert.equal(admin.state.get(row(250).ownerId).value, "another editor");
+    await assert.rejects(retryImport(db, shop, {
+      id: done.id, revision: done.revision,
+      confirm: `RETRY:${done.id}:${done.inputHash}`,
+    }), /failed rows/i);
+  }
+});
 test("failed rows can retry while successful rows remain untouched", async () => {
   const admin = api(),
     preview = await previewImport(

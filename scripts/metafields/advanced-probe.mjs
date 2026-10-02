@@ -185,7 +185,12 @@ export async function verifyAdvancedBatch(
       compareDigest: primary.digest,
     });
     assert.equal(stale.ok, false);
-    assert.equal(stale.code, "INVALID_COMPARE_DIGEST");
+    assert.equal(stale.code, "STALE_OBJECT");
+    const afterStale = await readResourceValue(
+      admin, "PRODUCT", product.id, primary.definition.namespace,
+      primary.definition.key,
+    );
+    assert.equal(afterStale.value, "Changed by probe");
     report.staleDigestRejected = true;
     await assert.rejects(
       verifyReferences(admin, "product_reference", collection.id),
@@ -261,7 +266,7 @@ export async function verifyAdvancedBatch(
       }),
     );
     report.typedValues.push("metaobject_reference");
-    const bulkField = await prepare("single_line_text_field", "bulk");
+    const bulkField = await prepare("single_line_text_field", "21");
     values.push({ ownerId: product.id, definition: bulkField });
     const bulkRows = [
       {
@@ -276,7 +281,7 @@ export async function verifyAdvancedBatch(
         ownerType: "PRODUCT",
         ownerId: product.id,
         namespace: primary.definition.namespace,
-        key: primary.definition.key,
+        key: `${primary.definition.key}_missing`,
         type: "number_integer",
         value: "0",
       },

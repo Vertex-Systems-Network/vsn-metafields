@@ -218,7 +218,9 @@ export async function runImportChunk(admin, db, shop, input) {
                 }
               : {
                   row: row.row,
-                  status: "failed",
+                  status: ["STALE_OBJECT", "INVALID_COMPARE_DIGEST"].includes(saved.code)
+                    ? "conflict"
+                    : "failed",
                   error: saved.error,
                   code: saved.code,
                 };
