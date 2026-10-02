@@ -10,7 +10,7 @@
         "MOD-META-DEFINITIONS"
       ],
       "dependencies": [],
-      "status": "not_started",
+      "status": "complete",
       "exit_criteria": [
         "Requirements and acceptance evidence linked",
         "Relevant staging verification complete"
@@ -27,7 +27,7 @@
       "dependencies": [
         "META-PHASE-01"
       ],
-      "status": "not_started",
+      "status": "in_progress",
       "exit_criteria": [
         "Requirements and acceptance evidence linked",
         "Relevant staging verification complete"
@@ -76,10 +76,8 @@
       "objective": "Pin API version and owner/type/scope/storefront matrix",
       "dependencies": [],
       "priority": 1,
-      "status": "verification_required",
-      "blockers": [
-        "Authenticated pinned-schema and isolated staging API evidence pending"
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Pin API version and owner/type/scope/storefront matrix verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -90,7 +88,8 @@
       ],
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
-        "docs/adr/0006-metafield-definition-ownership.md"
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-staging-2026-10-02.json"
       ]
     },
     {
@@ -103,10 +102,8 @@
         "META-001"
       ],
       "priority": 2,
-      "status": "verification_required",
-      "blockers": [
-        "Authenticated pinned-schema and isolated staging API evidence pending"
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Decide namespace, access and migration verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -117,7 +114,8 @@
       ],
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
-        "docs/adr/0006-metafield-definition-ownership.md"
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-staging-2026-10-02.json"
       ]
     },
     {
@@ -130,10 +128,8 @@
         "META-002"
       ],
       "priority": 3,
-      "status": "verification_required",
-      "blockers": [
-        "Authenticated pinned-schema and isolated staging API evidence pending"
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Standard and custom definition lifecycle verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -144,7 +140,8 @@
       ],
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
-        "docs/adr/0006-metafield-definition-ownership.md"
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-staging-2026-10-02.json"
       ]
     },
     {

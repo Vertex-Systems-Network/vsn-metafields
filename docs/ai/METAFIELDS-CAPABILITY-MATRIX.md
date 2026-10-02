@@ -60,3 +60,7 @@ The current app configurations pin Admin API `2026-07` and request `read_product
 | Removal | Remove only the disposable definition after recording value behavior | Same | Same | Exact ID and associated-value policy recorded; never use bulk reset for a probe |
 
 Each gate records API version, shop/app identity, branch/SHA, timestamp, request operation, safe response summary and observed result. A failed owner remains disabled in the UI until the cause and scope upgrade path are understood. The draft PR #148 adds only definition-list/create/reset owner routing; it does **not** implement value round trips or storefront blocks. Its local build cannot satisfy this staging gate.
+
+## Authenticated staging evidence — 2026-10-02
+
+Run 36983997108 on development 2f634842a4473d303d3942be0a3ef3ed2abe5cbc passed authenticated pinned-schema validation (28 GraphQL documents; exact owner inventory), definition reads for all 25 active owner enums, and discovery of 118 type entries and actual granted scopes. Standard catalog returned 8,516 product templates. Product, product variant and collection custom create/read/metadata update/value write/definition removal/value retention all passed; one absent product standard template enabled/removed successfully. Fixture cleanup passed. See docs/evidence/metafields-staging-2026-10-02.json. This certifies the recorded representative mutations, not writes for every owner/type/template, and does not certify public Liquid/theme availability.

@@ -27,7 +27,9 @@ export async function verifyShopifySchema(introspection) {
   for (const document of docs) {
     const errors = validate(schema, document.document);
     if (errors.length)
-      failures.push(`${document.location}: ${errors.map((error) => error.message).join("; ")}`);
+      failures.push(
+        `${document.location}: ${errors.map((error) => error.message).join("; ")}`,
+      );
   }
   if (failures.length) throw new Error(failures.join("\n"));
   return {

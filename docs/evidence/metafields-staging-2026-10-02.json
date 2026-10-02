@@ -1,0 +1,62 @@
+{
+  "apiVersion": "2026-07",
+  "ok": true,
+  "sourceSha": "2f634842a4473d303d3942be0a3ef3ed2abe5cbc",
+  "readableOwners": [
+    "API_PERMISSION",
+    "ARTICLE",
+    "BLOG",
+    "CARTTRANSFORM",
+    "COLLECTION",
+    "COMPANY",
+    "COMPANY_LOCATION",
+    "CUSTOMER",
+    "DELIVERY_CUSTOMIZATION",
+    "DISCOUNT",
+    "DRAFTORDER",
+    "FULFILLMENT_CONSTRAINT_RULE",
+    "GIFT_CARD_TRANSACTION",
+    "LOCATION",
+    "MARKET",
+    "ORDER",
+    "ORDER_ROUTING_LOCATION_RULE",
+    "PAGE",
+    "PAYMENT_CUSTOMIZATION",
+    "PRODUCT",
+    "PRODUCTVARIANT",
+    "SELLING_PLAN",
+    "SHOP",
+    "TRANSFER",
+    "VALIDATION"
+  ],
+  "unavailableOwners": [],
+  "lifecycleOwners": [
+    "PRODUCT",
+    "PRODUCTVARIANT",
+    "COLLECTION"
+  ],
+  "standardEnable": true,
+  "valuesRetainedAfterDefinitionRemoval": true,
+  "cleanup": true,
+  "schema": {
+    "apiVersion": "2026-07",
+    "documents": 28,
+    "ownerInventory": true
+  },
+  "typeCount": 118,
+  "grantedScopes": [
+    "read_orders",
+    "read_products",
+    "write_metaobject_definitions",
+    "write_metaobjects",
+    "write_products",
+    "read_metaobject_definitions",
+    "read_metaobjects"
+  ],
+  "standardTemplateCount": 8516,
+  "cleanupFailures": [],
+  "workflowRun": 36983997108,
+  "jobId": 110764737298,
+  "completedAt": "2026-10-02T08:27:40Z",
+  "environment": "isolated-staging"
+}

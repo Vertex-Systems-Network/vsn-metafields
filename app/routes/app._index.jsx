@@ -32,6 +32,7 @@ export default function Index() {
   const [storefront, setStorefront] = useState("NONE");
   const [pin, setPin] = useState(true);
   const [templateId, setTemplateId] = useState("");
+  const [templateSearch, setTemplateSearch] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [filter, setFilter] = useState("");
   const [resourceId, setResourceId] = useState("");
@@ -50,6 +51,13 @@ export default function Index() {
     standardsFetcher.data?.ownerType === ownerType
       ? standardsFetcher.data.templates || []
       : [];
+  const matchingTemplates = templates.filter(
+    (item) =>
+      !item.enabled &&
+      `${item.name} ${item.namespace}.${item.key}`
+        .toLowerCase()
+        .includes(templateSearch.trim().toLowerCase()),
+  );
   const resources =
     resourcesFetcher.data?.ownerType === ownerType
       ? resourcesFetcher.data.resources || []
@@ -402,19 +410,29 @@ export default function Index() {
           standardsFetcher.data.error && (
             <s-banner tone="warning">{standardsFetcher.data.error}</s-banner>
           )}
+        <s-text-field
+          label="Search standard templates"
+          value={templateSearch}
+          onInput={(event) => {
+            setTemplateSearch(event.target.value);
+            setTemplateId("");
+          }}
+        />
+        <s-text>
+          {matchingTemplates.length} available matches. Showing the first 50;
+          search by name or namespace.key to narrow the list.
+        </s-text>
         <s-select
           label="Standard template"
           value={templateId}
           onInput={(event) => setTemplateId(event.target.value)}
         >
           <s-option value="">Choose a template</s-option>
-          {templates
-            .filter((item) => !item.enabled)
-            .map((item) => (
-              <s-option key={item.id} value={item.id}>
-                {item.name} — {item.namespace}.{item.key}
-              </s-option>
-            ))}
+          {matchingTemplates.slice(0, 50).map((item) => (
+            <s-option key={item.id} value={item.id}>
+              {item.name} — {item.namespace}.{item.key}
+            </s-option>
+          ))}
         </s-select>
         <s-button
           disabled={

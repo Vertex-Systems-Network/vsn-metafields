@@ -49,6 +49,10 @@ jobs:
           PY
       - name: Validate staging Shopify isolation and webhook contract
         run: python scripts/cloudflare/validate_shopify_staging_isolation.py
+      - name: Install and verify block contracts
+        run: |
+          npm ci
+          npm run test:contracts
       - name: Require and inject isolated staging identity
         run: |
           python - <<'PY'
@@ -64,10 +68,6 @@ jobs:
           if '__SHOPIFY_STAGING_CLIENT_ID__' not in source: raise SystemExit('Missing staging identity placeholder.')
           path.write_text(source.replace('__SHOPIFY_STAGING_CLIENT_ID__', os.environ['SHOPIFY_API_KEY']))
           PY
-      - name: Install and verify block contracts
-        run: |
-          npm ci
-          npm run test:contracts
       - name: Build and upload unreleased staging app version
         run: |
           npx --yes @shopify/cli@4.8.2 app deploy --config cloudflare-staging --no-release --version "staging-metafields-${GITHUB_SHA:0:12}" --message "Verified development metafield blocks"
