@@ -53,7 +53,7 @@ async function renderBlock(name, overrides = {}, context = {}) {
     ...context,
   });
 }
-test("both block schemas have unique settings and bounded valid range defaults", () => {
+test("all five block schemas have unique settings and bounded valid range defaults", () => {
   for (const name of blocks) {
     const s = schema(name);
     assert.equal(s.target, "section");
@@ -126,11 +126,21 @@ test("links reject javascript/protocol relative URLs and protect new tabs", asyn
     "javascript:alert(1)",
     "//evil.example",
     "http://insecure.example",
+    "/\\evil.example/path",
+    "https://example.com\\@evil.example/path",
+    "/\t/evil.example/path",
+    "/\n/evil.example/path",
+    "/\r/evil.example/path",
   ])
     assert.equal((await value("url", url)).trim(), "");
   const link = await value("url", 'https://example.com/?q="hello"');
   assert.match(link, /rel="noopener noreferrer"/);
   assert.match(link, /(?:&quot;|&#34;)hello(?:&quot;|&#34;)/);
+});
+test("safe links retain locale-relative paths and escape their captions", async () => {
+  const output = await value("product_reference", { title: '<Product>', url: '/en/products/test?q="hello"' });
+  assert.match(output, /href="\/en\/products\/test\?q=(?:&quot;|&#34;)hello/);
+  assert.match(output, /&lt;Product&gt;/);
 });
 test("single block resolves selected variant without leaking another product", async () => {
   const product = {

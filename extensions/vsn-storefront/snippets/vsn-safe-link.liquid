@@ -3,11 +3,18 @@
   assign protocol = url | slice: 0, 8
   assign first_char = url | slice: 0, 1
   assign first_two = url | slice: 0, 2
+  assign encoded_url = url | url_encode
   assign allowed = false
   if protocol == 'https://'
     assign allowed = true
   elsif first_char == '/' and first_two != '//'
     assign allowed = true
+  endif
+  if url contains '\\'
+    assign allowed = false
+  endif
+  if encoded_url contains '%09' or encoded_url contains '%0A' or encoded_url contains '%0D'
+    assign allowed = false
   endif
 -%}
 {%- if allowed -%}<a href="{{ url | escape }}"{% if settings.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ caption | default: url | escape }}</a>{%- endif -%}
