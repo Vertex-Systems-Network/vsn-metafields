@@ -10,6 +10,7 @@ import {
   OWNER_GIDS,
 } from "../metafield-values.server";
 import { editableValueType } from "../value-types";
+import { getPlanEntitlement, assertListValue } from "../plan-limits.server";
 
 async function listValueResources(admin, ownerType, search = "") {
   if (!OWNER_GIDS[ownerType])
@@ -105,8 +106,7 @@ export const action = async ({ request }) => {
       { status: 405, headers: { Allow: "POST" } },
     );
   try {
-    if (!(await hasActivePlan(admin)))
-      return reply({ ok: false, error: "An active plan is required." }, 403);
+    const plan = await getPlanEntitlement(admin);
     const form = await request.formData();
     const ownerType = String(form.get("ownerType") || "").toUpperCase(),
       ownerId = String(form.get("ownerId") || "");
@@ -150,8 +150,10 @@ export const action = async ({ request }) => {
       command === "set"
         ? validateValueInput(ownerType, ownerId, definition, form.get("value"))
         : undefined;
-    if (command === "set")
+    if (command === "set") {
+      assertListValue(plan, definition.type, value);
       await verifyReferences(admin, definition.type, value);
+    }
     const result = await mutateValue(admin, {
       action: command,
       ownerId,
@@ -175,8 +177,16 @@ export const action = async ({ request }) => {
     });
   } catch (error) {
     return reply(
-      { ok: false, error: error.message || "Value action failed." },
-      error instanceof RangeError ? 400 : 502,
+      {
+        ok: false,
+        error: error.message || "Value action failed.",
+        code: error.code,
+      },
+      error.code === "plan_limit"
+        ? 403
+        : error instanceof RangeError
+          ? 400
+          : 502,
     );
   }
 };

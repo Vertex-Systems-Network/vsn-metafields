@@ -1,0 +1,542 @@
+.vsn-workspace {
+  --vsn-ink: #172b26;
+  --vsn-muted: #54655f;
+  --vsn-accent: #126b4c;
+  --vsn-border: #dce5df;
+  color: var(--vsn-ink);
+  font-family: Inter, system-ui, sans-serif;
+  max-width: 1400px;
+  margin: auto;
+  background: #f6f8f6;
+  min-height: 100vh;
+  line-height: 1.55;
+}
+.vsn-workspace * {
+  box-sizing: border-box;
+}
+.vsn-workspace a {
+  color: var(--vsn-accent);
+}
+.vsn-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px;
+  background: #fff;
+  border-bottom: 1px solid var(--vsn-border);
+  gap: 16px;
+}
+.vsn-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none !important;
+  color: var(--vsn-ink) !important;
+  letter-spacing: -0.4px;
+}
+.vsn-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: #173e30;
+  color: #fff;
+  border-radius: 11px;
+  font-size: 22px;
+}
+.vsn-help-link {
+  font-size: 13px;
+  text-decoration: none;
+}
+.vsn-navigation {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 12px 28px;
+  background: #fff;
+  border-bottom: 1px solid var(--vsn-border);
+}
+.vsn-nav-link {
+  white-space: nowrap;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--vsn-muted) !important;
+}
+.vsn-nav-link.active {
+  background: #eaf4ed;
+  color: #126b4c !important;
+}
+.vsn-nav-link:hover {
+  background: #f1f5f2;
+}
+.vsn-workspace :focus-visible {
+  outline: 3px solid #19835b;
+  outline-offset: 3px;
+}
+.vsn-workspace main {
+  padding: 26px 32px 40px;
+}
+.vsn-workspace s-page {
+  display: block;
+}
+.vsn-workspace s-section {
+  display: block;
+  margin: 18px 0;
+}
+.vsn-workspace s-banner {
+  display: block;
+  margin: 12px 0;
+}
+.vsn-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--vsn-border);
+  padding: 20px 32px;
+  font-size: 12px;
+  color: var(--vsn-muted);
+}
+.vsn-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.vsn-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vsn-accent);
+  margin: 0 0 8px;
+}
+.vsn-intro h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.2;
+  letter-spacing: -1.2px;
+  margin: 0 0 10px;
+}
+.vsn-intro-description {
+  font-size: 14px;
+  max-width: 640px;
+  color: var(--vsn-muted);
+  margin: 0;
+}
+.vsn-context-help {
+  font-size: 13px;
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 600;
+}
+.vsn-hero {
+  background: #17382d;
+  color: #fff;
+  border-radius: 18px;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+.vsn-hero h2 {
+  font-size: 30px;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  max-width: 430px;
+  margin: 6px 0 12px;
+}
+.vsn-hero p {
+  color: #d1e4d7;
+  font-size: 14px;
+  max-width: 500px;
+  margin: 0 0 20px;
+}
+.vsn-hero .vsn-eyebrow {
+  color: #bbe0c6;
+}
+.vsn-hero a {
+  color: #fff !important;
+}
+.vsn-hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.vsn-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--vsn-border);
+  background: #fff;
+  color: var(--vsn-ink) !important;
+  border-radius: 9px;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+}
+.vsn-button:hover {
+  background: #f1f6f2;
+}
+.vsn-button.primary {
+  background: #176b4b;
+  color: white !important;
+  border-color: #176b4b;
+}
+.vsn-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.vsn-hero .vsn-button {
+  background: #d8f2df !important;
+  color: #17382d !important;
+  border: none;
+}
+.vsn-hero-summary {
+  border: 1px solid #4f6a5e;
+  border-radius: 12px;
+  padding: 20px;
+  align-self: center;
+}
+.vsn-hero-summary strong {
+  font-size: 24px;
+  display: block;
+}
+.vsn-hero-summary span {
+  color: #d0e4d6;
+  font-size: 12px;
+}
+.vsn-hero-summary dl {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0 0;
+}
+.vsn-hero-summary dt {
+  font-size: 11px;
+  color: #d0e4d6;
+}
+.vsn-hero-summary dd {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.vsn-task-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.vsn-task-card {
+  background: white;
+  border: 1px solid var(--vsn-border);
+  border-radius: 12px;
+  padding: 20px;
+  color: var(--vsn-ink) !important;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.vsn-task-card:hover {
+  border-color: #42855f;
+  transform: translateY(-2px);
+}
+.vsn-task-card h3 {
+  font-size: 15px;
+  margin: 10px 0 6px;
+}
+.vsn-task-card p {
+  font-size: 13px;
+  color: var(--vsn-muted);
+  margin: 0;
+}
+.vsn-step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #edf6ef;
+  display: grid;
+  place-items: center;
+  color: #176b4b;
+  font-size: 12px;
+  font-weight: 700;
+}
+.vsn-section-nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--vsn-border);
+  margin-bottom: 24px;
+}
+.vsn-section-nav a {
+  text-decoration: none;
+  font-weight: 600;
+}
+.vsn-empty,
+.vsn-loading {
+  padding: 22px;
+  border: 1px dashed #bbcdbf;
+  background: #f9fcfa;
+  border-radius: 10px;
+  color: var(--vsn-muted);
+  font-size: 14px;
+  margin: 14px 0;
+}
+.vsn-loading {
+  border-style: solid;
+}
+.vsn-empty h3 {
+  color: var(--vsn-ink);
+  margin: 0 0 6px;
+}
+.vsn-empty p {
+  margin: 0 0 12px;
+}
+.vsn-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 26px 0;
+}
+.vsn-plan {
+  background: white;
+  border: 1px solid var(--vsn-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.vsn-plan.featured {
+  border: 2px solid #176b4b;
+  padding: 23px;
+}
+.vsn-plan-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: #176b4b;
+  min-height: 22px;
+}
+.vsn-plan h2 {
+  font-size: 22px;
+  letter-spacing: -0.6px;
+  margin: 8px 0;
+}
+.vsn-plan p {
+  font-size: 13px;
+  color: var(--vsn-muted);
+  min-height: 42px;
+  margin: 0 0 18px;
+}
+.vsn-price {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -1.5px;
+}
+.vsn-price span {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--vsn-muted);
+}
+.vsn-trial {
+  color: var(--vsn-muted);
+  font-size: 12px;
+  margin: 8px 0 20px;
+}
+.vsn-plan ul {
+  list-style: none;
+  padding: 18px 0;
+  margin: 0 0 18px;
+  border-top: 1px solid var(--vsn-border);
+  flex: 1;
+}
+.vsn-plan li {
+  font-size: 13px;
+  margin: 10px 0;
+  padding-left: 20px;
+  position: relative;
+}
+.vsn-plan li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #176b4b;
+}
+.vsn-plan button {
+  width: 100%;
+}
+.vsn-plan-status {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--vsn-muted);
+}
+.vsn-notice {
+  padding: 14px 18px;
+  border: 1px solid var(--vsn-border);
+  border-radius: 10px;
+  background: #fff;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.vsn-notice.error {
+  border-color: #d79494;
+  background: #fff7f7;
+  color: #9b2020;
+}
+.vsn-notice.success {
+  border-color: #b5d2bd;
+  background: #edf7ef;
+}
+.vsn-notice a {
+  font-weight: 600;
+}
+.vsn-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--vsn-border);
+  border-radius: 12px;
+  background: white;
+}
+.vsn-comparison {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.vsn-comparison th,
+.vsn-comparison td {
+  padding: 15px 18px;
+  text-align: left;
+  border-bottom: 1px solid #e6ede7;
+}
+.vsn-comparison thead {
+  background: #eef5ef;
+}
+.vsn-comparison tr:last-child td {
+  border-bottom: none;
+}
+.vsn-comparison caption {
+  text-align: left;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 650;
+}
+.vsn-help-search {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--vsn-border);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  background: white;
+  margin: 8px 0 20px;
+}
+.vsn-help-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.vsn-help-topic {
+  background: white;
+  border: 1px solid var(--vsn-border);
+  border-radius: 12px;
+  padding: 20px;
+  scroll-margin-top: 20px;
+}
+.vsn-help-topic h2 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+.vsn-help-topic p,
+.vsn-help-topic li {
+  color: var(--vsn-muted);
+  font-size: 13px;
+}
+.vsn-help-topic ol {
+  padding-left: 20px;
+}
+.vsn-help-topic li {
+  margin: 8px 0;
+}
+.vsn-help-topic details {
+  border-top: 1px solid var(--vsn-border);
+  padding: 12px 0;
+}
+.vsn-help-topic summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 32px;
+}
+.vsn-help-topic details p {
+  margin-bottom: 0;
+}
+.vsn-workspace label {
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  .vsn-plan-grid {
+    grid-template-columns: 1fr;
+  }
+  .vsn-hero {
+    grid-template-columns: 1fr;
+  }
+  .vsn-task-grid {
+    grid-template-columns: 1fr;
+  }
+  .vsn-help-grid {
+    grid-template-columns: 1fr;
+  }
+  .vsn-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .vsn-header {
+    padding: 18px;
+  }
+  .vsn-navigation {
+    padding: 10px 14px;
+  }
+  .vsn-workspace main {
+    padding: 22px 18px;
+  }
+  .vsn-brand {
+    font-size: 16px;
+  }
+  .vsn-footer {
+    padding: 18px;
+  }
+  .vsn-help-link {
+    font-size: 12px;
+  }
+  .vsn-hero {
+    padding: 24px;
+  }
+  .vsn-plan p {
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vsn-task-card {
+    transition: none;
+  }
+  .vsn-task-card:hover {
+    transform: none;
+  }
+}

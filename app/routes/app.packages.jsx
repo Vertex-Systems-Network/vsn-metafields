@@ -1,7 +1,8 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { submitBilling } from "../billing-client";
-import { PRO_PLAN } from "../billing-config";
+import { PLANS, planFromSubscriptions } from "../billing-config";
+import { PageIntro, HelpLink } from "../components/Workspace";
 
 export default function PackagesPage() {
   const statusFetcher = useFetcher();
@@ -9,22 +10,20 @@ export default function PackagesPage() {
   const [submitting, setSubmitting] = useState(false);
   const inFlight = useRef(false);
   const location = useLocation();
-
+  const load = statusFetcher.load;
   useEffect(() => {
-    if (statusFetcher.state === "idle" && !statusFetcher.data) {
-      statusFetcher.load(`/app/api/status${location.search}`);
-    }
-  }, [location.search, statusFetcher]);
-
-  const subscriptions = statusFetcher.data?.subscriptions ?? [];
+    load(`/app/api/status${location.search}`);
+  }, [load, location.search]);
+  const subscriptions = Array.isArray(statusFetcher.data?.subscriptions)
+    ? statusFetcher.data.subscriptions
+    : [];
+  const currentPlan = planFromSubscriptions(subscriptions);
   const subscription =
-    subscriptions.find((sub) => sub.status === "ACTIVE") || null;
-
-  const isProActive = subscription?.status === "ACTIVE";
-  const isLoading =
-    statusFetcher.state !== "idle" ||
-    submitting;
-
+    subscriptions.find(
+      (s) => s.status === "ACTIVE" && s.name === currentPlan?.name,
+    ) || subscriptions.find((s) => s.status === "ACTIVE");
+  const verified = statusFetcher.data?.ok === true;
+  const isLoading = statusFetcher.state !== "idle" || submitting;
   const runBilling = async (formData) => {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -32,124 +31,235 @@ export default function PackagesPage() {
     setResult(null);
     try {
       const response = await submitBilling(formData, {
-        shopify: window.shopify, fetch: window.fetch.bind(window), search: location.search,
+        shopify: window.shopify,
+        fetch: window.fetch.bind(window),
+        search: location.search,
       });
       setResult(response);
       if (response.confirmationUrl) {
-        // App Bridge supports window.open; direct window.top.location is blocked in embedded apps.
-        try { window.open(response.confirmationUrl, "_top"); }
-        catch { /* Keep the confirmation link available for a fresh user click. */ }
+        try {
+          window.open(response.confirmationUrl, "_top");
+        } catch {
+          /* The visible approval link supports a fresh user gesture. */
+        }
       }
-      if (response.cancelled) statusFetcher.load(`/app/api/status${location.search}`);
+      if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
-      setResult({ error: error.message || "Billing could not complete. Try again." });
+      setResult({
+        error: error.message || "Billing could not complete. Try again.",
+      });
     } finally {
       inFlight.current = false;
       setSubmitting(false);
     }
   };
-
-  const handleStartPro = () => {
-    const formData = new FormData();
-    formData.set("actionType", "create");
-    formData.set("plan", "pro-plan");
-
-    void runBilling(formData);
+  const choosePlan = (plan) => {
+    if (
+      currentPlan &&
+      !window.confirm(
+        `Change from ${currentPlan.label} to ${plan.label} at $${plan.amount} USD every 30 days? Shopify will show the billing details before approval. Existing content stays in your store; new writes must fit the selected plan.`,
+      )
+    )
+      return;
+    const form = new FormData();
+    form.set("actionType", "create");
+    form.set("plan", plan.id);
+    void runBilling(form);
   };
-
-  const handleCancel = () => {
-    if (!confirm("Are you sure you want to cancel your subscription?")) return;
-    const formData = new FormData();
-    formData.set("actionType", "cancel");
-    formData.set("id", subscription?.id);
-    void runBilling(formData);
+  const cancel = () => {
+    if (
+      !window.confirm(
+        "Cancel this subscription? Paid editing will stop when Shopify confirms cancellation. Your Shopify content will remain.",
+      )
+    )
+      return;
+    const form = new FormData();
+    form.set("actionType", "cancel");
+    form.set("id", subscription.id);
+    void runBilling(form);
   };
-
   return (
-    <s-page heading="Packages">
-
-      {statusFetcher.state === "loading" && !statusFetcher.data && (
-        <s-banner tone="info">Checking subscription status...</s-banner>
+    <s-page heading="Plans">
+      <PageIntro
+        eyebrow="Room to grow"
+        title="Choose the right fit for your store."
+        description="The same core tools, with clear limits as your content grows. All plans include unlimited products and all five theme blocks."
+      >
+        <HelpLink topic="plans">Billing & plan help</HelpLink>
+      </PageIntro>
+      {!statusFetcher.data && (
+        <div className="vsn-loading" role="status">
+          Checking your Shopify subscription…
+        </div>
       )}
-
       {statusFetcher.data && !statusFetcher.data.ok && (
-        <s-banner tone="critical">
-          {statusFetcher.data.error || "Failed to load subscription status."}
-        </s-banner>
+        <div className="vsn-notice error" role="alert">
+          {statusFetcher.data.error ||
+            "Could not check your subscription. Refresh to try again."}
+        </div>
       )}
-
+      {currentPlan && (
+        <div className="vsn-notice success">
+          <strong>
+            {currentPlan.label} is active
+            {subscription?.test ? " · Test subscription" : ""}.
+          </strong>{" "}
+          {subscription?.currentPeriodEnd
+            ? `Current period ends ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}.`
+            : "Your editing tools are ready."}
+        </div>
+      )}
       {result?.confirmationUrl && (
-        <s-banner tone="info">
-          {result.test ? "Test billing: no real charge. " : ""}
-          <a href={result.confirmationUrl} target="_top" rel="noreferrer">Continue to Shopify plan approval</a>
-        </s-banner>
+        <div className="vsn-notice" role="status">
+          {result.test && "Test billing — no real charge. "}
+          <a href={result.confirmationUrl} target="_top" rel="noreferrer">
+            Continue to Shopify plan approval
+          </a>
+          . After approving, reopen the app or refresh status below.
+        </div>
       )}
-
       {result?.error && (
-        <s-banner tone="critical">{result.error}</s-banner>
+        <div className="vsn-notice error" role="alert">
+          {result.error}
+        </div>
       )}
-
-      <s-grid gridTemplateColumns="repeat(12, 1fr)" gap="base">
-        <s-grid-item gridColumn="span 6" gridRow="span 1">
-          <s-section>
-            <s-box
-              padding="base"
-              background="base"
-              borderRadius="base"
-              borderWidth="base"
-              borderColor="base"
+      {result?.cancelled && (
+        <div className="vsn-notice success" role="status">
+          Shopify confirmed cancellation. Your content has been retained.
+        </div>
+      )}
+      <div className="vsn-plan-grid">
+        {PLANS.map((plan) => {
+          const current = currentPlan?.id === plan.id;
+          return (
+            <article
+              className={`vsn-plan ${plan.id === "growth-plan" ? "featured" : ""}`}
+              key={plan.id}
+              aria-label={`${plan.label} plan`}
             >
-              <s-stack gap="base">
-                <s-text variant="headingMd">Pro Plan</s-text>
-                <s-text>{PRO_PLAN.trialDays}-day free trial</s-text>
-                <s-text>${PRO_PLAN.amount} / month after trial</s-text>
-                <s-text>Unlimited products</s-text>
-                <s-text>Priority support</s-text>
-
-                {subscription?.trialDays > 0 && (
-                  <s-text tone="success">
-                    {subscription.trialDays} trial days remaining
-                  </s-text>
-                )}
-
-                {subscription?.currentPeriodEnd && (
-                  <s-text tone="subdued">
-                    Renews: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-                  </s-text>
-                )}
-
-                {isProActive ? (
-                  <s-stack gap="small">
-                    <s-badge tone="success">
-                      {subscription?.test ? "Active Test Plan" : "Active Plan"}
-                    </s-badge>
-                    <s-button
-                      tone="critical"
-                      type="button"
-                      disabled={isLoading || Boolean(result?.confirmationUrl)}
-                      loading={isLoading}
-                      onClick={handleCancel}
-                    >
-                      Cancel Subscription
-                    </s-button>
-                  </s-stack>
-                ) : (
-                  <s-button
-                    variant="primary"
-                    type="button"
-                    disabled={isLoading || Boolean(result?.confirmationUrl)}
-                    loading={isLoading}
-                    onClick={handleStartPro}
-                  >
-                    Start {PRO_PLAN.trialDays}-Day Trial
-                  </s-button>
-                )}
-              </s-stack>
-            </s-box>
-          </s-section>
-        </s-grid-item>
-      </s-grid>
-
+              <div className="vsn-plan-label">
+                {current
+                  ? "Your current plan"
+                  : plan.id === "growth-plan"
+                    ? "Balanced for growing stores"
+                    : plan.id === "pro-plan"
+                      ? "Maximum capacity"
+                      : "Start with the essentials"}
+              </div>
+              <h2>{plan.label}</h2>
+              <p>{plan.description}</p>
+              <div className="vsn-price">
+                ${plan.amount}
+                <span> USD / 30 days</span>
+              </div>
+              <div className="vsn-trial">
+                {currentPlan
+                  ? "Plan changes require Shopify approval"
+                  : `${plan.trialDays}-day trial, then $${plan.amount} every 30 days`}
+              </div>
+              <ul>
+                <li>
+                  <strong>{plan.limits.importRows}</strong> rows per CSV import
+                </li>
+                <li>
+                  <strong>{plan.limits.listItems}</strong> items per list value
+                </li>
+                <li>
+                  <strong>{plan.limits.metaobjectFields}</strong> fields per new
+                  metaobject definition
+                </li>
+                <li>Standard & custom definitions</li>
+                <li>Typed values & reusable metaobjects</li>
+                <li>All 5 customizable theme blocks</li>
+                <li>Import preview, conflict checks & exports</li>
+                <li>Unlimited products</li>
+              </ul>
+              <button
+                className={`vsn-button ${!current ? "primary" : ""}`}
+                disabled={
+                  !verified ||
+                  isLoading ||
+                  current ||
+                  Boolean(result?.confirmationUrl)
+                }
+                onClick={() => choosePlan(plan)}
+              >
+                {submitting
+                  ? "Opening Shopify…"
+                  : current
+                    ? "Current plan"
+                    : currentPlan
+                      ? `Switch to ${plan.label}`
+                      : `Start ${plan.label} trial`}
+              </button>
+              <div className="vsn-plan-status">
+                {plan.id === "pro-plan"
+                  ? "Existing Pro price and 5-day trial preserved."
+                  : plan.id === "growth-plan"
+                    ? "Everything in Starter, with larger limits."
+                    : "All the core tools in one workspace."}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <div className="vsn-table-wrap">
+        <table className="vsn-comparison">
+          <caption>Compare your capacity</caption>
+          <thead>
+            <tr>
+              <th scope="col">Limit</th>
+              {PLANS.map((p) => (
+                <th scope="col" key={p.id}>
+                  {p.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["Rows per CSV import", "importRows"],
+              ["Items per list value", "listItems"],
+              ["Fields per new metaobject definition", "metaobjectFields"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <th scope="row">{label}</th>
+                {PLANS.map((p) => (
+                  <td key={p.id}>{p.limits[key]}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="vsn-notice">
+        Limits apply to each import, list value or new definition, rather than
+        your total number of products or monthly usage. A smaller plan keeps
+        existing content, logs and exports. Edits and new imports must meet its
+        limits. Shopify shows the billing and replacement terms before you
+        approve; switching an active plan does not start another trial.
+      </div>
+      <div className="vsn-hero-actions">
+        <button
+          className="vsn-button"
+          disabled={isLoading}
+          onClick={() => {
+            setResult(null);
+            load(`/app/api/status${location.search}`);
+          }}
+        >
+          Refresh subscription status
+        </button>
+        {subscription && (
+          <button
+            className="vsn-button"
+            disabled={isLoading || Boolean(result?.confirmationUrl)}
+            onClick={cancel}
+          >
+            Cancel active subscription
+          </button>
+        )}
+      </div>
     </s-page>
   );
 }

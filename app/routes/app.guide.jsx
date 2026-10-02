@@ -1,60 +1,89 @@
 import { useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
+import { HELP_TOPICS } from "../help-content";
+import { PageIntro } from "../components/Workspace";
 export default function Guide() {
   const diagnostics = useFetcher(),
     location = useLocation(),
     [copied, setCopied] = useState(false);
   const [permissionError, setPermissionError] = useState("");
+  const [search, setSearch] = useState("");
+  const matches = HELP_TOPICS.filter((topic) =>
+    JSON.stringify(topic).toLowerCase().includes(search.trim().toLowerCase()),
+  );
   const load = diagnostics.load;
   useEffect(() => {
     load(`/app/api/diagnostics${location.search}`);
   }, [load, location.search]);
   const info = diagnostics.data?.diagnostics;
-  const link = (pathname) => ({ pathname, search: location.search });
   return (
-    <s-page heading="Setup and diagnostics">
-      <s-section heading="Get started">
-        <s-ordered-list>
-          <s-list-item>
-            <Link to={link("/app/packages")}>Check your plan</Link>. New
-            features use the existing active-plan rule.
-          </s-list-item>
-          <s-list-item>
-            <Link to={link("/app")}>
-              Choose an owner and enable a standard definition or create a
-              custom field
+    <s-page heading="Help center">
+      <PageIntro
+        eyebrow="Guides & support"
+        title="A little guidance. A smoother workflow."
+        description="Step-by-step answers for setting up content, choosing a plan and solving common problems."
+      />
+      <label htmlFor="help-search">Search guides and troubleshooting</label>
+      <input
+        id="help-search"
+        className="vsn-help-search"
+        type="search"
+        placeholder="Try: CSV, public access, billing or theme blocks"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+      />
+      <div aria-live="polite" className="vsn-context-help">
+        {matches.length} guides found
+      </div>
+      <div className="vsn-help-grid">
+        {matches.map((topic) => (
+          <article id={topic.id} className="vsn-help-topic" key={topic.id}>
+            <h2>{topic.title}</h2>
+            <p>{topic.description}</p>
+            <ol>
+              {topic.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            {topic.faqs.map(([question, answer]) => (
+              <details key={question}>
+                <summary>{question}</summary>
+                <p>{answer}</p>
+              </details>
+            ))}
+            <Link
+              className="vsn-context-help"
+              to={{
+                pathname: topic.link.split("#")[0],
+                search: location.search,
+                hash: topic.link.includes("#")
+                  ? `#${topic.link.split("#")[1]}`
+                  : "",
+              }}
+            >
+              {topic.action} <span aria-hidden="true">↗</span>
             </Link>
-            . Use a merchant namespace; type and key stay fixed.
-          </s-list-item>
-          <s-list-item>
-            Choose product, variant or collection, select the definition, enter
-            its typed value and save. For references, choose an existing
-            accessible resource.
-          </s-list-item>
-          <s-list-item>
-            <Link to={link("/app/metaobjects")}>
-              Build reusable metaobject content
-            </Link>
-            . New entries start as drafts; public publishing needs confirmation.
-          </s-list-item>
-          <s-list-item>
-            <Link to={link("/app/import")}>Preview an import</Link>, inspect
-            invalid rows and before/after values, then apply the exact preview.
-            Conflicts require a fresh preview.
-          </s-list-item>
-          <s-list-item>
-            Open Shopify → Online store → Themes → Customize. Add VSN Single
-            field, Specifications, Reference cards or FAQ. Match namespace/key
-            and preview each resource and variant.
-          </s-list-item>
-        </s-ordered-list>
-        <s-text>
-          Theme visibility depends on supported Liquid context, public content
-          and publishable status. Customer/order content is excluded. Enabling
-          API storefront access alone does not verify theme output.
-        </s-text>
-      </s-section>
+          </article>
+        ))}
+      </div>
+      {!matches.length && (
+        <div className="vsn-empty">
+          <h3>No matching guide</h3>
+          <p>
+            Try a shorter search, or check your connection diagnostics below.
+          </p>
+          <button className="vsn-button" onClick={() => setSearch("")}>
+            Show all guides
+          </button>
+        </div>
+      )}
+      <div id="connection" />
       <s-section heading="Connection and permissions">
+        {diagnostics.state !== "idle" && (
+          <div className="vsn-loading" role="status">
+            Checking your connection and permissions…
+          </div>
+        )}
         {diagnostics.data?.error && (
           <s-banner tone="critical">{diagnostics.data.error}</s-banner>
         )}
@@ -132,23 +161,6 @@ export default function Guide() {
             )}
           </>
         )}
-      </s-section>
-      <s-section heading="Recovery and data">
-        <s-text>
-          If a value changed, reload it before saving. Import jobs are
-          shop-isolated, expire after seven days and run in bounded chunks.
-          Reload the saved job to resume. Before-snapshot export can restore
-          existing values through a fresh preview; newly created values require
-          selected manual removal. Removing a job clears its saved data without
-          reverting Shopify writes.
-        </s-text>
-        <s-text>
-          Metaobject field types/keys stay fixed. Definition metadata can
-          change; deletion requires an empty definition. Deleted entries may
-          leave reference fields empty. The metaobject API has no atomic
-          compare-digest update, so a last-read timestamp detects prior changes
-          but cannot eliminate every simultaneous external edit.
-        </s-text>
       </s-section>
     </s-page>
   );

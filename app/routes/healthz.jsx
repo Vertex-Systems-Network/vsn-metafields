@@ -1,4 +1,5 @@
 import { PRO_PLAN } from "../billing-config";
+import { APP_NAME } from "../product-config";
 
 export const loader = async ({ context }) => {
   const commitSha = context?.cloudflare?.env?.APP_COMMIT_SHA ?? null;
@@ -7,6 +8,7 @@ export const loader = async ({ context }) => {
     {
       ok: true,
       service: "vsn-metafields",
+      displayName: APP_NAME,
       commitSha,
       plan: {
         id: PRO_PLAN.id,
@@ -20,6 +22,6 @@ export const loader = async ({ context }) => {
       headers: {
         "Cache-Control": "no-store",
       },
-    }
+    },
   );
 };

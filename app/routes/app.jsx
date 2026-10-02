@@ -4,6 +4,11 @@ import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { NavMenu } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { createPrismaClient } from "../db.server";
+import { Workspace } from "../components/Workspace";
+import { APP_NAME } from "../product-config";
+import "../styles/workspace.css";
+
+export const meta = () => [{ title: APP_NAME }];
 
 function decodeJwtPayload(token) {
   if (!token) return null;
@@ -76,8 +81,7 @@ export const loader = async ({ request }) => {
       idTokenPresent: Boolean(url.searchParams.get("id_token")),
       idTokenDecoded: Boolean(idTokenPayload),
       idTokenAudienceMatchesApiKey: audienceMatchesApiKey,
-      idTokenDestinationMatchesShop:
-        idTokenPayload?.dest === `https://${shop}`,
+      idTokenDestinationMatchesShop: idTokenPayload?.dest === `https://${shop}`,
       errorKind:
         error instanceof Response
           ? "Response"
@@ -92,9 +96,7 @@ export const loader = async ({ request }) => {
       ...sessionDiagnostic,
     };
 
-    console.error(
-      `[vsn-staging-diagnostic] ${JSON.stringify(diagnostic)}`,
-    );
+    console.error(`[vsn-staging-diagnostic] ${JSON.stringify(diagnostic)}`);
     throw error;
   }
 
@@ -107,13 +109,17 @@ export default function App() {
   return (
     <AppProvider embedded apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app" rel="home">Options</Link>
-        <Link to="/app/packages">Packages</Link>
+        <Link to="/app" rel="home">
+          Fields & values
+        </Link>
+        <Link to="/app/packages">Plans</Link>
         <Link to="/app/metaobjects">Metaobjects</Link>
         <Link to="/app/import">Import / export</Link>
-        <Link to="/app/guide">Setup / diagnostics</Link>
+        <Link to="/app/guide">Help center</Link>
       </NavMenu>
-      <Outlet />
+      <Workspace>
+        <Outlet />
+      </Workspace>
     </AppProvider>
   );
 }

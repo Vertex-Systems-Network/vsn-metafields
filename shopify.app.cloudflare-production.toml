@@ -5,7 +5,7 @@
 # Creating an unreleased app version from this file does not authorize release.
 
 client_id = "f5266ba8dba403005deb695fedad053a"
-name = "VSN Metafields"
+name = "VSN | Metafields"
 application_url = "https://vsn-metafields-production.vertexsystemsnetwork.workers.dev"
 embedded = true
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { exportValueCsv } from "../bulk-csv";
+import { PageIntro, HelpLink } from "../components/Workspace";
 function download(name, source) {
   const url = URL.createObjectURL(
     new Blob([source], { type: "text/csv;charset=utf-8" }),
@@ -56,9 +57,26 @@ export default function Import() {
     });
   return (
     <s-page heading="Previewed metafield imports">
+      <PageIntro
+        eyebrow="Bulk updates"
+        title="See every change before you apply it."
+        description="Import structured values, review before-and-after snapshots and resume saved jobs without losing your place."
+      >
+        <HelpLink topic="imports">CSV guide & recovery</HelpLink>
+      </PageIntro>
+      {!list.data && (
+        <div className="vsn-loading" role="status">
+          Loading saved import jobs…
+        </div>
+      )}
+      <s-text>
+        Your plan allows {list.data?.plan?.limits?.importRows || "up to 100"}{" "}
+        rows per import job.{" "}
+        <HelpLink topic="plans">Compare plan limits</HelpLink>
+      </s-text>
       <s-section heading="CSV input">
         <s-text>
-          Import 1–100 product, variant or collection values, under 256 KB. This
+          Import product, variant or collection values, under 256 KB. This
           workflow writes selected custom fields after preview and leaves
           definition metadata unchanged. Each value is a JSON-encoded string in
           value_json.
@@ -111,6 +129,15 @@ export default function Import() {
         </s-button>
       </s-section>
       <s-section heading="Saved jobs">
+        {list.state === "idle" && list.data?.ok && !list.data.jobs?.length && (
+          <div className="vsn-empty">
+            <h3>No saved imports yet</h3>
+            <p>
+              Download the CSV template, add your values and preview the changes
+              above.
+            </p>
+          </div>
+        )}
         <s-select
           label="Import job"
           value={selected}

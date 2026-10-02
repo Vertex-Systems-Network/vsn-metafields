@@ -78,8 +78,8 @@ test("embedded app navigation follows Shopify React Router NavMenu pattern", () 
   assert.match(app, /import \{ Link, Outlet, useLoaderData, useRouteError \} from "react-router"/);
   assert.match(app, /import \{ NavMenu \} from "@shopify\/app-bridge-react"/);
   assert.match(app, /<NavMenu>/);
-  assert.match(app, /<Link to="\/app" rel="home">Options<\/Link>/);
-  assert.match(app, /<Link to="\/app\/packages">Packages<\/Link>/);
+  assert.match(app, /<Link to="\/app" rel="home">\s*Fields & values\s*<\/Link>/);
+  assert.match(app, /<Link to="\/app\/packages">Plans<\/Link>/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
@@ -258,10 +258,10 @@ test("Pro billing configuration stays centralized at 5 trial days and $55 across
   assert.match(billing, /amount:\s*55/);
   assert.match(billing, /trialDays:\s*5/);
   assert.match(status, /PRO_PLAN/);
-  assert.match(status, /trialDays:\s*selectedPlan\.trialDays/);
+  assert.match(status, /trialDays:\s*activeSubscriptions\.some\(/);
   assert.match(status, /amount:\s*selectedPlan\.amount/);
-  assert.match(packages, /PRO_PLAN\.trialDays/);
-  assert.match(packages, /PRO_PLAN\.amount/);
+  assert.match(packages, /plan\.trialDays/);
+  assert.match(packages, /plan\.amount/);
   assert.doesNotMatch(packages, /\$35\s*\/\s*month/);
   assert.doesNotMatch(packages, /15-day free trial/);
 });
@@ -273,9 +273,9 @@ test("packages page avoids duplicate server auth and loads billing status client
   assert.doesNotMatch(packages, /export const loader/);
   assert.doesNotMatch(packages, /authenticate\.admin\(request\)/);
   assert.doesNotMatch(packages, /useLoaderData/);
-  assert.match(packages, /statusFetcher\.state === "idle" && !statusFetcher\.data/);
-  assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
-  assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
+  assert.match(packages, /const load = statusFetcher\.load/);
+  assert.match(packages, /load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
+  assert.match(packages, /subscriptions\.find\(\(s\) => s\.status === "ACTIVE"\)/);
   assert.match(packages, /submitBilling/);
 });
 
@@ -289,7 +289,7 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /\[vsn-status-action\]/);
   assert.match(status, /\[vsn-status-action-auth-failed\]/);
   assert.match(status, /billingIsTest\(process\.env\)/);
-  assert.match(status, /billingReturnUrl\(session\.shop, process\.env\.SHOPIFY_API_KEY\)/);
+  assert.match(status, /billingReturnUrl\(\s*session\.shop,\s*process\.env\.SHOPIFY_API_KEY,?\s*\)/);
   assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
   assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
   assert.doesNotMatch(
@@ -324,8 +324,8 @@ test("active Shopify test subscriptions remain valid app entitlements in product
   // New production charges remain real; only existing active test/demo charges
   // are accepted as entitlement evidence.
   assert.match(status, /test:\s*testBilling/);
-  assert.match(packages, /subscription\?\.status === "ACTIVE"/);
-  assert.match(packages, /Active Test Plan/);
+  assert.match(packages, /s\.status === "ACTIVE"/);
+  assert.match(packages, /Test subscription/);
 });
 
 test("metafield mutations stay namespace-scoped and destructive reset keeps values", () => {

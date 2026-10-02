@@ -4,6 +4,8 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
+import { PageIntro, HelpLink } from "../components/Workspace";
+import { APP_NAME } from "../product-config";
 import {
   OWNER_TYPES,
   PUBLIC_OWNERS,
@@ -137,8 +139,21 @@ export default function Index() {
     if (valueReady) setFieldValue(valueFetcher.data.value ?? "");
   }, [valueFetcher.data, valueReady]);
   useEffect(() => {
-    if (valueActionFetcher.data?.success && valueActionFetcher.data.ownerType === ownerType && valueActionFetcher.data.ownerId === resourceId && valueActionFetcher.data.namespace === selectedDefinition?.namespace && valueActionFetcher.data.key === selectedDefinition?.key) loadValue();
-  }, [valueActionFetcher.data, loadValue, ownerType, resourceId, selectedDefinition]);
+    if (
+      valueActionFetcher.data?.success &&
+      valueActionFetcher.data.ownerType === ownerType &&
+      valueActionFetcher.data.ownerId === resourceId &&
+      valueActionFetcher.data.namespace === selectedDefinition?.namespace &&
+      valueActionFetcher.data.key === selectedDefinition?.key
+    )
+      loadValue();
+  }, [
+    valueActionFetcher.data,
+    loadValue,
+    ownerType,
+    resourceId,
+    selectedDefinition,
+  ]);
   const submit = (input) => {
     const form = new FormData();
     for (const [key, value] of Object.entries({ ...input, ownerType }))
@@ -213,19 +228,26 @@ export default function Index() {
   };
   if (!statusFetcher.data)
     return (
-      <s-page heading="VSN Metafields">
+      <s-page heading={APP_NAME}>
         <s-banner tone="info">Checking app status…</s-banner>
       </s-page>
     );
   if (!statusFetcher.data.ok)
     return (
-      <s-page heading="VSN Metafields">
+      <s-page heading={APP_NAME}>
         <s-banner tone="critical">{statusFetcher.data.error}</s-banner>
       </s-page>
     );
   if (!statusFetcher.data.hasActivePlan)
     return (
-      <s-page heading="VSN Metafields">
+      <s-page heading={APP_NAME}>
+        <PageIntro
+          eyebrow="Your content workspace"
+          title="Make your product details work harder."
+          description="Define useful fields, add structured content and bring it into your storefront."
+        >
+          <HelpLink>Get started in a few steps</HelpLink>
+        </PageIntro>
         <s-banner tone="warning">
           An active plan is required.{" "}
           <Link to={{ pathname: "/app/packages", search: location.search }}>
@@ -235,7 +257,69 @@ export default function Index() {
       </s-page>
     );
   return (
-    <s-page heading="VSN Metafields">
+    <s-page heading={APP_NAME}>
+      <div className="vsn-hero">
+        <div>
+          <div className="vsn-eyebrow">Your content workspace</div>
+          <h2>Better details. A clearer store.</h2>
+          <p>
+            Create structured fields, reuse your content and give shoppers the
+            information they need to choose.
+          </p>
+          <div className="vsn-hero-actions">
+            <a className="vsn-button" href="#definition-editor">
+              Create a field <span aria-hidden="true">↗</span>
+            </a>
+            <HelpLink>Explore the guides</HelpLink>
+          </div>
+        </div>
+        <div className="vsn-hero-summary">
+          <strong>{statusFetcher.data.plan?.label || "Pro"} workspace</strong>
+          <span>Shopify subscription verified</span>
+          <dl>
+            <div>
+              <dt>Import rows</dt>
+              <dd>{statusFetcher.data.plan?.limits?.importRows || 100}</dd>
+            </div>
+            <div>
+              <dt>List items</dt>
+              <dd>{statusFetcher.data.plan?.limits?.listItems || 128}</dd>
+            </div>
+            <div>
+              <dt>Theme blocks</dt>
+              <dd>5</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div className="vsn-task-grid">
+        <a className="vsn-task-card" href="#definition-editor">
+          <span className="vsn-step-number">01</span>
+          <h3>Define your content</h3>
+          <p>Add a custom field or choose a Shopify standard definition.</p>
+        </a>
+        <Link
+          className="vsn-task-card"
+          to={{ pathname: "/app/metaobjects", search: location.search }}
+        >
+          <span className="vsn-step-number">02</span>
+          <h3>Create reusable content</h3>
+          <p>Organize ingredients, FAQs and stories into metaobjects.</p>
+        </Link>
+        <Link
+          className="vsn-task-card"
+          to={{ pathname: "/app/import", search: location.search }}
+        >
+          <span className="vsn-step-number">03</span>
+          <h3>Update with confidence</h3>
+          <p>Preview every CSV row before applying changes.</p>
+        </Link>
+      </div>
+      <nav aria-label="Fields page sections" className="vsn-section-nav">
+        <a href="#definition-editor">Custom definitions</a>
+        <a href="#value-editor">Values</a>
+        <HelpLink topic="storefront">Show content in your theme</HelpLink>
+      </nav>
       <s-section heading="Resource and capabilities">
         <s-select
           label="Metafield resource"
@@ -293,6 +377,7 @@ export default function Index() {
       {actionFetcher.data?.error && (
         <s-banner tone="critical">{actionFetcher.data.error}</s-banner>
       )}
+      <div id="definition-editor" />
       <s-section
         heading={
           editingField ? "Edit definition metadata" : "Create custom definition"
@@ -517,10 +602,11 @@ export default function Index() {
         )}
       </s-section>
       {VALUE_OWNERS.has(ownerType) && (
-        <s-section heading="Resource values">
+        <s-section id="value-editor" heading="Resource values">
           <s-text>
             Choose a definition and enter a typed scalar, JSON, rich text,
-            measurement, list or resource reference. Unsupported types remain in Shopify’s native editor.
+            measurement, list or resource reference. Unsupported types remain in
+            Shopify’s native editor.
           </s-text>
           <s-text-field
             label="Search resource title"
@@ -565,7 +651,13 @@ export default function Index() {
           >
             <s-option value="">Choose a field</s-option>
             {fields
-              .filter((item) => editableValueType(item.type) && !item.namespace.startsWith("app--") && item.namespace !== "shopify" && !item.namespace.startsWith("shopify--"))
+              .filter(
+                (item) =>
+                  editableValueType(item.type) &&
+                  !item.namespace.startsWith("app--") &&
+                  item.namespace !== "shopify" &&
+                  !item.namespace.startsWith("shopify--"),
+              )
               .map((item) => (
                 <s-option key={item.id} value={`${item.namespace}:${item.key}`}>
                   {item.name} — {item.namespace}.{item.key}
@@ -579,10 +671,23 @@ export default function Index() {
                 type={selectedDefinition.type}
                 value={fieldValue}
                 onChange={setFieldValue}
-                references={referencesFetcher.data?.type === selectedDefinition.type.replace(/^list\./,"") ? referencesFetcher.data.references || [] : []}
-                onFindReferences={(type,search)=>referencesFetcher.load(apiUrl("/app/api/references",{type,search}))}
+                references={
+                  referencesFetcher.data?.type ===
+                  selectedDefinition.type.replace(/^list\./, "")
+                    ? referencesFetcher.data.references || []
+                    : []
+                }
+                onFindReferences={(type, search) =>
+                  referencesFetcher.load(
+                    apiUrl("/app/api/references", { type, search }),
+                  )
+                }
               />
-              {referencesFetcher.data?.error && <s-banner tone="critical">{referencesFetcher.data.error}</s-banner>}
+              {referencesFetcher.data?.error && (
+                <s-banner tone="critical">
+                  {referencesFetcher.data.error}
+                </s-banner>
+              )}
               <s-button
                 disabled={!fieldValue || valueActionFetcher.state !== "idle"}
                 onClick={() => submitValue("set")}

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
+import { PageIntro, HelpLink } from "../components/Workspace";
 const initialField = () => ({
   key: "title",
   name: "Title",
@@ -36,11 +37,13 @@ export default function Metaobjects() {
   );
   const load = catalog.load,
     loadEntries = entries.load;
-  const definitions = catalog.data?.definitions || [],
+  const definitions = Array.isArray(catalog.data?.definitions)
+      ? catalog.data.definitions
+      : [],
     definition = definitions.find((d) => d.id === definitionId);
-  const types = (catalog.data?.types || []).filter((t) =>
-    editableValueType(t.name),
-  );
+  const types = (
+    Array.isArray(catalog.data?.types) ? catalog.data.types : []
+  ).filter((t) => editableValueType(t.name));
   useEffect(() => {
     load(url());
   }, [load, url]);
@@ -81,9 +84,42 @@ export default function Metaobjects() {
     setStorefront(d?.access?.storefront || "NONE");
   };
   const selectedEntries =
-    entries.data?.type === definition?.type ? entries.data.nodes || [] : [];
+    definition &&
+    entries.data?.type === definition.type &&
+    Array.isArray(entries.data?.nodes)
+      ? entries.data.nodes
+      : [];
+  const fieldLimit = catalog.data?.plan?.limits?.metaobjectFields || 25;
   return (
     <s-page heading="Reusable metaobjects">
+      <PageIntro
+        eyebrow="Reusable content"
+        title="Build once. Use across your store."
+        description="Turn size guides, ingredients, FAQs and product stories into structured content you can reuse."
+      >
+        <HelpLink topic="metaobjects">Metaobjects guide</HelpLink>
+      </PageIntro>
+      {!catalog.data && (
+        <div className="vsn-loading" role="status">
+          Loading your definitions and field types…
+        </div>
+      )}
+      {catalog.data?.error && (
+        <div className="vsn-notice error" role="alert">
+          {catalog.data.error}{" "}
+          <HelpLink topic="recovery">Troubleshooting</HelpLink>
+        </div>
+      )}
+      {ready && !definitions.length && (
+        <div className="vsn-empty">
+          <h3>Your first reusable content collection</h3>
+          <p>
+            Create a definition below, then add entries. For example, a Size
+            guide with Title, Size and Fit notes.
+          </p>
+          <HelpLink topic="metaobjects">See the step-by-step guide</HelpLink>
+        </div>
+      )}
       <s-section heading="Definition">
         <s-select
           label="Definition"
@@ -124,6 +160,10 @@ export default function Metaobjects() {
         </s-select>
         {!definition && (
           <>
+            <s-text>
+              {fields.length} / {fieldLimit} fields in this definition. Type and
+              key stay fixed after creation.
+            </s-text>
             {fields.map((field, index) => (
               <s-box key={index} padding="base" borderWidth="base">
                 <s-text-field
@@ -154,17 +194,20 @@ export default function Metaobjects() {
                     updateField(index, "required", e.target.checked)
                   }
                 />
-                <s-text-area
-                  label="Validations JSON (optional)"
-                  value={
-                    typeof field.validations === "string"
-                      ? field.validations
-                      : JSON.stringify(field.validations)
-                  }
-                  onInput={(e) =>
-                    updateField(index, "validations", e.target.value)
-                  }
-                />
+                <details>
+                  <summary>Advanced validations</summary>
+                  <s-text-area
+                    label="Validations JSON (optional)"
+                    value={
+                      typeof field.validations === "string"
+                        ? field.validations
+                        : JSON.stringify(field.validations)
+                    }
+                    onInput={(e) =>
+                      updateField(index, "validations", e.target.value)
+                    }
+                  />
+                </details>
                 <s-button
                   disabled={fields.length === 1 || busy}
                   onClick={() =>
@@ -176,17 +219,22 @@ export default function Metaobjects() {
               </s-box>
             ))}
             <s-button
-              disabled={fields.length >= 25 || busy}
+              disabled={fields.length >= fieldLimit || busy || !ready}
               onClick={() =>
-                setFields((f) => [
-                  ...f,
-                  {
-                    ...initialField(),
-                    key: `field_${f.length + 1}`,
-                    name: `Field ${f.length + 1}`,
-                    required: false,
-                  },
-                ])
+                setFields((f) => {
+                  let next = 1;
+                  while (f.some((field) => field.key === `field_${next}`))
+                    next++;
+                  return [
+                    ...f,
+                    {
+                      ...initialField(),
+                      key: `field_${next}`,
+                      name: `Field ${next}`,
+                      required: false,
+                    },
+                  ];
+                })
               }
             >
               Add field
@@ -249,15 +297,12 @@ export default function Metaobjects() {
           <>
             <s-text>
               Shopify reports {definition.metaobjectsCount} entries. Removal
-              checks current entries again. Type/key changes and
-              destructive field migrations use Shopify’s native editor.
+              checks current entries again. Type/key changes and destructive
+              field migrations use Shopify’s native editor.
             </s-text>
             <s-button
               tone="critical"
-              disabled={
-                busy ||
-                !definition.editable
-              }
+              disabled={busy || !definition.editable}
               onClick={() => {
                 if (
                   window.confirm(`Remove empty definition ${definition.type}?`)
@@ -376,6 +421,23 @@ export default function Metaobjects() {
       )}
       {definition && (
         <s-section heading="Entries">
+          {entries.state !== "idle" && (
+            <div role="status" className="vsn-loading">
+              Loading entries…
+            </div>
+          )}
+          {entries.state === "idle" &&
+            entries.data?.ok &&
+            entries.data.type === definition.type &&
+            !selectedEntries.length && (
+              <div className="vsn-empty">
+                <h3>No entries on this page</h3>
+                <p>
+                  Add your first entry above or reload from the first page. New
+                  content starts as a draft.
+                </p>
+              </div>
+            )}
           <s-table>
             <s-table-header-row>
               <s-table-header>Entry</s-table-header>
