@@ -4,6 +4,8 @@ This is the execution checklist for the remaining META-004/005/006/007/008/009/0
 
 PR167 fixes passed113 local/CI contracts and were merged as development e90b9f764865f4d10ee7add4bc7de3941bf50a68. Exact-source runtime37066444570 and active staging extension37066820946 passed; all disposable fixture cleanup succeeded. Proof: `docs/evidence/metafields-storefront-qa-2026-10-03.json`. The following browser rows remain pending.
 
+Latest staging baseline: brand/workspace/plan PR169 and boot-smoke fix PR170 are merged at development `50031b53c50bf27982cf5295d2ae4229bb36ce15`. Local126 tests and app validation passed; corrected-source integrity37072471698, readiness37072471634, runtime37072689721 and Shopify release37073199061 passed. Active version is `staging-metafields-50031b53c50b`, with app name `VSN | Metafields`. All disposable fixture cleanup passed. Evidence: `docs/evidence/metafields-brand-ui-plans-2026-10-03.json`. These checks do not complete the browser rows below.
+
 ## Current review findings
 
 Review base: development `25ebf0937fe5bf31abe6ca765d6bdbcd23565f58`. Review is an authorized self-review, not an independent reviewer or a persistent Supervisor certification.
@@ -36,6 +38,9 @@ Use the isolated staging app and staging shop. Record the runtime SHA, active ex
 | META-011 accessibility | Keyboard-only forms/pickers/errors/dialogs, visible focus, labels, native FAQ disclosures, screen-reader errors/busy states; 200% zoom/320px reflow; desktop/mobile touch targets; actual configured contrast | Semantics/static review only; WCAG 2.2 AA acceptance pending |
 | META-011 performance/security | Record two-theme section request count/latency and layout behavior; verify escaped untrusted values and private data suppression; record required signed webhook delivery outcomes | Bounds and safe-link fixtures passed; measured storefront and independent webhook delivery evidence pending |
 | Billing follow-up | Observe the merchant Buy Plan action reaching a Shopify approval screen with visible navigation/error fallback, then return to app | ACTIVE test-plan read is verified; approval navigation is pending. Financial approval remains a user action. |
+| Workspace and help | Verify branded navigation preserves embedded shop/host context, current-page states, searchable seven-topic help, recovery actions and mobile reflow | Actual component SSR/contracts passed; authenticated desktop/mobile visual and task acceptance pending |
+| Metaobjects initial load | Open Metaobjects from a fresh session; inspect loading, empty, malformed/error recovery and field-count feedback | Original crash reproduced and actual corrected component regression passed; browser acceptance pending |
+| Tier limits | Verify Starter/Growth/Pro display and per-job CSV rows, per-value list items and per-new-definition field caps; show safe limit errors and preserve existing content after a downgrade | Authenticated route boundary and no-write/downgrade contracts passed; real provider tier transitions and merchant UI pending |
 
 If Shopify access is absent, keep these tasks pending. The earlier declined sign-in handoff is not renewed by a generic continue instruction. Record the access limitation and complete independent code/contract/CI work without manufacturing UI evidence.
 
