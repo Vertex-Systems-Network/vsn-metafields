@@ -43,7 +43,7 @@ export async function verifyAdvancedBatch(
 ) {
   const fields = [],
     values = [];
-  let metaDefinition, metaEntry;
+  let metaDefinition, metaEntry, originalError;
   const jobIds = [];
   const report = {
     typedValues: [],
@@ -351,19 +351,23 @@ export async function verifyAdvancedBatch(
       definitionRename: true,
       referenceWrite: true,
     };
+  } catch (error) {
+    originalError = error;
+    report.failure = error.message;
+    throw error;
   } finally {
     const failures = [];
     for (const value of values)
       try {
         must(await mutateValue(admin, { action: "delete", ...value }));
-      } catch {
-        failures.push("advanced value");
+      } catch (error) {
+        failures.push({ kind: "advanced value", ownerId: value.ownerId, key: value.definition.key, error: error.message });
       }
     for (const field of fields)
       try {
         must(await removeDefinition(admin, [field], field));
-      } catch {
-        failures.push("advanced definition");
+      } catch (error) {
+        failures.push({ kind: "advanced definition", id: field.id, key: field.key, error: error.message });
       }
     if (metaEntry && metaDefinition)
       try {
@@ -378,8 +382,8 @@ export async function verifyAdvancedBatch(
           confirm: `DELETE_ENTRY:${metaEntry.id}:${current.handle}`,
         });
         report.metaobjects = { ...report.metaobjects, entryDelete: true };
-      } catch {
-        failures.push("metaobject entry");
+      } catch (error) {
+        failures.push({ kind: "metaobject entry", id: metaEntry.id, error: error.message });
       }
     if (metaDefinition)
       try {
@@ -395,17 +399,16 @@ export async function verifyAdvancedBatch(
           ...report.metaobjects,
           emptyDefinitionDelete: true,
         };
-      } catch {
-        failures.push("metaobject definition");
+      } catch (error) {
+        failures.push({ kind: "metaobject definition", id: metaDefinition.id, error: error.message });
       }
     if (jobIds.length)
       await db.metafieldJob.deleteMany({ where: { shop, id: { in: jobIds } } });
     report.cleanup = failures.length === 0;
     report.cleanupFailures = failures;
+    console.log("advanced_probe=" + JSON.stringify(report));
     if (failures.length)
-      throw new Error(
-        `Advanced fixture cleanup failed: ${failures.join(", ")}`,
-      );
+      throw new Error("Advanced fixture cleanup failed; see identity-scoped diagnostics.", { cause: originalError });
   }
   return report;
 }

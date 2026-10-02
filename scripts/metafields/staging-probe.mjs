@@ -21,6 +21,7 @@ import {
 } from "../../app/standard-definitions.server.js";
 import { removeDefinition } from "../../app/definition-removal.server.js";
 import { mutateValue } from "../../app/metafield-values.server.js";
+import { probeGraphql, failedRunDisposableDefinition } from "./probe-client.mjs";
 import { verifyAdvancedBatch } from "./advanced-probe.mjs";
 const { DATABASE_URL, SHOPIFY_API_KEY, SHOPIFY_APP_URL, STAGING_SHOP } =
   process.env;
@@ -84,7 +85,7 @@ try {
     throw new Error("Staging offline session unavailable.");
   admin = {
     graphql: async (query, { variables } = {}) => {
-      const response = await fetch(
+      return probeGraphql(() => fetch(
         `https://${STAGING_SHOP}/admin/api/${METAFIELD_API_VERSION}/graphql.json`,
         {
           method: "POST",
@@ -95,9 +96,7 @@ try {
           body: JSON.stringify({ query, variables }),
           signal: AbortSignal.timeout(30000),
         },
-      );
-      if (!response.ok) throw new Error(`Shopify HTTP ${response.status}`);
-      return response;
+      ));
     },
   };
   const identity = await graph(
@@ -107,6 +106,14 @@ query { currentAppInstallation { app { apiKey } } }`,
   );
   if (identity.currentAppInstallation?.app?.apiKey !== SHOPIFY_API_KEY)
     throw new Error("Offline session belongs to a different app.");
+  // Recover only disposable definitions minted inside failed run 36995055805's
+  // observed time window. Definition removal retains any associated values.
+  report.recoveredFailedProbeDefinitions = [];
+  for (const field of await getDefinitions(admin, "PRODUCT")) {
+    if (!failedRunDisposableDefinition(field)) continue;
+    must(await removeDefinition(admin, [field], field), "Recover disposable failed-run definition");
+    report.recoveredFailedProbeDefinitions.push({ id: field.id, key: field.key });
+  }
   report.schema = await verifyShopifySchema(
     await graph(
       admin,
