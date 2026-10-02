@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { encodeValue } from "../app/value-types.js";
+import { encodeValue, valuesEquivalent } from "../app/value-types.js";
 const rich = {
   type: "root",
   children: [
@@ -65,4 +65,20 @@ test("definition numeric, text length and list count rules are enforced", () => 
       ]),
     /list.max/,
   );
+});
+
+test("Shopify uppercase measurement responses can be re-edited and aliases canonicalize", () => {
+  for (const [type, unit, canonical] of [["dimension", "cm", "CENTIMETERS"], ["weight", "kg", "KILOGRAMS"], ["volume", "l", "LITERS"]]) {
+    const value = encodeValue(type, JSON.stringify({value: 1, unit}));
+    assert.deepEqual(JSON.parse(value), {value: 1, unit: canonical});
+    assert.equal(encodeValue(type, value), value);
+  }
+  assert.deepEqual(JSON.parse(encodeValue("list.dimension", '[{"value":2,"unit":"CENTIMETERS"}]')), [{value: 2, unit: "CENTIMETERS"}]);
+});
+test("normalized structured writes recover without confusing changed values or text", () => {
+  assert.equal(valuesEquivalent("dimension", '{"value":10,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), true);
+  assert.equal(valuesEquivalent("dimension", '{"value":11,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), false);
+  assert.equal(valuesEquivalent("json", '{"a":0,"b":false}', '{"b":false,"a":0}'), true);
+  assert.equal(valuesEquivalent("single_line_text_field", "false", " false"), false);
+  assert.equal(valuesEquivalent("list.dimension", '[{"value":10,"unit":"cm"}]', '[{"unit":"CENTIMETERS","value":10}]'), true);
 });
