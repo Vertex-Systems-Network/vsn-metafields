@@ -6,3 +6,53 @@ export const PRO_PLAN = Object.freeze({
   interval: "EVERY_30_DAYS",
   trialDays: 5,
 });
+
+const tier = (id, label, amount, description, limits) =>
+  Object.freeze({
+    id,
+    name: id,
+    label,
+    amount,
+    description,
+    currencyCode: "USD",
+    interval: "EVERY_30_DAYS",
+    trialDays: 5,
+    limits: Object.freeze(limits),
+  });
+export const PLANS = Object.freeze([
+  tier(
+    "starter-plan",
+    "Starter",
+    19,
+    "For a focused store getting its content organized.",
+    { importRows: 10, listItems: 16, metaobjectFields: 3 },
+  ),
+  tier(
+    "growth-plan",
+    "Growth",
+    35,
+    "More room for richer content and regular imports.",
+    { importRows: 50, listItems: 64, metaobjectFields: 10 },
+  ),
+  tier(
+    PRO_PLAN.id,
+    "Pro",
+    PRO_PLAN.amount,
+    "The full workspace for a complex catalog.",
+    { importRows: 100, listItems: 128, metaobjectFields: 25 },
+  ),
+]);
+export const PLAN_BY_ID = Object.freeze(
+  Object.fromEntries(PLANS.map((p) => [p.id, p])),
+);
+
+// ACTIVE is verified by Shopify. Preserve the prior any-active-subscription
+// contract for older provider names; a client cannot choose its entitlement.
+export function planFromSubscriptions(subscriptions) {
+  const active = subscriptions.filter((s) => s.status === "ACTIVE");
+  if (!active.length) return null;
+  return active.reduce((best, s) => {
+    const plan = PLAN_BY_ID[s.name] || PLAN_BY_ID[PRO_PLAN.id];
+    return !best || plan.amount > best.amount ? plan : best;
+  }, null);
+}

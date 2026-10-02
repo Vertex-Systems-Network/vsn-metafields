@@ -2,6 +2,11 @@ import { authenticate } from "../shopify.server";
 import { hasActivePlan } from "../active-plan.server";
 import { graph } from "../definitions.server";
 import {
+  getPlanEntitlement,
+  assertPlanCount,
+  assertListValue,
+} from "../plan-limits.server";
+import {
   listMetaobjectDefinitions,
   listMetaobjectEntries,
   createMetaobjectDefinition,
@@ -35,6 +40,7 @@ export const loader = async ({ request }) => {
           params.get("after"),
         )),
       });
+    const plan = await getPlanEntitlement(admin);
     const definitions = await listMetaobjectDefinitions(admin);
     const data = await graph(
       admin,
@@ -45,6 +51,7 @@ export const loader = async ({ request }) => {
       ok: true,
       definitions,
       types: data.metafieldDefinitionTypes,
+      plan,
     });
   } catch (error) {
     return featureError(error);
@@ -55,14 +62,16 @@ export const action = async ({ request }) => {
   if (request.method !== "POST")
     return featureJson({ ok: false, error: "Use POST." }, 405);
   try {
-    if (!(await hasActivePlan(admin)))
-      return featureJson(
-        { ok: false, error: "An active plan is required." },
-        403,
-      );
+    const plan = await getPlanEntitlement(admin);
     const input = await boundedJson(request);
     let saved;
     if (input.action === "createDefinition") {
+      assertPlanCount(
+        plan,
+        "metaobjectFields",
+        input.fields?.length,
+        "fields per new metaobject definition",
+      );
       const data = await graph(
         admin,
         `#graphql
@@ -81,9 +90,16 @@ export const action = async ({ request }) => {
         throw new RangeError("Editable merchant-owned definition not found.");
       if (input.action === "updateDefinition")
         saved = await updateMetaobjectDefinition(admin, definition, input);
-      else if (input.action === "saveEntry")
+      else if (input.action === "saveEntry") {
+        for (const field of definition.fieldDefinitions) {
+          if (
+            input.values?.[field.key] !== undefined &&
+            input.values[field.key] !== ""
+          )
+            assertListValue(plan, field.type.name, input.values[field.key]);
+        }
         saved = await saveMetaobjectEntry(admin, definition, input);
-      else if (input.action === "deleteEntry")
+      } else if (input.action === "deleteEntry")
         await removeMetaobjectEntry(admin, definition, input);
       else if (input.action === "deleteDefinition")
         await removeEmptyMetaobjectDefinition(admin, definition, input.confirm);

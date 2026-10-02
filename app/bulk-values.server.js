@@ -8,6 +8,7 @@ import {
 } from "./metafield-values.server.js";
 import { valuesEquivalent } from "./value-types.js";
 import { parseImportCsv } from "./bulk-csv.js";
+import { assertPlanCount, assertListValue } from "./plan-limits.server.js";
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const lifetime = 7 * 24 * 60 * 60 * 1000;
@@ -33,8 +34,10 @@ export async function readJob(db, shop, id) {
     throw new Error("Saved import preview failed integrity verification.");
   return job;
 }
-export async function previewImport(admin, db, shop, csv) {
+export async function previewImport(admin, db, shop, csv, plan) {
   const input = parseImportCsv(csv);
+  if (plan)
+    assertPlanCount(plan, "importRows", input.length, "rows per import job");
   await db.metafieldJob.deleteMany({
     where: { shop, expiresAt: { lt: new Date() } },
   });
@@ -79,6 +82,7 @@ export async function previewImport(admin, db, shop, csv) {
         definition,
         item.value,
       );
+      if (plan) assertListValue(plan, definition.type, row.value);
       await verifyReferences(admin, definition.type, row.value);
       const before = await readResourceValue(
         admin,
@@ -110,8 +114,14 @@ export async function previewImport(admin, db, shop, csv) {
   });
   return publicJob(job);
 }
-export async function runImportChunk(admin, db, shop, input) {
+export async function runImportChunk(admin, db, shop, input, plan) {
   const job = await readJob(db, shop, input.id);
+  if (plan) {
+    const rows = JSON.parse(job.rowsJson);
+    assertPlanCount(plan, "importRows", rows.length, "rows per import job");
+    for (const row of rows.filter((r) => r.valid))
+      assertListValue(plan, row.type, row.value);
+  }
   if (
     input.confirm !== `APPLY:${job.id}:${job.inputHash}` ||
     Number(input.revision) !== job.revision
@@ -190,7 +200,10 @@ export async function runImportChunk(admin, db, shop, input) {
             row.namespace,
             row.key,
           );
-          if (current?.type === row.type && valuesEquivalent(row.type, current.value, row.value)) {
+          if (
+            current?.type === row.type &&
+            valuesEquivalent(row.type, current.value, row.value)
+          ) {
             result = {
               row: row.row,
               status: "unchanged",
@@ -218,7 +231,9 @@ export async function runImportChunk(admin, db, shop, input) {
                 }
               : {
                   row: row.row,
-                  status: ["STALE_OBJECT", "INVALID_COMPARE_DIGEST"].includes(saved.code)
+                  status: ["STALE_OBJECT", "INVALID_COMPARE_DIGEST"].includes(
+                    saved.code,
+                  )
                     ? "conflict"
                     : "failed",
                   error: saved.error,

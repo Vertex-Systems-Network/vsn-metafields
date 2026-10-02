@@ -5,7 +5,7 @@
 # unless a controlled migration step explicitly authorizes the URL cutover.
 
 client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
-name = "VSN Metafields Staging"
+name = "VSN | Metafields"
 application_url = "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev"
 embedded = true
 

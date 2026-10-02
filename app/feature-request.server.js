@@ -47,7 +47,10 @@ export function featureError(error) {
       error: String(
         error.message || "Shopify request failed. Retry or open diagnostics.",
       ).slice(0, 500),
+      ...(error.code === "plan_limit"
+        ? { code: error.code, planId: error.planId }
+        : {}),
     },
-    error instanceof RangeError ? 400 : 502,
+    error.code === "plan_limit" ? 403 : error instanceof RangeError ? 400 : 502,
   );
 }
