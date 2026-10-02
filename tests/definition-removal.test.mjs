@@ -34,3 +34,13 @@ test("Shopify errors and unexpected deleted ID do not report success", async () 
     assert.equal((await removeDefinition(admin, fields, fields[0])).ok, false);
   }
 });
+
+test("merchant reference definition removal never deletes associated values", async () => {
+  const admin = {graphql: async () => { throw new Error("Unexpected mutation"); }};
+  for (const type of ["product_reference", "list.product_reference", "metaobject_reference", "mixed_reference"]) {
+    const selected = {...fields[0], type};
+    const result = await removeDefinition(admin, [selected], selected);
+    assert.equal(result.status, 409);
+    assert.match(result.error, /native editor/);
+  }
+});

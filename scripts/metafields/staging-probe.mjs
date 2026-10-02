@@ -22,7 +22,7 @@ import {
 import { removeDefinition } from "../../app/definition-removal.server.js";
 import { mutateValue } from "../../app/metafield-values.server.js";
 import { probeGraphql, failedRunDisposableDefinition } from "./probe-client.mjs";
-import { verifyAdvancedBatch } from "./advanced-probe.mjs";
+import { verifyAdvancedBatch, removeDisposableProbeDefinition } from "./advanced-probe.mjs";
 const { DATABASE_URL, SHOPIFY_API_KEY, SHOPIFY_APP_URL, STAGING_SHOP } =
   process.env;
 const host = DATABASE_URL ? new URL(DATABASE_URL).hostname : "";
@@ -111,7 +111,7 @@ query { currentAppInstallation { app { apiKey } } }`,
   report.recoveredFailedProbeDefinitions = [];
   for (const field of await getDefinitions(admin, "PRODUCT")) {
     if (!failedRunDisposableDefinition(field)) continue;
-    must(await removeDefinition(admin, [field], field), "Recover disposable failed-run definition");
+    must(await removeDisposableProbeDefinition(admin, field), "Recover disposable failed-run definition");
     report.recoveredFailedProbeDefinitions.push({ id: field.id, key: field.key });
   }
   report.schema = await verifyShopifySchema(
