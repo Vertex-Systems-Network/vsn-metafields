@@ -28,6 +28,7 @@ import {
 } from "../../app/bulk-values.server.js";
 import { exportValueCsv } from "../../app/bulk-csv.js";
 import { featureDiagnostics } from "../../app/diagnostics.server.js";
+import { encodeValue } from "../../app/value-types.js";
 import { hasActivePlan } from "../../app/active-plan.server.js";
 
 export async function verifyAdvancedBatch(
@@ -133,7 +134,7 @@ export async function verifyAdvancedBatch(
       assert.equal(read.type, type);
       const normalized = (v) => {
         try {
-          return JSON.parse(v);
+          return JSON.parse(encodeValue(type, v));
         } catch {
           return v;
         }

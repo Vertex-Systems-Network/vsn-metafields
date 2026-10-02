@@ -224,8 +224,18 @@ function scalar(type, input) {
       ],
       weight: ["g", "kg", "oz", "lb", "grams", "kilograms", "ounces", "pounds"],
     };
-    if (finite(parsed.value) < 0 || !units[type].includes(parsed.unit))
+    const unit = typeof parsed.unit === "string" ? parsed.unit.toLowerCase() : "";
+    if (finite(parsed.value) < 0 || !units[type].includes(unit))
       throw new RangeError("Invalid measurement value or unit.");
+    const aliases = {
+      in: "inches", ft: "feet", yd: "yards", mm: "millimeters", cm: "centimeters", m: "meters",
+      ml: "milliliters", cl: "centiliters", l: "liters", m3: "cubic_meters",
+      us_fl_oz: "us_fluid_ounces", us_pt: "us_pints", us_qt: "us_quarts", us_gal: "us_gallons",
+      imp_fl_oz: "imperial_fluid_ounces", imp_pt: "imperial_pints", imp_qt: "imperial_quarts", imp_gal: "imperial_gallons",
+      g: "grams", kg: "kilograms", oz: "ounces", lb: "pounds",
+    };
+    parsed.unit = (aliases[unit] || unit).toUpperCase();
+    parsed.value = finite(parsed.value);
   } else if (type === "rating") {
     const min = finite(parsed.scale_min),
       max = finite(parsed.scale_max),
@@ -310,4 +320,16 @@ export function encodeValue(type, raw, validations = []) {
     }
   }
   return result;
+}
+
+// Shopify normalizes structured JSON (including measurement unit case). Compare
+// typed semantics when recovering an acknowledged write, not JSON byte order.
+export function valuesEquivalent(type, left, right) {
+  try {
+    const a = encodeValue(type, left), b = encodeValue(type, right);
+    if (!type.startsWith("list.") && !["json", "rich_text_field", "dimension", "weight", "volume", "rating", "money", "link"].includes(type)) return a === b;
+    const stable = (value) => Array.isArray(value) ? value.map(stable) :
+      value && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map((k) => [k, stable(value[k])])) : value;
+    return JSON.stringify(stable(JSON.parse(a))) === JSON.stringify(stable(JSON.parse(b)));
+  } catch { return false; }
 }

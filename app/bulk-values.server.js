@@ -6,6 +6,7 @@ import {
   verifyReferences,
   mutateValue,
 } from "./metafield-values.server.js";
+import { valuesEquivalent } from "./value-types.js";
 import { parseImportCsv } from "./bulk-csv.js";
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
@@ -189,7 +190,7 @@ export async function runImportChunk(admin, db, shop, input) {
             row.namespace,
             row.key,
           );
-          if (current?.value === row.value && current.type === row.type) {
+          if (current?.type === row.type && valuesEquivalent(row.type, current.value, row.value)) {
             result = {
               row: row.row,
               status: "unchanged",
