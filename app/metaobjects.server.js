@@ -172,12 +172,11 @@ export async function updateMetaobjectDefinition(admin, definition, input) {
   if (
     storefront === "PUBLIC_READ" &&
     definition.access?.storefront !== "PUBLIC_READ" &&
-    definition.metaobjectsCount > 0 &&
     input.confirmPublicAccess !==
       `PUBLIC_ACCESS:${definition.id}:${definition.type}`
   )
     throw new RangeError(
-      "Confirm public access for existing entries before changing this definition.",
+      "Confirm public access before changing this definition.",
     );
   const data = await graph(
     admin,

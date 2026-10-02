@@ -5,6 +5,7 @@ import {
   createMetaobjectDefinition,
   saveMetaobjectEntry,
   removeEmptyMetaobjectDefinition,
+  updateMetaobjectDefinition,
 } from "../app/metaobjects.server.js";
 const definition = {
   id: "gid://shopify/MetaobjectDefinition/1",
@@ -47,6 +48,25 @@ test("metaobject management denies app/Shopify-owned types and malformed definit
       ["single_line_text_field"],
     ),
   );
+});
+
+test("public access widening requires exact consent even when the reported entry count is zero", async () => {
+  let mutations = 0;
+  const privateDefinition = {...definition, access:{storefront:"NONE"}, metaobjectsCount:0};
+  const admin = {graphql: async (query, {variables}) => {
+    mutations++;
+    assert.match(query, /UpdateMerchantMetaobjectDefinition/);
+    assert.equal(variables.definition.access.storefront, "PUBLIC_READ");
+    return Response.json({data: {metaobjectDefinitionUpdate: {
+      metaobjectDefinition: {id:definition.id, type:definition.type}, userErrors:[],
+    }}});
+  }};
+  for (const count of [0,1]) await assert.rejects(updateMetaobjectDefinition(admin,
+    {...privateDefinition,metaobjectsCount:count}, {name:"FAQ",storefront:"PUBLIC_READ"}), /Confirm public/);
+  assert.equal(mutations, 0);
+  await updateMetaobjectDefinition(admin, privateDefinition, {name:"FAQ",storefront:"PUBLIC_READ",
+    confirmPublicAccess:`PUBLIC_ACCESS:${definition.id}:${definition.type}`});
+  assert.equal(mutations, 1);
 });
 test("entry create validates required fields, exact publication consent and returned identity", async () => {
   let sent;

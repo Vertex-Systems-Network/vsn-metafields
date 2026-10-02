@@ -199,8 +199,7 @@ export default function Metaobjects() {
             if (definition) {
               const widening =
                 storefront === "PUBLIC_READ" &&
-                definition.access?.storefront !== "PUBLIC_READ" &&
-                definition.metaobjectsCount > 0;
+                definition.access?.storefront !== "PUBLIC_READ";
               if (
                 widening &&
                 !window.confirm(
