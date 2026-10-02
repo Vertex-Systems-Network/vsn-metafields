@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-02T23:13:29Z",
+  "status": "staging_runtime_and_app_release_passed_merchant_approval_pending",
+  "implementation_pr": 172,
+  "implementation_head_sha": "d988adcc4d74f6f2831ffb59cf3cf9c3e0bd06ac",
+  "source_sha": "b35c6d565327730887d4e5d2906d2e034287a1fd",
+  "source_tree_sha": "0b07d7dcd1877bbed8a5896908ff315fd08f91e7",
+  "review_type": "user_authorized_self_review",
+  "local_checks": {
+    "node": "22.13.0",
+    "tests": 134,
+    "failed": 0,
+    "lint": "passed",
+    "typecheck": "passed",
+    "database_contract": "passed",
+    "build": "passed",
+    "repository_integrity": "passed",
+    "staging_isolation": "passed",
+    "staging_contract": "passed"
+  },
+  "ci": [
+    {
+      "name": "repository-integrity",
+      "conclusion": "success",
+      "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37075902060/job/111065623924"
+    },
+    {
+      "name": "validate",
+      "conclusion": "success",
+      "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37075902106/job/111065623209"
+    }
+  ],
+  "merged_source_ci": {
+    "app_validation": 37076045036,
+    "repository_integrity": 37076045024,
+    "conclusion": "success"
+  },
+  "staging_runtime": {
+    "run_id": 37076124068,
+    "job_id": 111066323518,
+    "conclusion": "success",
+    "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37076124068",
+    "acceptance": {
+      "apiVersion": "2026-07",
+      "ok": true,
+      "sourceSha": "b35c6d565327730887d4e5d2906d2e034287a1fd",
+      "readableOwners": [
+        "API_PERMISSION",
+        "ARTICLE",
+        "BLOG",
+        "CARTTRANSFORM",
+        "COLLECTION",
+        "COMPANY",
+        "COMPANY_LOCATION",
+        "CUSTOMER",
+        "DELIVERY_CUSTOMIZATION",
+        "DISCOUNT",
+        "DRAFTORDER",
+        "FULFILLMENT_CONSTRAINT_RULE",
+        "GIFT_CARD_TRANSACTION",
+        "LOCATION",
+        "MARKET",
+        "ORDER",
+        "ORDER_ROUTING_LOCATION_RULE",
+        "PAGE",
+        "PAYMENT_CUSTOMIZATION",
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "SELLING_PLAN",
+        "SHOP",
+        "TRANSFER",
+        "VALIDATION"
+      ],
+      "unavailableOwners": [],
+      "lifecycleOwners": [
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "COLLECTION"
+      ],
+      "standardEnable": true,
+      "valuesRetainedAfterDefinitionRemoval": true,
+      "cleanup": true,
+      "recoveredFailedProbeDefinitions": [],
+      "recoveredFailedProbeMetaobjects": [],
+      "schema": {
+        "apiVersion": "2026-07",
+        "documents": 51,
+        "ownerInventory": true
+      },
+      "typeCount": 118,
+      "grantedScopes": [
+        "read_orders",
+        "read_products",
+        "write_metaobject_definitions",
+        "write_metaobjects",
+        "write_products",
+        "read_metaobject_definitions",
+        "read_metaobjects"
+      ],
+      "standardTemplateCount": 8516,
+      "advanced": {
+        "typedValues": [
+          "single_line_text_field",
+          "multi_line_text_field",
+          "number_integer",
+          "number_decimal",
+          "boolean",
+          "date",
+          "date_time",
+          "url",
+          "color",
+          "json",
+          "rich_text_field",
+          "dimension",
+          "weight",
+          "volume",
+          "list.single_line_text_field",
+          "list.number_integer",
+          "product_reference",
+          "variant_reference",
+          "collection_reference",
+          "list.product_reference",
+          "metaobject_reference"
+        ],
+        "staleDigestRejected": true,
+        "referenceVerification": true,
+        "metaobjects": {
+          "create": true,
+          "list": true,
+          "entryCreate": true,
+          "entryUpdate": true,
+          "omittedFieldsPreserved": true,
+          "definitionRename": true,
+          "referenceWrite": true,
+          "entryDelete": true,
+          "emptyDefinitionDelete": true
+        },
+        "bulk": {
+          "preview": true,
+          "apply": true,
+          "mixedRows": true,
+          "conflict": true,
+          "completedResume": true,
+          "shopIsolation": true
+        },
+        "diagnostics": {
+          "scopesRead": true,
+          "planGatePreserved": true,
+          "actualHasActivePlan": true,
+          "missingOptionalScopes": [
+            "read_files"
+          ]
+        },
+        "cleanup": true,
+        "billingMetadata": [
+          {
+            "name": "pro-plan",
+            "status": "ACTIVE",
+            "test": true,
+            "trialDays": 5,
+            "recurring": [
+              {
+                "price": {
+                  "amount": "55.0",
+                  "currencyCode": "USD"
+                },
+                "interval": "EVERY_30_DAYS"
+              }
+            ]
+          }
+        ],
+        "cleanupFailures": []
+      },
+      "cleanupFailures": []
+    }
+  },
+  "staging_app_release": {
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 37076437808,
+    "job_id": 111067296882,
+    "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37076437808",
+    "source_sha": "b35c6d565327730887d4e5d2906d2e034287a1fd",
+    "active_version": "staging-metafields-b35c6d565327",
+    "production_app_changed": false,
+    "synthetic_compliance_webhooks": "3 enqueued; final delivery receipts not certified"
+  },
+  "optional_permission_status": {
+    "declared": [
+      "read_content",
+      "read_files"
+    ],
+    "grant_action": "store owner must approve each requested optional scope in the Shopify modal",
+    "provider_grant_verified": false,
+    "observed_granted_scopes_include_requested_references": false
+  },
+  "plans": {
+    "starter": {
+      "usd_every_30_days": 19,
+      "import_rows": 5,
+      "list_items": 8,
+      "new_definition_fields": 2
+    },
+    "growth": {
+      "usd_every_30_days": 35,
+      "import_rows": 20,
+      "list_items": 32,
+      "new_definition_fields": 5
+    },
+    "pro": {
+      "id": "pro-plan",
+      "usd_every_30_days": 55,
+      "trial_days": 5,
+      "import_rows": 100,
+      "list_items": 128,
+      "new_definition_fields": 25,
+      "exclusive_app_actions": [
+        "public metaobject access and published-entry writes",
+        "failed-import retry preparation"
+      ]
+    }
+  },
+  "visual_evidence": {
+    "help_svg_count": 7,
+    "illustrations_rendered_and_inspected": true,
+    "declared_button_contrast": {
+      "primary": 6.48,
+      "destructive": 6.88,
+      "reference": 6.7,
+      "secondary": 14.89
+    },
+    "browser_component_preview": "blocked by cloud browser local-file URL policy; no workaround attempted",
+    "authenticated_merchant_acceptance": false,
+    "wcag_certification": false,
+    "release_workflow_screenshot": "vsn-guided-staging-success-1790982877093.jpg"
+  },
+  "pending": [
+    "Store owner page/file permission approval and real picker verification",
+    "Actual billing approval navigation and new-tier transitions",
+    "Two-theme desktop/mobile, accessibility and measured performance",
+    "Specifications settings-count advisory and final production assurance"
+  ],
+  "production_changed": false
+}

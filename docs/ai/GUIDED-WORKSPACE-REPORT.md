@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation and local checks are complete. Remote CI and exact-source staging release will be recorded after verification. Merchant permission approval, actual Shopify billing navigation and two-theme accessibility acceptance remain pending. No live production release is included.
+Implementation, local checks, remote CI and exact-source staging runtime/app release passed. Merchant permission approval, actual Shopify billing navigation and two-theme accessibility acceptance remain pending. No live production release is included.
 
 ## Requested changes
 
@@ -36,6 +36,16 @@ Downgrades do not remove or unpublish content, or delete saved logs/exports. Exi
 - Browser preview of the component fixture was blocked by the cloud browser URL policy, which disallows local-file URLs. No workaround or authenticated UI certification is claimed. The prior declined Shopify sign-in handoff was not renewed.
 - A store owner must approve the optional scope modal before `read_content` / `read_files` can be verified as granted. Publishing optional scope configuration does not certify picker availability. No subscription creation, cancellation or approval was performed by this batch.
 - Main/live, provider cleanup, Specifications settings-count advisory and remaining merchant/two-theme/accessibility/performance acceptance remain separate pending work.
+
+## Remote release evidence
+
+PR172 merged to development at `b35c6d565327730887d4e5d2906d2e034287a1fd` (tree `0b07d7dcd1877bbed8a5896908ff315fd08f91e7`). PR integrity37075902060 and app validation37075902106 passed; merged-source validation37076045036 and integrity37076045024 passed.
+
+- [Staging runtime37076124068](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37076124068) passed health, sessions, API/schema, all21 representative typed-value cases, metaobject lifecycle, imports and diagnostics. All disposable cleanup succeeded with no cleanup failures. Existing ACTIVE test Pro metadata was read; no billing mutation occurred.
+- [Shopify staging release37076437808](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37076437808) passed and activated `staging-metafields-b35c6d565327` from that same source. All134 contracts and five extension blocks passed the release build. The production app was not changed. Three synthetic compliance webhooks were enqueued; final delivery receipts are not certified by that result.
+- The observed granted-scope list contains neither `read_content` nor `read_files`. Their optional declarations are released, while actual store-owner consent and picker verification remain pending. In Help center → Connection and permissions, use Enable page references / Enable file references, approve the corresponding Shopify modal, then Refresh status.
+
+Machine evidence: `docs/evidence/metafields-guided-workspace-2026-10-03.json`. Subsequent documentation commits preserve this verified implementation source; they do not represent another app release.
 
 ## Primary references
 
