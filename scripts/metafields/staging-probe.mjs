@@ -107,7 +107,13 @@ query { currentAppInstallation { app { apiKey } } }`,
   if (identity.currentAppInstallation?.app?.apiKey !== SHOPIFY_API_KEY)
     throw new Error("Offline session belongs to a different app.");
   report.schema = await verifyShopifySchema(
-    await graph(admin, getIntrospectionQuery({ descriptions: false, inputValueDeprecation: true })),
+    await graph(
+      admin,
+      getIntrospectionQuery({
+        descriptions: false,
+        inputValueDeprecation: true,
+      }),
+    ),
   );
   const capabilities = await getCapabilities(admin, "PRODUCT");
   report.typeCount = capabilities.types.length;
