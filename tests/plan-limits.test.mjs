@@ -12,6 +12,7 @@ import {
   getPlanEntitlement,
   assertPlanCount,
   assertListValue,
+  assertPlanFeature,
 } from "../app/plan-limits.server.js";
 import {
   featureJson,
@@ -100,7 +101,7 @@ test("limits accept the boundary and deny overflow with an actionable 403", () =
     assertListValue(
       starter,
       "list.single_line_text_field",
-      JSON.stringify(Array(16).fill("a")),
+      JSON.stringify(Array(starter.limits.listItems).fill("a")),
     ),
   );
   assert.throws(
@@ -108,9 +109,9 @@ test("limits accept the boundary and deny overflow with an actionable 403", () =
       assertListValue(
         starter,
         "list.single_line_text_field",
-        JSON.stringify(Array(17).fill("a")),
+        JSON.stringify(Array(starter.limits.listItems + 1).fill("a")),
       ),
-    /16 items/,
+    /8 items/,
   );
   assert.throws(
     () => assertListValue(starter, "list.single_line_text_field", "{}"),
@@ -141,7 +142,12 @@ const jsonRequest = (body) =>
     body: JSON.stringify(body),
   });
 const helpers = { featureJson, featureError, boundedJson };
-const limits = { getPlanEntitlement, assertPlanCount, assertListValue };
+const limits = {
+  getPlanEntitlement,
+  assertPlanCount,
+  assertListValue,
+  assertPlanFeature,
+};
 test("actual metaobject route rejects over-limit definitions before any Shopify mutation", async () => {
   let writes = 0;
   const route = serverRoute("app.api.metaobjects.jsx", {
@@ -170,7 +176,7 @@ test("actual metaobject route rejects over-limit definitions before any Shopify 
   const denied = await route.action({
     request: jsonRequest({
       action: "createDefinition",
-      fields: Array(4).fill({}),
+      fields: Array(starter.limits.metaobjectFields + 1).fill({}),
     }),
   });
   assert.equal(denied.status, 403);
@@ -181,7 +187,7 @@ test("actual metaobject route rejects over-limit definitions before any Shopify 
       await route.action({
         request: jsonRequest({
           action: "createDefinition",
-          fields: Array(3).fill({}),
+          fields: Array(starter.limits.metaobjectFields).fill({}),
         }),
       })
     ).status,
@@ -297,7 +303,7 @@ test("oversized preview and post-downgrade apply stop before DB claims or Shopif
   }));
   await assert.rejects(
     previewImport({}, {}, "s.myshopify.com", exportValueCsv(rows), starter),
-    /10 rows/,
+    /5 rows/,
   );
   const rowsJson = JSON.stringify(rows);
   const job = {
@@ -308,6 +314,135 @@ test("oversized preview and post-downgrade apply stop before DB claims or Shopif
   const db = { metafieldJob: { findFirst: async () => job } };
   await assert.rejects(
     runImportChunk({}, db, "s.myshopify.com", { id: "job" }, starter),
-    /10 rows/,
+    /5 rows/,
   );
+});
+
+test("public metaobject writes require provider-verified Pro; drafts, metadata and removal remain usable", async () => {
+  let writes = 0;
+  let planName = "growth-plan";
+  const definition = {
+    id: "definition",
+    type: "guide",
+    editable: true,
+    access: { storefront: "PUBLIC_READ" },
+    capabilities: { publishable: { enabled: true } },
+    fieldDefinitions: [],
+  };
+  const route = serverRoute("app.api.metaobjects.jsx", {
+    "../shopify.server": {
+      authenticate: {
+        admin: async () => ({
+          admin: adminFor([{ name: planName, status: "ACTIVE" }]),
+        }),
+      },
+    },
+    "../active-plan.server": {},
+    "../plan-limits.server": limits,
+    "../definitions.server": {
+      graph: async () => ({ metafieldDefinitionTypes: [] }),
+    },
+    "../metaobjects.server": {
+      listMetaobjectDefinitions: async () => [definition],
+      saveMetaobjectEntry: async () => {
+        writes++;
+      },
+      createMetaobjectDefinition: async () => {
+        writes++;
+      },
+      updateMetaobjectDefinition: async () => {
+        writes++;
+      },
+      removeMetaobjectEntry: async () => {
+        writes++;
+      },
+    },
+    "../feature-request.server": helpers,
+  });
+  const entry = {
+    action: "saveEntry",
+    definitionId: "definition",
+    type: "guide",
+    status: "ACTIVE",
+    values: {},
+    plan: "pro-plan",
+  };
+  assert.equal(
+    (await route.action({ request: jsonRequest(entry) })).status,
+    403,
+  );
+  assert.equal(
+    (
+      await route.action({
+        request: jsonRequest({
+          action: "createDefinition",
+          storefront: "PUBLIC_READ",
+          fields: [{}],
+        }),
+      })
+    ).status,
+    403,
+  );
+  assert.equal(writes, 0);
+  for (const action of ["updateDefinition", "deleteEntry"])
+    assert.equal(
+      (await route.action({ request: jsonRequest({ ...entry, action }) }))
+        .status,
+      200,
+    );
+  assert.equal(
+    (
+      await route.action({
+        request: jsonRequest({ ...entry, status: "DRAFT" }),
+      })
+    ).status,
+    200,
+  );
+  definition.capabilities.publishable.enabled = false;
+  assert.equal(
+    (
+      await route.action({
+        request: jsonRequest({ ...entry, status: "DRAFT" }),
+      })
+    ).status,
+    403,
+  );
+  definition.capabilities.publishable.enabled = true;
+  planName = "pro-plan";
+  assert.equal(
+    (await route.action({ request: jsonRequest(entry) })).status,
+    200,
+  );
+  assert.equal(writes, 4);
+});
+test("failed-import retry denies lower tiers before touching saved jobs and ignores a client Pro claim", async () => {
+  let databaseReads = 0;
+  const route = serverRoute("app.api.bulk.jsx", {
+    "../shopify.server": {
+      authenticate: {
+        admin: async () => ({
+          admin: adminFor([{ name: "growth-plan", status: "ACTIVE" }]),
+          session: { shop: "s.myshopify.com" },
+        }),
+      },
+    },
+    "../active-plan.server": {},
+    "../plan-limits.server": limits,
+    "../db.server": {
+      createPrismaClient: () => ({ $disconnect: async () => {} }),
+    },
+    "../bulk-values.server": {
+      readJob: async () => {
+        databaseReads++;
+      },
+    },
+    "../bulk-csv": {},
+    "../feature-request.server": helpers,
+  });
+  const response = await route.action({
+    request: jsonRequest({ action: "retry", id: "job", plan: "pro-plan" }),
+  });
+  assert.equal(response.status, 403);
+  assert.equal((await response.json()).code, "plan_limit");
+  assert.equal(databaseReads, 0);
 });

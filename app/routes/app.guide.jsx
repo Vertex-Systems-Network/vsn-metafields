@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { HELP_TOPICS } from "../help-content";
 import { PageIntro } from "../components/Workspace";
+import { ConnectionPanel } from "../components/ConnectionPanel";
+import { requestReferencePermission } from "../permission-client";
 export default function Guide() {
   const diagnostics = useFetcher(),
     location = useLocation(),
     [copied, setCopied] = useState(false);
-  const [permissionError, setPermissionError] = useState("");
+  const [requesting, setRequesting] = useState("");
+  const [permissionMessage, setPermissionMessage] = useState(null);
   const [search, setSearch] = useState("");
   const matches = HELP_TOPICS.filter((topic) =>
     JSON.stringify(topic).toLowerCase().includes(search.trim().toLowerCase()),
@@ -22,7 +25,11 @@ export default function Guide() {
         eyebrow="Guides & support"
         title="A little guidance. A smoother workflow."
         description="Step-by-step answers for setting up content, choosing a plan and solving common problems."
-      />
+      >
+        <a className="vsn-button info" href="#connection">
+          Connection & permissions
+        </a>
+      </PageIntro>
       <label htmlFor="help-search">Search guides and troubleshooting</label>
       <input
         id="help-search"
@@ -40,6 +47,28 @@ export default function Guide() {
           <article id={topic.id} className="vsn-help-topic" key={topic.id}>
             <h2>{topic.title}</h2>
             <p>{topic.description}</p>
+            <p className="vsn-help-location">
+              <strong>Where to find it</strong> {topic.where}
+            </p>
+            <figure className="vsn-guide-preview">
+              <a
+                href={topic.preview.src}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Enlarge ${topic.title} preview`}
+              >
+                <img
+                  src={topic.preview.src}
+                  alt={topic.preview.alt}
+                  width="960"
+                  height="600"
+                  loading="lazy"
+                />
+              </a>
+              <figcaption>
+                Illustrated walkthrough · example data · select image to enlarge
+              </figcaption>
+            </figure>
             <ol>
               {topic.steps.map((step) => (
                 <li key={step}>{step}</li>
@@ -77,91 +106,50 @@ export default function Guide() {
           </button>
         </div>
       )}
-      <div id="connection" />
-      <s-section heading="Connection and permissions">
-        {diagnostics.state !== "idle" && (
-          <div className="vsn-loading" role="status">
-            Checking your connection and permissions…
-          </div>
-        )}
-        {diagnostics.data?.error && (
-          <s-banner tone="critical">{diagnostics.data.error}</s-banner>
-        )}
-        {info && (
-          <>
-            <s-text>
-              API {info.apiVersion} · Environment {info.environment} · Database{" "}
-              {info.database} · Active plan {info.hasActivePlan ? "yes" : "no"}{" "}
-              · Saved import jobs {info.importJobCount}
-            </s-text>
-            {Object.entries(info.features).map(([name, state]) => (
-              <s-box key={name} padding="base">
-                <s-text>
-                  {name}:{" "}
-                  {state.missing.length
-                    ? `Missing ${state.missing.join(", ")}`
-                    : state.ready
-                      ? "Ready"
-                      : "Permissions granted; plan required"}
-                </s-text>
-              </s-box>
-            ))}
-            <s-text>
-              Optional page/article and file pickers require their listed read
-              permissions. If a scope is absent from the configured app, its
-              picker stays unavailable. Request permission updates through
-              Shopify’s app installation flow; no production scopes are changed
-              by this page.
-            </s-text>
-            <s-button
-              onClick={() => load(`/app/api/diagnostics${location.search}`)}
-            >
-              Refresh diagnostics
-            </s-button>
-            <s-button
-              onClick={async () => {
-                try {
-                  setPermissionError("");
-                  const missing = [
-                    ...new Set([
-                      ...info.features.values.missing,
-                      ...info.features.metaobjects.missing,
-                    ]),
-                  ];
-                  if (missing.length) await shopify.scopes.request(missing);
-                  load(`/app/api/diagnostics${location.search}`);
-                } catch {
-                  setPermissionError(
-                    "Shopify could not grant the configured permissions. Ask the store owner to reopen or update the app installation, then refresh diagnostics.",
-                  );
-                }
-              }}
-            >
-              Request configured product / metaobject permissions
-            </s-button>
-            {permissionError && (
-              <s-banner tone="critical">{permissionError}</s-banner>
-            )}
-            <s-button
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(
-                    JSON.stringify(info, null, 2),
-                  );
-                  setCopied(true);
-                } catch {
-                  setCopied(false);
-                }
-              }}
-            >
-              Copy support diagnostics
-            </s-button>
-            {copied && (
-              <s-text>Copied. No tokens or session values are included.</s-text>
-            )}
-          </>
-        )}
-      </s-section>
+      <ConnectionPanel
+        info={info}
+        checking={diagnostics.state !== "idle"}
+        error={diagnostics.data?.error}
+        onRefresh={() => load(`/app/api/diagnostics${location.search}`)}
+        requesting={requesting}
+        permissionMessage={permissionMessage}
+        onRequest={async (feature) => {
+          if (requesting) return;
+          setRequesting(feature);
+          setPermissionMessage(null);
+          try {
+            const result = await requestReferencePermission(
+              window.shopify,
+              feature,
+            );
+            setPermissionMessage({
+              tone: result === "declined" ? "warning" : "success",
+              text:
+                result === "declined"
+                  ? "Permission was declined. You can keep using the other tools and enable this picker later."
+                  : "Shopify confirmed permission. Refreshing the verified connection status…",
+            });
+            load(`/app/api/diagnostics${location.search}`);
+          } catch (error) {
+            setPermissionMessage({ tone: "error", text: error.message });
+          } finally {
+            setRequesting("");
+          }
+        }}
+        copied={copied}
+        onCopy={async () => {
+          try {
+            await navigator.clipboard.writeText(JSON.stringify(info, null, 2));
+            setCopied(true);
+          } catch {
+            setCopied(false);
+            setPermissionMessage({
+              tone: "error",
+              text: "Copy failed. Open technical connection details to share the visible status with support.",
+            });
+          }
+        }}
+      />
     </s-page>
   );
 }

@@ -7,7 +7,7 @@ export const PRO_PLAN = Object.freeze({
   trialDays: 5,
 });
 
-const tier = (id, label, amount, description, limits) =>
+const tier = (id, label, amount, description, limits, features = {}) =>
   Object.freeze({
     id,
     name: id,
@@ -18,6 +18,11 @@ const tier = (id, label, amount, description, limits) =>
     interval: "EVERY_30_DAYS",
     trialDays: 5,
     limits: Object.freeze(limits),
+    features: Object.freeze({
+      publicMetaobjects: false,
+      retryImports: false,
+      ...features,
+    }),
   });
 export const PLANS = Object.freeze([
   tier(
@@ -25,14 +30,14 @@ export const PLANS = Object.freeze([
     "Starter",
     19,
     "For a focused store getting its content organized.",
-    { importRows: 10, listItems: 16, metaobjectFields: 3 },
+    { importRows: 5, listItems: 8, metaobjectFields: 2 },
   ),
   tier(
     "growth-plan",
     "Growth",
     35,
     "More room for richer content and regular imports.",
-    { importRows: 50, listItems: 64, metaobjectFields: 10 },
+    { importRows: 20, listItems: 32, metaobjectFields: 5 },
   ),
   tier(
     PRO_PLAN.id,
@@ -40,6 +45,7 @@ export const PLANS = Object.freeze([
     PRO_PLAN.amount,
     "The full workspace for a complex catalog.",
     { importRows: 100, listItems: 128, metaobjectFields: 25 },
+    { publicMetaobjects: true, retryImports: true },
   ),
 ]);
 export const PLAN_BY_ID = Object.freeze(

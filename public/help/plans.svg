@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img">
+<title>Choose capacity. Unlock the full workflow. — illustrated walkthrough</title>
+<g font-family="Arial, sans-serif">
+<rect x="0" y="0" width="960" height="600" rx="0" fill="#f6f8f6" stroke="#dce5df"/>
+<rect x="0" y="0" width="960" height="70" rx="0" fill="#fff" stroke="#dce5df"/>
+<text x="32" y="42" font-size="23" fill="#172b26" font-weight="700">VSN | Metafields</text>
+<text x="712" y="40" font-size="12" fill="#54655f" font-weight="700">ILLUSTRATED EXAMPLE</text>
+<rect x="0" y="70" width="960" height="48" rx="0" fill="#fff" stroke="#dce5df"/>
+<text x="34" y="99" font-size="13" fill="#54655f" font-weight="600">Fields &amp; values</text>
+<text x="197" y="99" font-size="13" fill="#54655f" font-weight="600">Metaobjects</text>
+<text x="337" y="99" font-size="13" fill="#54655f" font-weight="600">Import &amp; export</text>
+<rect x="490" y="78" width="132" height="32" rx="6" fill="#eaf4ed" stroke="#eaf4ed"/>
+<text x="500" y="99" font-size="13" fill="#126b4c" font-weight="600">Plans</text>
+<text x="640" y="99" font-size="13" fill="#54655f" font-weight="600">Help center</text>
+<text x="32" y="156" font-size="24" fill="#172b26" font-weight="700">Choose capacity. Unlock the full workflow.</text>
+<rect x="32" y="180" width="570" height="386" rx="10" fill="#fff" stroke="#dce5df"/>
+<rect x="626" y="180" width="302" height="386" rx="10" fill="#17382d" stroke="#17382d"/>
+<rect x="32" y="180" width="896" height="386" rx="10" fill="#f6f8f6" stroke="#f6f8f6"/>
+<rect x="32" y="180" width="288" height="348" rx="10" fill="#fff" stroke="#dce5df"/>
+<text x="50" y="210" font-size="12" fill="#176b4b" font-weight="700">ESSENTIALS</text>
+<text x="50" y="249" font-size="27" fill="#172b26" font-weight="700">Starter</text>
+<text x="50" y="287" font-size="19" fill="#172b26" font-weight="700">$19 USD / 30 days</text>
+<text x="50" y="330" font-size="15" fill="#172b26" font-weight="400">5 rows / import</text>
+<text x="50" y="361" font-size="15" fill="#172b26" font-weight="400">8 items / list value</text>
+<text x="50" y="392" font-size="15" fill="#172b26" font-weight="400">2 fields / new definition</text>
+<text x="50" y="423" font-size="15" fill="#172b26" font-weight="400">Private draft metaobjects</text>
+<rect x="50" y="464" width="252" height="42" rx="10" fill="#f5f7f5" stroke="#dce5df"/>
+<text x="64" y="491" font-size="14" fill="#172b26" font-weight="700">Start Starter trial</text>
+<rect x="336" y="180" width="288" height="348" rx="10" fill="#fff" stroke="#dce5df"/>
+<text x="354" y="210" font-size="12" fill="#176b4b" font-weight="700">MORE CAPACITY</text>
+<text x="354" y="249" font-size="27" fill="#172b26" font-weight="700">Growth</text>
+<text x="354" y="287" font-size="19" fill="#172b26" font-weight="700">$35 USD / 30 days</text>
+<text x="354" y="330" font-size="15" fill="#172b26" font-weight="400">20 rows / import</text>
+<text x="354" y="361" font-size="15" fill="#172b26" font-weight="400">32 items / list value</text>
+<text x="354" y="392" font-size="15" fill="#172b26" font-weight="400">5 fields / new definition</text>
+<text x="354" y="423" font-size="15" fill="#172b26" font-weight="400">Private draft metaobjects</text>
+<rect x="354" y="464" width="252" height="42" rx="10" fill="#f5f7f5" stroke="#dce5df"/>
+<text x="368" y="491" font-size="14" fill="#172b26" font-weight="700">Start Growth trial</text>
+<rect x="640" y="180" width="288" height="348" rx="10" fill="#fff" stroke="#176b4b"/>
+<text x="658" y="210" font-size="12" fill="#176b4b" font-weight="700">1  RECOMMENDED</text>
+<text x="658" y="249" font-size="27" fill="#172b26" font-weight="700">Pro</text>
+<text x="658" y="287" font-size="19" fill="#172b26" font-weight="700">$55 USD / 30 days</text>
+<text x="658" y="330" font-size="15" fill="#172b26" font-weight="400">100 rows / import</text>
+<text x="658" y="361" font-size="15" fill="#172b26" font-weight="400">128 items / list value</text>
+<text x="658" y="392" font-size="15" fill="#172b26" font-weight="400">25 fields / new definition</text>
+<text x="658" y="423" font-size="15" fill="#172b26" font-weight="400">Public publishing + retry</text>
+<rect x="658" y="464" width="252" height="42" rx="10" fill="#176b4b" stroke="#dce5df"/>
+<text x="672" y="491" font-size="14" fill="#fff" font-weight="700">2  Start Pro trial</text>
+<text x="32" y="558" font-size="16" fill="#54655f" font-weight="400">3  Shopify shows the terms for your approval. New subscriptions: 5-day trial.</text>
+</g></svg>

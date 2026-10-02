@@ -1,3 +1,4 @@
+import ActionButton from "./ActionButton";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { REFERENCE_TYPES, valueInputHint } from "../value-types";
@@ -8,6 +9,7 @@ export default function TypedValueInput({
   onChange,
   references = [],
   onFindReferences,
+  referencesLoading = false,
 }) {
   const [search, setSearch] = useState("");
   const base = type.replace(/^list\./, ""),
@@ -67,9 +69,13 @@ export default function TypedValueInput({
             value={search}
             onInput={(e) => setSearch(e.target.value)}
           />
-          <s-button onClick={() => onFindReferences(base, search)}>
+          <ActionButton
+            variant="info"
+            loading={referencesLoading}
+            onClick={() => onFindReferences(base, search)}
+          >
             Find references
-          </s-button>
+          </ActionButton>
           <s-select
             label="Add a reference"
             value=""
@@ -100,4 +106,5 @@ TypedValueInput.propTypes = {
     }),
   ),
   onFindReferences: PropTypes.func,
+  referencesLoading: PropTypes.bool,
 };

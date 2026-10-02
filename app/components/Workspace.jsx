@@ -1,9 +1,23 @@
-import { Link, NavLink, useLocation } from "react-router";
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useNavigation,
+  useFetchers,
+} from "react-router";
 import PropTypes from "prop-types";
 import { APP_NAME } from "../product-config";
+import { LoadingState } from "./LoadingState";
 
 export function Workspace({ children }) {
   const { search } = useLocation();
+  const navigation = useNavigation();
+  const fetchers = useFetchers();
+  const pending = fetchers.filter((fetcher) => fetcher.state !== "idle");
+  const busy = navigation.state !== "idle" || pending.length > 0;
+  const saving =
+    navigation.state === "submitting" ||
+    pending.some((f) => f.state === "submitting");
   const routes = [
     ["/app", "Fields & values"],
     ["/app/metaobjects", "Metaobjects"],
@@ -42,7 +56,16 @@ export function Workspace({ children }) {
           </NavLink>
         ))}
       </nav>
-      <main id="workspace-content">{children}</main>
+      {busy && (
+        <div className="vsn-workspace-progress">
+          <LoadingState
+            label={saving ? "Saving changes…" : "Loading workspace…"}
+          />
+        </div>
+      )}
+      <main id="workspace-content" aria-busy={busy}>
+        {children}
+      </main>
       <footer className="vsn-footer">
         <span>{APP_NAME}</span>
         <Link to={{ pathname: "/app/guide", search }}>
