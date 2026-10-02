@@ -109,6 +109,9 @@ export default function App() {
       <NavMenu>
         <Link to="/app" rel="home">Options</Link>
         <Link to="/app/packages">Packages</Link>
+        <Link to="/app/metaobjects">Metaobjects</Link>
+        <Link to="/app/import">Import / export</Link>
+        <Link to="/app/guide">Setup / diagnostics</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

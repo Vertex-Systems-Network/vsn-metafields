@@ -9,7 +9,7 @@ test("value validation ties owner GID, definition namespace and supported type t
   assert.equal(validateValueInput("PRODUCT", productId, definition, "Care instructions"), "Care instructions");
   assert.throws(() => validateValueInput("COLLECTION", productId, definition, "Care"), /Resource/);
   assert.throws(() => validateValueInput("PRODUCT", productId, { ...definition, namespace: "app--123--private" }, "Care"), /definition/);
-  assert.throws(() => validateValueInput("PRODUCT", productId, { ...definition, type: "json" }, "{}"), /definition/);
+  assert.equal(validateValueInput("PRODUCT", productId, { ...definition, type: "json" }, "{}"), "{}");
 });
 
 test("typed values reject malformed integer, boolean, calendar date and unsafe URL", () => {
@@ -25,7 +25,7 @@ test("set sends only selected identity and type, and rejects Shopify errors", as
   let input;
   const admin = { graphql: async (_, options) => {
     input = options.variables.metafields[0];
-    return { json: async () => ({ data: { metafieldsSet: { metafields: [{ id: "gid://shopify/Metafield/1" }], userErrors: [] } } }) };
+    return { json: async () => ({ data: { metafieldsSet: { metafields: [{ ...input, owner:{id:input.ownerId}, id: "gid://shopify/Metafield/1" }], userErrors: [] } } }) };
   } };
   assert.equal((await mutateValue(admin, { action: "set", ownerId: productId, definition, value: "Care" })).ok, true);
   assert.deepEqual(input, { ownerId: productId, namespace: "vsn_metafields", key: "care", type: "single_line_text_field", value: "Care" });

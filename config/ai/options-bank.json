@@ -125,7 +125,7 @@
       "name": "Metaobject management",
       "category": "metafield_expansion",
       "description": "Manage reusable structured definitions and entries",
-      "status": "candidate",
+      "status": "selected",
       "requirement_source": [
         "PROJECT-IDEA.md"
       ],
@@ -147,14 +147,14 @@
       "qa_implications": [
         "Staging API and storefront E2E evidence required"
       ],
-      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+      "rationale": "User authorized batch table items 3, 5, 6 on 2026-10-02, covering typed values, advanced features and operations."
     },
     {
       "id": "OPT-META-006",
       "name": "Bulk jobs and import/export",
       "category": "metafield_expansion",
       "description": "Preview, validate and retry large value edits",
-      "status": "candidate",
+      "status": "selected",
       "requirement_source": [
         "PROJECT-IDEA.md"
       ],
@@ -176,7 +176,7 @@
       "qa_implications": [
         "Staging API and storefront E2E evidence required"
       ],
-      "rationale": "Proposed from user intake and current repository constraints; final selection depends on capability and UX evidence."
+      "rationale": "User authorized batch table items 3, 5, 6 on 2026-10-02, covering typed values, advanced features and operations."
     },
     {
       "id": "OPT-META-007",

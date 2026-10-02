@@ -1,12 +1,19 @@
 import { readFileSync } from "node:fs";
 
-const model = (path) => {
+const model = (path, name) => {
   const source = readFileSync(path, "utf8");
-  const match = source.match(/model Session \{([\s\S]*?)\n\}/);
-  if (!match) throw new Error(`Session model missing in ${path}`);
+  const match = source.match(new RegExp(`model ${name} \\{([\\s\\S]*?)\\n\\}`));
+  if (!match) throw new Error(`${name} model missing in ${path}`);
   return match[1].trim().replace(/\s+/g, " ");
 };
-if (model("prisma/schema.prisma") !== model("prisma/local/schema.prisma")) {
-  throw new Error("Local SQLite and Neon PostgreSQL Session models have diverged.");
+for (const name of ["Session", "MetafieldJob"]) {
+  if (
+    model("prisma/schema.prisma", name) !==
+    model("prisma/local/schema.prisma", name)
+  ) {
+    throw new Error(
+      `Local SQLite and Neon PostgreSQL ${name} models have diverged.`,
+    );
+  }
 }
-console.log("Local SQLite and Neon Session models match.");
+console.log("Local SQLite and Neon Session and MetafieldJob models match.");

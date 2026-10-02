@@ -28,3 +28,23 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+// Bounded, shop-isolated import ledger. No tokens or customer/order data.
+model MetafieldJob {
+  id          String   @id
+  shop        String
+  status      String   @default("preview")
+  inputHash   String
+  rowsJson    String
+  resultsJson String   @default("[]")
+  cursor      Int      @default(0)
+  revision    Int      @default(0)
+  lockToken   String?
+  lockUntil   DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([shop, createdAt])
+  @@index([expiresAt])
+}

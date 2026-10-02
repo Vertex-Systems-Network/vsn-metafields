@@ -20,7 +20,7 @@ export async function verifyShopifySchema(introspection) {
   )
     throw new Error("Pinned owner inventory differs from Shopify schema.");
   const docs = await loadDocuments(
-    ["app/**/*.{js,jsx}", "scripts/metafields/staging-probe.mjs"],
+    ["app/**/*.{js,jsx}", "scripts/metafields/*probe.mjs"],
     { loaders: [new CodeFileLoader()], noRequire: true, pluckConfig },
   );
   const failures = [];

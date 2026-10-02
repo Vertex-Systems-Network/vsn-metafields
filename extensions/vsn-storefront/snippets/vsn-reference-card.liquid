@@ -1,0 +1,18 @@
+{%- assign base_type = type | remove: 'list.' -%}
+{%- if base_type == 'metaobject_reference' or base_type == 'mixed_reference' -%}
+  {%- assign title_field = value[settings.title_key] -%}
+  {%- assign summary_field = value[settings.summary_key] -%}
+  {%- assign image_field = value[settings.image_key] -%}
+  {%- assign link_field = value[settings.link_key] -%}
+  {%- if title_field.type == 'single_line_text_field' and title_field.value != blank -%}
+  <article class="vsn-reference-card">
+    {%- if image_field.type == 'file_reference' and image_field.value.media_type == 'image' -%}{{ image_field.value | image_url: width: 800 | image_tag: loading: 'lazy', widths: '200,400,600,800', alt: image_field.value.alt }}{%- endif -%}
+    <h3>{{ title_field.value | escape }}</h3>
+    {%- render 'vsn-field-value', field: summary_field, settings: settings -%}
+    {%- if link_field.type == 'url' -%}{%- render 'vsn-safe-link', destination: link_field.value, caption: title_field.value, settings: settings -%}{%- endif -%}
+  </article>
+  {%- endif -%}
+{%- elsif base_type == 'product_reference' or base_type == 'variant_reference' or base_type == 'collection_reference' or base_type == 'page_reference' or base_type == 'article_reference' -%}
+  {%- capture link -%}{%- render 'vsn-safe-link', destination: value.url, caption: value.title, settings: settings -%}{%- endcapture -%}
+  {%- if link != blank -%}<article class="vsn-reference-card">{{ link }}</article>{%- endif -%}
+{%- endif -%}

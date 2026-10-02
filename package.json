@@ -20,7 +20,7 @@
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs tests/definitions.test.mjs tests/storefront.test.mjs",
+    "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs tests/definitions.test.mjs tests/storefront.test.mjs tests/value-types.test.mjs tests/metaobjects.test.mjs tests/bulk-values.test.mjs tests/diagnostics.test.mjs",
     "dev:local": "npm run dev",
     "db:local:setup": "node scripts/local-sqlite.mjs",
     "check:db-contract": "node scripts/check-db-contract.mjs",
@@ -47,7 +47,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.12.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "prop-types": "15.8.1"
   },
   "devDependencies": {
     "@shopify/api-codegen-preset": "^3.0.0",

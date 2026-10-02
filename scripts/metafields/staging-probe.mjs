@@ -21,6 +21,7 @@ import {
 } from "../../app/standard-definitions.server.js";
 import { removeDefinition } from "../../app/definition-removal.server.js";
 import { mutateValue } from "../../app/metafield-values.server.js";
+import { verifyAdvancedBatch } from "./advanced-probe.mjs";
 const { DATABASE_URL, SHOPIFY_API_KEY, SHOPIFY_APP_URL, STAGING_SHOP } =
   process.env;
 const host = DATABASE_URL ? new URL(DATABASE_URL).hostname : "";
@@ -235,6 +236,7 @@ mutation ProbeCollection($collection:CollectionCreateInput!){ collectionCreate(c
     throw new Error(
       "No uninstalled product standard template available for enable probe.",
     );
+  report.advanced = await verifyAdvancedBatch(admin,prisma,STAGING_SHOP,product,variantId,collection,nonce,capabilities.types);
   report.ok = true;
 } finally {
   const failures = [];

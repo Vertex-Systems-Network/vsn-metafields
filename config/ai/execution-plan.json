@@ -157,7 +157,7 @@
         "META-003"
       ],
       "priority": 4,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -167,7 +167,9 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ]
     },
     {
       "id": "META-005",
@@ -236,7 +238,7 @@
         "META-004"
       ],
       "priority": 7,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -246,7 +248,9 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ]
     },
     {
       "id": "META-008",
@@ -258,7 +262,7 @@
         "META-004"
       ],
       "priority": 8,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -268,7 +272,9 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ]
     },
     {
       "id": "META-009",
@@ -281,7 +287,7 @@
         "META-007"
       ],
       "priority": 9,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
@@ -291,7 +297,9 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ]
     },
     {
       "id": "META-010",
@@ -304,7 +312,7 @@
         "META-005"
       ],
       "priority": 10,
-      "status": "not_started",
+      "status": "in_progress",
       "blockers": [],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -314,7 +322,9 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ]
     },
     {
       "id": "META-011",

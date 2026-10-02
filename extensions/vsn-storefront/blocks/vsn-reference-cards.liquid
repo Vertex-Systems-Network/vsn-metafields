@@ -1,0 +1,319 @@
+{%- liquid
+  assign product_owner = block.settings.source_product | default: product
+  assign collection_owner = block.settings.source_collection | default: collection
+  assign source = block.settings.source
+  assign owner = nil
+  assign track_variant = false
+  if request.page_type == 'product' and product_owner.id == product.id
+    assign track_variant = true
+  endif
+  if source == 'auto'
+    case request.page_type
+      when 'product'
+        assign owner = product_owner
+      when 'collection'
+        assign owner = collection_owner
+      when 'article'
+        assign owner = article
+      when 'blog'
+        assign owner = blog
+      when 'page'
+        assign owner = page
+      else
+        assign owner = shop
+    endcase
+  else
+    case source
+      when 'product'
+        assign owner = product_owner
+      when 'variant'
+        assign owner = product_owner.selected_or_first_available_variant
+      when 'collection'
+        assign owner = collection_owner
+      when 'shop'
+        assign owner = shop
+      when 'article'
+        assign owner = article
+      when 'blog'
+        assign owner = blog
+      when 'page'
+        assign owner = page
+    endcase
+  endif
+-%}
+{%- assign field = owner.metafields[block.settings.namespace][block.settings.field_key] -%}
+{%- capture content -%}
+{%- if field.type contains 'reference' -%}
+  {%- assign items = field.value -%}
+  {%- if field.type contains 'list.' -%}
+    {%- for item in items limit: 12 -%}{%- render 'vsn-reference-card', value: item, type: field.type, settings: block.settings -%}{%- endfor -%}
+  {%- else -%}{%- render 'vsn-reference-card', value: items, type: field.type, settings: block.settings -%}{%- endif -%}
+{%- endif -%}
+{%- endcapture -%}
+{%- if content != blank or request.design_mode or source == 'variant' -%}
+<div id="vsn-{{ block.id }}" class="vsn-metafield-block vsn-reference-cards vsn-visibility--{{ block.settings.visibility }}" data-vsn-block data-vsn-track="{{ track_variant }}" data-vsn-source="{{ source }}" data-vsn-section="{{ section.id }}" data-vsn-product="{{ product_owner.id }}" data-vsn-variant="{{ product_owner.selected_or_first_available_variant.id }}" style="{% render 'vsn-block-style', settings: block.settings %} --vsn-columns: {{ block.settings.columns | default: 1 }};" {{ block.shopify_attributes }} {% if content == blank and request.design_mode == false %}hidden{% endif %}>
+  {%- if content != blank -%}{{ content }}{%- elsif request.design_mode -%}{{ 'vsn.empty_specialized' | t }}{%- endif -%}
+</div>
+{%- endif -%}
+{% schema %}
+{
+  "name": "Reference cards",
+  "target": "section",
+  "stylesheet": "vsn-metafields.css",
+  "javascript": "vsn-metafields.js",
+  "settings": [
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Resource",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Current page"
+        },
+        {
+          "value": "product",
+          "label": "Product"
+        },
+        {
+          "value": "variant",
+          "label": "Selected product variant"
+        },
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "shop",
+          "label": "Shop"
+        },
+        {
+          "value": "page",
+          "label": "Page"
+        },
+        {
+          "value": "article",
+          "label": "Article"
+        },
+        {
+          "value": "blog",
+          "label": "Blog"
+        }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "product",
+      "id": "source_product",
+      "label": "Product override"
+    },
+    {
+      "type": "collection",
+      "id": "source_collection",
+      "label": "Collection override"
+    },
+    {
+      "type": "text",
+      "id": "namespace",
+      "label": "Default namespace",
+      "default": "vsn_metafields"
+    },
+    {
+      "type": "text",
+      "id": "field_key",
+      "label": "Metafield key"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "width",
+      "label": "Maximum width",
+      "min": 300,
+      "max": 1200,
+      "step": 50,
+      "default": 1200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Desktop padding",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Mobile padding",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top space",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom space",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Value size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_size",
+      "label": "Mobile value size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Value color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#dddddd"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "default": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "visibility",
+      "label": "Device visibility",
+      "options": [
+        {
+          "value": "all",
+          "label": "All devices"
+        },
+        {
+          "value": "desktop",
+          "label": "Desktop only"
+        },
+        {
+          "value": "mobile",
+          "label": "Mobile only"
+        }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "text",
+      "id": "title_key",
+      "label": "Metaobject title field",
+      "default": "title"
+    },
+    {
+      "type": "text",
+      "id": "summary_key",
+      "label": "Metaobject summary field",
+      "default": "description"
+    },
+    {
+      "type": "text",
+      "id": "image_key",
+      "label": "Metaobject image field",
+      "default": "image"
+    },
+    {
+      "type": "text",
+      "id": "link_key",
+      "label": "Metaobject link field",
+      "default": "link"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Desktop columns",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 3
+    }
+  ]
+}
+{% endschema %}
