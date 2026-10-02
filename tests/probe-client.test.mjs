@@ -33,3 +33,21 @@ test("failed-run recovery selects only disposable definitions inside the observe
   assert.equal(failedRunDisposableDefinition(field), true);
   for (const patch of [{namespace: "custom"}, {name: "Merchant dimension"}, {key: "advanced_1_abcdef_11"}, {key: `advanced_${Date.parse("2026-10-02T10:24:15Z")}_abcdef_11`}, {key: field.key + "_extra"}]) assert.equal(failedRunDisposableDefinition({...field, ...patch}), false);
 });
+
+test("reference cleanup requires disposable identity and confirms exact deleted definition", async () => {
+  const {removeDisposableProbeDefinition} = await import("../scripts/metafields/advanced-probe.mjs");
+  const nonce = "1790936595000_abcdef";
+  const field = {id: "gid://shopify/MetafieldDefinition/12", namespace: "vsn_probe", key: `advanced_${nonce}_16`, name: "Disposable product_reference", type: "product_reference"};
+  let calls = 0;
+  const admin = {graphql: async (query, {variables}) => {
+    calls++;
+    assert.match(query, /deleteAllAssociatedMetafields: true/);
+    assert.equal(variables.id, field.id);
+    return Response.json({data: {metafieldDefinitionDelete: {deletedDefinitionId: field.id, userErrors: []}}});
+  }};
+  assert.equal((await removeDisposableProbeDefinition(admin, field, nonce)).ok, true);
+  for (const patch of [{namespace: "custom"}, {name: "Merchant reference"}, {key: "merchant_reference"}]) {
+    await assert.rejects(removeDisposableProbeDefinition(admin, {...field, ...patch}, nonce), /identity/);
+  }
+  assert.equal(calls, 1);
+});

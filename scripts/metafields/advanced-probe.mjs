@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   createDefinition,
+  graph,
   getDefinitions,
   updateDefinition,
 } from "../../app/definitions.server.js";
@@ -28,8 +29,27 @@ import {
 } from "../../app/bulk-values.server.js";
 import { exportValueCsv } from "../../app/bulk-csv.js";
 import { featureDiagnostics } from "../../app/diagnostics.server.js";
+import { failedRunDisposableDefinition } from "./probe-client.mjs";
 import { encodeValue } from "../../app/value-types.js";
 import { hasActivePlan } from "../../app/active-plan.server.js";
+
+export async function removeDisposableProbeDefinition(admin, field, nonce) {
+  const owned = /^\d{13}_[a-f0-9]{6}$/.test(nonce || "") &&
+    field.namespace === "vsn_probe" && field.name === `Disposable ${field.type}` &&
+    field.key.startsWith(`advanced_${nonce}_`) && /^(?:\d+|meta)$/.test(field.key.slice(`advanced_${nonce}_`.length));
+  if (!owned && !failedRunDisposableDefinition(field)) throw new RangeError("Disposable probe identity required.");
+  if (!field.type?.includes("_reference")) return removeDefinition(admin, [field], field);
+  const data = await graph(admin, `#graphql
+    mutation CleanupDisposableReferenceDefinition($id: ID!) {
+      metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: true) {
+        deletedDefinitionId userErrors { message }
+      }
+    }`, { id: field.id });
+  const result = data.metafieldDefinitionDelete;
+  if (result?.userErrors?.length || result?.deletedDefinitionId !== field.id)
+    return { ok: false, error: result?.userErrors?.[0]?.message || "Disposable deletion identity mismatch." };
+  return { ok: true };
+}
 
 export async function verifyAdvancedBatch(
   admin,
@@ -75,7 +95,7 @@ export async function verifyAdvancedBatch(
         types,
       ),
     ).definition;
-    fields.push(created);
+    fields.push({ ...created, name: `Disposable ${type}`, type });
     return (await getDefinitions(admin, "PRODUCT")).find(
       (f) => f.id === created.id,
     );
@@ -336,6 +356,21 @@ export async function verifyAdvancedBatch(
       diagnostics.features.metaobjects.ready,
       hasPlan && diagnostics.features.metaobjects.missing.length === 0,
     );
+    const billingData = await graph(admin, `#graphql
+      query ProbeActiveBillingMetadata {
+        currentAppInstallation { activeSubscriptions {
+          name status test trialDays lineItems { plan { pricingDetails {
+            ... on AppRecurringPricing { price { amount currencyCode } interval }
+          } } }
+        } }
+      }`);
+    const activeBilling = billingData.currentAppInstallation?.activeSubscriptions;
+    if (!Array.isArray(activeBilling)) throw new Error("Billing metadata read unavailable.");
+    report.billingMetadata = activeBilling.map((subscription) => ({
+      name: subscription.name, status: subscription.status, test: subscription.test,
+      trialDays: subscription.trialDays,
+      recurring: subscription.lineItems.map((item) => item.plan.pricingDetails),
+    }));
     report.diagnostics = {
       scopesRead: true,
       planGatePreserved: true,
@@ -365,7 +400,7 @@ export async function verifyAdvancedBatch(
       }
     for (const field of fields)
       try {
-        must(await removeDefinition(admin, [field], field));
+        must(await removeDisposableProbeDefinition(admin, field, nonce));
       } catch (error) {
         failures.push({ kind: "advanced definition", id: field.id, key: field.key, error: error.message });
       }

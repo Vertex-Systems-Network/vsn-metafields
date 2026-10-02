@@ -14,7 +14,7 @@ import {
   getStandardTemplates,
   enableStandardTemplate,
 } from "../standard-definitions.server.js";
-import { removeDefinition } from "../definition-removal.server.js";
+import { removeDefinition, definitionRemovalBlocker } from "../definition-removal.server.js";
 
 const NAMESPACE = "vsn_metafields";
 const failure = (error, status = 400, ownerType) =>
@@ -119,6 +119,8 @@ export const action = async ({ request }) => {
       const fields = (await getDefinitions(admin, ownerType)).filter(
         (field) => field.namespace === NAMESPACE,
       );
+      const blocked = fields.map(definitionRemovalBlocker).find(Boolean);
+      if (blocked) return failure(blocked);
       let deletedCount = 0;
       for (const field of fields) {
         const removed = await removeDefinition(admin, [field], field);
