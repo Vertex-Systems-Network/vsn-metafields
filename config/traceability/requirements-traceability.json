@@ -19,10 +19,25 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -30,13 +45,17 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     },
     {
       "requirement_id": "REQ-META-002",
@@ -56,10 +75,23 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -67,13 +99,17 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     },
     {
       "requirement_id": "REQ-META-003",
@@ -91,10 +127,25 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -102,13 +153,17 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     },
     {
       "requirement_id": "REQ-META-004",
@@ -126,10 +181,25 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -137,13 +207,17 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     },
     {
       "requirement_id": "REQ-META-005",
@@ -163,10 +237,23 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -174,13 +261,17 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     },
     {
       "requirement_id": "REQ-META-006",
@@ -202,10 +293,23 @@
       "design_surface_refs": [],
       "design_component_refs": [],
       "branch_refs": [
-        "plan/anpos-metafields-expansion"
+        "plan/anpos-metafields-expansion",
+        "development"
       ],
-      "pull_request_refs": [],
-      "test_evidence": [],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/159",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/160",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/161",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
@@ -213,13 +317,200 @@
       "migration_refs": [],
       "artifact_refs": [
         "docs/ai/PRE-PLAN.md",
-        "docs/ai/METAFIELDS-WORK-UNITS.md"
+        "docs/ai/METAFIELDS-WORK-UNITS.md",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
-      "release_refs": [],
-      "status": "planned",
-      "verification_status": "unverified"
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
+    },
+    {
+      "requirement_id": "REQ-META-007",
+      "source": "PROJECT-IDEA.md: Typed values",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-003"
+      ],
+      "module_ids": [
+        "MOD-META-VALUES"
+      ],
+      "work_unit_ids": [
+        "META-004"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "development"
+      ],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
+    },
+    {
+      "requirement_id": "REQ-META-008",
+      "source": "PROJECT-IDEA.md: Merchant metaobjects",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-005"
+      ],
+      "module_ids": [
+        "MOD-META-METAOBJECTS"
+      ],
+      "work_unit_ids": [
+        "META-007"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "development"
+      ],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
+    },
+    {
+      "requirement_id": "REQ-META-009",
+      "source": "PROJECT-IDEA.md: Previewed durable bulk values",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-006"
+      ],
+      "module_ids": [
+        "MOD-META-BULK"
+      ],
+      "work_unit_ids": [
+        "META-008"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "development"
+      ],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [
+        "prisma/local/migrations/20261002092000_metafield_jobs/migration.sql",
+        "prisma/migrations/20261002092000_metafield_jobs/migration.sql"
+      ],
+      "artifact_refs": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
+    },
+    {
+      "requirement_id": "REQ-META-010",
+      "source": "PROJECT-IDEA.md: Merchant onboarding and diagnostics",
+      "source_provenance_ref": "PROJECT-IDEA.md",
+      "option_ids": [
+        "OPT-META-002"
+      ],
+      "module_ids": [
+        "MOD-META-OPERATIONS"
+      ],
+      "work_unit_ids": [
+        "META-010"
+      ],
+      "design_surface_refs": [],
+      "design_component_refs": [],
+      "branch_refs": [
+        "development"
+      ],
+      "pull_request_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+      ],
+      "test_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975"
+      ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
     }
   ],
   "link_template": {
