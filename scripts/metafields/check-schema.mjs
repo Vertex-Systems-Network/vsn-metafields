@@ -23,13 +23,13 @@ export async function verifyShopifySchema(introspection) {
     ["app/**/*.{js,jsx}", "scripts/metafields/staging-probe.mjs"],
     { loaders: [new CodeFileLoader()], noRequire: true, pluckConfig },
   );
+  const failures = [];
   for (const document of docs) {
     const errors = validate(schema, document.document);
     if (errors.length)
-      throw new Error(
-        `${document.location}: ${errors.map((error) => error.message).join("; ")}`,
-      );
+      failures.push(`${document.location}: ${errors.map((error) => error.message).join("; ")}`);
   }
+  if (failures.length) throw new Error(failures.join("\n"));
   return {
     apiVersion: METAFIELD_API_VERSION,
     documents: docs.length,

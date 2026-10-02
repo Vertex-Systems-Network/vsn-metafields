@@ -1,139 +1,82 @@
 name: Shopify Staging Release
-
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "config/shopify/staging-release-request.json"
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Type RELEASE_STAGING_WEBHOOKS_2 to release only the verified staging app version"
-        required: true
+        description: "Type RELEASE_METAFIELDS_TO_STAGING to build and release the development extension only to the staging app"
         type: string
-
+        required: true
 permissions:
   contents: read
-
+  actions: read
 concurrency:
   group: shopify-staging-release
   cancel-in-progress: false
-
 jobs:
-  release-staging-version:
-    if: github.event_name == 'push' || github.event.inputs.confirm == 'RELEASE_STAGING_WEBHOOKS_2'
+  release-staging-blocks:
+    if: github.ref_name == 'development' && github.event.inputs.confirm == 'RELEASE_METAFIELDS_TO_STAGING'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: cloudflare-staging
     env:
       CI: "true"
-      TARGET_VERSION: "staging-webhooks-2"
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
       SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
-
     steps:
-      - name: Checkout protected main
+      - name: Checkout development source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
-
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "22.13.0"
-
-      - name: Require staging-only Shopify credentials
-        shell: bash
+          cache: npm
+      - name: Require successful runtime acceptance for this development SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          for name in SHOPIFY_APP_AUTOMATION_TOKEN SHOPIFY_API_KEY SHOPIFY_API_SECRET SHOPIFY_APP_URL
-          do
-            if [ -z "${!name:-}" ]; then
-              echo "Missing required cloudflare-staging environment secret: $name" >&2
-              exit 1
-            fi
-          done
-
-          PROD_CLIENT_ID="$(python - <<'PY'
-          import tomllib
-          with open("shopify.app.toml", "rb") as handle:
-              print(tomllib.load(handle)["client_id"])
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/cloudflare-staging-deploy.yml/runs?branch=development&head_sha=$GITHUB_SHA&status=success" > /tmp/staging-acceptance-runs.json
+          python - <<'PY'
+          import json, os
+          runs = json.load(open('/tmp/staging-acceptance-runs.json'))['workflow_runs']
+          if not any(r['head_sha'] == os.environ['GITHUB_SHA'] and r['conclusion'] == 'success' for r in runs):
+              raise SystemExit('This exact development SHA has no successful staging runtime acceptance.')
+          print('exact_development_staging_acceptance=pass')
           PY
-          )"
-
-          if [ "$SHOPIFY_API_KEY" = "$PROD_CLIENT_ID" ]; then
-            echo "Refusing to release staging version with the production Shopify client ID." >&2
-            exit 1
-          fi
-
-          if [ "$SHOPIFY_APP_URL" != "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev" ]; then
-            echo "Refusing staging release for an unexpected Shopify app URL." >&2
-            exit 1
-          fi
-
       - name: Validate staging Shopify isolation and webhook contract
         run: python scripts/cloudflare/validate_shopify_staging_isolation.py
-
-      - name: Inject staging client ID into disposable checkout
-        shell: bash
+      - name: Require and inject isolated staging identity
         run: |
-          set -euo pipefail
           python - <<'PY'
-          import os
+          import os, tomllib
           from pathlib import Path
-
-          path = Path("shopify.app.cloudflare-staging.toml")
-          content = path.read_text(encoding="utf-8")
-          placeholder = "__SHOPIFY_STAGING_CLIENT_ID__"
-          if placeholder not in content:
-              raise SystemExit("staging client ID placeholder missing")
-          path.write_text(
-              content.replace(placeholder, os.environ["SHOPIFY_API_KEY"]),
-              encoding="utf-8",
-          )
+          for name in ('SHOPIFY_APP_AUTOMATION_TOKEN', 'SHOPIFY_API_KEY', 'SHOPIFY_API_SECRET', 'SHOPIFY_APP_URL'):
+              if not os.environ.get(name): raise SystemExit(f'Missing staging credential: {name}')
+          production = tomllib.loads(Path('shopify.app.toml').read_text())['client_id']
+          if os.environ['SHOPIFY_API_KEY'] == production: raise SystemExit('Refusing to release staging version with the production Shopify client ID.')
+          if os.environ['SHOPIFY_APP_URL'] != 'https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev': raise SystemExit('Unexpected staging URL.')
+          path = Path('shopify.app.cloudflare-staging.toml')
+          source = path.read_text()
+          if '__SHOPIFY_STAGING_CLIENT_ID__' not in source: raise SystemExit('Missing staging identity placeholder.')
+          path.write_text(source.replace('__SHOPIFY_STAGING_CLIENT_ID__', os.environ['SHOPIFY_API_KEY']))
           PY
-
-      - name: Verify unreleased staging version exists
-        shell: bash
+      - name: Install and verify block contracts
         run: |
-          set -euo pipefail
-          npx --yes @shopify/cli@4.8.2 app versions list             --config cloudflare-staging             --json > /tmp/shopify-staging-versions.json
-
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          target = os.environ["TARGET_VERSION"]
-          payload = json.loads(Path("/tmp/shopify-staging-versions.json").read_text(encoding="utf-8"))
-
-          def contains(value):
-              if isinstance(value, dict):
-                  return any(contains(v) for v in value.values())
-              if isinstance(value, list):
-                  return any(contains(v) for v in value)
-              return value == target
-
-          if not contains(payload):
-              raise SystemExit(f"Target staging version not found: {target}")
-          print(f"Verified staging version exists: {target}")
-          PY
-
-      - name: Release verified staging version
-        shell: bash
+          npm ci
+          npm run test:contracts
+      - name: Build and upload unreleased staging app version
         run: |
-          set -euo pipefail
-          npx --yes @shopify/cli@4.8.2 app release             --config cloudflare-staging             --version "$TARGET_VERSION"             --allow-updates
-
-      - name: Verify staging version remains visible after release
-        shell: bash
+          npx --yes @shopify/cli@4.8.2 app deploy --config cloudflare-staging --no-release --version "staging-metafields-${GITHUB_SHA:0:12}" --message "Verified development metafield blocks"
+      - name: Release only the staging app version
         run: |
-          set -euo pipefail
-          npx --yes @shopify/cli@4.8.2 app versions list             --config cloudflare-staging             --json > /tmp/shopify-staging-versions-after.json
-          grep -F "$TARGET_VERSION" /tmp/shopify-staging-versions-after.json >/dev/null
+          npx --yes @shopify/cli@4.8.2 app release --config cloudflare-staging --version "staging-metafields-${GITHUB_SHA:0:12}" --allow-updates
+          npx --yes @shopify/cli@4.8.2 app versions list --config cloudflare-staging
+          git diff --exit-code -- shopify.app.toml
+          echo "production_app_changed=false"
 
       - name: Validate non-destructive compliance webhook delivery
         shell: bash
@@ -154,9 +97,3 @@ jobs:
           trigger_webhook "customers/data_request" "/webhooks/customers/data_request"
           trigger_webhook "customers/redact" "/webhooks/customers/redact"
           trigger_webhook "shop/redact" "/webhooks/shop/redact"
-
-      - name: Confirm production config remains untouched
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --exit-code -- shopify.app.toml
