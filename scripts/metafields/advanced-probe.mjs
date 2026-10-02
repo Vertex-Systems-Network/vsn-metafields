@@ -266,7 +266,7 @@ export async function verifyAdvancedBatch(
       }),
     );
     report.typedValues.push("metaobject_reference");
-    const bulkField = await prepare("single_line_text_field", "bulk");
+    const bulkField = await prepare("single_line_text_field", "21");
     values.push({ ownerId: product.id, definition: bulkField });
     const bulkRows = [
       {
@@ -281,7 +281,7 @@ export async function verifyAdvancedBatch(
         ownerType: "PRODUCT",
         ownerId: product.id,
         namespace: primary.definition.namespace,
-        key: primary.definition.key,
+        key: `${primary.definition.key}_missing`,
         type: "number_integer",
         value: "0",
       },
