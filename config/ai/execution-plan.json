@@ -89,7 +89,8 @@
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
-        "docs/evidence/metafields-staging-2026-10-02.json"
+        "docs/evidence/metafields-staging-2026-10-02.json",
+        "docs/evidence/metafields-final-staging-2026-10-02.json"
       ]
     },
     {
@@ -115,7 +116,8 @@
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
-        "docs/evidence/metafields-staging-2026-10-02.json"
+        "docs/evidence/metafields-staging-2026-10-02.json",
+        "docs/evidence/metafields-final-staging-2026-10-02.json"
       ]
     },
     {
@@ -141,7 +143,8 @@
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
-        "docs/evidence/metafields-staging-2026-10-02.json"
+        "docs/evidence/metafields-staging-2026-10-02.json",
+        "docs/evidence/metafields-final-staging-2026-10-02.json"
       ]
     },
     {
@@ -178,7 +181,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Actual Shopify extension/editor verification on two themes pending"
+        "Staging extension released; authenticated Shopify editor/storefront acceptance on two themes remains pending"
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -190,7 +193,8 @@
       ],
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
-        "docs/adr/0006-metafield-definition-ownership.md"
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json"
       ]
     },
     {
@@ -205,7 +209,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Actual Shopify extension/editor verification on two themes pending"
+        "Staging extension released; authenticated Shopify editor/storefront acceptance on two themes remains pending"
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -217,7 +221,8 @@
       ],
       "completion_evidence": [
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
-        "docs/adr/0006-metafield-definition-ownership.md"
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json"
       ]
     },
     {

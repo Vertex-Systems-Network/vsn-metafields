@@ -22,11 +22,11 @@ Source: feature/metafield-capability-definition-blocks, based on development 794
 - Shopify CLI 4.8.2 theme extension build passed after adding the required locales directory; settings-count advisory remains. ANPOS repository integrity validation passed.
 - Self-review found/fixed empty unsupported-list wrappers, multiline formatting, stale variant response races, cross-owner stale field selection, and deprecated standard visibility input, and legacy bulk pinning that silently changed storefront access without the active-plan gate. Pinning now preserves access and confirms each result.
 - Shopify public pinned schema retrieval is unavailable (network failures and an official proxy 404). The staging lifecycle probe now validates the owner inventory and extracted GraphQL documents against the authenticated 2026-07 shop schema before any fixture mutation. Its actual result must be recorded before claiming API compatibility.
-- Staging capability/lifecycle execution passed in run 36983997108. Shopify extension release and two-theme editor/storefront tests, real rich-text/image filters, accessibility and device screenshots still require actual evidence. Unit fixtures are not that evidence.
+- Staging capability/lifecycle execution passed in run 36983997108. Shopify extension release passed in run 36985386231. Two-theme editor/storefront tests, real rich-text/image filters, accessibility and device screenshots still require actual evidence. Unit fixtures are not that evidence.
 - All owner enums are inventoried, but writes/values for all 25 active owners are not claimed verified. Unsupported scopes/store capabilities return actual authorization errors.
 - Advanced value editors, type/data migrations, metaobject/taxonomy renderers and bulk/CSV remain later work. Basic existing value editing supports product/variant/collection and six scalar types.
 
-Acceptance status: representative capability/definition foundation verified on isolated staging; storefront blocks implemented with actual extension/theme verification still required. Do not mark all blueprint tasks complete.
+Acceptance status: representative capability/definition foundation verified on isolated staging; storefront blocks released to isolated staging, with actual theme editor/storefront verification still required. Do not mark all blueprint tasks complete.
 
 ## Publication and remote checks
 
@@ -49,3 +49,11 @@ Shopify staging release run 36984305286 stopped before upload because source con
 Runtime note: initial batch local checks used Node 22.13.0 as previously recorded. This resumed session's prior cached Node path was absent; follow-up local checks executed on the host Node 24.19.0. Required remote CI for PRs #154/#155 ran Node 22.13.0 and passed. Future local checks explicitly verify the executable version. Main remains dde3ba16539c892b140cce72b3039dd55d42edf6; no production release is part of this batch.
 
 Final local follow-up checks explicitly printed Node v22.13.0 and passed npm run check:release, all 68 tests, ANPOS integrity and diff checks before publication.
+
+## Final staging result
+
+Final application source is development 4be9bb290c6761ded7aeefa4d475a6440c7bab65 (PR #156). Runtime run 36985174278 passed the full lifecycle and retained-value acceptance again. Shopify Staging Release run 36985386231 built/uploaded the extension and released staging-metafields-4be9bb290c67 at 2026-10-02T08:41:19Z; CLI versions list confirmed active. Production app configuration diff was empty. All three compliance webhook topics were enqueued; this is not independent delivery confirmation. Specifications retains the 45-settings advisory. Safe combined evidence: docs/evidence/metafields-final-staging-2026-10-02.json.
+
+Remaining acceptance: authenticated Shopify staging theme editor and storefront checks on two compatible themes, real rich-text/image filters, variant refresh integration, responsive/device screenshots and accessibility. Browser opened the actual staging shop and reached Shopify sign-in; no signed-in admin session is available yet. Backend Shopify session verification is separate from browser authentication. No claim of finished theme acceptance, full mutation coverage for every owner/type, advanced value editors, or production launch is made.
+
+Code work, self-review, required CI, isolated staging API acceptance and staging extension release are completed within the authorized batch. Remaining theme acceptance is awaiting authenticated site access. Main is unchanged; live was not deployed. This final follow-up changes evidence documents only and identifies the exact deployed application SHA above.
