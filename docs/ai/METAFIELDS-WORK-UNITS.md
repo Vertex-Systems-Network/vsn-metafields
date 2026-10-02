@@ -43,3 +43,5 @@ The latest conversation table maps 3 to META-004, 5 to META-007/008/009, and 6 t
 | META-012 production | Protected main unchanged; existing rollback certification preserved | Separate reviewed staging-to-main/live release |
 
 The detailed chronological truth report is `docs/ai/METAFIELDS-BATCH-356-REPORT.md`. `verification_required` means implementation exists but its full acceptance evidence is incomplete. User authorization to self-review does not bypass GitHub required checks or protected production release.
+
+The next combined merchant/theme batch uses `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md`. It records the shipped-JavaScript race/recovery and safe-link findings, fixes, test boundaries and actual browser tasks. Contract evidence does not close the pending browser work units.

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-02T21:19:31.007276+00:00",
+  "source_base_sha": "25ebf0937fe5bf31abe6ca765d6bdbcd23565f58",
+  "source_branch": "fix/storefront-variant-acceptance",
+  "status": "local_contracts_verified_staging_pending",
+  "review_type": "user_authorized_self_review",
+  "review_ref": "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+  "file_sha256": {
+    "extensions/vsn-storefront/assets/vsn-metafields.js": "5dc7ead8356671f89b71caf81dbf78b556e691608ceb7873488324899acc0262",
+    "extensions/vsn-storefront/snippets/vsn-safe-link.liquid": "a22b5096822ed04ce6cba8700b3df6cee4fdd8967afdaa2e1aece0b16651a7da",
+    "tests/storefront-refresh.test.mjs": "f6a9b302f61099ea539d72db1be8fd0b63f91a6ecc08603e22f458c14f7b23f5",
+    "tests/storefront.test.mjs": "f9e96139cb55cb53363e2e4290fe676ae400671f9fef13e0807d6ed1dad3f61c"
+  },
+  "local_checks": {
+    "node": "22.13.0",
+    "release_check": "passed",
+    "tests": 113,
+    "failed": 0,
+    "lint": "zero_errors_zero_warnings",
+    "typecheck": "passed",
+    "database_contract": "passed",
+    "build": "passed",
+    "anpos_integrity": "passed",
+    "focused_storefront_tests": 21
+  },
+  "regression_baseline": {
+    "source_sha": "25ebf0937fe5bf31abe6ca765d6bdbcd23565f58",
+    "command": "node --test --test-reporter=spec tests/storefront-refresh.test.mjs with old shipped asset",
+    "tests": 9,
+    "passed": 3,
+    "failed": 6,
+    "expected_failure": true
+  },
+  "fixes": [
+    "selection_time_request_invalidation",
+    "stale_content_hidden_until_verified_response",
+    "parallel_eligible_block_refresh",
+    "busy_state_owned_by_current_controller",
+    "hidden_anchor_recovery",
+    "eight_second_request_timeout",
+    "relative_link_backslash_and_control_character_rejection"
+  ],
+  "evidence_limitations": [
+    "VM event/network/DOM doubles are not authenticated browser evidence",
+    "LiquidJS deliberately rejects Shopify-only rich text/image/video filters",
+    "Two-theme editor/storefront, actual billing approval navigation, WCAG acceptance, measured storefront performance and independent webhook delivery remain pending"
+  ],
+  "production_changed": false
+}
