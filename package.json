@@ -20,7 +20,7 @@
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs tests/definitions.test.mjs tests/storefront.test.mjs tests/value-types.test.mjs tests/metaobjects.test.mjs tests/bulk-values.test.mjs tests/diagnostics.test.mjs",
+    "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs tests/definitions.test.mjs tests/storefront.test.mjs tests/value-types.test.mjs tests/metaobjects.test.mjs tests/bulk-values.test.mjs tests/diagnostics.test.mjs tests/billing.test.mjs",
     "dev:local": "npm run dev",
     "db:local:setup": "node scripts/local-sqlite.mjs",
     "check:db-contract": "node scripts/check-db-contract.mjs",

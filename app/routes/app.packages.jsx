@@ -1,17 +1,20 @@
 import { useFetcher, useLocation } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { submitBilling } from "../billing-client";
 import { PRO_PLAN } from "../billing-config";
 
 export default function PackagesPage() {
   const statusFetcher = useFetcher();
-  const actionFetcher = useFetcher();
+  const [result, setResult] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const inFlight = useRef(false);
   const location = useLocation();
 
   useEffect(() => {
     if (statusFetcher.state === "idle" && !statusFetcher.data) {
       statusFetcher.load(`/app/api/status${location.search}`);
     }
-  }, [location.search, statusFetcher.state, statusFetcher.data]);
+  }, [location.search, statusFetcher]);
 
   const subscriptions = statusFetcher.data?.subscriptions ?? [];
   const subscription =
@@ -20,37 +23,38 @@ export default function PackagesPage() {
   const isProActive = subscription?.status === "ACTIVE";
   const isLoading =
     statusFetcher.state !== "idle" ||
-    actionFetcher.state !== "idle";
-  const result = actionFetcher.data;
+    submitting;
 
-  // Redirect to Shopify billing confirmation page
-  useEffect(() => {
-    if (result?.confirmationUrl) {
-      window.top.location.href = result.confirmationUrl;
+  const runBilling = async (formData) => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setSubmitting(true);
+    setResult(null);
+    try {
+      const response = await submitBilling(formData, {
+        shopify: window.shopify, fetch: window.fetch.bind(window), search: location.search,
+      });
+      setResult(response);
+      if (response.confirmationUrl) {
+        // App Bridge supports window.open; direct window.top.location is blocked in embedded apps.
+        try { window.open(response.confirmationUrl, "_top"); }
+        catch { /* Keep the confirmation link available for a fresh user click. */ }
+      }
+      if (response.cancelled) statusFetcher.load(`/app/api/status${location.search}`);
+    } catch (error) {
+      setResult({ error: error.message || "Billing could not complete. Try again." });
+    } finally {
+      inFlight.current = false;
+      setSubmitting(false);
     }
-  }, [result]);
-
-  // After cancel, reload the page to refresh subscription status
-  useEffect(() => {
-    if (result?.cancelled) {
-      window.location.reload();
-    }
-  }, [result]);
+  };
 
   const handleStartPro = () => {
     const formData = new FormData();
     formData.set("actionType", "create");
     formData.set("plan", "pro-plan");
 
-    // ✅ Pass host from current page URL
-    const params = new URLSearchParams(window.location.search);
-    formData.set("host", params.get("host") ?? "");
-    formData.set("shop", params.get("shop") ?? "");
-
-    actionFetcher.submit(formData, {
-      method: "post",
-      action: `/app/api/status${window.location.search}`,
-    });
+    void runBilling(formData);
   };
 
   const handleCancel = () => {
@@ -58,10 +62,7 @@ export default function PackagesPage() {
     const formData = new FormData();
     formData.set("actionType", "cancel");
     formData.set("id", subscription?.id);
-    actionFetcher.submit(formData, {
-      method: "post",
-      action: `/app/api/status${window.location.search}`,
-    });
+    void runBilling(formData);
   };
 
   return (
@@ -74,6 +75,13 @@ export default function PackagesPage() {
       {statusFetcher.data && !statusFetcher.data.ok && (
         <s-banner tone="critical">
           {statusFetcher.data.error || "Failed to load subscription status."}
+        </s-banner>
+      )}
+
+      {result?.confirmationUrl && (
+        <s-banner tone="info">
+          {result.test ? "Test billing: no real charge. " : ""}
+          <a href={result.confirmationUrl} target="_top" rel="noreferrer">Continue to Shopify plan approval</a>
         </s-banner>
       )}
 
@@ -117,6 +125,8 @@ export default function PackagesPage() {
                     </s-badge>
                     <s-button
                       tone="critical"
+                      type="button"
+                      disabled={isLoading || Boolean(result?.confirmationUrl)}
                       loading={isLoading}
                       onClick={handleCancel}
                     >
@@ -126,6 +136,8 @@ export default function PackagesPage() {
                 ) : (
                   <s-button
                     variant="primary"
+                    type="button"
+                    disabled={isLoading || Boolean(result?.confirmationUrl)}
                     loading={isLoading}
                     onClick={handleStartPro}
                   >

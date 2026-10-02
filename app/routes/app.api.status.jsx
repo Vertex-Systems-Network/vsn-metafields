@@ -1,5 +1,7 @@
 import { authenticate } from "../shopify.server";
 import { PRO_PLAN } from "../billing-config";
+import { billingIsTest, billingReturnUrl } from "../billing-environment.server";
+import { validateBillingConfirmation } from "../billing-client";
 
 async function getActiveSubscriptions(admin) {
   const response = await admin.graphql(`
@@ -46,14 +48,9 @@ async function getActiveSubscriptions(admin) {
     throw new Error(json.errors[0]?.message || "Subscription query failed.");
   }
 
-  return json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
-}
-
-function isProductionBilling() {
-  return (
-    process.env.APP_ENV === "production" ||
-    process.env.NODE_ENV === "production"
-  );
+  const subscriptions = json?.data?.currentAppInstallation?.activeSubscriptions;
+  if (!Array.isArray(subscriptions)) throw new Error("Could not verify the active subscription.");
+  return subscriptions;
 }
 
 // ─── GET: fetch subscription status ───────────────────────────────────────────
@@ -211,12 +208,16 @@ export const action = async ({ request }) => {
 			);
 
 			const data = await res.json();
-			const errors = data?.data?.appSubscriptionCancel?.userErrors ?? [];
+			const errors = data?.errors?.length ? data.errors : data?.data?.appSubscriptionCancel?.userErrors ?? [];
 
 			if (errors.length > 0) {
 				return Response.json({ ok: false, error: errors[0].message }, { status: 400 });
 			}
 
+            if (data?.data?.appSubscriptionCancel?.appSubscription?.id !== id ||
+                data.data.appSubscriptionCancel.appSubscription.status !== "CANCELLED") {
+              return Response.json({ ok: false, error: "Shopify did not confirm cancellation." }, { status: 502 });
+            }
 			return Response.json({
 				ok: true,
 				cancelled: true,
@@ -233,23 +234,6 @@ export const action = async ({ request }) => {
 	if (actionType === "create") {
 		const plan = formData.get("plan") || "pro-plan";
 
-    const host = String(formData.get("host") || "");
-    const shop = session.shop;
-    const appUrl = process.env.SHOPIFY_APP_URL;
-
-    if (!appUrl) {
-      return Response.json(
-        { ok: false, error: "Shopify app URL is not configured." },
-        { status: 500 }
-      );
-    }
-
-    const returnUrlObject = new URL("/app", appUrl);
-    returnUrlObject.searchParams.set("shop", shop);
-    if (host) {
-      returnUrlObject.searchParams.set("host", host);
-    }
-    const returnUrl = returnUrlObject.toString();
 
 		const planConfig = {
 			[PRO_PLAN.id]: PRO_PLAN,
@@ -262,6 +246,8 @@ export const action = async ({ request }) => {
 		}
 
     try {
+      const returnUrl = billingReturnUrl(session.shop, process.env.SHOPIFY_API_KEY);
+      const testBilling = billingIsTest(process.env);
       const activeSubscriptions = await getActiveSubscriptions(admin);
       const duplicateActivePlan = activeSubscriptions.find(
         (subscription) =>
@@ -311,7 +297,7 @@ export const action = async ({ request }) => {
 						name: selectedPlan.name,
 						returnUrl,
 						trialDays: selectedPlan.trialDays,
-            test: !isProductionBilling(),
+            test: testBilling,
 						lineItems: [
 							{
 								plan: {
@@ -330,7 +316,7 @@ export const action = async ({ request }) => {
 			);
 
 			const data = await res.json();
-			const errors = data?.data?.appSubscriptionCreate?.userErrors ?? [];
+			const errors = data?.errors?.length ? data.errors : data?.data?.appSubscriptionCreate?.userErrors ?? [];
 
 			if (errors.length > 0) {
 				return Response.json({ ok: false, error: errors[0].message }, { status: 400 });
@@ -345,7 +331,7 @@ export const action = async ({ request }) => {
 				);
 			}
 
-			return Response.json({ ok: true, confirmationUrl });
+			return Response.json({ ok: true, confirmationUrl: validateBillingConfirmation(confirmationUrl), test: testBilling }, { headers: { "Cache-Control": "no-store" } });
 
 		} catch (error) {
 			//console.error("CREATE SUBSCRIPTION ERROR:", error);
