@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { APP_NAME } from "../../app/product-config.js";
 
 const mode = process.argv[2];
 
@@ -100,7 +101,7 @@ const validateResponse = async (response) => {
     }
 
     const body = await response.text();
-    return body.includes("VSN Metafields");
+    return body.includes(APP_NAME);
   }
 
   if (response.status !== 200) {
