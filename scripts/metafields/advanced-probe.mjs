@@ -33,6 +33,25 @@ import { failedRunDisposableDefinition } from "./probe-client.mjs";
 import { encodeValue } from "../../app/value-types.js";
 import { hasActivePlan } from "../../app/active-plan.server.js";
 
+// A confirmed entry deletion can precede the definition's count update.
+// Retry reads only; never relax empty-only merchant deletion or replay mutations.
+export async function readEmptyProbeDefinition(admin, identity, wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))) {
+  if (!/^vsn_probe_\d{13}_[a-f0-9]{6}$/.test(identity.type || ""))
+    throw new RangeError("Disposable metaobject type required.");
+  let selected;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    selected = (await listMetaobjectDefinitions(admin)).find((d) => d.id === identity.id && d.type === identity.type);
+    if (!selected) throw new Error("Disposable metaobject definition unavailable.");
+    if ((await listMetaobjectEntries(admin, selected.type)).nodes.length)
+      throw new Error("Disposable metaobject definition still has entries.");
+    if (selected.metaobjectsCount === 0) return selected;
+    if (!Number.isSafeInteger(selected.metaobjectsCount) || selected.metaobjectsCount < 0)
+      throw new Error("Disposable metaobject count is malformed.");
+    if (attempt < 3) await wait(1000);
+  }
+  throw new Error(`Disposable metaobject count did not converge to zero: ${selected.metaobjectsCount}`);
+}
+
 export async function removeDisposableProbeDefinition(admin, field, nonce) {
   const owned = /^\d{13}_[a-f0-9]{6}$/.test(nonce || "") &&
     field.namespace === "vsn_probe" && field.name === `Disposable ${field.type}` &&
@@ -427,9 +446,7 @@ export async function verifyAdvancedBatch(
       }
     if (metaDefinition)
       try {
-        const selected = (await listMetaobjectDefinitions(admin)).find(
-          (d) => d.id === metaDefinition.id,
-        );
+        const selected = await readEmptyProbeDefinition(admin, metaDefinition);
         await removeEmptyMetaobjectDefinition(
           admin,
           selected,

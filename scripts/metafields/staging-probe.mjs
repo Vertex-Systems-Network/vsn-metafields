@@ -22,7 +22,8 @@ import {
 import { removeDefinition } from "../../app/definition-removal.server.js";
 import { mutateValue } from "../../app/metafield-values.server.js";
 import { probeGraphql, failedRunDisposableDefinition } from "./probe-client.mjs";
-import { verifyAdvancedBatch, removeDisposableProbeDefinition } from "./advanced-probe.mjs";
+import { verifyAdvancedBatch, removeDisposableProbeDefinition, readEmptyProbeDefinition } from "./advanced-probe.mjs";
+import { listMetaobjectDefinitions, removeEmptyMetaobjectDefinition } from "../../app/metaobjects.server.js";
 const { DATABASE_URL, SHOPIFY_API_KEY, SHOPIFY_APP_URL, STAGING_SHOP } =
   process.env;
 const host = DATABASE_URL ? new URL(DATABASE_URL).hostname : "";
@@ -113,6 +114,20 @@ query { currentAppInstallation { app { apiKey } } }`,
     if (!failedRunDisposableDefinition(field)) continue;
     must(await removeDisposableProbeDefinition(admin, field), "Recover disposable failed-run definition");
     report.recoveredFailedProbeDefinitions.push({ id: field.id, key: field.key });
+  }
+  report.recoveredFailedProbeMetaobjects = [];
+  // Exact leftover from run 37058589257; never a prefix-wide cleanup.
+  const leftover = (await listMetaobjectDefinitions(admin)).find((d) => d.id === "gid://shopify/MetaobjectDefinition/24588714356");
+  if (leftover) {
+    if (leftover.name !== "Renamed disposable FAQ" || leftover.access?.storefront !== "NONE" ||
+        !/^vsn_probe_\d{13}_[a-f0-9]{6}$/.test(leftover.type) ||
+        leftover.fieldDefinitions.length !== 2 ||
+        !leftover.fieldDefinitions.some((f) => f.key === "question" && f.type.name === "single_line_text_field") ||
+        !leftover.fieldDefinitions.some((f) => f.key === "answer" && f.type.name === "multi_line_text_field"))
+      throw new Error("Failed-run metaobject identity mismatch; no deletion attempted.");
+    const empty = await readEmptyProbeDefinition(admin, leftover);
+    await removeEmptyMetaobjectDefinition(admin, empty, `DELETE_EMPTY_DEFINITION:${empty.id}:${empty.type}`);
+    report.recoveredFailedProbeMetaobjects.push({ id: empty.id, type: empty.type });
   }
   report.schema = await verifyShopifySchema(
     await graph(
