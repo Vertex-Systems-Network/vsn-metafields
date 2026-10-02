@@ -276,7 +276,7 @@ test("packages page avoids duplicate server auth and loads billing status client
   assert.match(packages, /statusFetcher\.state === "idle" && !statusFetcher\.data/);
   assert.match(packages, /statusFetcher\.load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
   assert.match(packages, /subscriptions\.find\(\(sub\) => sub\.status === "ACTIVE"\)/);
-  assert.match(packages, /actionFetcher\.submit/);
+  assert.match(packages, /submitBilling/);
 });
 
 test("billing mutations require authenticated POST requests and guard active plans", () => {
@@ -288,8 +288,8 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /actionType !== "create" && actionType !== "cancel"/);
   assert.match(status, /\[vsn-status-action\]/);
   assert.match(status, /\[vsn-status-action-auth-failed\]/);
-  assert.match(status, /process\.env\.APP_ENV === "production"/);
-  assert.match(status, /process\.env\.NODE_ENV === "production"/);
+  assert.match(status, /billingIsTest\(process\.env\)/);
+  assert.match(status, /billingReturnUrl\(session\.shop, process\.env\.SHOPIFY_API_KEY\)/);
   assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
   assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
   assert.doesNotMatch(
@@ -304,7 +304,7 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /mutation CreateSubscription\(/);
   assert.match(status, /\$test:\s*Boolean!/);
   assert.match(status, /test:\s*\$test/);
-  assert.match(status, /test:\s*!isProductionBilling\(\)/);
+  assert.match(status, /test:\s*testBilling/);
   assert.match(status, /variables:\s*\{\s*id\s*\}/);
   assert.doesNotMatch(status, /appSubscriptionCancel\([^\n]*\$\{/);
 });
@@ -323,7 +323,7 @@ test("active Shopify test subscriptions remain valid app entitlements in product
 
   // New production charges remain real; only existing active test/demo charges
   // are accepted as entitlement evidence.
-  assert.match(status, /test:\s*!isProductionBilling\(\)/);
+  assert.match(status, /test:\s*testBilling/);
   assert.match(packages, /subscription\?\.status === "ACTIVE"/);
   assert.match(packages, /Active Test Plan/);
 });
