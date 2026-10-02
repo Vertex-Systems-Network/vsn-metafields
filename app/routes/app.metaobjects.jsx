@@ -249,15 +249,15 @@ export default function Metaobjects() {
         {definition && (
           <>
             <s-text>
-              {definition.metaobjectsCount} entries · Type/key changes and
+              Shopify reports {definition.metaobjectsCount} entries. Removal
+              checks current entries again. Type/key changes and
               destructive field migrations use Shopify’s native editor.
             </s-text>
             <s-button
               tone="critical"
               disabled={
                 busy ||
-                !definition.editable ||
-                definition.metaobjectsCount !== 0
+                !definition.editable
               }
               onClick={() => {
                 if (
@@ -271,7 +271,7 @@ export default function Metaobjects() {
                   });
               }}
             >
-              Remove empty definition
+              Check and remove empty definition
             </s-button>
           </>
         )}

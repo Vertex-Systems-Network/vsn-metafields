@@ -317,6 +317,30 @@ export async function removeMetaobjectEntry(admin, definition, input) {
   if (data.metaobjectDelete?.deletedId !== entry.id)
     throw new Error("Entry deletion was not confirmed.");
 }
+export async function readEmptyMetaobjectDefinition(admin, definition) {
+  merchantMetaobjectType(definition.type);
+  if (!/^gid:\/\/shopify\/MetaobjectDefinition\/[0-9]+$/.test(definition.id))
+    throw new RangeError("Invalid metaobject definition.");
+  const data = await graph(admin, `#graphql
+    query MetaobjectDefinitionRemovalState($id: ID!) {
+      metaobjectDefinition(id: $id) {
+        id type metaobjects(first: 1) { nodes { id } pageInfo { hasNextPage } }
+      }
+    }`, { id: definition.id });
+  const current = data.metaobjectDefinition;
+  const entries = current?.metaobjects;
+  if (current?.id !== definition.id || current?.type !== definition.type ||
+      !Array.isArray(entries?.nodes) || typeof entries.pageInfo?.hasNextPage !== "boolean")
+    throw new RangeError("Could not verify the selected definition's current entries.");
+  if (entries.nodes.length || entries.pageInfo.hasNextPage)
+    throw new RangeError("Definition still contains entries.");
+  const byType = await listMetaobjectEntries(admin, definition.type);
+  if (typeof byType.pageInfo.hasNextPage !== "boolean")
+    throw new RangeError("Could not verify the selected type's current entries.");
+  if (byType.nodes.length || byType.pageInfo.hasNextPage)
+    throw new RangeError("Definition still contains entries.");
+  return definition;
+}
 export async function removeEmptyMetaobjectDefinition(
   admin,
   definition,
@@ -324,15 +348,14 @@ export async function removeEmptyMetaobjectDefinition(
 ) {
   merchantMetaobjectType(definition.type);
   if (
-    definition.metaobjectsCount !== 0 ||
     confirm !== `DELETE_EMPTY_DEFINITION:${definition.id}:${definition.type}`
   )
     throw new RangeError(
       "Only confirmed empty definitions can be removed. Remove selected entries first.",
     );
-  // Check actual entry collection as well as the count before destructive mutation.
-  if ((await listMetaobjectEntries(admin, definition.type)).nodes.length)
-    throw new RangeError("Definition still contains entries.");
+  // Counts can disagree with actual collections after a confirmed deletion.
+  // Verify identity-bound and type-bound collections before any mutation.
+  await readEmptyMetaobjectDefinition(admin, definition);
   const data = await graph(
     admin,
     `#graphql
