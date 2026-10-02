@@ -51,3 +51,25 @@ test("reference cleanup requires disposable identity and confirms exact deleted 
   }
   assert.equal(calls, 1);
 });
+
+test("probe waits for empty count convergence without retrying deletion or accepting populated definitions", async () => {
+  const { readEmptyProbeDefinition } = await import("../scripts/metafields/advanced-probe.mjs");
+  const identity = { id: "gid://shopify/MetaobjectDefinition/12", type: "vsn_probe_1790936595000_abcdef" };
+  let reads = 0, populated = false, countStuck = false;
+  const waits = [];
+  const admin = { graphql: async (query) => {
+    if (query.includes("MetaobjectManager")) return Response.json({data: {metaobjectDefinitions: {
+      nodes: [{...identity, metaobjectsCount: countStuck || ++reads === 1 ? 1 : 0}],
+      pageInfo: {hasNextPage: false},
+    }}});
+    assert.match(query, /query MetaobjectEntries/);
+    return Response.json({data: {metaobjects: {nodes: populated ? [{id:"entry"}] : [], pageInfo: {hasNextPage: false}}}});
+  }};
+  assert.equal((await readEmptyProbeDefinition(admin, identity, async (ms) => waits.push(ms))).metaobjectsCount, 0);
+  assert.deepEqual(waits, [1000]);
+  populated = true;
+  await assert.rejects(readEmptyProbeDefinition(admin, identity, async () => {}), /still has entries/);
+  populated = false; countStuck = true;
+  await assert.rejects(readEmptyProbeDefinition(admin, identity, async () => {}), /did not converge/);
+  await assert.rejects(readEmptyProbeDefinition(admin, {...identity, type:"merchant_faq"}), /Disposable/);
+});
