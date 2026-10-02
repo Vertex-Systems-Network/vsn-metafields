@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-02T22:37:31.775Z",
+  "status": "development_and_staging_verified_merchant_acceptance_pending",
+  "review_type": "user_authorized_self_review",
+  "implementation_pr": 169,
+  "readiness_fix_pr": 170,
+  "source_sha": "50031b53c50bf27982cf5295d2ae4229bb36ce15",
+  "source_tree_sha": "9587842856eaecb928f6b282f3b7413c2e0bab58",
+  "display_name": "VSN | Metafields",
+  "local_checks": {
+    "node": "22.13.0",
+    "release_check": "passed",
+    "tests": 126,
+    "failed": 0,
+    "lint": "passed",
+    "typecheck": "passed",
+    "database_contract": "passed",
+    "build": "passed"
+  },
+  "ci": {
+    "app_validation_run": 37071816437,
+    "integrity_run": 37072471698,
+    "cloudflare_readiness_run": 37072471634,
+    "conclusion": "success",
+    "superseded_readiness_failure": {
+      "run_id": 37071816369,
+      "cause": "old display-name assertion in runtime-smoke.mjs",
+      "resolved_by_pr": 170
+    }
+  },
+  "staging_runtime": {
+    "run_id": 37072689721,
+    "job_id": 111055567168,
+    "conclusion": "success",
+    "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37072689721",
+    "acceptance": {
+      "apiVersion": "2026-07",
+      "ok": true,
+      "sourceSha": "50031b53c50bf27982cf5295d2ae4229bb36ce15",
+      "readableOwners": [
+        "API_PERMISSION",
+        "ARTICLE",
+        "BLOG",
+        "CARTTRANSFORM",
+        "COLLECTION",
+        "COMPANY",
+        "COMPANY_LOCATION",
+        "CUSTOMER",
+        "DELIVERY_CUSTOMIZATION",
+        "DISCOUNT",
+        "DRAFTORDER",
+        "FULFILLMENT_CONSTRAINT_RULE",
+        "GIFT_CARD_TRANSACTION",
+        "LOCATION",
+        "MARKET",
+        "ORDER",
+        "ORDER_ROUTING_LOCATION_RULE",
+        "PAGE",
+        "PAYMENT_CUSTOMIZATION",
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "SELLING_PLAN",
+        "SHOP",
+        "TRANSFER",
+        "VALIDATION"
+      ],
+      "unavailableOwners": [],
+      "lifecycleOwners": [
+        "PRODUCT",
+        "PRODUCTVARIANT",
+        "COLLECTION"
+      ],
+      "standardEnable": true,
+      "valuesRetainedAfterDefinitionRemoval": true,
+      "cleanup": true,
+      "recoveredFailedProbeDefinitions": [],
+      "recoveredFailedProbeMetaobjects": [],
+      "schema": {
+        "apiVersion": "2026-07",
+        "documents": 51,
+        "ownerInventory": true
+      },
+      "typeCount": 118,
+      "grantedScopes": [
+        "read_orders",
+        "read_products",
+        "write_metaobject_definitions",
+        "write_metaobjects",
+        "write_products",
+        "read_metaobject_definitions",
+        "read_metaobjects"
+      ],
+      "standardTemplateCount": 8516,
+      "advanced": {
+        "typedValues": [
+          "single_line_text_field",
+          "multi_line_text_field",
+          "number_integer",
+          "number_decimal",
+          "boolean",
+          "date",
+          "date_time",
+          "url",
+          "color",
+          "json",
+          "rich_text_field",
+          "dimension",
+          "weight",
+          "volume",
+          "list.single_line_text_field",
+          "list.number_integer",
+          "product_reference",
+          "variant_reference",
+          "collection_reference",
+          "list.product_reference",
+          "metaobject_reference"
+        ],
+        "staleDigestRejected": true,
+        "referenceVerification": true,
+        "metaobjects": {
+          "create": true,
+          "list": true,
+          "entryCreate": true,
+          "entryUpdate": true,
+          "omittedFieldsPreserved": true,
+          "definitionRename": true,
+          "referenceWrite": true,
+          "entryDelete": true,
+          "emptyDefinitionDelete": true
+        },
+        "bulk": {
+          "preview": true,
+          "apply": true,
+          "mixedRows": true,
+          "conflict": true,
+          "completedResume": true,
+          "shopIsolation": true
+        },
+        "diagnostics": {
+          "scopesRead": true,
+          "planGatePreserved": true,
+          "actualHasActivePlan": true,
+          "missingOptionalScopes": [
+            "read_files"
+          ]
+        },
+        "cleanup": true,
+        "billingMetadata": [
+          {
+            "name": "pro-plan",
+            "status": "ACTIVE",
+            "test": true,
+            "trialDays": 5,
+            "recurring": [
+              {
+                "price": {
+                  "amount": "55.0",
+                  "currencyCode": "USD"
+                },
+                "interval": "EVERY_30_DAYS"
+              }
+            ]
+          }
+        ],
+        "cleanupFailures": []
+      },
+      "cleanupFailures": []
+    }
+  },
+  "staging_extension": {
+    "run_id": 37073199061,
+    "job_id": 111057179486,
+    "conclusion": "success",
+    "url": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37073199061",
+    "source_sha": "50031b53c50bf27982cf5295d2ae4229bb36ce15",
+    "version": "staging-metafields-50031b53c50b",
+    "active": true,
+    "app_name": "VSN | Metafields",
+    "five_blocks_built": true,
+    "production_app_changed": false,
+    "compliance_webhooks": "three synthetic topics enqueued; CLI output does not establish final delivery receipt"
+  },
+  "evidence_limitations": [
+    "SSR and route contracts are not authenticated merchant UI acceptance",
+    "Starter/Growth actual billing transitions and approval navigation remain pending",
+    "Two-theme desktop/mobile, media/rich text/theme events, accessibility and measured performance remain pending",
+    "Specifications settings-count advisory remains unresolved",
+    "Runtime probe reads existing ACTIVE test Pro subscription and performs no billing mutation"
+  ],
+  "production_changed": false
+}

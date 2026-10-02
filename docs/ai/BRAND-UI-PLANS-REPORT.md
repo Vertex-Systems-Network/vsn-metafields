@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation and local release checks complete. Remote CI, staging runtime and Shopify staging configuration release are pending at this source revision. Signed-in merchant and two-theme visual acceptance remain unverified. This report will be reconciled with actual runs; it is not a production release certificate.
+Implementation, local release checks, required remote CI, Cloudflare readiness, staging runtime acceptance and Shopify staging configuration/five-block release are complete at development `50031b53c50bf27982cf5295d2ae4229bb36ce15`. Active staging version: `staging-metafields-50031b53c50b`. Signed-in merchant and two-theme visual acceptance remain unverified. This is not a production release certificate.
 
 ## Scope and compatibility
 
@@ -45,11 +45,20 @@ The previous Pro contract stays `pro-plan`, USD 55, EVERY_30_DAYS and five trial
 - Shopify production/staging isolation and staging contract validators passed.
 - Self-review: verified legacy Pro compatibility, new-tier monotonic limits, downgrade retention, per-operation wording, billing trial behavior, plan-derived server guards and preservation of Shopify authentication boundaries.
 
+## Remote verification
+
+- PR #169 merged the branded workspace and package implementation to development `4a0ba0f8c1f2dd395d1f2d8fa0bd77ab6ca3b9d9`. App Validation run `37071816437`, integrity and dependency security audit passed.
+- Cloudflare readiness run `37071816369` exposed a stale boot-smoke assertion for the old display name despite HTTP 200 responses. PR #170 changed it to the shared `APP_NAME`; the corrected development source is `50031b53c50bf27982cf5295d2ae4229bb36ce15`.
+- Corrected-source Cloudflare Readiness `37072471634` and integrity `37072471698` passed. Runtime staging `37072689721` passed the exact-source health/session/subscription checks, 21 representative typed-value cases, metaobject lifecycle, bulk mixed outcomes and diagnostics. All disposable fixture cleanup passed with zero failures.
+- Existing subscription metadata remains `pro-plan`, ACTIVE, test=true, USD 55 every 30 days and five trial days. It was read only. Actual new-tier billing transitions are not certified by these checks.
+- Shopify staging release `37073199061` passed the exact-source runtime gate, 126 contracts, five-block build, isolated app upload/release and active-version listing. Provider output confirms staging app `VSN | Metafields`, active version `staging-metafields-50031b53c50b` and `production_app_changed=false`. Three synthetic compliance topics were enqueued; CLI success is not independent proof of final delivery receipt.
+- Machine evidence: `docs/evidence/metafields-brand-ui-plans-2026-10-03.json`.
+
 ## Visual and release limits
 
 - Local UI fixture bundles the actual workspace/routes with explicitly simulated Shopify data. It is not merchant acceptance.
 - Browser visual checks are **not passed**: agent-browser Chrome installation failed on certificate validation, the official Playwright browser download returned unusable archives, and the cloud browser rejected the localhost fixture URL. No desktop/mobile screenshots or WCAG certification are claimed.
 - Signed-in merchant clicks, Shopify approval navigation, real Starter/Growth subscription transitions, two themes, rich text/media/reference rendering and accessibility remain pending.
 - The previous Specifications block settings-count advisory remains unresolved by this UI batch.
-- Shopify provider-side name changes require releasing the relevant app configuration. Source configuration is not proof of the name displayed on a live installed app. Official reference: https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
+- Staging configuration was released and the provider confirmed its new name. The live installed app name remains unverified and awaits the separate production configuration release. Official reference: https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
 - Main/live release and physical Supabase/retained Worker cleanup remain separate pending work. Production is unchanged by this batch.
