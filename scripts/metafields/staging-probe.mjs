@@ -107,7 +107,7 @@ query { currentAppInstallation { app { apiKey } } }`,
   if (identity.currentAppInstallation?.app?.apiKey !== SHOPIFY_API_KEY)
     throw new Error("Offline session belongs to a different app.");
   report.schema = await verifyShopifySchema(
-    await graph(admin, getIntrospectionQuery({ descriptions: false })),
+    await graph(admin, getIntrospectionQuery({ descriptions: false, inputValueDeprecation: true })),
   );
   const capabilities = await getCapabilities(admin, "PRODUCT");
   report.typeCount = capabilities.types.length;
@@ -139,8 +139,8 @@ mutation ProbeProduct($product:ProductCreateInput!){ productCreate(product:$prod
   if (!variantId) throw new Error("Variant fixture unavailable.");
   const collectionResult = await mutation(
     `#graphql
-mutation ProbeCollection($input:CollectionInput!){ collectionCreate(input:$input){collection{id} userErrors{message}}}`,
-    { input: { title: `VSN disposable batch probe ${nonce}` } },
+mutation ProbeCollection($collection:CollectionCreateInput!){ collectionCreate(collection:$collection){collection{id} userErrors{message}}}`,
+    { collection: { title: `VSN disposable batch probe ${nonce}` } },
     "collectionCreate",
   );
   const collection = collectionResult?.collection;
