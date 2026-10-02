@@ -1,0 +1,19 @@
+{%- case type -%}
+  {%- when 'single_line_text_field', 'number_integer', 'number_decimal' -%}{{ value | escape }}
+  {%- when 'multi_line_text_field' -%}<span class="vsn-multiline">{{ value | escape }}</span>
+  {%- when 'boolean' -%}{% if value == true %}{{ settings.true_text | escape }}{% elsif value == false %}{{ settings.false_text | escape }}{% endif %}
+  {%- when 'date', 'date_time' -%}{{ value | date: settings.date_format | escape }}
+  {%- when 'dimension', 'weight', 'volume' -%}{{ value.value | escape }} {{ value.unit | escape }}
+  {%- when 'money' -%}{{ value.amount | escape }} {{ value.currency_code | escape }}
+  {%- when 'rating' -%}<span>{{ value.rating | escape }} / {{ value.scale_max | escape }}</span>
+  {%- when 'color' -%}<span class="vsn-color-value">{{ value | escape }}</span>
+  {%- when 'url', 'link' -%}
+    {% assign destination = value %}{% assign caption = settings.link_text %}{% if type == 'link' %}{% assign destination = value.url %}{% assign caption = value.text | default: caption %}{% endif %}
+    {% render 'vsn-safe-link', destination: destination, caption: caption, settings: settings %}
+  {%- when 'product_reference', 'variant_reference', 'collection_reference', 'page_reference', 'article_reference' -%}
+    {% assign caption = value.title | default: value.name %}{% render 'vsn-safe-link', destination: value.url, caption: caption, settings: settings %}
+  {%- when 'file_reference' -%}
+    {% if value.media_type == 'image' %}
+      {{ value | image_url: width: 800 | image_tag: loading: 'lazy', class: 'vsn-metafield-image', widths: '200,400,600,800', sizes: '(max-width: 600px) 100vw, 400px', alt: value.alt }}
+    {% else %}{% render 'vsn-safe-link', destination: value.url, caption: settings.link_text, settings: settings %}{% endif %}
+{%- endcase -%}

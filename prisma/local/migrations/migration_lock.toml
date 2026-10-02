@@ -1,0 +1,2 @@
+# Prisma Migrate does not support changing the provider after migrations exist.
+provider = "sqlite"

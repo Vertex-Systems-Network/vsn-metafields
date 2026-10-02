@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   create-staging-version:
-    if: github.event.inputs.confirm == 'CREATE_STAGING_SHOPIFY_VERSION'
+    if: github.event.inputs.confirm == 'CREATE_STAGING_SHOPIFY_VERSION' && github.ref_name == 'development'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: cloudflare-staging
@@ -27,9 +27,10 @@ jobs:
       SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
 
     steps:
-      - name: Checkout protected main
+      - name: Checkout development source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: development
           persist-credentials: false
 
       - name: Setup Node 22

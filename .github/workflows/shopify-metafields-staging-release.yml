@@ -1,0 +1,63 @@
+name: Shopify Metafields Staging Release
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE_METAFIELDS_TO_STAGING to build and release the development extension only to the staging app"
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: shopify-staging-release
+  cancel-in-progress: false
+jobs:
+  release-staging-blocks:
+    if: github.ref_name == 'development' && github.event.inputs.confirm == 'RELEASE_METAFIELDS_TO_STAGING'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: cloudflare-staging
+    env:
+      CI: "true"
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
+      SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+      SHOPIFY_APP_URL: ${{ secrets.SHOPIFY_APP_URL }}
+    steps:
+      - name: Checkout development source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: development
+          persist-credentials: false
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.13.0"
+          cache: npm
+      - name: Require and inject isolated staging identity
+        run: |
+          python - <<'PY'
+          import os, tomllib
+          from pathlib import Path
+          for name in ('SHOPIFY_APP_AUTOMATION_TOKEN', 'SHOPIFY_API_KEY', 'SHOPIFY_APP_URL'):
+              if not os.environ.get(name): raise SystemExit(f'Missing staging credential: {name}')
+          production = tomllib.loads(Path('shopify.app.toml').read_text())['client_id']
+          if os.environ['SHOPIFY_API_KEY'] == production: raise SystemExit('Refusing production app identity.')
+          if os.environ['SHOPIFY_APP_URL'] != 'https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev': raise SystemExit('Unexpected staging URL.')
+          path = Path('shopify.app.cloudflare-staging.toml')
+          source = path.read_text()
+          if '__SHOPIFY_STAGING_CLIENT_ID__' not in source: raise SystemExit('Missing staging identity placeholder.')
+          path.write_text(source.replace('__SHOPIFY_STAGING_CLIENT_ID__', os.environ['SHOPIFY_API_KEY']))
+          PY
+      - name: Install and verify block contracts
+        run: |
+          npm ci
+          npm run test:contracts
+      - name: Build and upload unreleased staging app version
+        run: |
+          npx --yes @shopify/cli@4.8.2 app deploy --config cloudflare-staging --no-release --version "staging-metafields-${GITHUB_SHA:0:12}" --message "Verified development metafield blocks"
+      - name: Release only the staging app version
+        run: |
+          npx --yes @shopify/cli@4.8.2 app release --config cloudflare-staging --version "staging-metafields-${GITHUB_SHA:0:12}" --allow-updates
+          npx --yes @shopify/cli@4.8.2 app versions list --config cloudflare-staging
+          git diff --exit-code -- shopify.app.toml
+          echo "production_app_changed=false"

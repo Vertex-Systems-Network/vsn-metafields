@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - development
     paths:
       - "app/**"
       - "prisma/**"
@@ -12,7 +13,9 @@ on:
       - ".graphqlrc.js"
       - "react-router.config.js"
       - ".github/workflows/app-validation.yml"
-      - "tests/app-contracts.test.mjs"
+      - "tests/**"
+      - "extensions/**"
+      - "scripts/metafields/**"
   push:
     branches:
       - main
@@ -25,7 +28,9 @@ on:
       - ".graphqlrc.js"
       - "react-router.config.js"
       - ".github/workflows/app-validation.yml"
-      - "tests/app-contracts.test.mjs"
+      - "tests/**"
+      - "extensions/**"
+      - "scripts/metafields/**"
   workflow_dispatch:
 
 permissions:
@@ -88,6 +93,9 @@ jobs:
 
       - name: Contract smoke tests
         run: npm run test:contracts
+
+      - name: Build Shopify theme extension
+        run: npx --yes @shopify/cli@4.8.2 app build --config cloudflare-staging
 
       - name: Build
         run: npm run build

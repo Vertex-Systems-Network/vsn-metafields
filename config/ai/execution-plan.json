@@ -76,9 +76,9 @@
       "objective": "Pin API version and owner/type/scope/storefront matrix",
       "dependencies": [],
       "priority": 1,
-      "status": "not_started",
+      "status": "verification_required",
       "blockers": [
-        "Pinned API and shop-level capability probes not yet verified"
+        "Authenticated pinned-schema and isolated staging API evidence pending"
       ],
       "acceptance_criteria": [
         "Pin API version and owner/type/scope/storefront matrix verified against representative staging data",
@@ -88,7 +88,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md"
+      ]
     },
     {
       "id": "META-002",
@@ -100,8 +103,10 @@
         "META-001"
       ],
       "priority": 2,
-      "status": "not_started",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Authenticated pinned-schema and isolated staging API evidence pending"
+      ],
       "acceptance_criteria": [
         "Decide namespace, access and migration verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -110,7 +115,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md"
+      ]
     },
     {
       "id": "META-003",
@@ -122,8 +130,10 @@
         "META-002"
       ],
       "priority": 3,
-      "status": "not_started",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Authenticated pinned-schema and isolated staging API evidence pending"
+      ],
       "acceptance_criteria": [
         "Standard and custom definition lifecycle verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -132,7 +142,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md"
+      ]
     },
     {
       "id": "META-004",
@@ -166,8 +179,10 @@
         "META-004"
       ],
       "priority": 5,
-      "status": "not_started",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Actual Shopify extension/editor verification on two themes pending"
+      ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -176,7 +191,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md"
+      ]
     },
     {
       "id": "META-006",
@@ -188,8 +206,10 @@
         "META-005"
       ],
       "priority": 6,
-      "status": "not_started",
-      "blockers": [],
+      "status": "verification_required",
+      "blockers": [
+        "Actual Shopify extension/editor verification on two themes pending"
+      ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -198,7 +218,10 @@
         "ANPOS schema integrity",
         "Module-specific contract and end-to-end evidence"
       ],
-      "completion_evidence": []
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md"
+      ]
     },
     {
       "id": "META-007",

@@ -1,6 +1,8 @@
-# Metafields feature work units — planning only
+# Metafields feature work units
 
-Execution stage for every work unit: local/development branch and local verification, then manual development-to-staging dispatch and staging verification, then reviewed development-to-main promotion and guarded live release only where applicable. An unverified local setup is never accepted as staging evidence. See `docs/development-release-flow.md`.\n\nThis queue is a feature proposal; it does not claim a Supervisor lease, Worker claim, agent identity, implementation, test pass or production readiness. It does not replace PHASE-01's rollback certification.
+Execution stage for every work unit: local/development branch and local verification, then manual development-to-staging dispatch and staging verification, then reviewed development-to-main promotion and guarded live release only where applicable. An unverified local setup is never accepted as staging evidence. See `docs/development-release-flow.md`.
+
+This queue is a feature proposal; it does not claim a Supervisor lease, Worker claim, agent identity, implementation, test pass or production readiness. It does not replace PHASE-01's rollback certification.
 
 | ID | Module | Work unit | Dependencies | Acceptance evidence |
 | --- | --- | --- | --- | --- |
@@ -18,3 +20,7 @@ Execution stage for every work unit: local/development branch and local verifica
 | META-012 | MOD-META-OPERATIONS | Progressive production rollout | META-011, independent rollback certification | Unchanged billing/subscriptions, health, stop/rollback evidence |
 
 At work start, map each ID into the canonical coordination/work queue using authenticated project runtime and preserve module/option/requirement links. Do not mark ready/complete from this table alone.
+
+## Batch 1, 2, 4 implementation
+
+Capability, definition lifecycle and Single Field/Specifications code is implemented on a development-derived feature branch. See `docs/ai/METAFIELDS-BATCH-124-REPORT.md`; META-001/002/003/005/006 remain `verification_required` until their actual staging/theme acceptance evidence exists. The user authorized self-review for this batch; enforced repository/environment gates remain in effect.
