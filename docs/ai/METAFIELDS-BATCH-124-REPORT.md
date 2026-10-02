@@ -31,3 +31,9 @@ Acceptance status: implementation prepared; staging/theme verification required.
 ## Publication and remote checks
 
 PR #153 targets development. Initial published commit f3199805247c019231d9e98d6e6fd1b22c50ff41 passed App Validation run 36934316343 and ANPOS repository-integrity run 36934316366. Development requires zero approving reviews and successful checks; no ruleset was changed. Follow-up adds development-only staging extension version/release automation and includes the value-read query in authenticated schema validation. Staging acceptance is still pending actual runs.
+
+## Development merge and first staging execution
+
+PR #153 merged into development at af320d32b336f75110f8570ca6c047a1ef272ee5. Final PR App Validation (36934898996) and ANPOS integrity (36934898915) passed. Post-merge Dependency Audit (36981843229), Staging Readiness (36981843141), ANPOS (36981843106) and App Validation (36981843135) passed.
+
+Cloudflare Staging Deploy run 36982126594 deployed that source successfully; isolated Neon migrations, runtime/billing health, offline Shopify session and subscription reads passed. Metafield acceptance failed **before fixture mutation** because the legacy pin mutation used an unsupported id input. Authenticated 2026-07 schema requires namespace/key/ownerType. This follow-up fixes that input, reports every GraphQL validation error together, and reuses the already registered staging release workflow so extension release can execute from development without promoting unverified code to main. Extension release requires a successful staging acceptance run for the exact development SHA. All theme acceptance limitations above remain open.

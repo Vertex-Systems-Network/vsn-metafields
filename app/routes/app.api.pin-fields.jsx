@@ -36,13 +36,13 @@ export const action = async ({ request }) => {
       const data = await graph(
         admin,
         `#graphql
-        mutation PinLegacyDefinition($id: ID!) {
-          metafieldDefinitionUpdate(definition: { id: $id, pin: true }) {
+        mutation PinLegacyDefinition($namespace: String!, $key: String!, $ownerType: MetafieldOwnerType!) {
+          metafieldDefinitionUpdate(definition: { namespace: $namespace, key: $key, ownerType: $ownerType, pin: true }) {
             updatedDefinition { id pinnedPosition }
             userErrors { field message }
           }
         }`,
-        { id: field.id },
+        { namespace: field.namespace, key: field.key, ownerType: "PRODUCT" },
       );
       const payload = data.metafieldDefinitionUpdate;
       if (

@@ -105,10 +105,13 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(workflow, /Refusing to create a staging version with the production Shopify client ID/);
 
   const releaseWorkflow = read(".github/workflows/shopify-staging-release.yml");
-  assert.match(releaseWorkflow, /TARGET_VERSION: "staging-webhooks-2"/);
-  assert.match(releaseWorkflow, /RELEASE_STAGING_WEBHOOKS_2/);
-  assert.match(releaseWorkflow, /config\/shopify\/staging-release-request\.json/);
-  assert.match(releaseWorkflow, /github\.event_name == 'push'/);
+  assert.match(releaseWorkflow, /RELEASE_METAFIELDS_TO_STAGING/);
+  assert.match(releaseWorkflow, /github.ref_name == 'development'/);
+  assert.match(releaseWorkflow, /ref: \$\{\{ github.sha \}\}/);
+  assert.match(releaseWorkflow, /head_sha=\$GITHUB_SHA&status=success/);
+  assert.match(releaseWorkflow, /staging-metafields-\$\{GITHUB_SHA:0:12\}/);
+  assert.match(releaseWorkflow, /--no-release/);
+  assert.doesNotMatch(releaseWorkflow, /github.event_name == 'push'/);
   assert.match(releaseWorkflow, /app versions list/);
   assert.match(releaseWorkflow, /app release/);
   assert.match(releaseWorkflow, /--allow-updates/);
