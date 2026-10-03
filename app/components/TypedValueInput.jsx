@@ -64,7 +64,7 @@ export default function TypedValueInput({
       )}
       {REFERENCE_TYPES[base] && onFindReferences && (
         <>
-          <s-text-field
+          <s-search-field
             label="Reference search or metaobject type"
             value={search}
             onInput={(e) => setSearch(e.target.value)}

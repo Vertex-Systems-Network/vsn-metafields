@@ -1,5 +1,6 @@
 import process from "node:process";
 import { sessionStorage, unauthenticated } from "../shopify.server";
+import { getStandardTemplatePage } from "../standard-definitions.server.js";
 
 const EXPECTED_STAGING_APP_URL =
   "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev";
@@ -36,12 +37,7 @@ async function verifySignature(secret, message, signatureHex) {
     ["verify"],
   );
 
-  return crypto.subtle.verify(
-    "HMAC",
-    key,
-    signature,
-    encoder.encode(message),
-  );
+  return crypto.subtle.verify("HMAC", key, signature, encoder.encode(message));
 }
 
 function noStoreJson(payload, init = {}) {
@@ -140,7 +136,10 @@ export const loader = async ({ request }) => {
   try {
     ({ admin, session } = await unauthenticated.admin(shop));
   } catch (error) {
-    console.error("[vsn-staging-acceptance] offline session unavailable", error);
+    console.error(
+      "[vsn-staging-acceptance] offline session unavailable",
+      error,
+    );
     return noStoreJson(
       {
         ok: false,
@@ -171,7 +170,10 @@ export const loader = async ({ request }) => {
       }
     `);
   } catch (error) {
-    console.error("[vsn-staging-acceptance] admin GraphQL request failed", error);
+    console.error(
+      "[vsn-staging-acceptance] admin GraphQL request failed",
+      error,
+    );
 
     let directProbe = {
       attempted: false,
@@ -210,7 +212,9 @@ export const loader = async ({ request }) => {
           try {
             const parsed = JSON.parse(directBody);
             const candidates = [
-              ...(Array.isArray(parsed?.errors) ? parsed.errors : [parsed?.errors]),
+              ...(Array.isArray(parsed?.errors)
+                ? parsed.errors
+                : [parsed?.errors]),
               parsed?.error,
               parsed?.message,
             ];
@@ -248,7 +252,9 @@ export const loader = async ({ request }) => {
           ok: false,
           status: null,
           errorName:
-            directError instanceof Error ? directError.name : typeof directError,
+            directError instanceof Error
+              ? directError.name
+              : typeof directError,
         };
       }
     }
@@ -279,7 +285,9 @@ export const loader = async ({ request }) => {
   const json = await response.json();
 
   if (json?.errors?.length) {
-    console.error("[vsn-staging-acceptance] admin GraphQL response contained errors");
+    console.error(
+      "[vsn-staging-acceptance] admin GraphQL response contained errors",
+    );
     return noStoreJson(
       {
         ok: false,
@@ -294,9 +302,41 @@ export const loader = async ({ request }) => {
   const subscriptions =
     json?.data?.currentAppInstallation?.activeSubscriptions ?? [];
 
+  // Exercise bounded catalog pagination inside the deployed Worker itself.
+  // This diagnostic remains signed, staging-only and read-only.
+  let standardCatalog;
+  try {
+    const first = await getStandardTemplatePage(admin, "PRODUCT");
+    const next = first.pageInfo.hasNextPage
+      ? await getStandardTemplatePage(
+          admin,
+          "PRODUCT",
+          first.pageInfo.endCursor,
+        )
+      : null;
+    standardCatalog = {
+      ok: true,
+      pagesRead: next ? 2 : 1,
+      firstPageMatches: first.templates.length,
+      nextPageMatches: next?.templates.length || 0,
+      hasMore: (next || first).pageInfo.hasNextPage,
+    };
+  } catch {
+    return noStoreJson(
+      {
+        ok: false,
+        stage: "standard-catalog",
+        code: "bounded_catalog_read_failed",
+        session: sessionSummary,
+      },
+      { status: 502 },
+    );
+  }
+
   return noStoreJson({
     ok: true,
     shop,
+    standardCatalog,
     session: {
       offlineSessionAvailable: session?.isOnline === false,
       ...sessionSummary,

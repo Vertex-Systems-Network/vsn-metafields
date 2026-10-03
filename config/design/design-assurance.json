@@ -1,21 +1,25 @@
 {
   "schema_version": 1,
-  "status": "pending_design_decision",
+  "status": "reference_locked_visual_acceptance_pending",
   "activation_scope": "child_project",
   "approved_design": {
-    "provider": null,
-    "file_id": null,
+    "provider": "Shopify native admin reference",
+    "file_id": "libfile_b344e5fd58748191bd5d1c4c5b2885aa",
     "node_ids": [],
-    "version_or_revision": null,
-    "snapshot_ref": null,
-    "captured_at": null,
-    "design_system_version": null,
-    "approval_status": "not_approved",
-    "approved_by": null,
-    "approved_at": null
+    "version_or_revision": "sha256:cf67b50c161b36e8be475bd53cb1087c87c9c7799ae8815ffcf1303680df0160",
+    "snapshot_ref": "image(5).png; sha256:cf67b50c161b36e8be475bd53cb1087c87c9c7799ae8815ffcf1303680df0160",
+    "captured_at": "2026-10-03T09:32:30Z",
+    "design_system_version": "Shopify native reference; app Polaris web components and native searchable listbox",
+    "approval_status": "approved",
+    "approved_by": "current_user_instruction",
+    "approved_at": "2026-10-03T09:32:30Z"
   },
   "verification": {
-    "responsive_targets": [],
+    "responsive_targets": [
+      "desktop",
+      "mobile",
+      "320px reflow and 200% zoom"
+    ],
     "visual_regression_required_when_material": true,
     "screenshot_evidence_required_for_visual_acceptance_when_supported": true,
     "accessibility_target": "WCAG_2_2_AA_for_web_unless_overridden",

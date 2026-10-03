@@ -5,6 +5,8 @@ import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
+import SearchableSelect from "../components/SearchableSelect";
+import { fieldTypeOption } from "../field-presentation";
 const initialField = () => ({
   key: "title",
   name: "Title",
@@ -194,17 +196,12 @@ export default function Metaobjects() {
                   value={field.name}
                   onInput={(e) => updateField(index, "name", e.target.value)}
                 />
-                <s-select
+                <SearchableSelect
                   label="Field type"
                   value={field.type}
-                  onInput={(e) => updateField(index, "type", e.target.value)}
-                >
-                  {types.map((t) => (
-                    <s-option key={t.name} value={t.name}>
-                      {t.name}
-                    </s-option>
-                  ))}
-                </s-select>
+                  onChange={(value) => updateField(index, "type", value)}
+                  options={types.map(fieldTypeOption)}
+                />
                 <s-checkbox
                   label="Required"
                   checked={field.required}

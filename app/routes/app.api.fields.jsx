@@ -11,10 +11,13 @@ import {
   updateDefinition,
 } from "../definitions.server.js";
 import {
-  getStandardTemplates,
+  getStandardTemplatePage,
   enableStandardTemplate,
 } from "../standard-definitions.server.js";
-import { removeDefinition, definitionRemovalBlocker } from "../definition-removal.server.js";
+import {
+  removeDefinition,
+  definitionRemovalBlocker,
+} from "../definition-removal.server.js";
 
 const NAMESPACE = "vsn_metafields";
 const failure = (error, status = 400, ownerType) =>
@@ -31,22 +34,23 @@ export const loader = async ({ request }) => {
     const params = new URL(request.url).searchParams;
     ownerType = requireOwnerType(params.get("ownerType"));
     if (params.get("catalog") === "standard") {
-      const [templates, fields] = await Promise.all([
-        getStandardTemplates(admin, ownerType),
-        getDefinitions(admin, ownerType),
-      ]);
-      const existing = new Set(
-        fields.map((field) => `${field.namespace}.${field.key}`),
-      );
-      return Response.json({
-        ok: true,
+      const page = await getStandardTemplatePage(
+        admin,
         ownerType,
-        templates: templates.map((item) => ({
-          ...item,
-          type: item.type?.name,
-          enabled: existing.has(`${item.namespace}.${item.key}`),
-        })),
-      });
+        params.get("after"),
+      );
+      return Response.json(
+        {
+          ok: true,
+          ownerType,
+          ...page,
+          templates: page.templates.map((item) => ({
+            ...item,
+            type: item.type?.name,
+          })),
+        },
+        { headers: { "Cache-Control": "no-store" } },
+      );
     }
     const capabilities = await getCapabilities(admin, ownerType);
     return Response.json({ ok: true, ownerType, ...capabilities });
@@ -78,7 +82,11 @@ export const action = async ({ request }) => {
     if (command === "create")
       result = await createDefinition(admin, ownerType, input);
     else if (command === "enable-standard") {
-      const templates = await getStandardTemplates(admin, ownerType);
+      const { templates } = await getStandardTemplatePage(
+        admin,
+        ownerType,
+        input.templateCursor,
+      );
       const access = storefrontAccess(
         ownerType,
         String(form.get("storefront") || "NONE"),
