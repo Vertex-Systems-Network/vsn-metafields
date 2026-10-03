@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T15:07:35.269690+00:00",
+  "appVersion": "1.2.1",
+  "sourceSha": "80188cb9b62b59cfde30f6d8f98466063443a57c",
+  "sourceTree": "b797bec047a44595470a005c35523050746e4742",
+  "implementationPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180",
+  "verification": {
+    "node": "22.13.0",
+    "local": {
+      "tests": 154,
+      "failed": 0,
+      "lint": "pass",
+      "typecheck": "pass",
+      "databaseContract": "pass",
+      "build": "pass",
+      "repositoryIntegrity": "pass"
+    },
+    "implementationCi": [
+      {
+        "runId": 37131282456,
+        "result": "success"
+      },
+      {
+        "runId": 37131282492,
+        "result": "success"
+      }
+    ],
+    "developmentCi": [
+      {
+        "runId": 37131577501,
+        "result": "success"
+      },
+      {
+        "runId": 37131577525,
+        "result": "success"
+      }
+    ],
+    "runtime": {
+      "runId": 37131714509,
+      "jobId": 111227968668,
+      "result": "success",
+      "probe": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "80188cb9b62b59cfde30f6d8f98466063443a57c",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 52,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_files",
+          "read_content",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "definitionValidationUpdate": true,
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": []
+          },
+          "cleanup": true,
+          "metaobjectValidationCreate": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "shopifyRelease": {
+      "runId": 37131931720,
+      "jobId": 111228585500,
+      "result": "success",
+      "sourceSha": "80188cb9b62b59cfde30f6d8f98466063443a57c",
+      "activeVersion": "staging-metafields-80188cb9b62b",
+      "complianceWebhooksEnqueued": 3,
+      "receiptVerification": "pending"
+    }
+  },
+  "ui": {
+    "expandedWidthPx": 256,
+    "collapsedWidthPx": 72,
+    "desktopHeight": "viewport minus measured sticky header",
+    "tooltip": "body portal; hover, focus, hoverable content, Escape and navigation dismissal",
+    "helpThemeSettings": 148
+  },
+  "review": "authorized self-review; no independent reviewer or persistent Supervisor certification",
+  "pending": [
+    "Actual current app/control/theme screenshots",
+    "Authenticated desktop/mobile/320px/200% zoom visual and focus acceptance",
+    "Two-theme editor/storefront and measured accessibility/performance acceptance",
+    "Signed compliance webhook receipt verification"
+  ],
+  "productionChanged": false,
+  "billingChanged": false,
+  "releaseProof": {
+    "path": "vsn-sidebar-collapse-staging-release-1791039974847.jpg",
+    "libraryFileId": "libfile_c4e87d9634308191b9506e3743775099",
+    "surface": "GitHub staging release summary; not app UI acceptance"
+  }
+}

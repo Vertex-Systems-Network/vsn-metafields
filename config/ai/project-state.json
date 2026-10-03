@@ -4,8 +4,8 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "PR176 popover/alignment/validation and probe correction PR177 merged development 44b812501d1d3af1728009496a16610032ac8323, app1.1.1. Node22.13.0 local150 tests and release checks, implementation CI37117025564/37117025531 and probe CI37117577146/37117577073 passed. Exact-source runtime37117727013 and Shopify staging release37117885064 passed, active staging-metafields-44b812501d1d. Persisted validation edits for product/variant/collection and new metaobject-field rules, all21 typed cases, lifecycle/bulk/diagnostics and complete disposable cleanup passed. Prior search/loaders/illustrated help/tier gates retained. Authenticated merchant/visual/focus/picker/two-theme/accessibility acceptance pending.",
-  "next_valid_work_unit": "Execute docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md when explicitly authorized authenticated Shopify browser access is available. Verify v1.1.1 card popovers and placement, 32px input/select/button alignment, create/edit/clear validation rules and invalid-value feedback, keyboard/zoom/mobile reflow, previous search/forms/pickers/navigation/help/tier gates and two-theme acceptance. Runtime and active extension share 44b812501d1d3af1728009496a16610032ac8323, staging-metafields-44b812501d1d. Prior declined sign-in handoff and automatic accounts-redirect rejection remain; do not renew on generic continue. Preserve protected main/live promotion.",
+  "last_verified_completion": "PR179 full-width/sidebar/beginner help and PR180 sticky header/full-height/collapse/tooltips merged development 80188cb9b62b59cfde30f6d8f98466063443a57c, app1.2.1. Node22.13.0 local154 tests and release/integrity checks, implementation CI37131282456/37131282492 and development CI37131577501/37131577525 passed. Exact-source runtime37131714509 and Shopify staging release37131931720 passed, active staging-metafields-80188cb9b62b. All21 typed cases, validation/lifecycle/bulk/metaobjects/diagnostics and complete disposable cleanup passed without failures. All148 theme setting explanations checked against shipped schemas. Actual app screenshots and authenticated merchant/visual/focus/picker/two-theme/accessibility acceptance remain pending.",
+  "next_valid_work_unit": "Execute docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md when fresh explicitly authorized authenticated Shopify browser access is available. Capture real app/control/theme images and verify v1.2.1 full-width layout, 256px/72px collapse, measured sticky header/full-height sidebar, hover/focus/Escape tooltips, mobile/zoom reflow and beginner help; retain earlier popover/validation/search/picker/tier/two-theme tasks. Runtime and active extension share 80188cb9b62b59cfde30f6d8f98466063443a57c, staging-metafields-80188cb9b62b. Prior declined sign-in and automatic accounts-redirect rejection remain; generic continue does not renew them. Browser file preview rejection must not be circumvented. Preserve protected main/live promotion.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -15,7 +15,7 @@
     "not_started": 1
   },
   "outstanding_updates": [
-    "Authenticated merchant UI and actual page/file pickers and permission-flow UX (latest staging API scopes granted); actual Starter/Growth billing transitions and approval navigation, two-theme editor/storefront, accessibility and measured performance acceptance.",
+    "Current actual app/control/theme screenshots and authenticated visual/focus/mobile/zoom acceptance; merchant page/file pickers and consent-flow UX (latest API scopes granted); billing approval navigation and real tier transitions, two-theme editor/storefront, accessibility, measured performance and compliance webhook receipt verification.",
     "Specifications settings-count advisory and final production assurance remain pending."
   ],
   "outstanding_removals": [
@@ -31,8 +31,8 @@
   "critical_defects": [],
   "qa_readiness": "representative_staging_API_passed_merchant_UI_theme_accessibility_pending",
   "security_readiness": "cloudflare_live_verified_previous_version_retained_after_closure",
-  "last_reconciled_repository_ref": "44b812501d1d3af1728009496a16610032ac8323",
-  "last_reconciled_at": "2026-10-03T10:58:02.875560+00:00",
+  "last_reconciled_repository_ref": "80188cb9b62b59cfde30f6d8f98466063443a57c",
+  "last_reconciled_at": "2026-10-03T15:07:35.270190+00:00",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }
