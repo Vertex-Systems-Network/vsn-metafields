@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T10:54:46.460Z",
+  "appVersion": "1.1.1",
+  "sourceSha": "44b812501d1d3af1728009496a16610032ac8323",
+  "sourceTree": "1a8ab65534f77f009252c983b2d096385218d539",
+  "implementationPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+  "probeCorrectionPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/177",
+  "verification": {
+    "node": "22.13.0",
+    "local": {
+      "tests": 150,
+      "failed": 0,
+      "lint": "pass",
+      "typecheck": "pass",
+      "databaseContract": "pass",
+      "build": "pass",
+      "repositoryIntegrity": "pass",
+      "probeUndefinedReferences": "pass"
+    },
+    "implementationCi": [
+      {
+        "runId": 37117025564,
+        "result": "success"
+      },
+      {
+        "runId": 37117025531,
+        "result": "success"
+      }
+    ],
+    "probeCorrectionCi": [
+      {
+        "runId": 37117577146,
+        "result": "success"
+      },
+      {
+        "runId": 37117577073,
+        "result": "success"
+      }
+    ],
+    "runtime": {
+      "runId": 37117727013,
+      "result": "success",
+      "signedWorkerCatalogCheck": "first and next page reads passed as part of guarded staging acceptance; per-page counts not printed",
+      "probe": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "44b812501d1d3af1728009496a16610032ac8323",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 52,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_files",
+          "read_content",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "definitionValidationUpdate": true,
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": []
+          },
+          "cleanup": true,
+          "metaobjectValidationCreate": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "firstAttempt": {
+      "runId": 37117324280,
+      "sourceSha": "b552b2005f74bbab365d393fd51452a12467fedb",
+      "result": "failure",
+      "stage": "offline validation readback probe",
+      "error": "ReferenceError: assert is not defined",
+      "workerDeploymentHealthAndSessionReads": "pass",
+      "cleanup": true,
+      "cleanupFailures": [],
+      "correction": "Import node:assert/strict; repeat exact-source guarded staging acceptance"
+    },
+    "shopifyRelease": {
+      "runId": 37117885064,
+      "result": "success",
+      "activeVersion": "staging-metafields-44b812501d1d",
+      "productionAppChanged": false,
+      "complianceWebhooks": "3 enqueued; independent receipt acceptance pending"
+    }
+  },
+  "scope": [
+    "Card dropdown clipping: body portal with viewport bounds, flip and reposition",
+    "12px wrapping action gaps; 8px table gaps",
+    "32px input/select alignment and filter labels",
+    "Visible type-supported validation controls for custom create/edit and new metaobject fields; saved rules shown in value editors"
+  ],
+  "browser": {
+    "status": "blocked",
+    "reason": "Prior declined Shopify login handoff and automatic accounts-redirect rejection; no new sign-in or expired token replay",
+    "pending": [
+      "actual card overlay clipping and up/down placement",
+      "desktop/mobile input and button spacing",
+      "real keyboard focus, Tab/Escape/outside interactions and screen reader",
+      "320px reflow, 200% zoom and mobile keyboard",
+      "merchant create/edit/clear validations and invalid-value errors"
+    ]
+  },
+  "productionChanged": false,
+  "billingChanged": false,
+  "proof": {
+    "kind": "GitHub staging release success; not merchant UI acceptance",
+    "libraryFileId": "libfile_ea5270ddbc308191973d60825449de5f"
+  },
+  "issueScreenshots": [
+    {
+      "name": "image(6).png",
+      "sha256": "6ebe93ffc31afbf21382ae1792c2a1ed0c042a8b7c6881e8822a1ebe61b22ddd"
+    },
+    {
+      "name": "image(7).png",
+      "sha256": "5e1ee3790f62212cdcde33d173fd5d8bc15c7efec6dbd9cf4addd2ec0a6d7797"
+    },
+    {
+      "name": "image(8).png",
+      "sha256": "e5d1c394970516ebed1b9902f3e9c5796cc90a1044138d9d4b8b8c8b97ee230e"
+    },
+    {
+      "name": "image(9).png",
+      "sha256": "2c1c019c67e6e103f8523014d2dcb56e440e80b8bbd2cf11f5da2a1d708b1de7"
+    },
+    {
+      "name": "image(10).png",
+      "sha256": "24208a8b47f501ecf6183618bd5597d8d47bd9893c4a73f905cb4394f418b782"
+    }
+  ]
+}

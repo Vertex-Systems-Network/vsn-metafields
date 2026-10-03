@@ -1,6 +1,10 @@
 # VSN | Metafields 1.1.1 — popover, alignment and validation
 
-The four screenshot-reported changes are implemented for development and isolated staging. Release checks and exact-source deployment evidence are recorded in the follow-up evidence file after verification. The first staging attempt deployed the Worker and passed health/session reads, then exposed a missing `node:assert/strict` import in the new offline rule-readback probe. Disposable cleanup passed. The probe import is corrected before repeating acceptance.
+The four screenshot-reported changes are implemented in app v1.1.1 and released to isolated staging from `44b812501d1d3af1728009496a16610032ac8323` (PR176 plus probe correction PR177). Node22.13.0 release checks passed150 tests; implementation/probe CI passed. Runtime37117727013 and Shopify release37117885064 passed for the same source; active app version is `staging-metafields-44b812501d1d`. Shopify readback verified validation edits on product/variant/collection definitions and rules on a newly created metaobject field. All21 representative typed cases, lifecycle, bulk, diagnostics and disposable cleanup passed. Full evidence: `docs/evidence/metafields-popover-validation-2026-10-03.json`.
+
+The first staging attempt deployed the Worker and passed health/session reads, then exposed a missing `node:assert/strict` import in the new offline rule-readback probe. Disposable cleanup passed. PR177 corrected that import; the repeated acceptance above passed. Production and billing were not changed. Three compliance webhooks were enqueued; independent receipt acceptance remains pending.
+
+Validation location: Fields & values → Create/Edit custom definition → Access and options → Value validation. Choose a type first; its supported rules appear as labeled controls. Blank a rule to remove it, then save. New metaobject fields expose the same editor; changing existing metaobject field validation is outside this change.
 
 | Request | Implementation |
 | --- | --- |
