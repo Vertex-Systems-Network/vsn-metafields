@@ -112,10 +112,6 @@ export default function App() {
         <Link to="/app" rel="home">
           Fields & values
         </Link>
-        <Link to="/app/packages">Plans</Link>
-        <Link to="/app/metaobjects">Metaobjects</Link>
-        <Link to="/app/import">Import / export</Link>
-        <Link to="/app/guide">Help center</Link>
       </NavMenu>
       <Workspace>
         <Outlet />

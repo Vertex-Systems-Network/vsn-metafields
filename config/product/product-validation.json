@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "pending_applicability_detection",
+  "status": "merchant_task_contract_defined_actual_observation_pending",
   "activation_scope": "child_project",
   "problem_validation": {
     "target_users_or_jobs_to_be_done_required": true,

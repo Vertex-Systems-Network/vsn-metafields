@@ -1,17 +1,20 @@
 {
   "schema_version": 1,
-  "status": "pending_assurance_classification",
+  "status": "project_classified_acceptance_pending",
   "activation_scope": "child_project",
-  "last_reconciled_at": null,
-  "last_reconciled_ref": null,
+  "last_reconciled_at": "2026-10-03T16:50:34.633581+00:00",
+  "last_reconciled_ref": "44ed908e7d70db1684f8f467f0390125f0b890c1",
   "requirements": [
     {
       "requirement_id": "REQ-83",
       "name": "AI / LLM Evaluation and Model Assurance",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "not_applicable",
+      "state": "not_applicable",
+      "reason": "The shipped Shopify app manages merchant fields, values, imports and typed Liquid rendering without an AI/LLM/RAG decision path. AI used to develop source does not make product behavior an AI runtime.",
+      "evidence_refs": [
+        "app/product-config.js",
+        "package.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": []
@@ -19,32 +22,43 @@
     {
       "requirement_id": "REQ-84",
       "name": "User Research, Problem Validation and UX Validation",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "verification_required",
+      "reason": "User design feedback and beginner task documentation exist. Actual merchant task observation and authenticated usability acceptance are still required.",
+      "evidence_refs": [
+        "config/design/design-intake.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Authenticated merchant task and actual screenshot evidence pending."
+      ]
     },
     {
       "requirement_id": "REQ-85",
       "name": "Product Analytics and Outcome Evidence",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "in_progress",
+      "reason": "Outcome metrics need a privacy-bounded definition and verified baseline; deployment/test counts do not prove merchant activation or conversion.",
+      "evidence_refs": [
+        "docs/ai/REMAINING-WORK-CLOSURE.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Instrumentation/actual task-completion and adoption outcome evidence pending."
+      ]
     },
     {
       "requirement_id": "REQ-86",
       "name": "Experimentation and Hypothesis Lifecycle",
       "applicability": "optional",
       "state": "not_started",
-      "reason": "Activate only when a bounded experiment is justified.",
-      "evidence_refs": [],
+      "reason": "No A/B or paid-plan conversion experiment is authorized or selected; optional experiments must not block basic implementation.",
+      "evidence_refs": [
+        "docs/ai/METAFIELDS-DISCOVERY.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": []
@@ -52,32 +66,45 @@
     {
       "requirement_id": "REQ-87",
       "name": "Progressive Delivery and Feature Safety",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "verification_required",
+      "reason": "Exact-source isolated staging releases passed. Progressive main/live rollout and current release-candidate stop/rollback acceptance remain separate.",
+      "evidence_refs": [
+        "docs/development-release-flow.md",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "META-012 production rollout not started."
+      ]
     },
     {
       "requirement_id": "REQ-88",
       "name": "AI-Generated Engineering Quality and Maintainability Review",
       "applicability": "applicable",
-      "state": "not_started",
-      "reason": "Engineering-quality review is part of major module completion/release readiness.",
-      "evidence_refs": [],
+      "state": "verification_required",
+      "reason": "Authorized source self-review and deterministic/service checks exist; final release review and applicable browser/theme/performance evidence remain pending.",
+      "evidence_refs": [
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/ai/SIDEBAR-BEGINNER-HELP-REPORT.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "No independent release review or full browser acceptance certified."
+      ]
     },
     {
       "requirement_id": "REQ-89",
       "name": "Responsible AI and Human Oversight",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "not_applicable",
+      "state": "not_applicable",
+      "reason": "The product makes no AI-driven eligibility, employment, lending, healthcare or other high-impact automated decisions. Development-agent permissions stay governed separately.",
+      "evidence_refs": [
+        "PROJECT-IDEA.md",
+        "package.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": []
@@ -85,32 +112,45 @@
     {
       "requirement_id": "REQ-90",
       "name": "Privacy, Regulatory and Compliance Evidence",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "verification_required",
+      "reason": "Shop sessions, merchant values and Shopify mandatory privacy webhooks require verified engineering privacy controls. Enqueue success is not signed-delivery receipt or a legal compliance conclusion.",
+      "evidence_refs": [
+        "docs/ai/REMAINING-WORK-CLOSURE.md",
+        "config/data/data-governance.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Signed compliance webhook receipt verification and applicable human privacy/retention review pending."
+      ]
     },
     {
       "requirement_id": "REQ-91",
       "name": "Architecture Decision Records",
       "applicability": "applicable",
-      "state": "not_started",
-      "reason": "Material architecture decisions require durable decision traceability.",
-      "evidence_refs": [],
+      "state": "verification_required",
+      "reason": "Existing accepted ownership/access ADR is durable, while architecture registry proposals need reconciliation to implemented decisions and final acceptance.",
+      "evidence_refs": [
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "config/architecture/decision-records.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Architecture registry proposals have not been fully reconciled or acceptance-certified."
+      ]
     },
     {
       "requirement_id": "REQ-92",
       "name": "AI Asset and Configuration Registry",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "not_applicable",
+      "state": "not_applicable",
+      "reason": "No behavior-producing model, prompt, embedding or retrieval configuration ships in this conventional Shopify application. Git/source and normal API contracts identify product behavior.",
+      "evidence_refs": [
+        "package.json",
+        "app/shopify.server.js"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": []
@@ -118,46 +158,68 @@
     {
       "requirement_id": "REQ-93",
       "name": "Compatibility, Deprecation and End-of-Life Management",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "in_progress",
+      "reason": "Node22.13..<23, pinned Admin API2026-07 and exact dependency locks are enforced. Formal support/EOL review and notification ownership are not fully recorded.",
+      "evidence_refs": [
+        "package.json",
+        "package-lock.json",
+        "app/metafield-capabilities.js",
+        "docs/ai/REMAINING-WORK-CLOSURE.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Upstream support/EOL monitoring and owner assignment pending; no removal dates invented."
+      ]
     },
     {
       "requirement_id": "REQ-94",
       "name": "Operational Runbooks and Resilience Drills",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "in_progress",
+      "reason": "Existing production rollback certification and feature staging guards are recorded. Feature-specific recovery runbooks are added; provider restore/outage drills are not claimed.",
+      "evidence_refs": [
+        "docs/operations/metafields-recovery.md",
+        "docs/development-release-flow.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Current feature provider backup/restore and outage drill evidence pending."
+      ]
     },
     {
       "requirement_id": "REQ-95",
       "name": "Tamper-Evident Audit Journal",
-      "applicability": "pending_detection",
-      "state": "not_started",
-      "reason": null,
-      "evidence_refs": [],
+      "applicability": "applicable",
+      "state": "in_progress",
+      "reason": "GitHub PR/CI/release identities are reconstructable. A policy template does not certify a signed append-only external privileged audit journal.",
+      "evidence_refs": [
+        "docs/ai/REMAINING-WORK-CLOSURE.md",
+        "config/audit/audit-journal.json"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Tamper-evident privileged audit runtime certification pending."
+      ]
     },
     {
       "requirement_id": "REQ-96",
       "name": "Unified Risk and Exception Register",
       "applicability": "applicable",
-      "state": "not_started",
-      "reason": "Material project risks and time-bounded exceptions require unified lifecycle tracking.",
-      "evidence_refs": [],
+      "state": "in_progress",
+      "reason": "Production subscription/rollback and protected-data risks are recorded with pending acceptance. They must remain open until real mitigations/owners and applicable release checks are verified.",
+      "evidence_refs": [
+        "config/risk/risk-register.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md"
+      ],
       "last_verified_ref": null,
       "last_verified_at": null,
-      "blocking_findings": []
+      "blocking_findings": [
+        "Actual release risk-owner assignment and residual-risk disposition pending."
+      ]
     }
   ],
   "allowed_applicability": [

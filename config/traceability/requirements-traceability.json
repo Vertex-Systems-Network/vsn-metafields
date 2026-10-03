@@ -16,7 +16,10 @@
         "META-002",
         "META-003"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "plan/anpos-metafields-expansion",
@@ -30,14 +33,24 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/evidence/metafields-final-staging-2026-10-02.json",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -55,7 +68,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -75,7 +96,10 @@
         "META-006",
         "META-009"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "plan/anpos-metafields-expansion",
@@ -90,14 +114,24 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/evidence/metafields-storefront-qa-2026-10-03.json",
         "tests/storefront-refresh.test.mjs",
-        "tests/storefront.test.mjs"
+        "tests/storefront.test.mjs",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -117,7 +151,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -206,14 +248,24 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/162",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/evidence/metafields-final-staging-2026-10-02.json",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -231,7 +283,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -251,7 +311,10 @@
         "META-011",
         "META-012"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "plan/anpos-metafields-expansion",
@@ -266,14 +329,24 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/evidence/metafields-storefront-qa-2026-10-03.json",
         "tests/storefront-refresh.test.mjs",
-        "tests/storefront.test.mjs"
+        "tests/storefront.test.mjs",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -293,7 +366,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -315,7 +396,10 @@
         "META-005",
         "META-011"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "plan/anpos-metafields-expansion",
@@ -330,14 +414,24 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/167",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/evidence/metafields-storefront-qa-2026-10-03.json",
         "tests/storefront-refresh.test.mjs",
-        "tests/storefront.test.mjs"
+        "tests/storefront.test.mjs",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -357,7 +451,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -375,7 +477,10 @@
       "work_unit_ids": [
         "META-004"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "development"
@@ -384,12 +489,22 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -405,7 +520,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -432,12 +555,22 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -453,7 +586,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -480,12 +621,22 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -504,7 +655,15 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
       "status": "implemented",
       "verification_status": "partially_verified"
@@ -522,7 +681,10 @@
       "work_unit_ids": [
         "META-010"
       ],
-      "design_surface_refs": [],
+      "design_surface_refs": [
+        "config/design/design-intake.json",
+        "config/design/design-assurance.json"
+      ],
       "design_component_refs": [],
       "branch_refs": [
         "development"
@@ -531,12 +693,22 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/158",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/163",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/164",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/165",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
@@ -552,8 +724,58 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37060758630",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37061195975",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066444570",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37066820946",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115267064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37115439884",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117727013",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37117885064",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121328080",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37121554175",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131714509",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37131931720"
       ],
+      "status": "implemented",
+      "verification_status": "partially_verified"
+    },
+    {
+      "requirement_id": "REQ-META-011",
+      "source": "2026-10-03 current user instruction: Shopify admin menu must not duplicate page links already in the dashboard; continue remaining work.",
+      "source_provenance_ref": "docs/ai/REMAINING-WORK-CLOSURE.md",
+      "option_ids": [
+        "OPT-META-001",
+        "OPT-META-004"
+      ],
+      "module_ids": [
+        "MOD-META-OPERATIONS"
+      ],
+      "work_unit_ids": [
+        "META-010",
+        "META-011"
+      ],
+      "design_surface_refs": [
+        "config/design/design-intake.json"
+      ],
+      "design_component_refs": [
+        "app/routes/app.jsx",
+        "app/components/Workspace.jsx"
+      ],
+      "branch_refs": [],
+      "pull_request_refs": [],
+      "test_evidence": [
+        "tests/app-contracts.test.mjs",
+        "tests/search-workspace.test.mjs"
+      ],
+      "visual_evidence_refs": [],
+      "accessibility_evidence_refs": [],
+      "security_evidence_refs": [],
+      "threat_model_refs": [],
+      "migration_refs": [],
+      "artifact_refs": [
+        "docs/ai/REMAINING-WORK-CLOSURE.md"
+      ],
+      "sbom_refs": [],
+      "attestation_refs": [],
+      "release_refs": [],
       "status": "implemented",
       "verification_status": "partially_verified"
     }

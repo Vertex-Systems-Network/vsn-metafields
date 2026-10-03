@@ -1,5 +1,6 @@
 # Metafields expansion — research and market comparison
 
+Historical planning snapshot: initial2026-10-01 facts/status below are retained for provenance. Current implementation and acceptance are governed by `config/ai/execution-plan.json`, `config/ai/modules-bank.json`, `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md` and exact release evidence through v1.2.1. This snapshot is not the current completion report.
 Status: initial evidence, not a validated market position (2026-10-01).
 
 | Capability | Shopify native | Metafields Guru public claim | VSN current |

@@ -1,5 +1,6 @@
 # Storefront block blueprint — planning, not shipped
 
+Historical planning snapshot: initial2026-10-01 facts/status below are retained for provenance. Current implementation and acceptance are governed by `config/ai/execution-plan.json`, `config/ai/modules-bank.json`, `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md` and exact release evidence through v1.2.1. This snapshot is not the current completion report.
 ## Merchant journey
 
 Create or enable a definition → set a typed value on a supported resource → choose a compatible theme app block → select its contextual data source → configure presentation → preview populated and empty states → publish. The app should show why a definition is not eligible for a given template instead of offering a source that renders nothing.

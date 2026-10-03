@@ -71,7 +71,7 @@ test("local React Router actions allow only the current Shopify tunnel origin", 
   assert.doesNotMatch(config, /up\.railway\.app/);
 });
 
-test("embedded app navigation follows Shopify React Router NavMenu pattern", () => {
+test("Shopify admin sets only the hidden home route; page navigation lives in the workspace", () => {
   const app = read("app/routes/app.jsx");
   const index = read("app/routes/app._index.jsx");
 
@@ -79,7 +79,9 @@ test("embedded app navigation follows Shopify React Router NavMenu pattern", () 
   assert.match(app, /import \{ NavMenu \} from "@shopify\/app-bridge-react"/);
   assert.match(app, /<NavMenu>/);
   assert.match(app, /<Link to="\/app" rel="home">\s*Fields & values\s*<\/Link>/);
-  assert.match(app, /<Link to="\/app\/packages">Plans<\/Link>/);
+  const menu = app.match(/<NavMenu>([\s\S]*?)<\/NavMenu>/)?.[1];
+  assert.equal((menu.match(/<Link\b/g) || []).length, 1);
+  assert.doesNotMatch(menu, /\/app\/(packages|metaobjects|import|guide)/);
 
   assert.match(index, /import \{ Link, useFetcher, useLocation \} from "react-router"/);
   assert.match(index, /pathname:\s*"\/app\/packages"/);
