@@ -30,14 +30,12 @@ export default function Guide() {
           Connection & permissions
         </a>
       </PageIntro>
-      <label htmlFor="help-search">Search guides and troubleshooting</label>
-      <input
+      <s-search-field
         id="help-search"
-        className="vsn-help-search"
-        type="search"
+        label="Search guides and troubleshooting"
         placeholder="Try: CSV, public access, billing or theme blocks"
         value={search}
-        onChange={(event) => setSearch(event.target.value)}
+        onInput={(event) => setSearch(event.currentTarget.value)}
       />
       <div aria-live="polite" className="vsn-context-help">
         {matches.length} guides found

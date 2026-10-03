@@ -6,7 +6,7 @@ import {
   useFetchers,
 } from "react-router";
 import PropTypes from "prop-types";
-import { APP_NAME } from "../product-config";
+import { APP_NAME, APP_VERSION } from "../product-config";
 import { LoadingState } from "./LoadingState";
 
 export function Workspace({ children }) {
@@ -26,7 +26,7 @@ export function Workspace({ children }) {
     ["/app/guide", "Help center"],
   ];
   return (
-    <div className="vsn-workspace">
+    <div className={`vsn-workspace${busy ? " is-busy" : ""}`}>
       <header className="vsn-header">
         <Link
           className="vsn-brand"
@@ -37,6 +37,12 @@ export function Workspace({ children }) {
             V
           </span>
           <span>{APP_NAME}</span>
+          <span
+            className="vsn-version"
+            aria-label={`App version ${APP_VERSION}`}
+          >
+            v{APP_VERSION}
+          </span>
         </Link>
         <Link className="vsn-help-link" to={{ pathname: "/app/guide", search }}>
           Need a hand? <span aria-hidden="true">↗</span>

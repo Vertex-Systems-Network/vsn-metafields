@@ -8,6 +8,15 @@ import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 import { APP_NAME } from "../product-config";
+import SearchableSelect from "../components/SearchableSelect";
+import FieldIcon from "../components/FieldIcon";
+import {
+  definitionKey,
+  fieldTypeOption,
+  filterDefinitions,
+  resourceLabel,
+  mergeTemplatePage,
+} from "../field-presentation";
 import {
   OWNER_TYPES,
   PUBLIC_OWNERS,
@@ -33,6 +42,7 @@ export default function Index() {
   const [name, setName] = useState("");
   const [namespace, setNamespace] = useState("vsn_metafields");
   const [key, setKey] = useState("");
+  const [keyEdited, setKeyEdited] = useState(false);
   const [type, setType] = useState("single_line_text_field");
   const [description, setDescription] = useState("");
   const [validations, setValidations] = useState("[]");
@@ -42,6 +52,12 @@ export default function Index() {
   const [templateSearch, setTemplateSearch] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [filter, setFilter] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterAccess, setFilterAccess] = useState("");
+  const [templatePages, setTemplatePages] = useState({
+    ownerType: "",
+    templates: [],
+  });
   const [resourceId, setResourceId] = useState("");
   const [valueIdentity, setValueIdentity] = useState("");
   const [fieldValue, setFieldValue] = useState("");
@@ -55,12 +71,13 @@ export default function Index() {
       ? fieldsFetcher.data.types || []
       : [];
   const templates =
-    standardsFetcher.data?.ownerType === ownerType
-      ? standardsFetcher.data.templates || []
-      : [];
+    templatePages.ownerType === ownerType ? templatePages.templates : [];
+  const existingDefinitions = new Set(
+    fields.map((field) => `${field.namespace}.${field.key}`),
+  );
   const matchingTemplates = templates.filter(
     (item) =>
-      !item.enabled &&
+      !existingDefinitions.has(`${item.namespace}.${item.key}`) &&
       `${item.name} ${item.namespace}.${item.key}`
         .toLowerCase()
         .includes(templateSearch.trim().toLowerCase()),
@@ -73,6 +90,12 @@ export default function Index() {
     (field) => `${field.namespace}:${field.key}` === valueIdentity,
   );
   const selectedType = types.find((item) => item.name === type);
+  const visibleFields = filterDefinitions(fields, {
+    search: filter,
+    type: filterType,
+    access: filterAccess,
+  });
+  const typeOptions = types.map(fieldTypeOption);
   const ready =
     fieldsFetcher.data?.ok &&
     fieldsFetcher.data.ownerType === ownerType &&
@@ -107,6 +130,11 @@ export default function Index() {
   useEffect(() => {
     if (statusFetcher.data?.hasActivePlan) reload();
   }, [statusFetcher.data?.hasActivePlan, reload]);
+  useEffect(() => {
+    const page = standardsFetcher.data;
+    if (!page?.ok || page.ownerType !== ownerType) return;
+    setTemplatePages((previous) => mergeTemplatePage(previous, page));
+  }, [standardsFetcher.data, ownerType]);
   useEffect(() => {
     if (
       actionFetcher.data?.success &&
@@ -183,6 +211,7 @@ export default function Index() {
     setName(field.name);
     setNamespace(field.namespace);
     setKey(field.key);
+    setKeyEdited(true);
     setType(field.type);
     setDescription(field.description || "");
     setStorefront(PUBLIC_OWNERS.has(ownerType) ? field.storefront : "NONE");
@@ -199,6 +228,13 @@ export default function Index() {
     setNamespace("vsn_metafields");
     setName("");
     setKey("");
+    setKeyEdited(false);
+    setTemplatePages({ ownerType: "", templates: [] });
+    setTemplateSearch("");
+    setFilter("");
+    setFilterType("");
+    setFilterAccess("");
+    setResourceSearch("");
     setDescription("");
     setValidations("[]");
   };
@@ -338,22 +374,19 @@ export default function Index() {
         <LoadingState label="Finding references…" />
       )}
       <s-section heading="Resource and capabilities">
-        <s-select
+        <SearchableSelect
           label="Metafield resource"
           value={ownerType}
-          onInput={(event) => changeOwner(event.target.value)}
-        >
-          {OWNER_TYPES.map((owner) => (
-            <s-option
-              key={owner}
-              value={owner}
-              disabled={owner === "MEDIA_IMAGE"}
-            >
-              {owner.replaceAll("_", " ")}
-              {owner === "MEDIA_IMAGE" ? " (deprecated)" : ""}
-            </s-option>
-          ))}
-        </s-select>
+          onChange={changeOwner}
+          options={OWNER_TYPES.map((owner) => ({
+            value: owner,
+            label: resourceLabel(owner),
+            keywords: owner,
+            disabled: owner === "MEDIA_IMAGE",
+          }))}
+          searchPlaceholder="Search products, collections, pages…"
+          details="Choose the Shopify resource that owns your metafields."
+        />
         <s-text>
           Admin API {METAFIELD_API_VERSION}. Availability depends on your store
           and granted app permissions.
@@ -394,119 +427,191 @@ export default function Index() {
       {actionFetcher.data?.error && (
         <s-banner tone="critical">{actionFetcher.data.error}</s-banner>
       )}
-      <div id="definition-editor" />
+      <div id="definition-editor" className="vsn-scroll-target" />
       <s-section
         heading={
           editingField ? "Edit definition metadata" : "Create custom definition"
         }
       >
-        <s-stack gap="base">
-          <s-text-field
-            label="Name"
-            value={name}
-            onInput={(event) => setName(event.target.value)}
-          />
-          <s-text-field
-            label="Namespace"
-            disabled={Boolean(editingField)}
-            value={namespace}
-            onInput={(event) => setNamespace(event.target.value)}
-          />
-          <s-text-field
-            label="Key"
-            disabled={Boolean(editingField)}
-            value={key}
-            onInput={(event) => setKey(event.target.value)}
-          />
-          <s-select
-            label="Type"
-            disabled={Boolean(editingField)}
-            value={type}
-            onInput={(event) => {
-              setType(event.target.value);
-              setValidations("[]");
-            }}
-          >
-            {types.map((item) => (
-              <s-option key={item.name} value={item.name}>
-                {item.category}: {item.name}
-              </s-option>
-            ))}
-          </s-select>
-          <s-text-field
-            label="Description"
-            value={description}
-            onInput={(event) => setDescription(event.target.value)}
-          />
-          <s-select
-            label="Storefront access"
-            value={storefront}
-            onInput={(event) => setStorefront(event.target.value)}
-          >
-            <s-option value="NONE">Storefront API: no access</s-option>
-            {PUBLIC_OWNERS.has(ownerType) && (
-              <s-option value="PUBLIC_READ">
-                Storefront API: public read
-              </s-option>
-            )}
-          </s-select>
-          <s-checkbox
-            label="Pin in Shopify admin"
-            checked={pin}
-            onChange={(event) => setPin(event.target.checked)}
-          />
-          {!editingField && (
-            <details>
-              <summary>Definition validation rules</summary>
-              <p>
-                Supported rules:{" "}
-                {selectedType?.supportedValidations
-                  ?.map((rule) => rule.name)
-                  .join(", ") || "none"}
-                . Use a JSON array of name/value objects; Shopify validates the
-                rule values.
+        <div className="vsn-definition-layout">
+          <div className="vsn-definition-form">
+            <div className="vsn-form-group">
+              <h3>Definition details</h3>
+              <p className="vsn-field-details">
+                Give the field a clear name, then choose the content it will
+                hold.
               </p>
-              <label htmlFor="definition-validations">
-                Validation rules (JSON)
-              </label>
-              <textarea
-                id="definition-validations"
-                rows={4}
-                value={validations}
-                onChange={(event) => setValidations(event.target.value)}
-                style={{ display: "block", width: "100%" }}
+              <s-text-field
+                label="Name"
+                value={name}
+                placeholder="e.g. Care instructions"
+                onInput={(event) => {
+                  setName(event.currentTarget.value);
+                  if (!editingField && !keyEdited)
+                    setKey(definitionKey(event.currentTarget.value));
+                }}
               />
-            </details>
-          )}
-          {editingField && (
-            <s-text>
-              Namespace, key and type stay fixed. Changing a type requires a
-              separately previewed data migration.
-            </s-text>
-          )}
-          <ActionButton
-            variant="primary"
-            disabled={!ready || busy || !name.trim() || !key.trim()}
-            loading={busy}
-            onClick={saveDefinition}
+              <div className="vsn-form-row">
+                <s-text-field
+                  label="Namespace"
+                  disabled={Boolean(editingField)}
+                  value={namespace}
+                  onInput={(event) => setNamespace(event.target.value)}
+                />
+                <s-text-field
+                  label="Key"
+                  disabled={Boolean(editingField)}
+                  value={key}
+                  onInput={(event) => {
+                    setKey(event.currentTarget.value);
+                    setKeyEdited(true);
+                  }}
+                  details={
+                    editingField
+                      ? "Fixed after creation to preserve existing values."
+                      : "Generated from the name. You can customize it before saving."
+                  }
+                />
+              </div>
+              {!editingField && keyEdited && (
+                <button
+                  type="button"
+                  className="vsn-text-button"
+                  onClick={() => {
+                    setKeyEdited(false);
+                    setKey(definitionKey(name));
+                  }}
+                >
+                  Use key from name
+                </button>
+              )}
+              <SearchableSelect
+                label="Type"
+                disabled={Boolean(editingField)}
+                value={type}
+                options={typeOptions}
+                onChange={(value) => {
+                  setType(value);
+                  setValidations("[]");
+                }}
+                searchPlaceholder="Search text, number, file, metaobject…"
+                details="One stores a single value. List stores multiple values."
+              />
+              <s-text-area
+                label="Description"
+                value={description}
+                onInput={(event) => setDescription(event.target.value)}
+              />
+            </div>
+            <div className="vsn-form-group">
+              <h3>Access and options</h3>
+              <s-select
+                label="Storefront access"
+                value={storefront}
+                onInput={(event) => setStorefront(event.target.value)}
+              >
+                <s-option value="NONE">Storefront API: no access</s-option>
+                {PUBLIC_OWNERS.has(ownerType) && (
+                  <s-option value="PUBLIC_READ">
+                    Storefront API: public read
+                  </s-option>
+                )}
+              </s-select>
+              <s-checkbox
+                label="Pin in Shopify admin"
+                checked={pin}
+                onChange={(event) => setPin(event.target.checked)}
+              />
+              {!editingField && (
+                <details>
+                  <summary>Definition validation rules</summary>
+                  <p>
+                    Supported rules:{" "}
+                    {selectedType?.supportedValidations
+                      ?.map((rule) => rule.name)
+                      .join(", ") || "none"}
+                    . Use a JSON array of name/value objects; Shopify validates
+                    the rule values.
+                  </p>
+                  <label htmlFor="definition-validations">
+                    Validation rules (JSON)
+                  </label>
+                  <textarea
+                    id="definition-validations"
+                    rows={4}
+                    value={validations}
+                    onChange={(event) => setValidations(event.target.value)}
+                    style={{ display: "block", width: "100%" }}
+                  />
+                </details>
+              )}
+              {editingField && (
+                <s-text>
+                  Namespace, key and type stay fixed. Changing a type requires a
+                  separately previewed data migration.
+                </s-text>
+              )}
+            </div>
+            <div className="vsn-form-actions">
+              <ActionButton
+                variant="primary"
+                disabled={!ready || busy || !name.trim() || !key.trim()}
+                loading={busy}
+                onClick={saveDefinition}
+              >
+                Save definition
+              </ActionButton>
+              {editingField && (
+                <ActionButton
+                  onClick={() => {
+                    setEditingField(null);
+                    setName("");
+                    setKey("");
+                    setKeyEdited(false);
+                    setNamespace("vsn_metafields");
+                    setDescription("");
+                    setStorefront("NONE");
+                  }}
+                >
+                  Cancel edit
+                </ActionButton>
+              )}
+            </div>
+          </div>
+          <aside
+            className="vsn-definition-preview"
+            aria-label="Definition preview"
           >
-            Save definition
-          </ActionButton>
-          {editingField && (
-            <ActionButton
-              onClick={() => {
-                setEditingField(null);
-                setName("");
-                setKey("");
-                setNamespace("vsn_metafields");
-                setDescription("");
-                setStorefront("NONE");
-              }}
-            >
-              Cancel edit
-            </ActionButton>
-          )}
-        </s-stack>
+            <div className="vsn-eyebrow">Definition preview</div>
+            <h3>{name.trim() || "Your field name"}</h3>
+            <code>
+              {namespace || "namespace"}.{key || "key"}
+            </code>
+            <div className="vsn-preview-type">
+              <FieldIcon type={fieldTypeOption({ name: type }).icon} />
+              <span>{fieldTypeOption({ name: type }).label}</span>
+              <span className="vsn-type-badge">
+                {type.startsWith("list.") ? "List" : "One"}
+              </span>
+            </div>
+            <dl>
+              <div>
+                <dt>Resource</dt>
+                <dd>{resourceLabel(ownerType)}</dd>
+              </div>
+              <div>
+                <dt>Storefront</dt>
+                <dd>
+                  {storefront === "PUBLIC_READ" ? "Public read" : "No access"}
+                </dd>
+              </div>
+            </dl>
+            <p>
+              After saving, add values to a resource. Use the namespace and key
+              to connect a theme block.
+            </p>
+          </aside>
+        </div>
       </s-section>
       <s-section heading="Shopify standard definitions">
         <s-text>
@@ -517,8 +622,9 @@ export default function Index() {
           standardsFetcher.data.error && (
             <s-banner tone="warning">{standardsFetcher.data.error}</s-banner>
           )}
-        <s-text-field
+        <s-search-field
           label="Search standard templates"
+          placeholder="Search loaded templates by name or namespace.key"
           value={templateSearch}
           onInput={(event) => {
             setTemplateSearch(event.target.value);
@@ -526,40 +632,107 @@ export default function Index() {
           }}
         />
         <s-text>
-          {matchingTemplates.length} available matches. Showing the first 50;
-          search by name or namespace.key to narrow the list.
+          {matchingTemplates.length} matches in {templates.length} loaded
+          templates for this resource.
+          {templatePages.ownerType !== ownerType
+            ? " Catalog is not loaded yet. Refresh capabilities to retry."
+            : templatePages.pageInfo?.hasNextPage
+              ? " Load more to search the next catalog page."
+              : " All catalog pages loaded."}
         </s-text>
-        <s-select
+        {standardsFetcher.state !== "idle" && (
+          <LoadingState label="Loading a page of Shopify templates…" />
+        )}
+        <SearchableSelect
           label="Standard template"
           value={templateId}
-          onInput={(event) => setTemplateId(event.target.value)}
-        >
-          <s-option value="">Choose a template</s-option>
-          {matchingTemplates.slice(0, 50).map((item) => (
-            <s-option key={item.id} value={item.id}>
-              {item.name} — {item.namespace}.{item.key}
-            </s-option>
-          ))}
-        </s-select>
+          onChange={setTemplateId}
+          options={matchingTemplates.map((item) => ({
+            value: item.id,
+            label: item.name,
+            keywords: `${item.namespace}.${item.key}`,
+            icon: fieldTypeOption({ name: item.type }).icon,
+          }))}
+          placeholder="Choose a template"
+          searchPlaceholder="Search loaded templates"
+        />
+        {templatePages.ownerType === ownerType &&
+          templatePages.pageInfo?.hasNextPage && (
+            <ActionButton
+              loading={standardsFetcher.state !== "idle"}
+              onClick={() =>
+                loadStandards(
+                  apiUrl("/app/api/fields", {
+                    ownerType,
+                    catalog: "standard",
+                    after: templatePages.pageInfo.endCursor,
+                  }),
+                )
+              }
+            >
+              Load more templates
+            </ActionButton>
+          )}
         <ActionButton
           disabled={
             !ready ||
             busy ||
-            !templates.some((item) => item.id === templateId && !item.enabled)
+            standardsFetcher.state !== "idle" ||
+            !matchingTemplates.some((item) => item.id === templateId)
           }
           onClick={() =>
-            submit({ actionType: "enable-standard", templateId, storefront })
+            submit({
+              actionType: "enable-standard",
+              templateId,
+              templateCursor:
+                matchingTemplates.find((item) => item.id === templateId)
+                  ?.catalogCursor || "",
+              storefront,
+            })
           }
         >
           Enable template
         </ActionButton>
       </s-section>
       <s-section heading="Registered definitions">
-        <s-text-field
-          label="Filter by name, namespace or key"
-          value={filter}
-          onInput={(event) => setFilter(event.target.value)}
-        />
+        <div className="vsn-filter-bar">
+          <s-search-field
+            label="Filter by name, namespace or key"
+            labelAccessibilityVisibility="exclusive"
+            placeholder="Search definitions by name, namespace or key"
+            value={filter}
+            onInput={(event) => setFilter(event.target.value)}
+          />
+          <SearchableSelect
+            label="Field type"
+            value={filterType}
+            options={[{ value: "", label: "All types" }, ...typeOptions]}
+            onChange={setFilterType}
+          />
+          <s-select
+            label="Storefront access"
+            value={filterAccess}
+            onInput={(event) => setFilterAccess(event.currentTarget.value)}
+          >
+            <s-option value="">All access</s-option>
+            <s-option value="NONE">No access</s-option>
+            <s-option value="PUBLIC_READ">Public read</s-option>
+          </s-select>
+          {(filter || filterType || filterAccess) && (
+            <ActionButton
+              onClick={() => {
+                setFilter("");
+                setFilterType("");
+                setFilterAccess("");
+              }}
+            >
+              Clear filters
+            </ActionButton>
+          )}
+        </div>
+        <p className="vsn-filter-count" role="status">
+          {visibleFields.length} of {fields.length} definitions
+        </p>
         <s-table>
           <s-table-header-row>
             <s-table-header>Name</s-table-header>
@@ -568,55 +741,68 @@ export default function Index() {
             <s-table-header>Actions</s-table-header>
           </s-table-header-row>
           <s-table-body>
-            {fields
-              .filter((field) =>
-                `${field.name} ${field.namespace}.${field.key}`
-                  .toLowerCase()
-                  .includes(filter.toLowerCase()),
-              )
-              .map((field) => (
-                <s-table-row key={field.id}>
-                  <s-table-cell>{field.name}</s-table-cell>
-                  <s-table-cell>
-                    {field.namespace}.{field.key}
-                  </s-table-cell>
-                  <s-table-cell>
-                    {field.type} / {field.storefront}
-                  </s-table-cell>
-                  <s-table-cell>
-                    <ActionButton
-                      disabled={!ready || busy || !field.editable}
-                      onClick={() => edit(field)}
-                    >
-                      Edit
-                    </ActionButton>
-                    <ActionButton
-                      tone="critical"
-                      disabled={!ready || busy || !field.editable}
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `Remove ${ownerType} definition ${field.namespace}.${field.key}? Existing values will be retained.`,
-                          )
+            {visibleFields.map((field) => (
+              <s-table-row key={field.id}>
+                <s-table-cell>{field.name}</s-table-cell>
+                <s-table-cell>
+                  {field.namespace}.{field.key}
+                </s-table-cell>
+                <s-table-cell>
+                  <div className="vsn-table-type">
+                    <FieldIcon
+                      type={fieldTypeOption({ name: field.type }).icon}
+                    />
+                    <span>{fieldTypeOption({ name: field.type }).label}</span>
+                    <span className="vsn-type-badge">
+                      {field.type.startsWith("list.") ? "List" : "One"}
+                    </span>
+                  </div>
+                  <span className="vsn-field-details">
+                    {field.storefront === "PUBLIC_READ"
+                      ? "Public read"
+                      : "No storefront access"}
+                  </span>
+                </s-table-cell>
+                <s-table-cell>
+                  <ActionButton
+                    disabled={!ready || busy || !field.editable}
+                    onClick={() => edit(field)}
+                  >
+                    Edit
+                  </ActionButton>
+                  <ActionButton
+                    tone="critical"
+                    disabled={!ready || busy || !field.editable}
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `Remove ${ownerType} definition ${field.namespace}.${field.key}? Existing values will be retained.`,
                         )
-                          submit({
-                            actionType: "delete",
-                            id: field.id,
-                            namespace: field.namespace,
-                            key: field.key,
-                            confirm: `DELETE_DEFINITION:${ownerType}:${field.namespace}:${field.key}`,
-                          });
-                      }}
-                    >
-                      Remove
-                    </ActionButton>
-                  </s-table-cell>
-                </s-table-row>
-              ))}
+                      )
+                        submit({
+                          actionType: "delete",
+                          id: field.id,
+                          namespace: field.namespace,
+                          key: field.key,
+                          confirm: `DELETE_DEFINITION:${ownerType}:${field.namespace}:${field.key}`,
+                        });
+                    }}
+                  >
+                    Remove
+                  </ActionButton>
+                </s-table-cell>
+              </s-table-row>
+            ))}
           </s-table-body>
         </s-table>
         {ready && !fields.length && (
           <s-text>No definitions for this resource.</s-text>
+        )}
+        {ready && fields.length > 0 && !visibleFields.length && (
+          <s-text>
+            No definitions match these filters. Clear filters to see all
+            definitions.
+          </s-text>
         )}
       </s-section>
       {VALUE_OWNERS.has(ownerType) && (
@@ -626,49 +812,51 @@ export default function Index() {
             measurement, list or resource reference. Unsupported types remain in
             Shopify’s native editor.
           </s-text>
-          <s-text-field
-            label="Search resource title"
-            value={resourceSearch}
-            onInput={(event) => setResourceSearch(event.target.value)}
-          />
-          <ActionButton
-            onClick={() =>
-              resourcesFetcher.load(
-                apiUrl("/app/api/values", {
-                  ownerType,
-                  mode: "resources",
-                  search: resourceSearch,
-                }),
-              )
-            }
-          >
-            Search
-          </ActionButton>
-          <s-select
+          <div className="vsn-resource-search">
+            <s-search-field
+              label="Search resource title"
+              placeholder="Search by product or collection title"
+              value={resourceSearch}
+              onInput={(event) => setResourceSearch(event.target.value)}
+            />
+            <ActionButton
+              variant="info"
+              loading={resourcesFetcher.state !== "idle"}
+              onClick={() =>
+                resourcesFetcher.load(
+                  apiUrl("/app/api/values", {
+                    ownerType,
+                    mode: "resources",
+                    search: resourceSearch,
+                  }),
+                )
+              }
+            >
+              Search
+            </ActionButton>
+          </div>
+          <SearchableSelect
             label="Resource"
             value={resourceId}
-            onInput={(event) => {
-              setResourceId(event.target.value);
+            onChange={(value) => {
+              setResourceId(value);
               setFieldValue("");
             }}
-          >
-            <s-option value="">Choose a resource</s-option>
-            {resources.map((item) => (
-              <s-option key={item.id} value={item.id}>
-                {item.title}
-              </s-option>
-            ))}
-          </s-select>
-          <s-select
+            options={resources.map((item) => ({
+              value: item.id,
+              label: item.title,
+            }))}
+            placeholder="Choose a resource"
+            details="Search above to retrieve matching Shopify resources; search inside this select filters the loaded results."
+          />
+          <SearchableSelect
             label="Definition"
             value={valueIdentity}
-            onInput={(event) => {
-              setValueIdentity(event.target.value);
+            onChange={(value) => {
+              setValueIdentity(value);
               setFieldValue("");
             }}
-          >
-            <s-option value="">Choose a field</s-option>
-            {fields
+            options={fields
               .filter(
                 (item) =>
                   editableValueType(item.type) &&
@@ -676,12 +864,16 @@ export default function Index() {
                   item.namespace !== "shopify" &&
                   !item.namespace.startsWith("shopify--"),
               )
-              .map((item) => (
-                <s-option key={item.id} value={`${item.namespace}:${item.key}`}>
-                  {item.name} — {item.namespace}.{item.key}
-                </s-option>
-              ))}
-          </s-select>
+              .map((item) => ({
+                value: `${item.namespace}:${item.key}`,
+                label: item.name,
+                keywords: `${item.namespace}.${item.key}`,
+                icon: fieldTypeOption({ name: item.type }).icon,
+                badge: item.type.startsWith("list.") ? "List" : "One",
+              }))}
+            placeholder="Choose a field"
+            searchPlaceholder="Search by name, namespace or key"
+          />
           {valueReady && (
             <>
               <TypedValueInput

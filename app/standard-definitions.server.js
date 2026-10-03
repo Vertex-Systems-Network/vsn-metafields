@@ -14,40 +14,63 @@ export async function getStandardTemplates(admin, ownerType) {
       throw new Error(
         "Standard definition pagination exceeded the safe limit.",
       );
-    const response = await admin.graphql(
-      `#graphql
+    const batch = await getStandardTemplatePage(admin, ownerType, after);
+    templates.push(
+      ...batch.templates.map((item) => {
+        const template = { ...item };
+        delete template.catalogCursor;
+        return template;
+      }),
+    );
+    hasNextPage = batch.pageInfo.hasNextPage;
+    after = batch.pageInfo.endCursor;
+  }
+  return templates;
+}
+
+// Interactive requests fetch one page only. Full enumeration above is for the
+// offline acceptance probe, never a Worker route or template-enable action.
+export async function getStandardTemplatePage(admin, ownerType, cursor = null) {
+  ownerType = requireOwnerType(ownerType);
+  const after = cursor || null;
+  if (after !== null && (typeof after !== "string" || after.length > 2048))
+    throw new RangeError("Invalid standard template page cursor.");
+  const response = await admin.graphql(
+    `#graphql
       query StandardMetafieldCatalog($after: String) {
-        standardMetafieldDefinitionTemplates(first: 100, after: $after) {
+        standardMetafieldDefinitionTemplates(first: 250, after: $after) {
           nodes { id name namespace key description ownerTypes type { name } }
           pageInfo { hasNextPage endCursor }
         }
       }
     `,
-      { variables: { after } },
+    { variables: { after } },
+  );
+  const result = await response.json();
+  const connection = result?.data?.standardMetafieldDefinitionTemplates;
+  if (
+    result?.errors?.length ||
+    !Array.isArray(connection?.nodes) ||
+    !connection?.pageInfo
+  ) {
+    throw new Error(
+      result?.errors?.[0]?.message || "Could not load standard definitions.",
     );
-    const result = await response.json();
-    const connection = result?.data?.standardMetafieldDefinitionTemplates;
-    if (result?.errors?.length || !connection?.nodes || !connection?.pageInfo) {
-      throw new Error(
-        result?.errors?.[0]?.message || "Could not load standard definitions.",
-      );
-    }
-    templates.push(
-      ...connection.nodes.filter((template) =>
-        template.ownerTypes?.includes(ownerType),
-      ),
-    );
-    hasNextPage = Boolean(connection.pageInfo.hasNextPage);
-    if (
-      hasNextPage &&
-      (!connection.pageInfo.endCursor ||
-        connection.pageInfo.endCursor === after)
-    ) {
-      throw new Error("Standard definition pagination did not advance.");
-    }
-    after = connection.pageInfo.endCursor;
   }
-  return templates;
+  const hasNextPage = Boolean(connection.pageInfo.hasNextPage);
+  if (
+    hasNextPage &&
+    (!connection.pageInfo.endCursor || connection.pageInfo.endCursor === after)
+  ) {
+    throw new Error("Standard definition pagination did not advance.");
+  }
+  return {
+    templates: connection.nodes
+      .filter((template) => template.ownerTypes?.includes(ownerType))
+      .map((template) => ({ ...template, catalogCursor: after || "" })),
+    pageInfo: { hasNextPage, endCursor: connection.pageInfo.endCursor || null },
+    cursor: after || "",
+  };
 }
 
 export async function enableStandardTemplate(

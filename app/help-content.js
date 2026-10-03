@@ -8,8 +8,9 @@ const TOPICS = [
     link: "/app",
     action: "Open fields & values",
     steps: [
-      "Choose a resource, such as Product, Variant or Collection.",
-      "Choose a Shopify standard definition, or enter a custom field name, namespace, key and type.",
+      "Search Metafield resource and choose Product, Product variant or Collection.",
+      "Enter a custom field name. Its key is suggested automatically; edit it or choose Use key from name. Search Type and choose One or List. Review the definition preview before saving.",
+      "For Shopify standard definitions, search the loaded catalog and use Load more templates to browse additional pages. Each page is fetched separately.",
       "Save the definition. Its type and key cannot be changed here after creation.",
     ],
     faqs: [
@@ -32,6 +33,7 @@ const TOPICS = [
     action: "Open the value editor",
     steps: [
       "Select a definition and an existing resource in Resource values.",
+      "Use Search resource title to fetch matching Shopify resources. The Resource and Definition selects also search their loaded options.",
       "Enter the value in the displayed format. Lists and structured types use JSON; references use an existing resource ID.",
       "Save, then reload to verify. If someone changed the value, reload before trying again.",
     ],
