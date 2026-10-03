@@ -744,7 +744,8 @@
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/176",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
         "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/180",
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/184"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/184",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/186"
       ],
       "test_evidence": [
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
@@ -757,15 +758,19 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
-      "security_evidence_refs": [],
+      "security_evidence_refs": [
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+      ],
       "threat_model_refs": [],
       "migration_refs": [],
       "artifact_refs": [
-        "docs/ai/METAFIELDS-BATCH-356-REPORT.md"
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/ai/REMAINING-BATCH-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],
@@ -871,19 +876,24 @@
         "development"
       ],
       "pull_request_refs": [
-        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/184"
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/184",
+        "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/186"
       ],
       "test_evidence": [
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
-        "tests/workspace-ui.test.mjs"
+        "tests/workspace-ui.test.mjs",
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
       ],
       "visual_evidence_refs": [],
       "accessibility_evidence_refs": [],
-      "security_evidence_refs": [],
+      "security_evidence_refs": [
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+      ],
       "threat_model_refs": [],
       "migration_refs": [],
       "artifact_refs": [
-        "docs/ai/ENVIRONMENT-BATCH-REPORT.md"
+        "docs/ai/ENVIRONMENT-BATCH-REPORT.md",
+        "docs/ai/REMAINING-BATCH-REPORT.md"
       ],
       "sbom_refs": [],
       "attestation_refs": [],

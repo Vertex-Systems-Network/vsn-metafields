@@ -407,7 +407,7 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Development v1.2.4 implementation checks passed; dependency security gate failed. No new staging deployment; active baseline v1.2.3. Actual merchant/theme/screenshots/accessibility/performance/receipts/drills remain pending. Staging Neon inventory requires actual project ID."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -429,7 +429,9 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/ai/REMAINING-BATCH-REPORT.md",
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
       ]
     },
     {
@@ -446,7 +448,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Development v1.2.4 implementation checks passed; dependency security gate failed. No new staging deployment; active baseline v1.2.3. Actual merchant/theme/screenshots/accessibility/performance/receipts/drills remain pending. Staging Neon inventory requires actual project ID."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -468,7 +470,9 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/ai/REMAINING-BATCH-REPORT.md",
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
       ]
     },
     {

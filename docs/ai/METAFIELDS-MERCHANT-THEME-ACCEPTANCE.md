@@ -16,6 +16,8 @@ Sidebar/header/help follow-up: PR179 and PR180 merged at `80188cb9b62b59cfde30f6
 
 Dashboard-only navigation follow-up: PR182 merged at `4af68de2eb63796aca93254186dca1a96d8333db`, app `v1.2.2`. Local154 contracts and implementation/development CI passed. Exact-source runtime37140709009 and Shopify staging release37140931023 passed, active `staging-metafields-4af68de2eb63`, with complete disposable cleanup and zero failures. Shopify admin retains only hidden `/app` home; visible destinations remain in the dashboard sidebar. Plan/assurance records are reconciled and recovery/outcome procedures documented. Evidence: `docs/evidence/metafields-dashboard-navigation-2026-10-03.json`; details: `docs/ai/REMAINING-WORK-CLOSURE.md`. This supersedes the v1.2.1 source baseline; actual merchant/theme/screenshots remain pending.
 
+Environment-title baseline: PR184/185 source `dd29e53bdf68de20dd34a45b1b647c035be7916b`, appv1.2.3, is still the active staging runtime and extension. Runtime37144530937 and Shopify37144739776 passed; public Staging/provider title observed. PR186 v1.2.4 merged to development `08868a52e872949d6f1572cfb13ddd3f8363f5e1` with CLI/viewport fixes and159tests, but audit37146463711 failed and no new staging release was dispatched. The published busboy fix is locally verified follow-up work; unpatched braces-chain findings keep the gate failed. Evidence: `docs/evidence/metafields-remaining-batch-2026-10-03.json`; report: `docs/ai/REMAINING-BATCH-REPORT.md`. No browser task below is closed.
+
 ## Current review findings
 
 Review base: development `25ebf0937fe5bf31abe6ca765d6bdbcd23565f58`. Review is an authorized self-review, not an independent reviewer or a persistent Supervisor certification.

@@ -33,4 +33,12 @@ Queue counts remain **3 complete, 7 verification_required, 1 in_progress, 1 not_
 
 ## Release evidence
 
-Implementation CI and exact-source isolated staging runtime/extension results will be recorded here after they finish. Full authenticated merchant/theme acceptance remains subject to the access boundary above.
+PR186 merged to development `08868a52e872949d6f1572cfb13ddd3f8363f5e1`. Implementation quality37146308565 and validation37146308488 passed. Merged-source quality37146463670, validation37146463678 and staging-readiness37146463721 passed. Dependency Security Audit37146463711 failed: the production dependency audit was clean, while the full development-tool tree had high findings. The failure is preserved, not waived.
+
+The published `@fastify/busboy` patch was applied locally through a minimal lockfile update from3.2.0 to3.2.2. The lockfile also correctly classifies existing runtime `prop-types` and its two dependencies as non-dev. A clean Node22.13.0 install followed by lint/typecheck/parity/159tests/build passed again. Production audit reports zero vulnerabilities. Full audit now reports11 high affected package entries from the remaining `braces` advisory GHSA-vfj7-8cjw-p6xm, whose published advisory has no patched version. These are affected dependency entries, not11 distinct root vulnerabilities. Public advisory: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm.
+
+The dependency fix and final report/evidence are reviewable follow-up work; they are not a deployed release. No new Cloudflare or Shopify staging dispatch was submitted after the failed gate. The active staging runtime/extension remains v1.2.3 source `dd29e53bdf68de20dd34a45b1b647c035be7916b`, active `staging-metafields-dd29e53bdf68`. Thus the v1.2.4 dropdown/CLI fixes merged in development have **not** reached staging. Production remains unchanged.
+
+Current evidence: `docs/evidence/metafields-remaining-batch-2026-10-03.json`. Browser-observed failed gate: https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37146463711; proof `libfile_59f8535a917c81919fd4385fee2128e9` is a release/audit screenshot, not an app-control screenshot.
+
+To resume: resolve the remaining development-tool security gate through a reviewed compatible remediation; obtain fresh specific staging sign-in authorization for merchant/theme/screenshots; provide the actual staging Neon project ID for inventory and a verified isolated restore target. Independent assurance, signed compliance receipts and production acceptance are separate remaining gates. This batch did not close any of the nine merchant/release work units.
