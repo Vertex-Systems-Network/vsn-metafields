@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-All nine requested code changes are implemented. Node22.13.0 release checks passed: lint, typecheck, database contract, 145 tests and build. Remote CI and exact-source staging evidence will be recorded after verification. This batch targets development and isolated staging; no production or billing mutation is authorized or performed.
+All nine requested code changes are implemented. Node 22.13.0 release checks passed: lint, typecheck, database contract, 145 tests and build. PR174 is merged as development `d957e27983d020f9199a9347fd23b6d8f195f688`. PR integrity37114912289 and validation37114912333 passed. Exact-source runtime37115267064 and Shopify staging release37115439884 passed; active staging version is `staging-metafields-d957e27983d0`. Evidence: `docs/evidence/metafields-search-workspace-2026-10-03.json`. This batch targets development and isolated staging; no production or billing mutation is authorized or performed.
 
 ## Changes
 
@@ -24,11 +24,15 @@ Template search is explicitly scoped to loaded pages. Load more templates fetche
 
 - Actual route regressions verify catalog/enable call budgets, cursors, no full-definition enumeration, wrong-owner/forged-ID rejection and server-owned identity. A signed, staging-only read diagnostic now reads the first and next catalog pages inside one deployed Worker invocation. Its existing signature and production-exclusion guards are preserved.
 - Real component handler regressions verify automatic keys, manual override/reset, filter/group selection, disabled-option denial, grouped keyboard order and visibility of a selected later option. These deterministic hook tests are not DOM/focus/visual certification.
-- Local release suite passed145 tests; ANPOS integrity, staging isolation, staging contract and diff checks passed. No dependency was added. Design reference SHA256 is `cf67b50c161b36e8be475bd53cb1087c87c9c7799ae8815ffcf1303680df0160` for user-provided `image(5).png` / `libfile_b344e5fd58748191bd5d1c4c5b2885aa`.
-- Authorized self-review found grouped keyboard traversal followed API ordering rather than visual group ordering. Fixed traversal to follow displayed groups and preserved the selected option beyond the visible200-item window. Catalog empty/loading wording also distinguishes an unloaded catalog from completed pagination.
+- Local release suite passed 145 tests; ANPOS integrity, staging isolation, staging contract and diff checks passed. No dependency was added. Design reference SHA256 is `cf67b50c161b36e8be475bd53cb1087c87c9c7799ae8815ffcf1303680df0160` for user-provided `image(5).png` / `libfile_b344e5fd58748191bd5d1c4c5b2885aa`.
+- Authorized self-review found grouped keyboard traversal followed API ordering rather than visual group ordering. Fixed traversal to follow displayed groups and preserved the selected option beyond the visible 200-item window. Catalog empty/loading wording also distinguishes an unloaded catalog from completed pagination.
 - Authenticated browser acceptance is blocked: automatic approval review rejected the Shopify accounts redirect because the prior login handoff was declined. No credentials or expired token URLs were replayed, no new sign-in handoff was opened, and no bypass was attempted. Actual desktop/mobile layout, smooth-scroll motion, sticky placement, focus/screen-reader behavior and picker task acceptance remain pending.
 
-Store-owner optional page/file permission consent, billing navigation, two-theme accessibility/performance acceptance and live promotion remain separate pending work. Existing packages, subscriptions, optional scopes, app identities, database schema and theme-extension bytes are unchanged by this batch.
+The latest staging API probe reports `read_content` and `read_files` granted, with no missing optional scopes. Actual page/file picker behavior and decline/approval UX remain pending browser tasks; earlier missing-scope observations are superseded for this staging session. Billing navigation, two-theme accessibility/performance acceptance and live promotion remain separate pending work. Existing packages, subscriptions, optional scopes, app identities, database schema and theme-extension bytes are unchanged by this batch.
+
+## Deployed runtime evidence
+
+The signed read check executed the first and continuation catalog page inside the staging Worker successfully. The offline probe independently enumerated all 8,516 standard templates and validated 51 GraphQL documents against API2026-07. All 21 representative value types, definition retained-value lifecycle, metaobjects, bulk and diagnostics passed; disposable fixtures were completely cleaned with zero cleanup failures. The unchanged staging extension/configuration was released from the same source; the production app was unchanged. Three compliance webhooks were enqueued, which does not certify independent delivery receipt.
 
 ## Primary references
 
