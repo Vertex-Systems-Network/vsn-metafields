@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T18:38:46.218Z",
+  "appVersion": "1.2.3",
+  "sourceSha": "dd29e53bdf68de20dd34a45b1b647c035be7916b",
+  "sourceTree": "2f52a0dd382fda50012c2cd61a33e0e03bd22b6a",
+  "implementationPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/184",
+  "titles": {
+    "local": "VSN | Metafields (Dev)",
+    "staging": "VSN | Metafields (Staging)",
+    "production": "VSN | Metafields"
+  },
+  "verification": {
+    "local": {
+      "node": "22.13.0",
+      "fullReleaseTests": 156,
+      "failed": 0,
+      "lint": "pass",
+      "typecheck": "pass",
+      "databaseContract": "pass",
+      "build": "pass",
+      "subsequentWorkspaceTests": 12,
+      "repositoryIntegrity": "pass"
+    },
+    "implementationCi": [
+      {
+        "runId": 37144040756,
+        "result": "success"
+      },
+      {
+        "runId": 37144040761,
+        "result": "success",
+        "tests": 157,
+        "failed": 0
+      }
+    ],
+    "developmentCi": [
+      {
+        "runId": 37144366043,
+        "result": "success"
+      },
+      {
+        "runId": 37144366011,
+        "result": "success"
+      }
+    ],
+    "runtime": {
+      "runId": 37144530937,
+      "jobId": 111265637448,
+      "result": "success",
+      "probe": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "dd29e53bdf68de20dd34a45b1b647c035be7916b",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 52,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_files",
+          "read_content",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "definitionValidationUpdate": true,
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": []
+          },
+          "cleanup": true,
+          "metaobjectValidationCreate": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "shopifyRelease": {
+      "runId": 37144739776,
+      "jobId": 111266244896,
+      "result": "success",
+      "sourceSha": "dd29e53bdf68de20dd34a45b1b647c035be7916b",
+      "activeVersion": "staging-metafields-dd29e53bdf68",
+      "providerReportedAppName": "VSN | Metafields (Staging)",
+      "complianceWebhooksEnqueued": 3,
+      "receiptVerification": "pending"
+    },
+    "publicBrowser": {
+      "title": "VSN | Metafields (Staging)",
+      "heading": "VSN | Metafields (Staging)",
+      "url": "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/",
+      "healthBrowser": "blocked_by_client; no alternate browser/network path attempted"
+    }
+  },
+  "review": "Authorized self-review; no independent reviewer or persistent Supervisor certification",
+  "releaseProof": {
+    "path": "vsn-environment-titles-staging-release-1791052602844.jpg",
+    "libraryFileId": "libfile_1df7add179948191950eb6a3adf728ff",
+    "surface": "GitHub staging release summary; not authenticated app/control evidence"
+  },
+  "remainingRecords": [
+    "ADR0001..0003 linked to existing accepted ADR0006",
+    "Three existing recovery runbooks registered; no drill or operator assignment asserted",
+    "Runtime/API lifecycle sources recorded; Node22.13.0 patch assessment and owner review remain pending",
+    "Historical PRODUCT-only evidence superseded by current service inventory"
+  ],
+  "pending": [
+    "Fresh explicitly authorized Shopify staging sign-in for actual embedded UI acceptance and current control images",
+    "Merchant value/metaobject/import/reference-picker flows and tier/approval navigation",
+    "Two unpublished themes, mobile/320px/200% zoom/keyboard/screen-reader/contrast, measured performance",
+    "Signed compliance receipt verification",
+    "Independent release, privacy and retention review, operator/risk assignments, patch assessment, restore/outage drill and tamper-evident privileged audit certification"
+  ],
+  "productionChanged": false,
+  "billingChanged": false,
+  "advisories": [
+    "Specifications 45-settings warning persists; no saved setting IDs removed"
+  ],
+  "workUnitCounts": {
+    "complete": 3,
+    "verification_required": 7,
+    "in_progress": 1,
+    "not_started": 1
+  }
+}
