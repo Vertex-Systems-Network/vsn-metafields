@@ -208,6 +208,21 @@ export async function updateDefinition(admin, ownerType, fields, input) {
       storefront: storefrontAccess(ownerType, input.storefront || "NONE"),
     },
   };
+  if (input.validations !== undefined) {
+    const types = await graph(
+      admin,
+      `#graphql
+      query UpdateDefinitionValidationTypes { metafieldDefinitionTypes { name supportedValidations { name type } } }`,
+    );
+    const typeInfo = types.metafieldDefinitionTypes?.find(
+      (item) => item.name === selected.type,
+    );
+    if (!typeInfo)
+      throw new RangeError(
+        "Validation capabilities for this type are unavailable.",
+      );
+    definition.validations = parseValidations(input.validations, typeInfo);
+  }
   const data = await graph(
     admin,
     `#graphql

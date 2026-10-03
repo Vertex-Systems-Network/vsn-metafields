@@ -6,6 +6,7 @@ import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 import SearchableSelect from "../components/SearchableSelect";
+import ValidationEditor from "../components/ValidationEditor";
 import { fieldTypeOption } from "../field-presentation";
 const initialField = () => ({
   key: "title",
@@ -73,7 +74,15 @@ export default function Metaobjects() {
     });
   const updateField = (index, key, value) =>
     setFields((current) =>
-      current.map((f, i) => (i === index ? { ...f, [key]: value } : f)),
+      current.map((f, i) =>
+        i === index
+          ? {
+              ...f,
+              [key]: value,
+              ...(key === "type" ? { validations: [] } : {}),
+            }
+          : f,
+      ),
     );
   const select = (id) => {
     setDefinitionId(id);
@@ -209,51 +218,55 @@ export default function Metaobjects() {
                     updateField(index, "required", e.target.checked)
                   }
                 />
-                <details>
-                  <summary>Advanced validations</summary>
-                  <s-text-area
-                    label="Validations JSON (optional)"
-                    value={
-                      typeof field.validations === "string"
-                        ? field.validations
-                        : JSON.stringify(field.validations)
-                    }
-                    onInput={(e) =>
-                      updateField(index, "validations", e.target.value)
-                    }
-                  />
-                </details>
-                <ActionButton
-                  disabled={fields.length === 1 || busy}
-                  onClick={() =>
-                    setFields((f) => f.filter((_, i) => i !== index))
+                <ValidationEditor
+                  type={field.type}
+                  supported={
+                    types.find((t) => t.name === field.type)
+                      ?.supportedValidations || []
                   }
-                >
-                  Remove field
-                </ActionButton>
+                  value={
+                    typeof field.validations === "string"
+                      ? field.validations
+                      : JSON.stringify(field.validations)
+                  }
+                  onChange={(value) => updateField(index, "validations", value)}
+                  disabled={busy}
+                />
+                <div className="vsn-action-row">
+                  <ActionButton
+                    disabled={fields.length === 1 || busy}
+                    onClick={() =>
+                      setFields((f) => f.filter((_, i) => i !== index))
+                    }
+                  >
+                    Remove field
+                  </ActionButton>
+                </div>
               </s-box>
             ))}
-            <ActionButton
-              disabled={fields.length >= fieldLimit || busy || !ready}
-              onClick={() =>
-                setFields((f) => {
-                  let next = 1;
-                  while (f.some((field) => field.key === `field_${next}`))
-                    next++;
-                  return [
-                    ...f,
-                    {
-                      ...initialField(),
-                      key: `field_${next}`,
-                      name: `Field ${next}`,
-                      required: false,
-                    },
-                  ];
-                })
-              }
-            >
-              Add field
-            </ActionButton>
+            <div className="vsn-action-row">
+              <ActionButton
+                disabled={fields.length >= fieldLimit || busy || !ready}
+                onClick={() =>
+                  setFields((f) => {
+                    let next = 1;
+                    while (f.some((field) => field.key === `field_${next}`))
+                      next++;
+                    return [
+                      ...f,
+                      {
+                        ...initialField(),
+                        key: `field_${next}`,
+                        name: `Field ${next}`,
+                        required: false,
+                      },
+                    ];
+                  })
+                }
+              >
+                Add field
+              </ActionButton>
+            </div>
           </>
         )}
         <ActionButton
@@ -356,6 +369,7 @@ export default function Metaobjects() {
               <TypedValueInput
                 referencesLoading={references.state !== "idle"}
                 type={field.type.name}
+                validations={field.validations || []}
                 value={values[field.key] || ""}
                 onChange={(value) =>
                   setValues((v) => ({ ...v, [field.key]: value }))

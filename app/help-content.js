@@ -10,6 +10,7 @@ const TOPICS = [
     steps: [
       "Search Metafield resource and choose Product, Product variant or Collection.",
       "Enter a custom field name. Its key is suggested automatically; edit it or choose Use key from name. Search Type and choose One or List. Review the definition preview before saving.",
+      "In Access and options → Value validation, set the supported limits, pattern, choices or other rules. Leave a rule blank to remove it. Edit a registered custom definition to adjust its rules; review existing values before tightening limits.",
       "For Shopify standard definitions, search the loaded catalog and use Load more templates to browse additional pages. Each page is fetched separately.",
       "Save the definition. Its type and key cannot be changed here after creation.",
     ],

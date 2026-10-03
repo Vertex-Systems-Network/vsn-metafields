@@ -19,6 +19,12 @@ import {
 } from "../app/standard-definitions.server.js";
 import { hasActivePlan } from "../app/active-plan.server.js";
 import * as capabilities from "../app/metafield-capabilities.js";
+import { selectPosition } from "../app/select-position.js";
+import {
+  updateDefinition,
+  createDefinition,
+} from "../app/definitions.server.js";
+import { createMetaobjectDefinition } from "../app/metaobjects.server.js";
 
 const require = createRequire(import.meta.url);
 const template = {
@@ -360,6 +366,7 @@ async function componentHarness(path, fetchers = []) {
       write: false,
       external: [
         "react",
+        "react-dom",
         "react/jsx-runtime",
         "react-router",
         "prop-types",
@@ -585,4 +592,270 @@ test("searchable select keyboard order follows displayed groups and keeps a sele
     ).props.children[1].props.children,
     "Template 250",
   );
+});
+
+test("overlay geometry flips above, fits narrow screens and remains anchored below when space permits", () => {
+  const below = selectPosition(
+    { left: 50, width: 900, top: 300, bottom: 332 },
+    1200,
+    900,
+  );
+  assert.deepEqual(below, { left: 50, width: 460, maxHeight: 420, top: 338 });
+  const above = selectPosition(
+    { left: 100, width: 220, top: 750, bottom: 782 },
+    1000,
+    850,
+  );
+  assert.equal(above.bottom, 106);
+  assert.equal(above.top, undefined);
+  const narrow = selectPosition(
+    { left: 280, width: 250, top: 200, bottom: 232 },
+    320,
+    640,
+  );
+  assert.equal(narrow.width, 250);
+  assert.equal(narrow.left, 62);
+  assert.ok(narrow.left + narrow.width <= 312);
+  const full = selectPosition(
+    { left: 10, width: 600, top: 110, bottom: 142 },
+    320,
+    350,
+  );
+  assert.equal(full.width, 304);
+  assert.equal(full.left, 8);
+  assert.equal(full.maxHeight, 194);
+});
+
+test("visible validation controls encode choices and preserve unrelated rules; malformed JSON stays repairable", async () => {
+  const h = await componentHarness("app/components/ValidationEditor.jsx");
+  let value = JSON.stringify([{ name: "max", value: "20" }]);
+  const props = {
+    type: "single_line_text_field",
+    supported: [
+      { name: "min" },
+      { name: "max" },
+      { name: "choices", type: "list.single_line_text_field" },
+    ],
+    onChange: (v) => {
+      value = v;
+    },
+  };
+  let tree = h.render({ ...props, value });
+  const controls = allNodes(tree).filter(
+    (n) => n.type === "input" || n.type === "textarea",
+  );
+  controls[0].props.onChange({ target: { value: "0" } });
+  assert.deepEqual(JSON.parse(value), [
+    { name: "max", value: "20" },
+    { name: "min", value: "0" },
+  ]);
+  tree = h.render({ ...props, value });
+  allNodes(tree)
+    .filter((n) => n.type === "textarea")[0]
+    .props.onChange({ target: { value: "Red\nBlue" } });
+  assert.equal(
+    JSON.parse(value).find((v) => v.name === "choices").value,
+    '["Red","Blue"]',
+  );
+  tree = h.render({ ...props, value: "bad JSON" });
+  assert.ok(node(tree, (n) => n.props?.role === "alert"));
+  assert.equal(node(tree, (n) => n.type === "input").props.disabled, true);
+  assert.equal(
+    allNodes(tree)
+      .filter((n) => n.type === "textarea")
+      .at(-1).props.disabled,
+    false,
+  );
+});
+
+test("actual definition edit loads stored rules and sends them without changing immutable identity", async () => {
+  const field = {
+    id: "gid://shopify/MetafieldDefinition/3",
+    name: "Care",
+    namespace: "custom",
+    key: "care",
+    type: "single_line_text_field",
+    editable: true,
+    validations: [{ name: "max", value: "20" }],
+  };
+  let sent;
+  const h = await componentHarness("app/routes/app._index.jsx", [
+    { data: { ok: true, hasActivePlan: true } },
+    {
+      data: {
+        ok: true,
+        ownerType: "PRODUCT",
+        scopes: [],
+        fields: [field],
+        types: [{ name: field.type, supportedValidations: [{ name: "max" }] }],
+      },
+    },
+    {},
+    {
+      submit: (form) => {
+        sent = Object.fromEntries(form.entries());
+      },
+    },
+  ]);
+  let tree = h.render();
+  node(tree, (n) => n.props?.children === "Edit").props.onClick();
+  tree = h.render();
+  const editor = node(tree, (n) => n.type?.name === "ValidationEditor");
+  assert.equal(editor.props.value, JSON.stringify(field.validations));
+  editor.props.onChange('[{"name":"max","value":"30"}]');
+  tree = h.render();
+  node(tree, (n) => n.props?.children === "Save definition").props.onClick();
+  assert.equal(sent.actionType, "update");
+  assert.equal(sent.validations, '[{"name":"max","value":"30"}]');
+  assert.equal(sent.key, "care");
+  assert.equal(sent.namespace, "custom");
+});
+
+test("definition validation update is checked against server-owned types and can explicitly clear rules", async () => {
+  const field = {
+    id: "gid://shopify/MetafieldDefinition/3",
+    key: "care",
+    namespace: "custom",
+    type: "single_line_text_field",
+    editable: true,
+  };
+  const mutations = [];
+  const admin = {
+    graphql: async (query, { variables } = {}) => {
+      if (query.includes("UpdateDefinitionValidationTypes"))
+        return Response.json({
+          data: {
+            metafieldDefinitionTypes: [
+              { name: field.type, supportedValidations: [{ name: "max" }] },
+            ],
+          },
+        });
+      mutations.push(variables.definition);
+      return Response.json({
+        data: {
+          metafieldDefinitionUpdate: {
+            updatedDefinition: { id: field.id },
+            userErrors: [],
+          },
+        },
+      });
+    },
+  };
+  const input = {
+    id: field.id,
+    key: field.key,
+    namespace: field.namespace,
+    name: "Care",
+    type: "number_integer",
+  };
+  await assert.rejects(
+    updateDefinition(admin, "PRODUCT", [field], {
+      ...input,
+      validations: '[{"name":"forged","value":"1"}]',
+    }),
+    /supported/,
+  );
+  assert.equal(mutations.length, 0);
+  assert.equal(
+    (
+      await updateDefinition(admin, "PRODUCT", [field], {
+        ...input,
+        validations: '[{"name":"max","value":"30"}]',
+      })
+    ).ok,
+    true,
+  );
+  assert.deepEqual(mutations[0].validations, [{ name: "max", value: "30" }]);
+  assert.equal(mutations[0].type, undefined);
+  await updateDefinition(admin, "PRODUCT", [field], {
+    ...input,
+    validations: "[]",
+  });
+  assert.deepEqual(mutations[1].validations, []);
+});
+
+test("metafield and metaobject creation reject duplicate/unsupported validation rules before mutation", async () => {
+  const type = {
+    name: "single_line_text_field",
+    supportedValidations: [{ name: "max" }],
+  };
+  let writes = 0;
+  const admin = {
+    graphql: async (query) => {
+      if (query.includes("mutation")) writes++;
+      return Response.json({ data: { metafieldDefinitionTypes: [type] } });
+    },
+  };
+  for (const rules of [
+    [{ name: "bad", value: "x" }],
+    [
+      { name: "max", value: "1" },
+      { name: "max", value: "2" },
+    ],
+  ]) {
+    await assert.rejects(
+      createDefinition(admin, "PRODUCT", {
+        name: "Care",
+        namespace: "custom",
+        key: "care",
+        type: type.name,
+        validations: JSON.stringify(rules),
+      }),
+    );
+    await assert.rejects(
+      createMetaobjectDefinition(
+        admin,
+        {
+          name: "FAQ",
+          type: "merchant_faq",
+          fields: [
+            {
+              key: "answer",
+              name: "Answer",
+              type: type.name,
+              validations: rules,
+            },
+          ],
+        },
+        [type],
+      ),
+    );
+  }
+  assert.equal(writes, 0);
+  let actual;
+  const okAdmin = {
+    graphql: async (_, opts) => {
+      actual = opts.variables.definition;
+      return Response.json({
+        data: {
+          metaobjectDefinitionCreate: {
+            metaobjectDefinition: {
+              id: "gid://shopify/MetaobjectDefinition/3",
+              type: "merchant_faq",
+            },
+            userErrors: [],
+          },
+        },
+      });
+    },
+  };
+  await createMetaobjectDefinition(
+    okAdmin,
+    {
+      name: "FAQ",
+      type: "merchant_faq",
+      fields: [
+        {
+          key: "answer",
+          name: "Answer",
+          type: type.name,
+          validations: [{ name: "max", value: "30" }],
+        },
+      ],
+    },
+    [type],
+  );
+  assert.deepEqual(actual.fieldDefinitions[0].validations, [
+    { name: "max", value: "30" },
+  ]);
 });

@@ -21,9 +21,19 @@ import {
 } from "../../app/standard-definitions.server.js";
 import { removeDefinition } from "../../app/definition-removal.server.js";
 import { mutateValue } from "../../app/metafield-values.server.js";
-import { probeGraphql, failedRunDisposableDefinition } from "./probe-client.mjs";
-import { verifyAdvancedBatch, removeDisposableProbeDefinition, readEmptyProbeDefinition } from "./advanced-probe.mjs";
-import { listMetaobjectDefinitions, removeEmptyMetaobjectDefinition } from "../../app/metaobjects.server.js";
+import {
+  probeGraphql,
+  failedRunDisposableDefinition,
+} from "./probe-client.mjs";
+import {
+  verifyAdvancedBatch,
+  removeDisposableProbeDefinition,
+  readEmptyProbeDefinition,
+} from "./advanced-probe.mjs";
+import {
+  listMetaobjectDefinitions,
+  removeEmptyMetaobjectDefinition,
+} from "../../app/metaobjects.server.js";
 const { DATABASE_URL, SHOPIFY_API_KEY, SHOPIFY_APP_URL, STAGING_SHOP } =
   process.env;
 const host = DATABASE_URL ? new URL(DATABASE_URL).hostname : "";
@@ -86,18 +96,20 @@ try {
     throw new Error("Staging offline session unavailable.");
   admin = {
     graphql: async (query, { variables } = {}) => {
-      return probeGraphql(() => fetch(
-        `https://${STAGING_SHOP}/admin/api/${METAFIELD_API_VERSION}/graphql.json`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": session.accessToken,
+      return probeGraphql(() =>
+        fetch(
+          `https://${STAGING_SHOP}/admin/api/${METAFIELD_API_VERSION}/graphql.json`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": session.accessToken,
+            },
+            body: JSON.stringify({ query, variables }),
+            signal: AbortSignal.timeout(30000),
           },
-          body: JSON.stringify({ query, variables }),
-          signal: AbortSignal.timeout(30000),
-        },
-      ));
+        ),
+      );
     },
   };
   const identity = await graph(
@@ -112,22 +124,46 @@ query { currentAppInstallation { app { apiKey } } }`,
   report.recoveredFailedProbeDefinitions = [];
   for (const field of await getDefinitions(admin, "PRODUCT")) {
     if (!failedRunDisposableDefinition(field)) continue;
-    must(await removeDisposableProbeDefinition(admin, field), "Recover disposable failed-run definition");
-    report.recoveredFailedProbeDefinitions.push({ id: field.id, key: field.key });
+    must(
+      await removeDisposableProbeDefinition(admin, field),
+      "Recover disposable failed-run definition",
+    );
+    report.recoveredFailedProbeDefinitions.push({
+      id: field.id,
+      key: field.key,
+    });
   }
   report.recoveredFailedProbeMetaobjects = [];
   // Exact leftover from run 37058589257; never a prefix-wide cleanup.
-  const leftover = (await listMetaobjectDefinitions(admin)).find((d) => d.id === "gid://shopify/MetaobjectDefinition/24588714356");
+  const leftover = (await listMetaobjectDefinitions(admin)).find(
+    (d) => d.id === "gid://shopify/MetaobjectDefinition/24588714356",
+  );
   if (leftover) {
-    if (leftover.name !== "Renamed disposable FAQ" || leftover.access?.storefront !== "NONE" ||
-        !/^vsn_probe_\d{13}_[a-f0-9]{6}$/.test(leftover.type) ||
-        leftover.fieldDefinitions.length !== 2 ||
-        !leftover.fieldDefinitions.some((f) => f.key === "question" && f.type.name === "single_line_text_field") ||
-        !leftover.fieldDefinitions.some((f) => f.key === "answer" && f.type.name === "multi_line_text_field"))
-      throw new Error("Failed-run metaobject identity mismatch; no deletion attempted.");
+    if (
+      leftover.name !== "Renamed disposable FAQ" ||
+      leftover.access?.storefront !== "NONE" ||
+      !/^vsn_probe_\d{13}_[a-f0-9]{6}$/.test(leftover.type) ||
+      leftover.fieldDefinitions.length !== 2 ||
+      !leftover.fieldDefinitions.some(
+        (f) => f.key === "question" && f.type.name === "single_line_text_field",
+      ) ||
+      !leftover.fieldDefinitions.some(
+        (f) => f.key === "answer" && f.type.name === "multi_line_text_field",
+      )
+    )
+      throw new Error(
+        "Failed-run metaobject identity mismatch; no deletion attempted.",
+      );
     const empty = await readEmptyProbeDefinition(admin, leftover);
-    await removeEmptyMetaobjectDefinition(admin, empty, `DELETE_EMPTY_DEFINITION:${empty.id}:${empty.type}`);
-    report.recoveredFailedProbeMetaobjects.push({ id: empty.id, type: empty.type });
+    await removeEmptyMetaobjectDefinition(
+      admin,
+      empty,
+      `DELETE_EMPTY_DEFINITION:${empty.id}:${empty.type}`,
+    );
+    report.recoveredFailedProbeMetaobjects.push({
+      id: empty.id,
+      type: empty.type,
+    });
   }
   report.schema = await verifyShopifySchema(
     await graph(
@@ -201,10 +237,27 @@ mutation ProbeCollection($collection:CollectionCreateInput!){ collectionCreate(c
         key: field.key,
         namespace: field.namespace,
         name: "Disposable probe renamed",
+        validations: JSON.stringify([
+          { name: "min", value: "1" },
+          { name: "max", value: "128" },
+        ]),
         storefront: "NONE",
       }),
       "Update",
     );
+    const withRules = (await getDefinitions(admin, owner)).find(
+      (item) => item.id === field.id,
+    );
+    assert.deepEqual(
+      withRules.validations
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      [
+        { name: "max", value: "128" },
+        { name: "min", value: "1" },
+      ],
+    );
+    report.definitionValidationUpdate = true;
     const definition = {
       namespace: field.namespace,
       key: field.key,
@@ -258,7 +311,16 @@ mutation ProbeCollection($collection:CollectionCreateInput!){ collectionCreate(c
     throw new Error(
       "No uninstalled product standard template available for enable probe.",
     );
-  report.advanced = await verifyAdvancedBatch(admin,prisma,STAGING_SHOP,product,variantId,collection,nonce,capabilities.types);
+  report.advanced = await verifyAdvancedBatch(
+    admin,
+    prisma,
+    STAGING_SHOP,
+    product,
+    variantId,
+    collection,
+    nonce,
+    capabilities.types,
+  );
   report.ok = true;
 } finally {
   const failures = [];
