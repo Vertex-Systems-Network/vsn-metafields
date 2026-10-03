@@ -355,7 +355,7 @@ test("combined filters and catalog continuation cannot mix owner pages or hide l
 
 // Execute real component handlers with deterministic hook storage. This is
 // event/state regression evidence, not a browser, focus or visual certificate.
-async function componentHarness(path, fetchers = []) {
+async function componentHarness(path, fetchers = [], exportName = "default") {
   const code = (
     await build({
       entryPoints: [resolve(path)],
@@ -376,7 +376,9 @@ async function componentHarness(path, fetchers = []) {
     })
   ).outputFiles[0].text;
   const states = [],
-    refs = [];
+    refs = [],
+    effects = [],
+    cleanups = [];
   let hook = 0,
     refIndex = 0,
     fetcherIndex = 0;
@@ -395,7 +397,7 @@ async function componentHarness(path, fetchers = []) {
       ];
     },
     useRef: () => (refs[refIndex++] ||= { current: null }),
-    useEffect: () => {},
+    useEffect: (fn) => effects.push(fn),
     useCallback: (fn) => fn,
   };
   const router = {
@@ -410,6 +412,9 @@ async function componentHarness(path, fetchers = []) {
       ...fetchers[fetcherIndex++],
     }),
     Link: "a",
+    NavLink: "a",
+    useNavigation: () => ({ state: "idle" }),
+    useFetchers: () => [],
   };
   const module = { exports: {} };
   new Function("require", "module", "exports", code)(
@@ -427,11 +432,21 @@ async function componentHarness(path, fetchers = []) {
     module.exports,
   );
   return {
+    refs,
+    flushEffects: () => {
+      for (const fn of effects.splice(0)) {
+        const cleanup = fn();
+        if (cleanup) cleanups.push(cleanup);
+      }
+    },
+    cleanup: () => {
+      for (const fn of cleanups.splice(0)) fn();
+    },
     render: (props = {}) => {
       hook = 0;
       refIndex = 0;
       fetcherIndex = 0;
-      return module.exports.default(props);
+      return module.exports[exportName](props);
     },
   };
 }
@@ -858,4 +873,103 @@ test("metafield and metaobject creation reject duplicate/unsupported validation 
   assert.deepEqual(actual.fieldDefinitions[0].validations, [
     { name: "max", value: "30" },
   ]);
+});
+
+test("desktop collapse and mobile disclosure are independent and navigation closes the mobile menu", async () => {
+  const h = await componentHarness(
+    "app/components/Workspace.jsx",
+    [],
+    "Workspace",
+  );
+  let tree = h.render();
+  const button = (name) =>
+    allNodes(tree).find(
+      (n) => n.type === "button" && n.props.className === name,
+    );
+  button("vsn-sidebar-collapse").props.onClick();
+  tree = h.render();
+  assert.match(tree.props.className, /is-collapsed/);
+  assert.equal(
+    button("vsn-sidebar-collapse").props["aria-label"],
+    "Expand navigation",
+  );
+  assert.equal(button("vsn-sidebar-collapse").props["aria-expanded"], false);
+  button("vsn-sidebar-toggle").props.onClick();
+  tree = h.render();
+  assert.equal(button("vsn-sidebar-toggle").props["aria-expanded"], true);
+  assert.match(tree.props.className, /is-collapsed/);
+  const item = allNodes(tree).find((n) => n.props?.label === "Metaobjects");
+  item.props.onNavigate();
+  tree = h.render();
+  assert.equal(button("vsn-sidebar-toggle").props["aria-expanded"], false);
+  assert.match(tree.props.className, /is-collapsed/);
+  button("vsn-sidebar-collapse").props.onClick();
+  tree = h.render();
+  assert.doesNotMatch(tree.props.className, /is-collapsed/);
+});
+
+test("collapsed navigation tooltip opens for hover/focus, is hoverable, dismisses with Escape and stays off on mobile", async () => {
+  const oldWindow = globalThis.window,
+    oldDocument = globalThis.document;
+  const listeners = new Map();
+  let desktop = true;
+  globalThis.window = {
+    innerHeight: 800,
+    matchMedia: () => ({ matches: desktop }),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  };
+  globalThis.document = {
+    body: { nodeType: 1 },
+    activeElement: null,
+    addEventListener: (name, fn) => listeners.set(name, fn),
+    removeEventListener: (name) => listeners.delete(name),
+  };
+  const h = await componentHarness("app/components/SidebarItem.jsx");
+  const props = {
+    to: { pathname: "/app/guide" },
+    label: "Help center",
+    icon: "help",
+    collapsed: true,
+    onNavigate: () => {},
+  };
+  try {
+    let tree = h.render(props);
+    h.refs[0].current = {
+      getBoundingClientRect: () => ({ right: 62, top: 280, height: 44 }),
+    };
+    tree.props.children[0].props.onMouseEnter();
+    tree = h.render(props);
+    h.flushEffects();
+    tree = h.render(props);
+    const tooltip = tree.props.children[1].children;
+    assert.equal(tooltip.props.role, "tooltip");
+    assert.equal(tooltip.props.children, "Help center");
+    assert.equal(
+      tree.props.children[0].props["aria-describedby"],
+      tooltip.props.id,
+    );
+    tree.props.children[0].props.onMouseLeave();
+    tooltip.props.onMouseEnter();
+    await new Promise((resolve) => setTimeout(resolve, 180));
+    tree = h.render(props);
+    assert.ok(tree.props.children[1]);
+    listeners.get("keydown")({ key: "Escape" });
+    tree = h.render(props);
+    assert.equal(tree.props.children[1], false);
+    desktop = false;
+    tree.props.children[0].props.onFocus();
+    tree = h.render(props);
+    assert.equal(tree.props.children[1], false);
+    desktop = true;
+    tree.props.children[0].props.onFocus();
+    tree = h.render(props);
+    h.flushEffects();
+    tree = h.render(props);
+    assert.ok(tree.props.children[1]);
+  } finally {
+    h.cleanup();
+    globalThis.window = oldWindow;
+    globalThis.document = oldDocument;
+  }
 });

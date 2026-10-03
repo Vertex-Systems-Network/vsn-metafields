@@ -71,9 +71,10 @@ export default function SearchableSelect({
           : 0;
       const sidebar =
         navigationHeight > 0 ? document.querySelector?.(".vsn-sidebar") : null;
-      const topInset = sidebar
-        ? Math.max(8, sidebar.getBoundingClientRect().bottom + 8)
-        : 8;
+      const header = document.querySelector?.(".vsn-header");
+      const topInset = Math.max(8,
+        (header?.getBoundingClientRect().bottom || 0) + 8,
+        sidebar ? sidebar.getBoundingClientRect().bottom + 8 : 0);
       if (rect.bottom <= topInset || rect.top >= height) {
         setOpen(false);
         return;

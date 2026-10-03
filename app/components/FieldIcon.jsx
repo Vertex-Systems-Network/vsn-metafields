@@ -16,6 +16,8 @@ const paths = {
   field: "M4 4h16v16H4zM8 9h8m-8 6h5",
   search: "M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14m5 12 6 6",
   chevron: "m6 9 6 6 6-6",
+  "panel-open": "M3 4h18v16H3zM8 4v16m5-11 3 3-3 3",
+  "panel-close": "M3 4h18v16H3zM8 4v16m8-11-3 3 3 3",
   menu: "M4 6h16M4 12h16M4 18h16",
   import: "M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5",
   plans: "M4 5h16v14H4zM4 10h16M8 15h4",

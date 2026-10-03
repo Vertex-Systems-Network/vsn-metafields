@@ -52,6 +52,17 @@ export default function Guide() {
           ))}
         </ol>
         <details>
+          <summary>Use the workspace menu</summary>
+          <p>
+            On desktop, the wider left menu stays below the app header as you
+            scroll. Select Collapse menu for an icon-only menu, or Expand
+            navigation to restore names. Hover an icon or focus it with Tab to
+            read its tooltip; Escape dismisses the tooltip. The selected page
+            stays highlighted. On a small screen, use Workspace menu to show or
+            hide navigation above your content.
+          </p>
+        </details>
+        <details>
           <summary>Plain-language glossary</summary>
           <dl className="vsn-help-glossary">
             {HELP_GLOSSARY.map(([term, meaning]) => (
