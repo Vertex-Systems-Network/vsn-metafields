@@ -87,7 +87,7 @@ export default function PackagesPage() {
     void runBilling(form);
   };
   return (
-    <s-page heading="Plans">
+    <s-page inline-size="large" heading="Plans">
       <PageIntro
         eyebrow="Room to grow"
         title="Choose the right fit for your store."

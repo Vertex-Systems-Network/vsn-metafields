@@ -105,7 +105,7 @@ export default function Metaobjects() {
   const fieldLimit = catalog.data?.plan?.limits?.metaobjectFields || 25;
   const canPublish = catalog.data?.plan?.features?.publicMetaobjects === true;
   return (
-    <s-page heading="Reusable metaobjects">
+    <s-page inline-size="large" heading="Reusable metaobjects">
       <PageIntro
         eyebrow="Reusable content"
         title="Build once. Use across your store."

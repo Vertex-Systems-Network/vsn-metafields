@@ -5,12 +5,13 @@ import { createRequire } from "node:module";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { resolve } from "node:path";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { HELP_TOPICS } from "../app/help-content.js";
+import { THEME_HELP } from "../app/theme-help.js";
 
 const require = createRequire(import.meta.url);
 const cache = new Map();
-async function renderRoute(name, fetchers = []) {
+async function renderRoute(name, fetchers = [], exportName = "default") {
   if (!cache.has(name))
     cache.set(
       name,
@@ -52,16 +53,25 @@ async function renderRoute(name, fetchers = []) {
         { ...props, href: `${to.pathname}${to.search || ""}${to.hash || ""}` },
         children,
       ),
+    NavLink: ({ to, children, className }) =>
+      React.createElement(
+        "a",
+        {
+          href: `${to.pathname}${to.search || ""}`,
+          className: className({ isActive: to.pathname === "/app" }),
+          "aria-current": to.pathname === "/app" ? "page" : undefined,
+        },
+        children,
+      ),
   };
   new Function("require", "module", "exports", cache.get(name))(
     (id) => (id === "react-router" ? router : require(id)),
     module,
     module.exports,
   );
-  return renderToString(React.createElement(module.exports.default)).replace(
-    /<!--.*?-->/g,
-    "",
-  );
+  return renderToString(
+    React.createElement(module.exports[exportName]),
+  ).replace(/<!--.*?-->/g, "");
 }
 test("Metaobjects first render does not dereference an absent entries response", async () => {
   assert.match(
@@ -124,17 +134,78 @@ test("help center and import initial state render their real recovery and empty 
   ]);
   assert.match(html, /No saved imports yet/);
 });
-test("help includes seven accessible illustrated previews and exact location instructions", async () => {
+test("beginner help explains each screen and labels conceptual diagrams honestly", async () => {
   const guide = await renderRoute("app.guide.jsx");
   assert.equal((guide.match(/<img /g) || []).length, 7);
-  assert.match(guide, /Illustrated walkthrough/);
+  assert.match(guide, /Your first example: care instructions/);
+  assert.match(guide, /Plain-language glossary/);
+  assert.match(guide, /not a screenshot of the current app/);
+  assert.match(guide, /ownerType,ownerId,namespace,key,type,value_json/);
   for (const topic of HELP_TOPICS) {
     assert.ok(topic.where && topic.preview.alt);
+    assert.ok(topic.result && topic.sections.length && topic.mistakes.length);
+    for (const section of topic.sections)
+      for (const row of section.rows) {
+        assert.equal(row.length, 3);
+        assert.ok(row.every(Boolean));
+      }
     assert.match(
       readFileSync(resolve(`public${topic.preview.src}`), "utf8"),
       /<title>.+illustrated walkthrough<\/title>/,
     );
   }
+});
+test("theme documentation covers every shipped block option and its actual default", () => {
+  const directory = resolve("extensions/vsn-storefront/blocks");
+  const files = readdirSync(directory).filter((name) =>
+    name.endsWith(".liquid"),
+  );
+  assert.equal(THEME_HELP.length, files.length);
+  for (const file of files) {
+    const schema = JSON.parse(
+      readFileSync(resolve(directory, file), "utf8").match(
+        /{% schema %}([\s\S]*?){% endschema %}/,
+      )[1],
+    );
+    const block = THEME_HELP.find(
+      (item) => item.id === file.replace(".liquid", ""),
+    );
+    assert.equal(block.title, schema.name);
+    assert.deepEqual(
+      block.settings.map((item) => item.id),
+      schema.settings.filter((item) => item.id).map((item) => item.id),
+    );
+    for (const setting of schema.settings.filter((item) => item.id)) {
+      const help = block.settings.find((item) => item.id === setting.id);
+      assert.equal(help.label, setting.label);
+      assert.ok(help.description);
+      if (Object.hasOwn(setting, "default"))
+        assert.ok(help.details.includes(`Default: ${setting.default}`));
+      for (const choice of setting.options || [])
+        assert.ok(help.details.includes(choice.label));
+    }
+  }
+});
+test("workspace sidebar preserves embedded context and provides a collapsed mobile toggle", async () => {
+  const html = await renderRoute(
+    "../components/Workspace.jsx",
+    [],
+    "Workspace",
+  );
+  assert.match(html, /<aside class="vsn-sidebar">/);
+  assert.match(html, /aria-expanded="false" aria-controls=/);
+  assert.match(html, /aria-label="Workspace"/);
+  assert.match(html, /aria-current="page"/);
+  assert.equal((html.match(/class="vsn-nav-link/g) || []).length, 5);
+  assert.equal((html.match(/shop=example.myshopify.com/g) || []).length, 8);
+  assert.ok(html.indexOf("<aside") < html.indexOf('class="vsn-content"'));
+  for (const route of [
+    "app.metaobjects.jsx",
+    "app.import.jsx",
+    "app.packages.jsx",
+    "app.guide.jsx",
+  ])
+    assert.match(await renderRoute(route), /<s-page inline-size="large"/);
 });
 test("permission status is separated into cards with specific page and file actions", async () => {
   const guide = await renderRoute("app.guide.jsx", [

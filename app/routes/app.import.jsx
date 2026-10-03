@@ -58,7 +58,7 @@ export default function Import() {
       action: url(),
     });
   return (
-    <s-page heading="Previewed metafield imports">
+    <s-page inline-size="large" heading="Previewed metafield imports">
       <PageIntro
         eyebrow="Bulk updates"
         title="See every change before you apply it."
