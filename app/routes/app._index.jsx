@@ -9,6 +9,7 @@ import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 import { APP_NAME } from "../product-config";
 import SearchableSelect from "../components/SearchableSelect";
+import ValidationEditor from "../components/ValidationEditor";
 import FieldIcon from "../components/FieldIcon";
 import {
   definitionKey,
@@ -214,6 +215,7 @@ export default function Index() {
     setKeyEdited(true);
     setType(field.type);
     setDescription(field.description || "");
+    setValidations(JSON.stringify(field.validations || []));
     setStorefront(PUBLIC_OWNERS.has(ownerType) ? field.storefront : "NONE");
     setPin(Number.isInteger(field.pinnedPosition));
   };
@@ -430,7 +432,7 @@ export default function Index() {
       <div id="definition-editor" className="vsn-scroll-target" />
       <s-section
         heading={
-          editingField ? "Edit definition metadata" : "Create custom definition"
+          editingField ? "Edit custom definition" : "Create custom definition"
         }
       >
         <div className="vsn-definition-layout">
@@ -522,28 +524,18 @@ export default function Index() {
                 checked={pin}
                 onChange={(event) => setPin(event.target.checked)}
               />
-              {!editingField && (
-                <details>
-                  <summary>Definition validation rules</summary>
-                  <p>
-                    Supported rules:{" "}
-                    {selectedType?.supportedValidations
-                      ?.map((rule) => rule.name)
-                      .join(", ") || "none"}
-                    . Use a JSON array of name/value objects; Shopify validates
-                    the rule values.
-                  </p>
-                  <label htmlFor="definition-validations">
-                    Validation rules (JSON)
-                  </label>
-                  <textarea
-                    id="definition-validations"
-                    rows={4}
-                    value={validations}
-                    onChange={(event) => setValidations(event.target.value)}
-                    style={{ display: "block", width: "100%" }}
-                  />
-                </details>
+              <ValidationEditor
+                type={type}
+                supported={selectedType?.supportedValidations || []}
+                value={validations}
+                onChange={setValidations}
+                disabled={!ready || busy}
+              />
+              {editingField && (
+                <p className="vsn-field-details">
+                  Review existing values before tightening rules. Shopify checks
+                  changes when you save.
+                </p>
               )}
               {editingField && (
                 <s-text>
@@ -570,6 +562,7 @@ export default function Index() {
                     setKeyEdited(false);
                     setNamespace("vsn_metafields");
                     setDescription("");
+                    setValidations("[]");
                     setStorefront("NONE");
                   }}
                 >
@@ -656,49 +649,50 @@ export default function Index() {
           placeholder="Choose a template"
           searchPlaceholder="Search loaded templates"
         />
-        {templatePages.ownerType === ownerType &&
-          templatePages.pageInfo?.hasNextPage && (
-            <ActionButton
-              loading={standardsFetcher.state !== "idle"}
-              onClick={() =>
-                loadStandards(
-                  apiUrl("/app/api/fields", {
-                    ownerType,
-                    catalog: "standard",
-                    after: templatePages.pageInfo.endCursor,
-                  }),
-                )
-              }
-            >
-              Load more templates
-            </ActionButton>
-          )}
-        <ActionButton
-          disabled={
-            !ready ||
-            busy ||
-            standardsFetcher.state !== "idle" ||
-            !matchingTemplates.some((item) => item.id === templateId)
-          }
-          onClick={() =>
-            submit({
-              actionType: "enable-standard",
-              templateId,
-              templateCursor:
-                matchingTemplates.find((item) => item.id === templateId)
-                  ?.catalogCursor || "",
-              storefront,
-            })
-          }
-        >
-          Enable template
-        </ActionButton>
+        <div className="vsn-action-row">
+          {templatePages.ownerType === ownerType &&
+            templatePages.pageInfo?.hasNextPage && (
+              <ActionButton
+                loading={standardsFetcher.state !== "idle"}
+                onClick={() =>
+                  loadStandards(
+                    apiUrl("/app/api/fields", {
+                      ownerType,
+                      catalog: "standard",
+                      after: templatePages.pageInfo.endCursor,
+                    }),
+                  )
+                }
+              >
+                Load more templates
+              </ActionButton>
+            )}
+          <ActionButton
+            disabled={
+              !ready ||
+              busy ||
+              standardsFetcher.state !== "idle" ||
+              !matchingTemplates.some((item) => item.id === templateId)
+            }
+            onClick={() =>
+              submit({
+                actionType: "enable-standard",
+                templateId,
+                templateCursor:
+                  matchingTemplates.find((item) => item.id === templateId)
+                    ?.catalogCursor || "",
+                storefront,
+              })
+            }
+          >
+            Enable template
+          </ActionButton>
+        </div>
       </s-section>
       <s-section heading="Registered definitions">
         <div className="vsn-filter-bar">
           <s-search-field
-            label="Filter by name, namespace or key"
-            labelAccessibilityVisibility="exclusive"
+            label="Search definitions"
             placeholder="Search definitions by name, namespace or key"
             value={filter}
             onInput={(event) => setFilter(event.target.value)}
@@ -764,32 +758,34 @@ export default function Index() {
                   </span>
                 </s-table-cell>
                 <s-table-cell>
-                  <ActionButton
-                    disabled={!ready || busy || !field.editable}
-                    onClick={() => edit(field)}
-                  >
-                    Edit
-                  </ActionButton>
-                  <ActionButton
-                    tone="critical"
-                    disabled={!ready || busy || !field.editable}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          `Remove ${ownerType} definition ${field.namespace}.${field.key}? Existing values will be retained.`,
+                  <div className="vsn-action-row">
+                    <ActionButton
+                      disabled={!ready || busy || !field.editable}
+                      onClick={() => edit(field)}
+                    >
+                      Edit
+                    </ActionButton>
+                    <ActionButton
+                      tone="critical"
+                      disabled={!ready || busy || !field.editable}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Remove ${ownerType} definition ${field.namespace}.${field.key}? Existing values will be retained.`,
+                          )
                         )
-                      )
-                        submit({
-                          actionType: "delete",
-                          id: field.id,
-                          namespace: field.namespace,
-                          key: field.key,
-                          confirm: `DELETE_DEFINITION:${ownerType}:${field.namespace}:${field.key}`,
-                        });
-                    }}
-                  >
-                    Remove
-                  </ActionButton>
+                          submit({
+                            actionType: "delete",
+                            id: field.id,
+                            namespace: field.namespace,
+                            key: field.key,
+                            confirm: `DELETE_DEFINITION:${ownerType}:${field.namespace}:${field.key}`,
+                          });
+                      }}
+                    >
+                      Remove
+                    </ActionButton>
+                  </div>
                 </s-table-cell>
               </s-table-row>
             ))}
@@ -880,6 +876,7 @@ export default function Index() {
                 referencesLoading={referencesFetcher.state !== "idle"}
                 key={`${resourceId}:${valueIdentity}`}
                 type={selectedDefinition.type}
+                validations={selectedDefinition.validations || []}
                 value={fieldValue}
                 onChange={setFieldValue}
                 references={
@@ -899,24 +896,26 @@ export default function Index() {
                   {referencesFetcher.data.error}
                 </s-banner>
               )}
-              <ActionButton
-                disabled={!fieldValue || valueActionFetcher.state !== "idle"}
-                variant="primary"
-                loading={valueActionFetcher.state !== "idle"}
-                onClick={() => submitValue("set")}
-              >
-                Save value
-              </ActionButton>
-              <ActionButton
-                tone="critical"
-                disabled={
-                  valueFetcher.data.value === null ||
-                  valueActionFetcher.state !== "idle"
-                }
-                onClick={() => submitValue("delete")}
-              >
-                Remove value
-              </ActionButton>
+              <div className="vsn-action-row">
+                <ActionButton
+                  disabled={!fieldValue || valueActionFetcher.state !== "idle"}
+                  variant="primary"
+                  loading={valueActionFetcher.state !== "idle"}
+                  onClick={() => submitValue("set")}
+                >
+                  Save value
+                </ActionButton>
+                <ActionButton
+                  tone="critical"
+                  disabled={
+                    valueFetcher.data.value === null ||
+                    valueActionFetcher.state !== "idle"
+                  }
+                  onClick={() => submitValue("delete")}
+                >
+                  Remove value
+                </ActionButton>
+              </div>
             </>
           )}
           {valueFetcher.data?.error && (

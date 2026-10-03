@@ -82,12 +82,12 @@ export const action = async ({ request }) => {
       const data = await graph(
         admin,
         `#graphql
-        query MetaobjectCreateFieldTypes { metafieldDefinitionTypes { name } }`,
+        query MetaobjectCreateFieldTypes { metafieldDefinitionTypes { name supportedValidations { name type } } }`,
       );
       saved = await createMetaobjectDefinition(
         admin,
         input,
-        data.metafieldDefinitionTypes.map((t) => t.name),
+        data.metafieldDefinitionTypes,
       );
     } else {
       const definition = (await listMetaobjectDefinitions(admin)).find(

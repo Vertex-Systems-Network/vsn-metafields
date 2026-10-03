@@ -1,12 +1,14 @@
 import ActionButton from "./ActionButton";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { validationPresentation } from "./ValidationEditor";
 import { REFERENCE_TYPES, valueInputHint } from "../value-types";
 
 export default function TypedValueInput({
   type,
   value,
   onChange,
+  validations = [],
   references = [],
   onFindReferences,
   referencesLoading = false,
@@ -31,6 +33,22 @@ export default function TypedValueInput({
   return (
     <>
       <s-text>{valueInputHint(type)}</s-text>
+      {validations.length > 0 && (
+        <div className="vsn-value-rules">
+          <strong>Value validation</strong>
+          <ul>
+            {validations.map((rule) => (
+              <li key={rule.name}>
+                {validationPresentation(rule, type).label}: {rule.value}
+              </li>
+            ))}
+          </ul>
+          <p className="vsn-field-details">
+            Values must meet these definition rules before saving.
+          </p>
+        </div>
+      )}
+
       {type === "boolean" ? (
         <s-select
           label="Value"
@@ -99,6 +117,12 @@ TypedValueInput.propTypes = {
   type: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  validations: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+    }),
+  ),
   references: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,

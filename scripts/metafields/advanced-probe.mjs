@@ -37,26 +37,43 @@ import { hasActivePlan } from "../../app/active-plan.server.js";
 export async function readEmptyProbeDefinition(admin, identity) {
   if (!/^vsn_probe_\d{13}_[a-f0-9]{6}$/.test(identity.type || ""))
     throw new RangeError("Disposable metaobject type required.");
-  const selected = (await listMetaobjectDefinitions(admin)).find((d) => d.id === identity.id && d.type === identity.type);
-  if (!selected) throw new Error("Disposable metaobject definition unavailable.");
+  const selected = (await listMetaobjectDefinitions(admin)).find(
+    (d) => d.id === identity.id && d.type === identity.type,
+  );
+  if (!selected)
+    throw new Error("Disposable metaobject definition unavailable.");
   return readEmptyMetaobjectDefinition(admin, selected);
 }
 
 export async function removeDisposableProbeDefinition(admin, field, nonce) {
-  const owned = /^\d{13}_[a-f0-9]{6}$/.test(nonce || "") &&
-    field.namespace === "vsn_probe" && field.name === `Disposable ${field.type}` &&
-    field.key.startsWith(`advanced_${nonce}_`) && /^(?:\d+|meta)$/.test(field.key.slice(`advanced_${nonce}_`.length));
-  if (!owned && !failedRunDisposableDefinition(field)) throw new RangeError("Disposable probe identity required.");
-  if (!field.type?.includes("_reference")) return removeDefinition(admin, [field], field);
-  const data = await graph(admin, `#graphql
+  const owned =
+    /^\d{13}_[a-f0-9]{6}$/.test(nonce || "") &&
+    field.namespace === "vsn_probe" &&
+    field.name === `Disposable ${field.type}` &&
+    field.key.startsWith(`advanced_${nonce}_`) &&
+    /^(?:\d+|meta)$/.test(field.key.slice(`advanced_${nonce}_`.length));
+  if (!owned && !failedRunDisposableDefinition(field))
+    throw new RangeError("Disposable probe identity required.");
+  if (!field.type?.includes("_reference"))
+    return removeDefinition(admin, [field], field);
+  const data = await graph(
+    admin,
+    `#graphql
     mutation CleanupDisposableReferenceDefinition($id: ID!) {
       metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: true) {
         deletedDefinitionId userErrors { message }
       }
-    }`, { id: field.id });
+    }`,
+    { id: field.id },
+  );
   const result = data.metafieldDefinitionDelete;
   if (result?.userErrors?.length || result?.deletedDefinitionId !== field.id)
-    return { ok: false, error: result?.userErrors?.[0]?.message || "Disposable deletion identity mismatch." };
+    return {
+      ok: false,
+      error:
+        result?.userErrors?.[0]?.message ||
+        "Disposable deletion identity mismatch.",
+    };
   return { ok: true };
 }
 
@@ -196,7 +213,10 @@ export async function verifyAdvancedBatch(
     assert.equal(stale.ok, false);
     assert.equal(stale.code, "STALE_OBJECT");
     const afterStale = await readResourceValue(
-      admin, "PRODUCT", product.id, primary.definition.namespace,
+      admin,
+      "PRODUCT",
+      product.id,
+      primary.definition.namespace,
       primary.definition.key,
     );
     assert.equal(afterStale.value, "Changed by probe");
@@ -217,6 +237,10 @@ export async function verifyAdvancedBatch(
             key: "question",
             name: "Question",
             type: "single_line_text_field",
+            validations: [
+              { name: "min", value: "1" },
+              { name: "max", value: "128" },
+            ],
             required: true,
           },
           {
@@ -228,11 +252,22 @@ export async function verifyAdvancedBatch(
         ],
         storefront: "NONE",
       },
-      types.map((t) => t.name),
+      types,
     );
     let selected = (await listMetaobjectDefinitions(admin)).find(
       (d) => d.id === metaDefinition.id,
     );
+    assert.deepEqual(
+      selected.fieldDefinitions
+        .find((f) => f.key === "question")
+        .validations.slice()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      [
+        { name: "max", value: "128" },
+        { name: "min", value: "1" },
+      ],
+    );
+    report.metaobjectValidationCreate = true;
     metaEntry = await saveMetaobjectEntry(admin, selected, {
       handle: `probe-${nonce.replaceAll("_", "-")}`,
       values: { question: "Question", answer: "Answer" },
@@ -370,18 +405,25 @@ export async function verifyAdvancedBatch(
       diagnostics.features.metaobjects.ready,
       hasPlan && diagnostics.features.metaobjects.missing.length === 0,
     );
-    const billingData = await graph(admin, `#graphql
+    const billingData = await graph(
+      admin,
+      `#graphql
       query ProbeActiveBillingMetadata {
         currentAppInstallation { activeSubscriptions {
           name status test trialDays lineItems { plan { pricingDetails {
             ... on AppRecurringPricing { price { amount currencyCode } interval }
           } } }
         } }
-      }`);
-    const activeBilling = billingData.currentAppInstallation?.activeSubscriptions;
-    if (!Array.isArray(activeBilling)) throw new Error("Billing metadata read unavailable.");
+      }`,
+    );
+    const activeBilling =
+      billingData.currentAppInstallation?.activeSubscriptions;
+    if (!Array.isArray(activeBilling))
+      throw new Error("Billing metadata read unavailable.");
     report.billingMetadata = activeBilling.map((subscription) => ({
-      name: subscription.name, status: subscription.status, test: subscription.test,
+      name: subscription.name,
+      status: subscription.status,
+      test: subscription.test,
       trialDays: subscription.trialDays,
       recurring: subscription.lineItems.map((item) => item.plan.pricingDetails),
     }));
@@ -410,13 +452,23 @@ export async function verifyAdvancedBatch(
       try {
         must(await mutateValue(admin, { action: "delete", ...value }));
       } catch (error) {
-        failures.push({ kind: "advanced value", ownerId: value.ownerId, key: value.definition.key, error: error.message });
+        failures.push({
+          kind: "advanced value",
+          ownerId: value.ownerId,
+          key: value.definition.key,
+          error: error.message,
+        });
       }
     for (const field of fields)
       try {
         must(await removeDisposableProbeDefinition(admin, field, nonce));
       } catch (error) {
-        failures.push({ kind: "advanced definition", id: field.id, key: field.key, error: error.message });
+        failures.push({
+          kind: "advanced definition",
+          id: field.id,
+          key: field.key,
+          error: error.message,
+        });
       }
     if (metaEntry && metaDefinition)
       try {
@@ -432,7 +484,11 @@ export async function verifyAdvancedBatch(
         });
         report.metaobjects = { ...report.metaobjects, entryDelete: true };
       } catch (error) {
-        failures.push({ kind: "metaobject entry", id: metaEntry.id, error: error.message });
+        failures.push({
+          kind: "metaobject entry",
+          id: metaEntry.id,
+          error: error.message,
+        });
       }
     if (metaDefinition)
       try {
@@ -447,7 +503,11 @@ export async function verifyAdvancedBatch(
           emptyDefinitionDelete: true,
         };
       } catch (error) {
-        failures.push({ kind: "metaobject definition", id: metaDefinition.id, error: error.message });
+        failures.push({
+          kind: "metaobject definition",
+          id: metaDefinition.id,
+          error: error.message,
+        });
       }
     if (jobIds.length)
       await db.metafieldJob.deleteMany({ where: { shop, id: { in: jobIds } } });
@@ -455,7 +515,10 @@ export async function verifyAdvancedBatch(
     report.cleanupFailures = failures;
     console.log("advanced_probe=" + JSON.stringify(report));
     if (failures.length)
-      throw new Error("Advanced fixture cleanup failed; see identity-scoped diagnostics.", { cause: originalError });
+      throw new Error(
+        "Advanced fixture cleanup failed; see identity-scoped diagnostics.",
+        { cause: originalError },
+      );
   }
   return report;
 }

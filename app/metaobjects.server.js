@@ -1,4 +1,4 @@
-import { graph } from "./definitions.server.js";
+import { graph, parseValidations } from "./definitions.server.js";
 import { encodeValue, editableValueType } from "./value-types.js";
 import { verifyReferences } from "./metafield-values.server.js";
 
@@ -100,33 +100,28 @@ export async function createMetaobjectDefinition(admin, input, supportedTypes) {
     throw new RangeError("Add 1–25 fields.");
   const keys = new Set();
   const fields = input.fields.map((item) => {
+    const typeInfo = supportedTypes.find((t) => t.name === item.type);
     if (
       !/^[a-z][a-z0-9_]{1,63}$/.test(item.key) ||
       keys.has(item.key) ||
       !item.name ||
       item.name.length > 255 ||
-      !supportedTypes.includes(item.type) ||
+      !typeInfo ||
       !editableValueType(item.type)
     )
       throw new RangeError(
         "Fields require unique keys, labels and supported types.",
       );
     keys.add(item.key);
-    if (
-      item.validations !== undefined &&
-      (!Array.isArray(item.validations) ||
-        item.validations.length > 10 ||
-        item.validations.some(
-          (v) => typeof v.name !== "string" || typeof v.value !== "string",
-        ))
-    )
-      throw new RangeError("Invalid field validations.");
     return {
       key: item.key,
       name: item.name,
       type: item.type,
       required: item.required === true,
-      validations: item.validations || [],
+      validations: parseValidations(
+        JSON.stringify(item.validations || []),
+        typeInfo,
+      ),
     };
   });
   const storefront = input.storefront || "NONE";
@@ -320,22 +315,34 @@ export async function readEmptyMetaobjectDefinition(admin, definition) {
   merchantMetaobjectType(definition.type);
   if (!/^gid:\/\/shopify\/MetaobjectDefinition\/[0-9]+$/.test(definition.id))
     throw new RangeError("Invalid metaobject definition.");
-  const data = await graph(admin, `#graphql
+  const data = await graph(
+    admin,
+    `#graphql
     query MetaobjectDefinitionRemovalState($id: ID!) {
       metaobjectDefinition(id: $id) {
         id type metaobjects(first: 1) { nodes { id } pageInfo { hasNextPage } }
       }
-    }`, { id: definition.id });
+    }`,
+    { id: definition.id },
+  );
   const current = data.metaobjectDefinition;
   const entries = current?.metaobjects;
-  if (current?.id !== definition.id || current?.type !== definition.type ||
-      !Array.isArray(entries?.nodes) || typeof entries.pageInfo?.hasNextPage !== "boolean")
-    throw new RangeError("Could not verify the selected definition's current entries.");
+  if (
+    current?.id !== definition.id ||
+    current?.type !== definition.type ||
+    !Array.isArray(entries?.nodes) ||
+    typeof entries.pageInfo?.hasNextPage !== "boolean"
+  )
+    throw new RangeError(
+      "Could not verify the selected definition's current entries.",
+    );
   if (entries.nodes.length || entries.pageInfo.hasNextPage)
     throw new RangeError("Definition still contains entries.");
   const byType = await listMetaobjectEntries(admin, definition.type);
   if (typeof byType.pageInfo.hasNextPage !== "boolean")
-    throw new RangeError("Could not verify the selected type's current entries.");
+    throw new RangeError(
+      "Could not verify the selected type's current entries.",
+    );
   if (byType.nodes.length || byType.pageInfo.hasNextPage)
     throw new RangeError("Definition still contains entries.");
   return definition;
@@ -346,9 +353,7 @@ export async function removeEmptyMetaobjectDefinition(
   confirm,
 ) {
   merchantMetaobjectType(definition.type);
-  if (
-    confirm !== `DELETE_EMPTY_DEFINITION:${definition.id}:${definition.type}`
-  )
+  if (confirm !== `DELETE_EMPTY_DEFINITION:${definition.id}:${definition.type}`)
     throw new RangeError(
       "Only confirmed empty definitions can be removed. Remove selected entries first.",
     );
