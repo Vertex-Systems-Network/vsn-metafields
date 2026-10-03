@@ -1,6 +1,6 @@
 # VSN | Metafields 1.1.1 — popover, alignment and validation
 
-The four screenshot-reported changes are implemented for development and isolated staging. Release checks and exact-source deployment evidence are recorded in the follow-up evidence file after verification.
+The four screenshot-reported changes are implemented for development and isolated staging. Release checks and exact-source deployment evidence are recorded in the follow-up evidence file after verification. The first staging attempt deployed the Worker and passed health/session reads, then exposed a missing `node:assert/strict` import in the new offline rule-readback probe. Disposable cleanup passed. The probe import is corrected before repeating acceptance.
 
 | Request | Implementation |
 | --- | --- |
