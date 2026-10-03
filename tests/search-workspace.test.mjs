@@ -642,6 +642,64 @@ test("overlay geometry flips above, fits narrow screens and remains anchored bel
   assert.equal(full.maxHeight, 194);
 });
 
+test("dropdown geometry fits a panned zoom viewport and uses layout coordinates above a mobile keyboard", () => {
+  const viewport = { offsetLeft: 180, offsetTop: 200, layoutHeight: 800 };
+  const above = selectPosition(
+    { left: 160, width: 220, top: 500, bottom: 532 },
+    320, 360, 80, viewport,
+  );
+  assert.equal(above.left, 188);
+  assert.equal(above.bottom, 306);
+  assert.equal(above.maxHeight, 286);
+  const top = 800 - above.bottom - above.maxHeight;
+  assert.ok(top >= 208);
+  assert.ok(above.left + above.width <= 492);
+  const below = selectPosition(
+    { left: 450, width: 220, top: 260, bottom: 292 },
+    320, 360, 80, viewport,
+  );
+  assert.equal(below.left, 272);
+  assert.equal(below.top, 298);
+  assert.equal(below.maxHeight, 254);
+  assert.ok(below.top + below.maxHeight <= 552);
+});
+
+test("open dropdown tracks visual viewport panning and removes listeners when closed", async () => {
+  const oldWindow = globalThis.window, oldDocument = globalThis.document;
+  const listeners = new Map();
+  const listen = (scope) => ({
+    addEventListener: (name, fn) => listeners.set(`${scope}:${name}`, fn),
+    removeEventListener: (name) => listeners.delete(`${scope}:${name}`),
+  });
+  const viewport = { width: 320, height: 360, offsetLeft: 180, offsetTop: 200, ...listen("visual") };
+  globalThis.window = { innerWidth: 640, innerHeight: 360, visualViewport: viewport, ...listen("window") };
+  globalThis.document = {
+    body: { nodeType: 1 }, documentElement: { clientHeight: 800 },
+    querySelector: () => null, getElementById: () => null, ...listen("document"),
+  };
+  const h = await componentHarness("app/components/SearchableSelect.jsx");
+  const props = { label: "Type", value: "text", options: [{ value: "text", label: "Text" }], onChange: () => {} };
+  const panel = (tree) => tree.props.children.at(-1).children;
+  try {
+    let tree = h.render(props);
+    h.refs[1].current = { getBoundingClientRect: () => ({ left: 160, width: 220, top: 500, bottom: 532 }) };
+    node(tree, (n) => n.props?.className === "vsn-select-trigger").props.onClick();
+    tree = h.render(props); h.flushEffects(); tree = h.render(props);
+    assert.equal(panel(tree).props.style.bottom, 306);
+    assert.equal(panel(tree).props.style.left, 188);
+    assert.equal(panel(tree).props.style.maxHeight, 286);
+    viewport.offsetLeft = 220; viewport.offsetTop = 240;
+    listeners.get("visual:scroll")(); tree = h.render(props);
+    assert.equal(panel(tree).props.style.left, 228);
+    assert.equal(panel(tree).props.style.maxHeight, 246);
+    viewport.offsetTop = 550;
+    listeners.get("visual:scroll")(); tree = h.render(props);
+    assert.equal(node(tree, (n) => n.props?.className === "vsn-select-trigger").props["aria-expanded"], false);
+    h.cleanup();
+    assert.equal(listeners.size, 0);
+  } finally { h.cleanup(); globalThis.window = oldWindow; globalThis.document = oldDocument; }
+});
+
 test("visible validation controls encode choices and preserve unrelated rules; malformed JSON stays repairable", async () => {
   const h = await componentHarness("app/components/ValidationEditor.jsx");
   let value = JSON.stringify([{ name: "max", value: "20" }]);

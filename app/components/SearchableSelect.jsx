@@ -72,14 +72,18 @@ export default function SearchableSelect({
       const sidebar =
         navigationHeight > 0 ? document.querySelector?.(".vsn-sidebar") : null;
       const header = document.querySelector?.(".vsn-header");
-      const topInset = Math.max(8,
+      const topInset = Math.max((view?.offsetTop || 0) + 8,
         (header?.getBoundingClientRect().bottom || 0) + 8,
         sidebar ? sidebar.getBoundingClientRect().bottom + 8 : 0);
-      if (rect.bottom <= topInset || rect.top >= height) {
+      if (rect.bottom <= topInset || rect.top >= (view?.offsetTop || 0) + height) {
         setOpen(false);
         return;
       }
-      const next = selectPosition(rect, width, height, topInset);
+      const next = selectPosition(rect, width, height, topInset, {
+        offsetLeft: view?.offsetLeft || 0,
+        offsetTop: view?.offsetTop || 0,
+        layoutHeight: document.documentElement?.clientHeight || window.innerHeight,
+      });
       setPosition((previous) =>
         previous &&
         Object.keys(next).every((key) => previous[key] === next[key]) &&
@@ -104,11 +108,13 @@ export default function SearchableSelect({
       passive: true,
     });
     window.visualViewport?.addEventListener("resize", reposition);
+    window.visualViewport?.addEventListener("scroll", reposition);
     return () => {
       document.removeEventListener("pointerdown", outside);
       window.removeEventListener("resize", reposition);
       window.removeEventListener("scroll", reposition, true);
       window.visualViewport?.removeEventListener("resize", reposition);
+      window.visualViewport?.removeEventListener("scroll", reposition);
     };
   }, [open]);
   useEffect(() => {
