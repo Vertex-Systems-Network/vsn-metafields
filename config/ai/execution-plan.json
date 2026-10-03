@@ -90,7 +90,13 @@
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
         "docs/evidence/metafields-staging-2026-10-02.json",
-        "docs/evidence/metafields-final-staging-2026-10-02.json"
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -117,7 +123,13 @@
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
         "docs/evidence/metafields-staging-2026-10-02.json",
-        "docs/evidence/metafields-final-staging-2026-10-02.json"
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -144,7 +156,13 @@
         "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
         "docs/adr/0006-metafield-definition-ownership.md",
         "docs/evidence/metafields-staging-2026-10-02.json",
-        "docs/evidence/metafields-final-staging-2026-10-02.json"
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -159,7 +177,7 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -173,7 +191,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -188,7 +212,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Staging extension released; authenticated Shopify editor/storefront acceptance on two themes remains pending"
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -203,7 +227,13 @@
         "docs/adr/0006-metafield-definition-ownership.md",
         "docs/evidence/metafields-final-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -218,7 +248,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Staging extension released; authenticated Shopify editor/storefront acceptance on two themes remains pending"
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -233,7 +263,13 @@
         "docs/adr/0006-metafield-definition-ownership.md",
         "docs/evidence/metafields-final-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -249,7 +285,7 @@
       "priority": 7,
       "status": "verification_required",
       "blockers": [
-        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -263,7 +299,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -278,7 +320,7 @@
       "priority": 8,
       "status": "verification_required",
       "blockers": [
-        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -292,7 +334,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -308,7 +356,7 @@
       "priority": 9,
       "status": "verification_required",
       "blockers": [
-        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
@@ -322,7 +370,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -338,7 +392,7 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Required development CI and representative staging service acceptance passed. Full authenticated merchant UI and applicable two-theme/storefront/accessibility acceptance remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -352,7 +406,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {
@@ -369,7 +429,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Full merchant browser flow, two-theme editor/storefront and accessibility evidence remain pending."
+        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -383,7 +443,13 @@
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/evidence/metafields-storefront-qa-2026-10-03.json"
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
       ]
     },
     {

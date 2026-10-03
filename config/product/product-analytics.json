@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "pending_applicability_detection",
+  "status": "manual_outcome_contract_defined_baseline_pending",
   "activation_scope": "child_project",
   "metric_examples": [
     "activation",

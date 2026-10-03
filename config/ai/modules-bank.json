@@ -9,7 +9,7 @@
         "Capability and access registry"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [],
       "option_ids": [
@@ -36,10 +36,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "complete",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-staging-2026-10-02.json",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -51,7 +63,7 @@
         "Standard and custom definition manager"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-CAPABILITY"
@@ -80,10 +92,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "complete",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-staging-2026-10-02.json",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -95,7 +119,7 @@
         "Typed resource values"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-DEFINITIONS"
@@ -124,10 +148,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "verification_required",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -139,7 +175,7 @@
         "Metaobject definitions and entries"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-CAPABILITY"
@@ -168,10 +204,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "verification_required",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -183,7 +231,7 @@
         "Contextual theme app blocks"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-VALUES"
@@ -212,10 +260,25 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "verification_required",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-124-REPORT.md",
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-final-staging-2026-10-02.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -227,7 +290,7 @@
         "Bulk value jobs"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-VALUES"
@@ -256,10 +319,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "verification_required",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     },
@@ -271,7 +346,7 @@
         "UX, observability and release safety"
       ],
       "boundaries": [
-        "No production mutation or unsupported storefront exposure from planning"
+        "Local/development -> isolated staging -> reviewed main/live promotion; no unsupported owner/type/public-data claim."
       ],
       "dependencies": [
         "MOD-META-THEME"
@@ -301,10 +376,22 @@
         "Relevant accessibility/security/performance checks",
         "Traceable staging evidence"
       ],
-      "status": "not_started",
-      "completion_evidence": [],
+      "status": "in_progress",
+      "completion_evidence": [
+        "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
+        "docs/evidence/metafields-storefront-qa-2026-10-03.json",
+        "docs/evidence/metafields-brand-ui-plans-2026-10-03.json",
+        "docs/evidence/metafields-guided-workspace-2026-10-03.json",
+        "docs/evidence/metafields-search-workspace-2026-10-03.json",
+        "docs/evidence/metafields-popover-validation-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-help-2026-10-03.json",
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+      ],
       "update_notes": [
-        "Proposed by 2026-10-01 user intake; not implemented"
+        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
     }

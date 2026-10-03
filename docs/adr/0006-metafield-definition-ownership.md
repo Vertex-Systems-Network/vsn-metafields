@@ -25,3 +25,7 @@ The staging lifecycle probe uses dedicated staging app credentials, certified st
 ## 2026-10-02 reference-definition retention clarification
 
 Actual staging run 36996039029 established that Shopify requires associated-metafield deletion when removing reference-type definitions. The merchant app therefore blocks reference removal before any mutation and directs the merchant to Shopify's native impact review. Namespace reset preflights reference definitions before deleting anything. Non-reference removal retains values as decided above. This narrows removal support to preserve the data-safety decision; it does not grant permission to bulk-delete merchant values. Only disposable staging probe identities use associated deletion for fixture cleanup, separately from merchant routes.
+
+## 2026-10-03 supported validation amendment
+
+The user authorized visible field-value validation controls. v1.1.1 supports type-advertised validation-rule create/edit/clear, rejects invalid rule names/types through current Shopify metadata, displays saved rules and verifies persisted edits through Shopify readback. This supersedes the original future-only validation-edit sentence above for supported rule changes. Namespace/key/type conversion and namespace/value migration remain immutable/deferred; no silent conversion or copying is authorized. Actual merchant validation/error UX remains pending. Evidence: `docs/evidence/metafields-popover-validation-2026-10-03.json`, retained in `docs/evidence/metafields-sidebar-collapse-2026-10-03.json`.

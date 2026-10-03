@@ -1,5 +1,6 @@
 # AI-Native Pre-Plan — VSN Metafields expansion
 
+Historical planning snapshot: initial2026-10-01 facts/status below are retained for provenance. Current implementation and acceptance are governed by `config/ai/execution-plan.json`, `config/ai/modules-bank.json`, `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md` and exact release evidence through v1.2.1. This snapshot is not the current completion report.
 Status: project-specific planning draft. Existing PHASE-01 Cloudflare rollback certification remains the current production work. This feature initiative must not overwrite its resume point.
 
 ## 1. Product Objective

@@ -1,5 +1,6 @@
 # Shopify metafield capability matrix — planning evidence
 
+Historical planning snapshot: initial2026-10-01 facts/status below are retained for provenance. Current implementation and acceptance are governed by `config/ai/execution-plan.json`, `config/ai/modules-bank.json`, `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md` and exact release evidence through v1.2.1. This snapshot is not the current completion report.
 Reference API: repository config uses Admin GraphQL 2026-07. The app remains pinned to 2026-07; do not follow the moving latest alias. Source: https://shopify.dev/docs/api/admin-graphql/2026-07/enums/MetafieldOwnerType (accessed 2026-10-01). This is a documentation inventory, **not a shop-level probe**. Definition support, scopes, value access and Liquid storefront availability require verification per owner.
 
 ## Owner inventory
