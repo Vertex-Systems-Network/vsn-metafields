@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { build } from "esbuild";
+import { build, transformSync } from "esbuild";
 import { createRequire } from "node:module";
 import React from "react";
 import { renderToString } from "react-dom/server";
@@ -8,10 +8,12 @@ import { resolve } from "node:path";
 import { readFileSync, readdirSync } from "node:fs";
 import { HELP_TOPICS } from "../app/help-content.js";
 import { THEME_HELP } from "../app/theme-help.js";
+import { APP_NAME, appDisplayName } from "../app/product-config.js";
+import { requestAppName } from "../app/product-identity.server.js";
 
 const require = createRequire(import.meta.url);
 const cache = new Map();
-async function renderRoute(name, fetchers = [], exportName = "default") {
+async function renderRoute(name, fetchers = [], exportName = "default", props = {}) {
   if (!cache.has(name))
     cache.set(
       name,
@@ -70,7 +72,7 @@ async function renderRoute(name, fetchers = [], exportName = "default") {
     module.exports,
   );
   return renderToString(
-    React.createElement(module.exports[exportName]),
+    React.createElement(module.exports[exportName], props),
   ).replace(/<!--.*?-->/g, "");
 }
 test("Metaobjects first render does not dereference an absent entries response", async () => {
@@ -84,6 +86,65 @@ test("Metaobjects first render does not dereference an absent entries response",
     ]),
     /Your first reusable content collection/,
   );
+});
+test("deployment identity overrides optimized build mode for app titles", () => {
+  assert.equal(requestAppName({ cloudflare: { env: { APP_ENV: "staging", NODE_ENV: "production" } } }), `${APP_NAME} (Staging)`);
+  assert.equal(requestAppName({ cloudflare: { env: { APP_ENV: "production", NODE_ENV: "development" } } }), APP_NAME);
+  assert.equal(requestAppName({ cloudflare: { env: { APP_ENV: "local" } } }), `${APP_NAME} (Dev)`);
+  assert.equal(appDisplayName("development"), `${APP_NAME} (Dev)`);
+  assert.equal(appDisplayName(undefined), APP_NAME);
+});
+test("actual page loaders, metadata and health use trusted server identity, ignoring URL overrides", async () => {
+  const { PRO_PLAN } = await import("../app/billing-config.js");
+  const load = (file) => {
+    const module = { exports: {} };
+    const code = transformSync(readFileSync(resolve(file), "utf8"), { loader: "jsx", format: "cjs" }).code;
+    const deps = {
+      "react-router": {},
+      "@shopify/shopify-app-react-router/server": {},
+      "@shopify/shopify-app-react-router/react": {},
+      "@shopify/app-bridge-react": {},
+      "../shopify.server": { authenticate: { admin: async () => ({}) } },
+      "../../shopify.server": { login: () => {} },
+      "../db.server": {},
+      "../components/Workspace": {},
+      "../styles/workspace.css": {},
+      "./styles.module.css": {},
+      "../product-config": { APP_NAME, APP_VERSION: "test-version" },
+      "../../product-config": { APP_NAME },
+      "../product-identity.server": { requestAppName },
+      "../../product-identity.server": { requestAppName },
+      "../billing-config": { PRO_PLAN },
+    };
+    new Function("require", "module", "exports", code)((id) => { assert.ok(id in deps, id); return deps[id]; }, module, module.exports);
+    return module.exports;
+  };
+  const app = load("app/routes/app.jsx"), landing = load("app/routes/_index/route.jsx"), health = load("app/routes/healthz.jsx");
+  for (const APP_ENV of ["local", "staging", "production"]) {
+    const context = { cloudflare: { env: { APP_ENV, NODE_ENV: "production", APP_COMMIT_SHA: "tested-sha", SHOPIFY_API_SECRET: "must-not-leak" } } };
+    const request = new Request("https://example.invalid/?APP_ENV=production&title=attacker");
+    for (const route of [app, landing]) {
+      const data = await route.loader({ request, context });
+      assert.equal(data.appName, appDisplayName(APP_ENV));
+      assert.equal(route.meta({ data })[0].title, data.appName);
+    }
+    const response = await health.loader({ context });
+    const data = await response.json();
+    assert.equal(data.displayName, appDisplayName(APP_ENV));
+    assert.equal(data.commitSha, "tested-sha");
+    assert.equal(data.plan.amount, 55);
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+    assert.ok(!JSON.stringify(data).includes("must-not-leak"));
+  }
+});
+test("workspace server rendering uses the same environment title in its header and footer", async () => {
+  for (const environment of ["local", "staging", "production"]) {
+    const appName = appDisplayName(environment);
+    const html = await renderRoute("../components/Workspace.jsx", [], "Workspace", { appName });
+    assert.ok(html.includes(`aria-label="${appName} home"`));
+    assert.equal((html.match(new RegExp(`<span>${appName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</span>`, "g")) || []).length, 2);
+    if (environment === "production") assert.doesNotMatch(html, /\(Dev\)|\(Staging\)/);
+  }
 });
 test("Metaobjects renders failed or malformed catalog responses without an application crash", async () => {
   assert.match(

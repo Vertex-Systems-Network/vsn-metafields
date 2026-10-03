@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "project_classified_acceptance_pending",
   "activation_scope": "child_project",
-  "last_reconciled_at": "2026-10-03T17:36:55.550344+00:00",
+  "last_reconciled_at": "2026-10-03T18:21:21.242652+00:00",
   "last_reconciled_ref": "4af68de2eb63796aca93254186dca1a96d8333db",
   "requirements": [
     {
@@ -133,7 +133,7 @@
       "name": "Architecture Decision Records",
       "applicability": "applicable",
       "state": "verification_required",
-      "reason": "Existing accepted ownership/access ADR is durable, while architecture registry proposals need reconciliation to implemented decisions and final acceptance.",
+      "reason": "Architecture registry links accepted ADR0006 and supersedes overlapping discovery proposals while preserving retention/validation amendments. Final release review is separate.",
       "evidence_refs": [
         "docs/adr/0006-metafield-definition-ownership.md",
         "config/architecture/decision-records.json"
@@ -141,7 +141,7 @@
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": [
-        "Architecture registry proposals have not been fully reconciled or acceptance-certified."
+        "Final committed release-candidate architecture review pending; no independent reviewer certification asserted."
       ]
     },
     {
@@ -163,7 +163,7 @@
       "name": "Compatibility, Deprecation and End-of-Life Management",
       "applicability": "applicable",
       "state": "in_progress",
-      "reason": "Node22.13..<23, pinned Admin API2026-07 and exact dependency locks are enforced. Formal support/EOL review and notification ownership are not fully recorded.",
+      "reason": "Project pins and official Node22/Shopify2026-07 lifecycle dates recorded without automatic dependency/API upgrades. Patch/security assessment and an actual owner remain pending.",
       "evidence_refs": [
         "package.json",
         "package-lock.json",
@@ -173,7 +173,7 @@
       "last_verified_ref": null,
       "last_verified_at": null,
       "blocking_findings": [
-        "Upstream support/EOL monitoring and owner assignment pending; no removal dates invented."
+        "Actual maintenance owner and old Node22.13.0 patch/security assessment pending; no runtime upgrade performed."
       ]
     },
     {
@@ -181,10 +181,11 @@
       "name": "Operational Runbooks and Resilience Drills",
       "applicability": "applicable",
       "state": "in_progress",
-      "reason": "Existing production rollback certification and feature staging guards are recorded. Feature-specific recovery runbooks are added; provider restore/outage drills are not claimed.",
+      "reason": "Recovery procedures registered for staging deployment, database/session and guarded production recovery. No restore or outage drill executed.",
       "evidence_refs": [
         "docs/operations/metafields-recovery.md",
-        "docs/development-release-flow.md"
+        "docs/development-release-flow.md",
+        "config/operations/runbooks-and-drills.json"
       ],
       "last_verified_ref": null,
       "last_verified_at": null,

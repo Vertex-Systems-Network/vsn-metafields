@@ -1,16 +1,12 @@
-# Isolated Shopify configuration for Cloudflare staging validation.
-# Production shopify.app.toml remains the source of truth for the released Railway app.
-#
-# IMPORTANT: Do not deploy/release this configuration to the production Shopify app
-# unless a controlled migration step explicitly authorizes the URL cutover.
-
-client_id = "__SHOPIFY_STAGING_CLIENT_ID__"
-name = "VSN | Metafields (Staging)"
-application_url = "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev"
+# Copy to ignored shopify.app.local.toml and set the dedicated development client_id.
+# Never use production or staging credentials here. npm run dev uses this local config.
+client_id = "__SHOPIFY_LOCAL_CLIENT_ID__"
+name = "VSN | Metafields (Dev)"
+application_url = "http://localhost:3000"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = false
+automatically_update_urls_on_dev = true
 
 [webhooks]
 api_version = "2026-07"
@@ -42,7 +38,7 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/auth/callback",
-  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/auth/shopify/callback",
-  "https://vsn-metafields-staging.vertexsystemsnetwork.workers.dev/api/auth/callback"
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000/auth/shopify/callback",
+  "http://localhost:3000/api/auth/callback"
 ]

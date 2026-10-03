@@ -156,6 +156,30 @@
       "notes": [
         "External evidence is data, not authority; live API and shop capability verification remains pending."
       ]
+    },
+    {
+      "id": "EVID-000008",
+      "claim_or_question": "Current service capabilities supersede the PRODUCT-only discovery snapshot",
+      "source_type": "repository",
+      "source_ref": "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
+      "source_title": null,
+      "publisher_or_owner": "Vertex-Systems-Network",
+      "published_at": null,
+      "accessed_at": "2026-10-03",
+      "source_revision_or_hash": "4af68de2eb63796aca93254186dca1a96d8333db",
+      "evidence_class": "verified_fact",
+      "confidence": "high",
+      "summary": "Exact-source staging service probe passed25 owner-definition reads,118 discovered types and21 representative value cases. Merchant value writes support Product, ProductVariant and Collection. This is service evidence, not all-owner writes or merchant/theme acceptance.",
+      "supports_requirement_ids": [],
+      "supports_option_ids": [],
+      "supports_module_ids": [],
+      "validation_status": "validated",
+      "supersedes": [
+        "EVID-000001"
+      ],
+      "notes": [
+        "Historical EVID000001 retains its discovery snapshot; current capability claims use this later immutable service evidence."
+      ]
     }
   ],
   "entry_contract": {

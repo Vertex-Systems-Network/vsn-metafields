@@ -1,8 +1,48 @@
 {
   "schema_version": 1,
-  "status": "pending_applicability_detection",
+  "status": "project_versions_inventoried_owner_review_pending",
   "activation_scope": "child_project",
-  "supported_versions": [],
+  "supported_versions": [
+    {
+      "subject": "Node.js build/test runtime",
+      "current_version": "22.13.0",
+      "supported_line": "22.x",
+      "upstream_eol_at": "2027-04-30",
+      "upstream_source": "https://github.com/nodejs/Release",
+      "verified_on": "2026-10-03",
+      "evidence_refs": [
+        "package.json",
+        ".github/workflows/app-validation.yml"
+      ],
+      "review_cadence": "Before each release and monthly for patch/security notices",
+      "owner": null,
+      "status": "Project pin recorded; patch/security assessment and migration owner pending. Major-line support does not prove this old patch is current."
+    },
+    {
+      "subject": "Shopify Admin GraphQL and webhooks",
+      "current_version": "2026-07",
+      "upstream_accessible_until": "2027-07-16T15:00:00Z",
+      "upstream_source": "https://shopify.dev/docs/api/usage/versioning",
+      "verified_on": "2026-10-03",
+      "evidence_refs": [
+        "app/metafield-capabilities.js",
+        "shopify.app.cloudflare-staging.toml"
+      ],
+      "review_cadence": "Quarterly and before release; inspect deprecation/fall-forward headers and API health",
+      "owner": null,
+      "status": "Keep tested API pin; upgrade requires schema diff, affected contracts, isolated staging and reviewed rollout."
+    },
+    {
+      "subject": "Liquid settings and saved merchant configuration",
+      "current_version": "148 shipped theme setting IDs",
+      "evidence_refs": [
+        "app/theme-help.js",
+        "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md"
+      ],
+      "owner": null,
+      "status": "Do not remove/rename saved IDs or immutable field identities without consumer inventory, migration/rollback and two-theme acceptance."
+    }
+  ],
   "deprecations": [],
   "deprecation_template": {
     "id": "DEP-0001",

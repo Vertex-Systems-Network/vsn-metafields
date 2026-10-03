@@ -6,7 +6,7 @@
     {
       "id": "ADR-0001",
       "title": "Metafield capability and storefront rendering boundary",
-      "status": "proposed",
+      "status": "superseded",
       "context": "Broad owner/type support must not imply Liquid access or unsafe public exposure.",
       "alternatives": [
         "Hardcode all owner/type combinations",
@@ -14,7 +14,8 @@
       ],
       "evidence_refs": [
         "EVID-000002",
-        "EVID-000003"
+        "EVID-000003",
+        "docs/adr/0006-metafield-definition-ownership.md"
       ],
       "decision": "Propose registry-driven Admin capabilities and contextual theme app blocks; retain existing stack.",
       "consequences": [
@@ -33,12 +34,12 @@
       "decided_by": null,
       "decided_at": null,
       "supersedes": [],
-      "superseded_by": null
+      "superseded_by": "ADR-0006"
     },
     {
       "id": "ADR-0002",
       "title": "Standard templates and existing custom namespace",
-      "status": "proposed",
+      "status": "superseded",
       "context": "The app currently creates custom definitions in vsn_metafields. Standard definitions have Shopify template IDs and reserved namespace/key; existing merchant values must not be rewritten or deleted by a new catalog.",
       "alternatives": [
         "Treat standards as ordinary custom definitions in vsn_metafields",
@@ -46,7 +47,8 @@
       ],
       "evidence_refs": [
         "EVID-000001",
-        "EVID-000004"
+        "EVID-000004",
+        "docs/adr/0006-metafield-definition-ownership.md"
       ],
       "decision": "Propose separate standard-template enable flow and custom-definition flow. Preserve vsn_metafields in place. Any namespace migration needs an inventory, per-shop conflict report, value mapping, opt-in/rollback plan and staging evidence before approval.",
       "consequences": [
@@ -65,12 +67,12 @@
       "decided_by": null,
       "decided_at": null,
       "supersedes": [],
-      "superseded_by": null
+      "superseded_by": "ADR-0006"
     },
     {
       "id": "ADR-0003",
       "title": "Theme block source and presentation configuration",
-      "status": "proposed",
+      "status": "superseded",
       "context": "Merchants need extensive block customization, while Liquid context, dynamic source compatibility and safe storefront access vary by template and type.",
       "alternatives": [
         "A universal block with arbitrary namespace/key and raw value output",
@@ -78,7 +80,8 @@
       ],
       "evidence_refs": [
         "EVID-000002",
-        "EVID-000003"
+        "EVID-000003",
+        "docs/adr/0006-metafield-definition-ownership.md"
       ],
       "decision": "Propose contextual Single Field and Specifications blocks with typed renderers, native dynamic sources when compatible, bounded controls and explicit empty states. Defer any external block configuration service until theme schema limits are verified in two themes.",
       "consequences": [
@@ -97,6 +100,45 @@
       "decided_by": null,
       "decided_at": null,
       "supersedes": [],
+      "superseded_by": "ADR-0006"
+    },
+    {
+      "id": "ADR-0006",
+      "title": "Metafield definition ownership, access and migration",
+      "status": "accepted",
+      "context": "Existing accepted ADR0006 and its retention/validation amendments supersede overlapping discovery proposals; reconciliation creates no new architectural permission.",
+      "alternatives": [
+        "Discovery proposals ADR0001..0003",
+        "Accepted registry-driven capability and merchant-owned definition decisions already recorded in ADR0006"
+      ],
+      "evidence_refs": [
+        "docs/adr/0006-metafield-definition-ownership.md",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
+      ],
+      "decision": "Retain API2026-07, discovered capabilities, merchant-owned namespaces, official standard-template enable flow, scoped retention and supported validation edits. Use contextual typed public blocks; protected owners and silent migrations remain outside scope.",
+      "consequences": [
+        "Shopify reads do not imply all-owner writes or public Liquid access",
+        "Existing namespace/key/type and merchant values are preserved",
+        "Actual two-theme and merchant acceptance remains pending"
+      ],
+      "security_privacy_data_operational_cost_impact": [
+        "No new scopes, external configuration service, production cutover or billing permission",
+        "Reference-type definition removal remains blocked in merchant app when Shopify cannot retain associated values"
+      ],
+      "reversibility": "medium",
+      "affected_modules_or_contracts": [
+        "MOD-META-CAPABILITY",
+        "MOD-META-DEFINITIONS",
+        "MOD-META-VALUES",
+        "MOD-META-THEME"
+      ],
+      "decided_by": "Project user instruction as recorded in accepted ADR0006; no new decision asserted",
+      "decided_at": null,
+      "supersedes": [
+        "ADR-0001",
+        "ADR-0002",
+        "ADR-0003"
+      ],
       "superseded_by": null
     }
   ],

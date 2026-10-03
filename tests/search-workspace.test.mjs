@@ -399,6 +399,7 @@ async function componentHarness(path, fetchers = [], exportName = "default") {
     useRef: () => (refs[refIndex++] ||= { current: null }),
     useEffect: (fn) => effects.push(fn),
     useCallback: (fn) => fn,
+    useContext: (context) => context._currentValue,
   };
   const router = {
     useLocation: () => ({

@@ -1,8 +1,99 @@
 {
   "schema_version": 1,
-  "status": "template_blueprint",
+  "status": "project_runbooks_registered_drills_pending",
   "activation_scope": "child_project_when_production_operational_risk_exists",
-  "runbooks": [],
+  "runbooks": [
+    {
+      "id": "RUNBOOK-0001",
+      "scenario": "Bad staging feature deployment",
+      "owner": null,
+      "preconditions": [
+        "Certified staging Worker/app/Neon identity; exact development SHA; existing staging authorization"
+      ],
+      "detection": [
+        "Failed runtime/API probe or source mismatch"
+      ],
+      "containment_steps": [
+        "Stop on environment/source mismatch; preserve sanitized failure evidence"
+      ],
+      "recovery_steps": [
+        "Follow the matching section of docs/operations/metafields-recovery.md"
+      ],
+      "verification_steps": [
+        "Record exact source, provider outcome, cleanup and measured recovery result"
+      ],
+      "rollback_or_fallback": [
+        "Guarded reviewed source revert/roll-forward; never delete merchant values or use obsolete Railway fallback"
+      ],
+      "escalation": [
+        "Actual operator assignment remains pending"
+      ],
+      "last_verified_at": null,
+      "evidence_refs": [
+        "docs/operations/metafields-recovery.md"
+      ]
+    },
+    {
+      "id": "RUNBOOK-0002",
+      "scenario": "Database/session recovery",
+      "owner": null,
+      "preconditions": [
+        "Actual provider backup inventory and reviewed restore target before restore; no production writes"
+      ],
+      "detection": [
+        "Database identity/access failure or missing session/job state"
+      ],
+      "containment_steps": [
+        "Stop on environment/source mismatch; preserve sanitized failure evidence"
+      ],
+      "recovery_steps": [
+        "Follow the matching section of docs/operations/metafields-recovery.md"
+      ],
+      "verification_steps": [
+        "Record exact source, provider outcome, cleanup and measured recovery result"
+      ],
+      "rollback_or_fallback": [
+        "Guarded reviewed source revert/roll-forward; never delete merchant values or use obsolete Railway fallback"
+      ],
+      "escalation": [
+        "Actual operator assignment remains pending"
+      ],
+      "last_verified_at": null,
+      "evidence_refs": [
+        "docs/operations/metafields-recovery.md"
+      ]
+    },
+    {
+      "id": "RUNBOOK-0003",
+      "scenario": "Production stop/rollback",
+      "owner": null,
+      "preconditions": [
+        "Separate live authorization and current guarded rollback-window evidence; prior closed window grants no permission"
+      ],
+      "detection": [
+        "Release acceptance or subscription/session fingerprint failure"
+      ],
+      "containment_steps": [
+        "Stop on environment/source mismatch; preserve sanitized failure evidence"
+      ],
+      "recovery_steps": [
+        "Follow the matching section of docs/operations/metafields-recovery.md"
+      ],
+      "verification_steps": [
+        "Record exact source, provider outcome, cleanup and measured recovery result"
+      ],
+      "rollback_or_fallback": [
+        "Guarded reviewed source revert/roll-forward; never delete merchant values or use obsolete Railway fallback"
+      ],
+      "escalation": [
+        "Actual operator assignment remains pending"
+      ],
+      "last_verified_at": null,
+      "evidence_refs": [
+        "docs/operations/metafields-recovery.md"
+      ]
+    }
+  ],
   "drills": [],
   "runbook_template": {
     "id": "RUNBOOK-0001",

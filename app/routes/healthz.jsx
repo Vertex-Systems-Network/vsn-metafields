@@ -1,5 +1,6 @@
 import { PRO_PLAN } from "../billing-config";
-import { APP_NAME, APP_VERSION } from "../product-config";
+import { APP_VERSION } from "../product-config";
+import { requestAppName } from "../product-identity.server";
 
 export const loader = async ({ context }) => {
   const commitSha = context?.cloudflare?.env?.APP_COMMIT_SHA ?? null;
@@ -8,7 +9,7 @@ export const loader = async ({ context }) => {
     {
       ok: true,
       service: "vsn-metafields",
-      displayName: APP_NAME,
+      displayName: requestAppName(context),
       appVersion: APP_VERSION,
       commitSha,
       plan: {
