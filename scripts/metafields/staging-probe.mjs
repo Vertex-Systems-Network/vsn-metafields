@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { getIntrospectionQuery } from "graphql";
 import { verifyShopifySchema } from "./check-schema.mjs";
 import { readFileSync } from "node:fs";
