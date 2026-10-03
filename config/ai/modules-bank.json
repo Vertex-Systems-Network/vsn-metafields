@@ -47,10 +47,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -103,10 +104,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -159,10 +161,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -215,10 +218,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -274,10 +278,11 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/ai/METAFIELDS-BATCH-356-REPORT.md",
-        "docs/evidence/metafields-batch356-staging-2026-10-02.json"
+        "docs/evidence/metafields-batch356-staging-2026-10-02.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -330,10 +335,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
@@ -387,10 +393,11 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "update_notes": [
-        "Reconciled 2026-10-03 against development 44ed908e7d70db1684f8f467f0390125f0b890c1 and exact staging runtime/release source80188cb9b62b59cfde30f6d8f98466063443a57c. Representative service acceptance is linked; module status follows actual work-unit acceptance, not code existence.",
+        "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules."
       ],
       "removal_or_deprecation_notes": []
