@@ -4,8 +4,8 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "Permissions, action colors, screen loaders, seven illustrated help guides and disclosed tier gates: PR172 merged development b35c6d565327730887d4e5d2906d2e034287a1fd. Local134 tests and release checks passed; PR CI37075902060/37075902106, merged-source CI37076045036/37076045024, runtime37076124068 and active staging release37076437808 passed. All21 representative typed cases, metaobjects, bulk, diagnostics and complete disposable cleanup passed. Store-owner optional page/file consent and full merchant/two-theme/accessibility acceptance remain pending.",
-  "next_valid_work_unit": "Execute docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md when authenticated staging Shopify browser access is available, including separate page/file optional permission approval and real pickers, loaders/action colors, seven illustrated guides, Starter5/8/2 Growth20/32/5 Pro100/128/25 and public-metaobject/retry gates. Runtime and active extension share b35c6d565327730887d4e5d2906d2e034287a1fd; version staging-metafields-b35c6d565327. Do not renew the declined sign-in handoff on generic continue. Preserve development checks and protected main/live promotion.",
+  "last_verified_completion": "PR174 search/definition follow-up merged development d957e27983d020f9199a9347fd23b6d8f195f688, app1.1.0. Local145 tests and release checks passed; PR CI37114912289/37114912333, exact-source runtime37115267064 and active staging release37115439884 passed. Signed Worker first/next catalog reads, all21 representative typed cases, lifecycle, metaobjects, bulk, diagnostics and complete disposable cleanup passed. Latest staging API grants read_content/read_files. Prior PR172 guided UI, tier gates and seven illustrated guides retained. Authenticated merchant/picker/two-theme/accessibility acceptance pending.",
+  "next_valid_work_unit": "Execute docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md when explicitly authorized authenticated Shopify browser access is available. Verify v1.1.0 search/forms/key generation/grouped icons/resource select/sticky and smooth navigation, actual page/file pickers (API scopes now granted), previous loaders/illustrated help/tier gates and two-theme/accessibility acceptance. Runtime and active extension share d957e27983d020f9199a9347fd23b6d8f195f688, version staging-metafields-d957e27983d0. Automatic approval review rejected Shopify accounts redirect after the earlier declined handoff; do not renew on generic continue. Preserve protected main/live promotion.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -15,7 +15,7 @@
     "not_started": 1
   },
   "outstanding_updates": [
-    "Store-owner read_content/read_files approval and real pickers; authenticated merchant UI, actual Starter/Growth billing transitions and approval navigation, two-theme editor/storefront, accessibility and measured performance acceptance.",
+    "Authenticated merchant UI and actual page/file pickers and permission-flow UX (latest staging API scopes granted); actual Starter/Growth billing transitions and approval navigation, two-theme editor/storefront, accessibility and measured performance acceptance.",
     "Specifications settings-count advisory and final production assurance remain pending."
   ],
   "outstanding_removals": [
@@ -31,8 +31,8 @@
   "critical_defects": [],
   "qa_readiness": "representative_staging_API_passed_merchant_UI_theme_accessibility_pending",
   "security_readiness": "cloudflare_live_verified_previous_version_retained_after_closure",
-  "last_reconciled_repository_ref": "b35c6d565327730887d4e5d2906d2e034287a1fd",
-  "last_reconciled_at": "2026-10-02T23:13:29Z",
+  "last_reconciled_repository_ref": "d957e27983d020f9199a9347fd23b6d8f195f688",
+  "last_reconciled_at": "2026-10-03T10:12:12.841Z",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }

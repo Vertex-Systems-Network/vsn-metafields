@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T10:12:12.841Z",
+  "appVersion": "1.1.0",
+  "sourceSha": "d957e27983d020f9199a9347fd23b6d8f195f688",
+  "sourceTree": "f2958212eda1ffca79d8090e309ade8f7a144c10",
+  "implementationPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/174",
+  "verification": {
+    "node": "22.13.0",
+    "local": {
+      "tests": 145,
+      "failed": 0,
+      "lint": "pass",
+      "typecheck": "pass",
+      "databaseContract": "pass",
+      "build": "pass",
+      "repositoryIntegrity": "pass",
+      "stagingIsolation": "pass"
+    },
+    "prCi": [
+      {
+        "runId": 37114912289,
+        "result": "success"
+      },
+      {
+        "runId": 37114912333,
+        "result": "success"
+      }
+    ],
+    "runtime": {
+      "runId": 37115267064,
+      "result": "success",
+      "signedWorkerCatalogCheck": "first and next page reads passed as part of guarded staging acceptance; workflow does not print per-page counts",
+      "probe": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "d957e27983d020f9199a9347fd23b6d8f195f688",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 51,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_files",
+          "read_content",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": []
+          },
+          "cleanup": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "shopifyRelease": {
+      "runId": 37115439884,
+      "result": "success",
+      "activeVersion": "staging-metafields-d957e27983d0",
+      "productionAppChanged": false,
+      "complianceWebhooks": "3 enqueued; independent receipt acceptance pending"
+    }
+  },
+  "subrequestBudget": {
+    "catalogPageDomainGraphqlCalls": 2,
+    "standardEnableDomainGraphqlCalls": 3,
+    "additionalAuthenticationAndTransportWork": true,
+    "pageSize": 250,
+    "fullCatalogEnumeration": "offline acceptance only",
+    "workerLimitsChanged": false
+  },
+  "design": {
+    "reference": "image(5).png",
+    "sha256": "cf67b50c161b36e8be475bd53cb1087c87c9c7799ae8815ffcf1303680df0160",
+    "visualAcceptance": "pending"
+  },
+  "browser": {
+    "status": "blocked",
+    "reason": "Automatic approval review rejected Shopify accounts redirect because prior login handoff was declined; no new authorization, bypass or expired token replay",
+    "pending": [
+      "authenticated desktop/mobile forms and picker tasks",
+      "real focus and screen-reader behavior",
+      "sticky/smooth scroll behavior and reduced motion",
+      "200% zoom and 320px reflow",
+      "actual page/file picker results"
+    ]
+  },
+  "productionChanged": false,
+  "billingChanged": false
+}
