@@ -60,11 +60,25 @@ export default function SearchableSelect({
       const view = window.visualViewport;
       const height = view?.height || window.innerHeight;
       const width = view?.width || window.innerWidth;
-      if (rect.bottom <= 70 || rect.top >= height) {
+      const workspace = document.querySelector?.(".vsn-workspace");
+      const navigationHeight =
+        workspace && window.getComputedStyle
+          ? parseFloat(
+              window
+                .getComputedStyle(workspace)
+                .getPropertyValue("--vsn-navigation-height"),
+            ) || 0
+          : 0;
+      const sidebar =
+        navigationHeight > 0 ? document.querySelector?.(".vsn-sidebar") : null;
+      const topInset = sidebar
+        ? Math.max(8, sidebar.getBoundingClientRect().bottom + 8)
+        : 8;
+      if (rect.bottom <= topInset || rect.top >= height) {
         setOpen(false);
         return;
       }
-      const next = selectPosition(rect, width, height);
+      const next = selectPosition(rect, width, height, topInset);
       setPosition((previous) =>
         previous &&
         Object.keys(next).every((key) => previous[key] === next[key]) &&
@@ -262,7 +276,7 @@ export default function SearchableSelect({
         {selected?.icon && <FieldIcon type={selected.icon} />}
         <span id={`${id}-value`}>{selected?.label || placeholder}</span>
         <span className="vsn-select-chevron" aria-hidden="true">
-          ⌄
+          <FieldIcon type="chevron" />
         </span>
       </button>
       {details && (

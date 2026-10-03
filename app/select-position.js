@@ -1,5 +1,5 @@
 // Fixed body overlay escapes Shopify section/box shadow-root clipping.
-export function selectPosition(rect, width, height, topInset = 80) {
+export function selectPosition(rect, width, height, topInset = 8) {
   const gap = 6,
     edge = 8;
   const below = Math.max(0, height - rect.bottom - gap - edge);

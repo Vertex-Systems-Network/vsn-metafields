@@ -1,17 +1,24 @@
 html {
   scroll-behavior: smooth;
 }
+body {
+  margin: 0;
+}
 .vsn-workspace {
-  --vsn-navigation-height: 70px;
-  --vsn-scroll-offset: 94px;
+  --vsn-navigation-height: 0px;
+  --vsn-scroll-offset: 24px;
   --vsn-ink: #172b26;
   --vsn-muted: #54655f;
   --vsn-accent: #126b4c;
   --vsn-border: #dce5df;
   color: var(--vsn-ink);
   font-family: Inter, system-ui, sans-serif;
-  max-width: 1400px;
-  margin: auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 208px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   background: #f6f8f6;
   min-height: 100vh;
   line-height: 1.55;
@@ -23,10 +30,11 @@ html {
   color: var(--vsn-accent);
 }
 .vsn-header {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 32px;
+  padding: 18px 24px;
   background: #fff;
   border-bottom: 1px solid var(--vsn-border);
   gap: 16px;
@@ -55,22 +63,33 @@ html {
   font-size: 13px;
   text-decoration: none;
 }
-.vsn-navigation {
+.vsn-sidebar {
   position: sticky;
-  top: 0;
-  z-index: 40;
-  min-height: var(--vsn-navigation-height);
-  align-items: center;
-  box-shadow: 0 3px 12px #17382d0d;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 12px 28px;
+  top: 12px;
+  align-self: start;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
   background: #fff;
-  border-bottom: 1px solid var(--vsn-border);
+  border-right: 1px solid var(--vsn-border);
+  padding: 18px 10px;
+}
+.vsn-sidebar-toggle {
+  display: none;
+}
+.vsn-content {
+  min-width: 0;
+}
+.vsn-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .vsn-nav-link {
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  white-space: normal;
   padding: 9px 14px;
   border-radius: 8px;
   font-size: 13px;
@@ -90,7 +109,7 @@ html {
   outline-offset: 3px;
 }
 .vsn-workspace main {
-  padding: 26px 32px 40px;
+  padding: 24px 20px 40px;
 }
 .vsn-workspace s-page {
   display: block;
@@ -779,11 +798,10 @@ html {
     gap: 14px;
   }
   .vsn-header {
+    grid-column: 1 / -1;
     padding: 18px;
   }
-  .vsn-navigation {
-    padding: 10px 14px;
-  }
+
   .vsn-workspace main {
     padding: 22px 18px;
   }
@@ -820,7 +838,7 @@ html {
 }
 
 .vsn-workspace.is-busy {
-  --vsn-scroll-offset: 150px;
+  --vsn-scroll-offset: 84px;
 }
 .vsn-workspace :is(s-section, .vsn-panel, .vsn-help-topic, .vsn-scroll-target) {
   scroll-margin-top: var(--vsn-scroll-offset);
@@ -886,7 +904,18 @@ html {
 .vsn-select-chevron {
   margin-left: auto;
   color: #616161;
+  display: flex;
+  flex: 0 0 16px;
+  transition: transform 140ms ease;
 }
+.vsn-select-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+.vsn-select-trigger[aria-expanded="true"] .vsn-select-chevron {
+  transform: rotate(180deg);
+}
+
 .vsn-type-badge {
   border-radius: 4px;
   background: #e9e9e9;
@@ -1223,6 +1252,7 @@ html {
     gap: 8px;
   }
   .vsn-header {
+    grid-column: 1 / -1;
     padding-inline: 12px;
   }
   .vsn-version {
@@ -1244,4 +1274,117 @@ html {
 }
 .vsn-value-rules li {
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .vsn-workspace {
+    display: block;
+    --vsn-navigation-height: 56px;
+    --vsn-scroll-offset: 80px;
+  }
+  .vsn-workspace.is-busy {
+    --vsn-scroll-offset: 140px;
+  }
+  .vsn-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: 8px 12px;
+    max-height: min(70vh, 420px);
+    border-right: 0;
+    border-bottom: 1px solid var(--vsn-border);
+    box-shadow: 0 3px 12px #17382d0d;
+  }
+  .vsn-sidebar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 40px;
+    border: 0;
+    background: #fff;
+    color: var(--vsn-ink);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .vsn-sidebar-toggle svg:last-child {
+    margin-left: auto;
+  }
+  .vsn-sidebar.menu-open .vsn-sidebar-toggle svg:last-child {
+    transform: rotate(180deg);
+  }
+  .vsn-sidebar .vsn-navigation {
+    display: none;
+    padding-top: 8px;
+  }
+  .vsn-sidebar.menu-open .vsn-navigation {
+    display: flex;
+  }
+  .vsn-header {
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+  .vsn-brand {
+    flex-wrap: wrap;
+  }
+  .vsn-workspace main {
+    padding: 20px 12px 32px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vsn-select-chevron {
+    transition: none;
+  }
+}
+
+.vsn-help-start {
+  margin-bottom: 24px;
+}
+.vsn-help-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+.vsn-help-jump a {
+  border: 1px solid var(--vsn-border);
+  background: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.vsn-help-controls,
+.vsn-help-glossary {
+  margin: 12px 0;
+}
+.vsn-help-controls > div,
+.vsn-help-glossary > div {
+  border-bottom: 1px solid var(--vsn-border);
+  padding: 12px 0;
+}
+.vsn-help-controls dt,
+.vsn-help-glossary dt {
+  font-weight: 650;
+  font-size: 14px;
+}
+.vsn-help-controls dd,
+.vsn-help-glossary dd {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--vsn-muted);
+  overflow-wrap: anywhere;
+}
+.vsn-help-controls dd p {
+  margin: 4px 0;
+}
+.vsn-help-result {
+  background: #eaf4ed;
+  padding: 12px;
+  border-radius: 8px;
+}
+.vsn-help-grid {
+  align-items: start;
 }

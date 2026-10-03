@@ -6,11 +6,16 @@ import {
   useFetchers,
 } from "react-router";
 import PropTypes from "prop-types";
+import { useEffect, useId, useState } from "react";
+import FieldIcon from "./FieldIcon";
 import { APP_NAME, APP_VERSION } from "../product-config";
 import { LoadingState } from "./LoadingState";
 
 export function Workspace({ children }) {
-  const { search } = useLocation();
+  const { search, pathname: currentPath } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuId = useId();
+  useEffect(() => setMenuOpen(false), [currentPath]);
   const navigation = useNavigation();
   const fetchers = useFetchers();
   const pending = fetchers.filter((fetcher) => fetcher.state !== "idle");
@@ -19,11 +24,11 @@ export function Workspace({ children }) {
     navigation.state === "submitting" ||
     pending.some((f) => f.state === "submitting");
   const routes = [
-    ["/app", "Fields & values"],
-    ["/app/metaobjects", "Metaobjects"],
-    ["/app/import", "Import & export"],
-    ["/app/packages", "Plans"],
-    ["/app/guide", "Help center"],
+    ["/app", "Fields & values", "field"],
+    ["/app/metaobjects", "Metaobjects", "reference"],
+    ["/app/import", "Import & export", "import"],
+    ["/app/packages", "Plans", "plans"],
+    ["/app/guide", "Help center", "help"],
   ];
   return (
     <div className={`vsn-workspace${busy ? " is-busy" : ""}`}>
@@ -48,36 +53,51 @@ export function Workspace({ children }) {
           Need a hand? <span aria-hidden="true">↗</span>
         </Link>
       </header>
-      <nav className="vsn-navigation" aria-label="Workspace">
-        {routes.map(([pathname, label]) => (
-          <NavLink
-            key={pathname}
-            end={pathname === "/app"}
-            to={{ pathname, search }}
-            className={({ isActive }) =>
-              isActive ? "vsn-nav-link active" : "vsn-nav-link"
-            }
-          >
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-      {busy && (
-        <div className="vsn-workspace-progress">
-          <LoadingState
-            label={saving ? "Saving changes…" : "Loading workspace…"}
-          />
-        </div>
-      )}
-      <main id="workspace-content" aria-busy={busy}>
-        {children}
-      </main>
-      <footer className="vsn-footer">
-        <span>{APP_NAME}</span>
-        <Link to={{ pathname: "/app/guide", search }}>
-          Guides & troubleshooting
-        </Link>
-      </footer>
+      <aside className={`vsn-sidebar${menuOpen ? " menu-open" : ""}`}>
+        <button
+          className="vsn-sidebar-toggle"
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls={menuId}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <FieldIcon type="menu" /> Workspace menu <FieldIcon type="chevron" />
+        </button>
+        <nav id={menuId} className="vsn-navigation" aria-label="Workspace">
+          {routes.map(([pathname, label, icon]) => (
+            <NavLink
+              key={pathname}
+              end={pathname === "/app"}
+              to={{ pathname, search }}
+              className={({ isActive }) =>
+                isActive ? "vsn-nav-link active" : "vsn-nav-link"
+              }
+              onClick={() => setMenuOpen(false)}
+            >
+              <FieldIcon type={icon} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+      <div className="vsn-content">
+        {busy && (
+          <div className="vsn-workspace-progress">
+            <LoadingState
+              label={saving ? "Saving changes…" : "Loading workspace…"}
+            />
+          </div>
+        )}
+        <main id="workspace-content" aria-busy={busy}>
+          {children}
+        </main>
+        <footer className="vsn-footer">
+          <span>{APP_NAME}</span>
+          <Link to={{ pathname: "/app/guide", search }}>
+            Guides & troubleshooting
+          </Link>
+        </footer>
+      </div>
     </div>
   );
 }

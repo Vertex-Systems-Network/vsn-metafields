@@ -1,3 +1,4 @@
+import { HELP_DETAILS } from "./help-details.js";
 import { PLANS } from "./billing-config.js";
 const TOPICS = [
   {
@@ -203,6 +204,7 @@ const LOCATIONS = {
 };
 export const HELP_TOPICS = TOPICS.map((topic) => ({
   ...topic,
+  ...HELP_DETAILS[topic.id],
   where: LOCATIONS[topic.id][0],
   preview: { src: `/help/${topic.id}.svg`, alt: LOCATIONS[topic.id][1] },
 }));

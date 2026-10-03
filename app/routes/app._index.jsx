@@ -268,19 +268,19 @@ export default function Index() {
   };
   if (!statusFetcher.data)
     return (
-      <s-page heading={APP_NAME}>
+      <s-page inline-size="large" heading={APP_NAME}>
         <LoadingState label="Checking app status…" skeleton />
       </s-page>
     );
   if (!statusFetcher.data.ok)
     return (
-      <s-page heading={APP_NAME}>
+      <s-page inline-size="large" heading={APP_NAME}>
         <s-banner tone="critical">{statusFetcher.data.error}</s-banner>
       </s-page>
     );
   if (!statusFetcher.data.hasActivePlan)
     return (
-      <s-page heading={APP_NAME}>
+      <s-page inline-size="large" heading={APP_NAME}>
         <PageIntro
           eyebrow="Your content workspace"
           title="Make your product details work harder."
@@ -297,7 +297,7 @@ export default function Index() {
       </s-page>
     );
   return (
-    <s-page heading={APP_NAME}>
+    <s-page inline-size="large" heading={APP_NAME}>
       <div className="vsn-hero">
         <div>
           <div className="vsn-eyebrow">Your content workspace</div>
