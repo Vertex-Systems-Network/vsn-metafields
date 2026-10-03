@@ -2,26 +2,27 @@ import { redirect, Form, useLoaderData } from "react-router";
 import { login } from "../../shopify.server";
 import styles from "./styles.module.css";
 import { APP_NAME } from "../../product-config";
+import { requestAppName } from "../../product-identity.server";
 
-export const meta = () => [{ title: APP_NAME }];
+export const meta = ({ data }) => [{ title: data?.appName || APP_NAME }];
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request, context }) => {
   const url = new URL(request.url);
 
   if (url.searchParams.get("shop")) {
     throw redirect(`/app?${url.searchParams.toString()}`);
   }
 
-  return { showForm: Boolean(login) };
+  return { showForm: Boolean(login), appName: requestAppName(context) };
 };
 
 export default function App() {
-  const { showForm } = useLoaderData();
+  const { showForm, appName } = useLoaderData();
 
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>{APP_NAME}</h1>
+        <h1 className={styles.heading}>{appName || APP_NAME}</h1>
         <p className={styles.text}>
           Add and manage custom metafields directly inside your Shopify admin.
         </p>

@@ -1,4 +1,4 @@
-import { closeSync, existsSync, openSync } from "node:fs";
+import { closeSync, existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync, spawn } from "node:child_process";
 
 if (!existsSync(".env.local")) {
@@ -13,7 +13,14 @@ if (process.env.NODE_ENV === "production") {
   throw new Error("Local SQLite commands cannot run in production.");
 }
 
-const env = { ...process.env };
+const env = { ...process.env, APP_ENV: "local" };
+if (process.argv.includes("--serve") && existsSync("shopify.app.local.toml")) {
+  const path = "shopify.app.local.toml";
+  const config = readFileSync(path, "utf8");
+  const name = /^name\s*=\s*"[^"\r\n]*"\s*$/m;
+  if (!name.test(config)) throw new Error("Local Shopify config needs a top-level name.");
+  writeFileSync(path, config.replace(name, 'name = "VSN | Metafields (Dev)"'));
+}
 // Prisma's SQLite migration engine expects the file to exist on first run.
 closeSync(openSync("prisma/local/dev.db", "a"));
 const command = process.platform === "win32" ? "npm.cmd" : "npm";

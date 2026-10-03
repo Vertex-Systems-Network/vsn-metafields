@@ -6,9 +6,10 @@ import { authenticate } from "../shopify.server";
 import { createPrismaClient } from "../db.server";
 import { Workspace } from "../components/Workspace";
 import { APP_NAME } from "../product-config";
+import { requestAppName } from "../product-identity.server";
 import "../styles/workspace.css";
 
-export const meta = () => [{ title: APP_NAME }];
+export const meta = ({ data }) => [{ title: data?.appName || APP_NAME }];
 
 function decodeJwtPayload(token) {
   if (!token) return null;
@@ -53,7 +54,7 @@ async function getSessionDiagnostic(shop) {
   }
 }
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request, context }) => {
   // eslint-disable-next-line no-undef
   const env = process.env;
   const url = new URL(request.url);
@@ -100,11 +101,11 @@ export const loader = async ({ request }) => {
     throw error;
   }
 
-  return { apiKey: env.SHOPIFY_API_KEY || "" };
+  return { apiKey: env.SHOPIFY_API_KEY || "", appName: requestAppName(context) };
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData();
+  const { apiKey, appName } = useLoaderData();
 
   return (
     <AppProvider embedded apiKey={apiKey}>
@@ -113,7 +114,7 @@ export default function App() {
           Fields & values
         </Link>
       </NavMenu>
-      <Workspace>
+      <Workspace appName={appName}>
         <Outlet />
       </Workspace>
     </AppProvider>

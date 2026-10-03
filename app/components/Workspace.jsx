@@ -10,8 +10,9 @@ import FieldIcon from "./FieldIcon";
 import SidebarItem from "./SidebarItem";
 import { APP_NAME, APP_VERSION } from "../product-config";
 import { LoadingState } from "./LoadingState";
+import { AppNameContext } from "./AppIdentity";
 
-export function Workspace({ children }) {
+export function Workspace({ children, appName = APP_NAME }) {
   const { search, pathname: currentPath } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -50,12 +51,12 @@ export function Workspace({ children }) {
         <Link
           className="vsn-brand"
           to={{ pathname: "/app", search }}
-          aria-label={`${APP_NAME} home`}
+          aria-label={`${appName} home`}
         >
           <span className="vsn-mark" aria-hidden="true">
             V
           </span>
-          <span>{APP_NAME}</span>
+          <span>{appName}</span>
           <span
             className="vsn-version"
             aria-label={`App version ${APP_VERSION}`}
@@ -108,10 +109,10 @@ export function Workspace({ children }) {
           </div>
         )}
         <main id="workspace-content" aria-busy={busy}>
-          {children}
+          <AppNameContext.Provider value={appName}>{children}</AppNameContext.Provider>
         </main>
         <footer className="vsn-footer">
-          <span>{APP_NAME}</span>
+          <span>{appName}</span>
           <Link to={{ pathname: "/app/guide", search }}>
             Guides & troubleshooting
           </Link>
@@ -120,7 +121,7 @@ export function Workspace({ children }) {
     </div>
   );
 }
-Workspace.propTypes = { children: PropTypes.node };
+Workspace.propTypes = { children: PropTypes.node, appName: PropTypes.string };
 
 export function PageIntro({ eyebrow, title, description, children }) {
   return (

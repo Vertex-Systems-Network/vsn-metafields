@@ -7,7 +7,7 @@ import TypedValueInput from "../components/TypedValueInput";
 import { editableValueType } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
-import { APP_NAME } from "../product-config";
+import { useAppName } from "../components/AppIdentity";
 import SearchableSelect from "../components/SearchableSelect";
 import ValidationEditor from "../components/ValidationEditor";
 import FieldIcon from "../components/FieldIcon";
@@ -30,6 +30,7 @@ export const loader = async ({ request }) => {
 };
 
 export default function Index() {
+  const appName = useAppName();
   const statusFetcher = useFetcher();
   const fieldsFetcher = useFetcher();
   const standardsFetcher = useFetcher();
@@ -268,19 +269,19 @@ export default function Index() {
   };
   if (!statusFetcher.data)
     return (
-      <s-page inline-size="large" heading={APP_NAME}>
+      <s-page inline-size="large" heading={appName}>
         <LoadingState label="Checking app status…" skeleton />
       </s-page>
     );
   if (!statusFetcher.data.ok)
     return (
-      <s-page inline-size="large" heading={APP_NAME}>
+      <s-page inline-size="large" heading={appName}>
         <s-banner tone="critical">{statusFetcher.data.error}</s-banner>
       </s-page>
     );
   if (!statusFetcher.data.hasActivePlan)
     return (
-      <s-page inline-size="large" heading={APP_NAME}>
+      <s-page inline-size="large" heading={appName}>
         <PageIntro
           eyebrow="Your content workspace"
           title="Make your product details work harder."
@@ -297,7 +298,7 @@ export default function Index() {
       </s-page>
     );
   return (
-    <s-page inline-size="large" heading={APP_NAME}>
+    <s-page inline-size="large" heading={appName}>
       <div className="vsn-hero">
         <div>
           <div className="vsn-eyebrow">Your content workspace</div>
