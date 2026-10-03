@@ -1,6 +1,9 @@
 html {
   scroll-behavior: smooth;
 }
+body {
+  margin: 0;
+}
 .vsn-workspace {
   --vsn-navigation-height: 0px;
   --vsn-scroll-offset: 24px;
