@@ -96,7 +96,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -129,7 +130,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -162,7 +164,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -177,7 +180,7 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -197,7 +200,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -212,7 +216,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -233,7 +237,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -248,7 +253,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -269,7 +274,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -285,7 +291,7 @@
       "priority": 7,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -305,7 +311,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -320,7 +327,7 @@
       "priority": 8,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -340,7 +347,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -356,7 +364,7 @@
       "priority": 9,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
@@ -376,7 +384,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -392,7 +401,7 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -412,7 +421,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {
@@ -429,7 +439,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Latest v1.2.1 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -449,7 +459,8 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ]
     },
     {

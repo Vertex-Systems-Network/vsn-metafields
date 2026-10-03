@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "project_classified_acceptance_pending",
   "activation_scope": "child_project",
-  "last_reconciled_at": "2026-10-03T16:50:34.633581+00:00",
-  "last_reconciled_ref": "44ed908e7d70db1684f8f467f0390125f0b890c1",
+  "last_reconciled_at": "2026-10-03T17:36:55.550344+00:00",
+  "last_reconciled_ref": "4af68de2eb63796aca93254186dca1a96d8333db",
   "requirements": [
     {
       "requirement_id": "REQ-83",
@@ -71,7 +71,8 @@
       "reason": "Exact-source isolated staging releases passed. Progressive main/live rollout and current release-candidate stop/rollback acceptance remain separate.",
       "evidence_refs": [
         "docs/development-release-flow.md",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "last_verified_ref": null,
       "last_verified_at": null,
@@ -87,7 +88,8 @@
       "reason": "Authorized source self-review and deterministic/service checks exist; final release review and applicable browser/theme/performance evidence remain pending.",
       "evidence_refs": [
         "docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md",
-        "docs/ai/SIDEBAR-BEGINNER-HELP-REPORT.md"
+        "docs/ai/SIDEBAR-BEGINNER-HELP-REPORT.md",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "last_verified_ref": null,
       "last_verified_at": null,
@@ -117,7 +119,8 @@
       "reason": "Shop sessions, merchant values and Shopify mandatory privacy webhooks require verified engineering privacy controls. Enqueue success is not signed-delivery receipt or a legal compliance conclusion.",
       "evidence_refs": [
         "docs/ai/REMAINING-WORK-CLOSURE.md",
-        "config/data/data-governance.json"
+        "config/data/data-governance.json",
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
       ],
       "last_verified_ref": null,
       "last_verified_at": null,
