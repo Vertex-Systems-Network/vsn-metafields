@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-03T14:51:25.958Z",
+  "appVersion": "1.2.0",
+  "sourceSha": "1f3771a89abe06ad7e170f731077d099e80eaab0",
+  "sourceTree": "b7f91629e58d27d67c78392c98af8cec50029491",
+  "implementationPr": "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/179",
+  "verification": {
+    "node": "22.13.0",
+    "local": {
+      "tests": 152,
+      "failed": 0,
+      "lint": "pass",
+      "typecheck": "pass",
+      "databaseContract": "pass",
+      "build": "pass",
+      "repositoryIntegrity": "pass"
+    },
+    "implementationCi": [
+      {
+        "runId": 37121126257,
+        "result": "success"
+      },
+      {
+        "runId": 37121126282,
+        "result": "success"
+      }
+    ],
+    "runtime": {
+      "runId": 37121328080,
+      "result": "success",
+      "probe": {
+        "apiVersion": "2026-07",
+        "ok": true,
+        "sourceSha": "1f3771a89abe06ad7e170f731077d099e80eaab0",
+        "readableOwners": [
+          "API_PERMISSION",
+          "ARTICLE",
+          "BLOG",
+          "CARTTRANSFORM",
+          "COLLECTION",
+          "COMPANY",
+          "COMPANY_LOCATION",
+          "CUSTOMER",
+          "DELIVERY_CUSTOMIZATION",
+          "DISCOUNT",
+          "DRAFTORDER",
+          "FULFILLMENT_CONSTRAINT_RULE",
+          "GIFT_CARD_TRANSACTION",
+          "LOCATION",
+          "MARKET",
+          "ORDER",
+          "ORDER_ROUTING_LOCATION_RULE",
+          "PAGE",
+          "PAYMENT_CUSTOMIZATION",
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "SELLING_PLAN",
+          "SHOP",
+          "TRANSFER",
+          "VALIDATION"
+        ],
+        "unavailableOwners": [],
+        "lifecycleOwners": [
+          "PRODUCT",
+          "PRODUCTVARIANT",
+          "COLLECTION"
+        ],
+        "standardEnable": true,
+        "valuesRetainedAfterDefinitionRemoval": true,
+        "cleanup": true,
+        "recoveredFailedProbeDefinitions": [],
+        "recoveredFailedProbeMetaobjects": [],
+        "schema": {
+          "apiVersion": "2026-07",
+          "documents": 52,
+          "ownerInventory": true
+        },
+        "typeCount": 118,
+        "grantedScopes": [
+          "read_orders",
+          "read_products",
+          "write_metaobject_definitions",
+          "write_metaobjects",
+          "write_products",
+          "read_files",
+          "read_content",
+          "read_metaobject_definitions",
+          "read_metaobjects"
+        ],
+        "definitionValidationUpdate": true,
+        "standardTemplateCount": 8516,
+        "advanced": {
+          "typedValues": [
+            "single_line_text_field",
+            "multi_line_text_field",
+            "number_integer",
+            "number_decimal",
+            "boolean",
+            "date",
+            "date_time",
+            "url",
+            "color",
+            "json",
+            "rich_text_field",
+            "dimension",
+            "weight",
+            "volume",
+            "list.single_line_text_field",
+            "list.number_integer",
+            "product_reference",
+            "variant_reference",
+            "collection_reference",
+            "list.product_reference",
+            "metaobject_reference"
+          ],
+          "staleDigestRejected": true,
+          "referenceVerification": true,
+          "metaobjects": {
+            "create": true,
+            "list": true,
+            "entryCreate": true,
+            "entryUpdate": true,
+            "omittedFieldsPreserved": true,
+            "definitionRename": true,
+            "referenceWrite": true,
+            "entryDelete": true,
+            "emptyDefinitionDelete": true
+          },
+          "bulk": {
+            "preview": true,
+            "apply": true,
+            "mixedRows": true,
+            "conflict": true,
+            "completedResume": true,
+            "shopIsolation": true
+          },
+          "diagnostics": {
+            "scopesRead": true,
+            "planGatePreserved": true,
+            "actualHasActivePlan": true,
+            "missingOptionalScopes": []
+          },
+          "cleanup": true,
+          "metaobjectValidationCreate": true,
+          "billingMetadata": [
+            {
+              "name": "pro-plan",
+              "status": "ACTIVE",
+              "test": true,
+              "trialDays": 5,
+              "recurring": [
+                {
+                  "price": {
+                    "amount": "55.0",
+                    "currencyCode": "USD"
+                  },
+                  "interval": "EVERY_30_DAYS"
+                }
+              ]
+            }
+          ],
+          "cleanupFailures": []
+        },
+        "cleanupFailures": []
+      }
+    },
+    "shopifyRelease": {
+      "runId": 37121554175,
+      "result": "success",
+      "activeVersion": "staging-metafields-1f3771a89abe",
+      "productionAppChanged": false,
+      "complianceWebhooks": "3 enqueued; receipt acceptance pending"
+    }
+  },
+  "scope": [
+    "full available embedded width and large Polaris pages",
+    "sticky left desktop navigation and collapsed mobile menu",
+    "SVG dropdown chevrons",
+    "beginner first-field example, glossary, control explanations and 148 schema-checked theme options"
+  ],
+  "browser": {
+    "status": "pending",
+    "reason": "Prior declined Shopify sign-in and automatic accounts-redirect rejection; local file preview capture rejected by browser URL protocol policy. No workaround or new sign-in attempted.",
+    "pending": [
+      "current app screenshots for every guide/control group",
+      "desktop/mobile layout, focus, keyboard, zoom and two-theme acceptance"
+    ]
+  },
+  "productionChanged": false,
+  "billingChanged": false,
+  "proof": {
+    "kind": "GitHub release success; not merchant UI acceptance",
+    "libraryFileId": "libfile_9da68980a9ec81919db596d73d0e2af5"
+  }
+}
