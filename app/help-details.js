@@ -208,14 +208,14 @@ export const HELP_DETAILS = {
         title: "Choose the item and field",
         rows: [
           [
-            "Search resource title / Search",
-            "Enter a title and select Search to fetch matching resources from Shopify. The resource type comes from Metafield resource above.",
+            "Search resources / Search",
+            "Enter words or Shopify search filters, then select Search to fetch resources. Plain words search the fields Shopify indexes. Use title:Shirt* for a title prefix or quote a phrase. The resource type comes from Metafield resource above.",
             "Search Cotton shirt, then choose the exact product or variant.",
           ],
           [
             "Resource",
             "Select the item to edit. Typing inside the dropdown filters the loaded results; it does not fetch every Shopify item.",
-            "If it is missing, use Search resource title first.",
+            "If it is missing, use Search resources first.",
           ],
           [
             "Definition",

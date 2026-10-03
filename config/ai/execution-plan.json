@@ -183,7 +183,7 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Resource/definition selection and empty typed editor observed. Search fix locally covered; actual valid UI save/reopen, invalid/conflict states and page/file pickers still required."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -205,7 +205,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -220,7 +221,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Horizon Draft Single field added/saved/reloaded/reopened. Actual configured public value rendering in two unpublished themes remains required."
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -242,7 +243,8 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -257,7 +259,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Horizon Draft Specifications added/saved/reloaded; controls observed. Two-theme data/layout/reordering/multiple-instance and45-setting usability acceptance remain required."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -279,7 +281,8 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -295,7 +298,7 @@
       "priority": 7,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Private QA definition saved/reopened; min-length error and valid Draft save/readback verified. Public-access confirmation, field-preservation and conflict flows remain required."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -317,7 +320,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -332,7 +336,7 @@
       "priority": 8,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "Quoted paste preview and disabled apply for invalid rows verified. File chooser timed out; valid mixed/resumable completion, history and export-download UI remain required."
       ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -354,7 +358,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -370,7 +375,7 @@
       "priority": 9,
       "status": "verification_required",
       "blockers": [
-        "Latest v1.2.2 development/staging evidence is linked. Actual authenticated merchant tasks, current app screenshots, two-theme rendering and applicable accessibility/performance/receipt acceptance remain pending; no full browser completion claim."
+        "All typed blocks registered and retained after Horizon draft save/reload; empty-source editor guidance observed. Real public Shopify filters/variant refresh/recovery in two themes remain required."
       ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
@@ -391,7 +396,8 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -407,7 +413,7 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Development v1.2.4 implementation checks passed; dependency security gate failed. No new staging deployment; active baseline v1.2.3. Actual merchant/theme/screenshots/accessibility/performance/receipts/drills remain pending. Staging Neon inventory requires actual project ID."
+        "Staging title/menu/loader/diagnostics and19 actual screenshots verified. Help integration and presentation/search fixes local; local Dev title, lower-control per-setting images and actual tier transition acceptance remain required."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -431,7 +437,8 @@
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/ai/REMAINING-BATCH-REPORT.md",
-        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {
@@ -448,7 +455,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Development v1.2.4 implementation checks passed; dependency security gate failed. No new staging deployment; active baseline v1.2.3. Actual merchant/theme/screenshots/accessibility/performance/receipts/drills remain pending. Staging Neon inventory requires actual project ID."
+        "Authenticated staging baseline partial. Release held by full development dependency audit. Mobile/zoom/hover/screen-reader/contrast/performance, signed receipts, backup/restore and independent assurance remain required."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -472,7 +479,8 @@
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/ai/REMAINING-BATCH-REPORT.md",
-        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ]
     },
     {

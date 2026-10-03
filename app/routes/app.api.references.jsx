@@ -12,11 +12,10 @@ export const loader = async ({ request }) => {
       );
     const params = new URL(request.url).searchParams,
       type = params.get("type");
-    const search = String(params.get("search") || "")
-      .slice(0, 60)
-      .replace(/[^\p{L}\p{N} _-]/gu, "")
-      .trim();
-    const query = search ? `title:${search}` : null;
+    const search = String(params.get("search") || "").trim();
+    if (search.length > 120)
+      throw new RangeError("Keep the Shopify search query within 120 characters.");
+    const query = search || null;
     const operations = {
       product_reference: `#graphql
         query ReferenceProducts($query:String) { products(first:20,query:$query) { nodes { id title } } }`,

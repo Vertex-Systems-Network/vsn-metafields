@@ -187,7 +187,7 @@ export default function PackagesPage() {
                   }
                 >
                   {plan.features.publicMetaobjects
-                    ? "✓ Public metaobject publishing"
+                    ? "Public metaobject publishing"
                     : "Public metaobject publishing · Pro only"}
                 </li>
                 <li
@@ -198,7 +198,7 @@ export default function PackagesPage() {
                   }
                 >
                   {plan.features.retryImports
-                    ? "✓ Failed-import retry preparation"
+                    ? "Failed-import retry preparation"
                     : "Failed-import retry preparation · Pro only"}
                 </li>
               </ul>

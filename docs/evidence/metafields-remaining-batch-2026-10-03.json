@@ -19,7 +19,7 @@
     "failures": 0,
     "targeted_search_tests": 18,
     "cli_version_command": "4.8.2",
-    "merchant_browser_acceptance": "not_executed"
+    "merchant_browser_acceptance": "partial_authenticated_staging_v1_2_3_see_ui_evidence"
   },
   "implementation_ci": [
     {
@@ -586,12 +586,15 @@
     "restore_executed": false
   },
   "browser_boundary": {
-    "fresh_staging_signin_authorization": false,
+    "fresh_staging_signin_authorization": true,
     "prior_handoff_declined": true,
     "prior_accounts_redirect_auto_review_rejected": true,
-    "actual_app_images_captured": false,
+    "actual_app_images_captured": true,
     "two_theme_acceptance": false,
-    "accessibility_acceptance": false
+    "accessibility_acceptance": false,
+    "authenticated_staging_baseline_verified": true,
+    "historical_refusal_superseded_by_explicit_authorization": true,
+    "evidence": "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
   },
   "queue": {
     "total": 12,

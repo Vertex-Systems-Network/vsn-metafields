@@ -15,11 +15,10 @@ import { getPlanEntitlement, assertListValue } from "../plan-limits.server";
 async function listValueResources(admin, ownerType, search = "") {
   if (!OWNER_GIDS[ownerType])
     throw new RangeError("Unsupported resource owner.");
-  const safe = String(search)
-    .slice(0, 60)
-    .replace(/[^\p{L}\p{N} _-]/gu, "")
-    .trim();
-  const query = safe ? `title:${safe}` : null;
+  // Query stays a GraphQL variable; preserve Shopify search operators and quotes.
+  const query = String(search || "").trim() || null;
+  if (query && query.length > 120)
+    throw new RangeError("Keep the Shopify search query within 120 characters.");
   const queries = {
     PRODUCT: `#graphql
       query ValueProducts($query: String) { products(first:20,query:$query) { nodes { id title } } }`,

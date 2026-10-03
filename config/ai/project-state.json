@@ -5,7 +5,7 @@
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
   "last_verified_completion": "PR186 merged development 08868a52e872949d6f1572cfb13ddd3f8363f5e1 v1.2.4: official local CLI and visible-viewport dropdown fixes;159 local tests passed. Three merged-source checks passed; Dependency Security Audit37146463711 failed. Local busboy3.2.2/lock fix passed clean install and159tests;11 high braces-chain dependency entries remain without a published patch. No new staging dispatch; active staging remains v1.2.3/dd29e53bdf68. Merchant/theme/screenshots, receipts, drills and independent assurance pending.",
-  "next_valid_work_unit": "Resolve the unpatched development-tool dependency security gate with reviewed compatible remediation before staging release. Then execute merchant/theme acceptance after fresh specific staging sign-in authorization; obtain actual staging Neon project ID for backup inventory and a verified isolated restore target. Generic continue does not renew the declined sign-in. Preserve production gates.",
+  "next_valid_work_unit": "Resolve the development-tool security gate with reviewed compatible remediation before staging release. Fresh staging sign-in is now authorized and verified; execute remaining valid-value/import/page-file picker, public metaobject, two-theme and accessibility/performance acceptance. Provide actual staging Neon project ID and verified isolated restore target; retain independent production gates.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -15,9 +15,9 @@
     "not_started": 1
   },
   "outstanding_updates": [
-    "Current actual app/control/theme screenshots and authenticated visual/focus/mobile/zoom acceptance; merchant page/file pickers and consent-flow UX (latest API scopes granted); billing approval navigation and real tier transitions, two-theme editor/storefront, accessibility, measured performance and compliance webhook receipt verification.",
+    "Authenticated staging v1.2.3 UI baseline and19 actual screenshots captured. Private metaobject validation/save/reopen and one Horizon draft five-block save/reload passed. Remaining: valid-value/conflict/page-file flows, valid mixed/resumable CSV upload/download, public access, tier transitions, real rendering in two themes, per-setting lower-control images, accessibility/performance, signed compliance receipts.",
     "Specifications settings-count advisory remains tracked nonblocking UX debt; actual editor-usability acceptance and final production assurance remain pending.",
-    "Environment title implementation and public staging/provider observations passed; actual installed local app and authenticated embedded Shopify title acceptance still pending. Three recovery procedures are registered; no restore/outage drill or operator assignment performed.",
+    "Embedded Staging title/version/home-only Shopify menu verified directly. Installed local Dev title remains pending direct verification. No restore/outage drill or operator assignment performed.",
     "Remaining batch: v1.2.4 is development-only; security gate failed and staging still runs v1.2.3. Busboy3.2.2 remediation and factual evidence are reviewable follow-up work. Full development-tool audit still has11 high braces-chain affected entries with no published patch. Neon inventory requires staging project ID."
   ],
   "outstanding_removals": [
@@ -31,7 +31,7 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "representative_staging_API_passed_merchant_UI_theme_accessibility_pending",
+  "qa_readiness": "authenticated_staging_baseline_partial_theme_content_accessibility_pending",
   "security_readiness": "development_dependency_audit_failed_staging_release_held",
   "last_reconciled_repository_ref": "08868a52e872949d6f1572cfb13ddd3f8363f5e1",
   "last_reconciled_at": "2026-10-03T19:12:40.471874+00:00",

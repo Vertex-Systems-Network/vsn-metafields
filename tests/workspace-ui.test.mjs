@@ -7,6 +7,7 @@ import { renderToString } from "react-dom/server";
 import { resolve } from "node:path";
 import { readFileSync, readdirSync } from "node:fs";
 import { HELP_TOPICS } from "../app/help-content.js";
+import { HELP_SCREENSHOTS, WORKSPACE_SCREENSHOTS, THEME_SCREENSHOTS } from "../app/help-screenshots.js";
 import { THEME_HELP } from "../app/theme-help.js";
 import { APP_NAME, appDisplayName } from "../app/product-config.js";
 import { requestAppName } from "../app/product-identity.server.js";
@@ -197,7 +198,7 @@ test("help center and import initial state render their real recovery and empty 
 });
 test("beginner help explains each screen and labels conceptual diagrams honestly", async () => {
   const guide = await renderRoute("app.guide.jsx");
-  assert.equal((guide.match(/<img /g) || []).length, 7);
+  assert.equal((guide.match(/src="\/help\/[a-z]+\.svg"/g) || []).length, 7);
   assert.match(guide, /Your first example: care instructions/);
   assert.match(guide, /Plain-language glossary/);
   assert.match(guide, /not a screenshot of the current app/);
@@ -310,4 +311,29 @@ test("initial route fetches include visible skeletons and the Pro comparison dis
   assert.match(html, /Recommended · Full content workflow/);
   assert.match(html, /Public metaobject publishing · Pro only/);
   assert.match(html, /Failed-import retry preparation · Pro only/);
+});
+
+
+test("actual Help screenshots cover every topic and block with valid dated JPEG assets", async () => {
+  const html = await renderRoute("app.guide.jsx");
+  const screenshots = [...WORKSPACE_SCREENSHOTS];
+  for (const topic of HELP_TOPICS) {
+    assert.ok(HELP_SCREENSHOTS[topic.id]?.length, topic.id);
+    screenshots.push(...HELP_SCREENSHOTS[topic.id]);
+  }
+  for (const block of THEME_HELP) {
+    assert.ok(THEME_SCREENSHOTS[block.id], block.id);
+    screenshots.push(THEME_SCREENSHOTS[block.id]);
+  }
+  for (const screenshot of screenshots) {
+    assert.match(html, new RegExp(screenshot.src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    const bytes = readFileSync(resolve("public", screenshot.src.slice(1)));
+    assert.equal(bytes.readUInt16BE(0), 0xffd8);
+    assert.ok(screenshot.width > 0 && screenshot.height > 0);
+    assert.equal(screenshot.version, "1.2.3");
+    assert.ok(Number.isFinite(Date.parse(screenshot.capturedAt)));
+  }
+  assert.match(html, /Actual Staging app/);
+  assert.match(html, /Concept diagram/);
+  assert.doesNotMatch(await renderRoute("app.packages.jsx"), /✓ Public metaobject publishing/);
 });

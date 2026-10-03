@@ -446,3 +446,42 @@ test("failed-import retry denies lower tiers before touching saved jobs and igno
   assert.equal((await response.json()).code, "plan_limit");
   assert.equal(databaseReads, 0);
 });
+
+
+test("resource and reference searches preserve Shopify syntax as bounded GraphQL variables", async () => {
+  for (const file of ["app.api.values.jsx", "app.api.references.jsx"]) {
+    const queries = [];
+    const route = serverRoute(file, {
+      "../shopify.server": { authenticate: { admin: async () => ({ admin: {} }) } },
+      "../active-plan.server": { hasActivePlan: async () => true },
+      "../definitions.server": { graph: async (_, operation, variables) => {
+        assert.match(operation, /query:\$query/);
+        queries.push(variables.query);
+        return { products: { nodes: [{ id: "gid://shopify/Product/1", title: "The Complete Snowboard" }] } };
+      } },
+      "../metafield-values.server": { OWNER_GIDS: { PRODUCT: "Product" } },
+      "../value-types": {},
+      "../plan-limits.server": {},
+      "../feature-request.server": helpers,
+    });
+    const requestFor = (search) => new Request("https://staging.invalid/app/api/search?" + new URLSearchParams({
+      mode: "resources", ownerType: "PRODUCT", type: "product_reference", search,
+    }));
+    for (const [input, expected] of [
+      ["snowboard", "snowboard"],
+      [' title:"Cotton Shirt" OR title:Snow* ', 'title:"Cotton Shirt" OR title:Snow*'],
+      ["عنوان*", "عنوان*"],
+      ["  ", null],
+    ]) {
+      const response = await route.loader({ request: requestFor(input) });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).ok, true);
+      assert.equal(queries.at(-1), expected);
+    }
+    const count = queries.length;
+    const denied = await route.loader({ request: requestFor("x".repeat(121)) });
+    assert.equal(denied.status, 400);
+    assert.match((await denied.json()).error, /120 characters/);
+    assert.equal(queries.length, count);
+  }
+});

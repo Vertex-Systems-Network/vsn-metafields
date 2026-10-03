@@ -811,8 +811,8 @@ export default function Index() {
           </s-text>
           <div className="vsn-resource-search">
             <s-search-field
-              label="Search resource title"
-              placeholder="Search by product or collection title"
+              label="Search resources"
+              placeholder="Search words or Shopify filters, e.g. title:Shirt*"
               value={resourceSearch}
               onInput={(event) => setResourceSearch(event.target.value)}
             />

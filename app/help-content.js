@@ -35,7 +35,7 @@ const TOPICS = [
     action: "Open the value editor",
     steps: [
       "Select a definition and an existing resource in Resource values.",
-      "Use Search resource title to fetch matching Shopify resources. The Resource and Definition selects also search their loaded options.",
+      "Use Search resources to fetch matching Shopify resources. The Resource and Definition selects also search their loaded options.",
       "Enter the value in the displayed format. Lists and structured types use JSON; references use an existing resource ID.",
       "Save, then reload to verify. If someone changed the value, reload before trying again.",
     ],

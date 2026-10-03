@@ -50,9 +50,12 @@
         "docs/evidence/metafields-search-workspace-2026-10-03.json",
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
-        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json"
+        "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -132,9 +135,12 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json"
+        "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [
         "docs/evidence/metafields-storefront-qa-2026-10-03.json"
@@ -204,9 +210,12 @@
         "docs/evidence/metafields-batch356-staging-2026-10-02.json",
         "docs/evidence/metafields-storefront-qa-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -278,9 +287,12 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -365,9 +377,12 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [
         "docs/evidence/metafields-storefront-qa-2026-10-03.json"
@@ -454,9 +469,12 @@
         "docs/evidence/metafields-popover-validation-2026-10-03.json",
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [
         "docs/evidence/metafields-storefront-qa-2026-10-03.json"
@@ -532,9 +550,12 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -605,9 +626,12 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -678,9 +702,12 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -759,9 +786,12 @@
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
-        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [
         "docs/evidence/metafields-remaining-batch-2026-10-03.json"
@@ -828,9 +858,12 @@
         "tests/app-contracts.test.mjs",
         "tests/search-workspace.test.mjs",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [],
       "threat_model_refs": [],
@@ -882,9 +915,12 @@
       "test_evidence": [
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "tests/workspace-ui.test.mjs",
-        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json",
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
       ],
-      "visual_evidence_refs": [],
+      "visual_evidence_refs": [
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+      ],
       "accessibility_evidence_refs": [],
       "security_evidence_refs": [
         "docs/evidence/metafields-remaining-batch-2026-10-03.json"
