@@ -4,7 +4,7 @@
   "scripts": {
     "build": "prisma generate && prisma generate --schema prisma/local/schema.prisma && react-router build",
     "dev": "node scripts/local-sqlite.mjs --serve",
-    "dev:shopify": "npx --yes shopify@4.8.2 app dev --config local",
+    "dev:shopify": "npx --yes @shopify/cli@4.8.2 app dev --config local",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
