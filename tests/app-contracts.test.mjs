@@ -279,6 +279,9 @@ test("packages page avoids duplicate server auth and loads billing status client
   assert.match(packages, /load\(\`\/app\/api\/status\$\{location\.search\}\`\)/);
   assert.match(packages, /subscriptions\.find\(\(s\) => s\.status === "ACTIVE"\)/);
   assert.match(packages, /submitBilling/);
+  assert.match(packages, /Review and approve in Shopify/);
+  assert.match(packages, /href=\{result\.confirmationUrl\}[\s\S]*target="_top"/);
+  assert.doesNotMatch(packages, /window\.open\(response\.confirmationUrl/);
 });
 
 test("billing mutations require authenticated POST requests and guard active plans", () => {

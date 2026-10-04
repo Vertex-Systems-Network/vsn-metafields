@@ -43,13 +43,6 @@ export default function PackagesPage() {
         search: location.search,
       });
       setResult(response);
-      if (response.confirmationUrl) {
-        try {
-          window.open(response.confirmationUrl, "_top");
-        } catch {
-          /* The visible approval link supports a fresh user gesture. */
-        }
-      }
       if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
       setResult({
@@ -117,11 +110,20 @@ export default function PackagesPage() {
       )}
       {result?.confirmationUrl && (
         <div className="vsn-notice" role="status">
-          {result.test && "Test billing — no real charge. "}
-          <a href={result.confirmationUrl} target="_top" rel="noreferrer">
-            Continue to Shopify plan approval
+          <strong>Shopify approval is required to switch plans.</strong>{" "}
+          {result.test && "This is test billing with no real charge. "}
+          <p>
+            Your current plan remains active until you approve the new plan in
+            Shopify. Select the button below to review its terms.
+          </p>
+          <a
+            className="vsn-button primary"
+            href={result.confirmationUrl}
+            target="_top"
+            rel="noreferrer"
+          >
+            Review and approve in Shopify
           </a>
-          . After approving, reopen the app or refresh status below.
         </div>
       )}
       {result?.error && (
