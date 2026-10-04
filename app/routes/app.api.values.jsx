@@ -18,7 +18,9 @@ async function listValueResources(admin, ownerType, search = "") {
   // Query stays a GraphQL variable; preserve Shopify search operators and quotes.
   const query = String(search || "").trim() || null;
   if (query && query.length > 120)
-    throw new RangeError("Keep the Shopify search query within 120 characters.");
+    throw new RangeError(
+      "Keep the Shopify search query within 120 characters.",
+    );
   const queries = {
     PRODUCT: `#graphql
       query ValueProducts($query: String) { products(first:20,query:$query) { nodes { id title } } }`,
@@ -46,13 +48,20 @@ const reply = (payload, status = 200) =>
   Response.json(payload, { status, headers: { "Cache-Control": "no-store" } });
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
+  const params = new URL(request.url).searchParams;
+  const ownerType = String(params.get("ownerType") || "PRODUCT").toUpperCase();
+  const identity = {
+    ownerType,
+    ownerId: String(params.get("ownerId") || ""),
+    namespace: String(params.get("namespace") || "vsn_metafields"),
+    key: String(params.get("key") || ""),
+  };
   try {
     if (!(await hasActivePlan(admin)))
-      return reply({ ok: false, error: "An active plan is required." }, 403);
-    const params = new URL(request.url).searchParams;
-    const ownerType = String(
-      params.get("ownerType") || "PRODUCT",
-    ).toUpperCase();
+      return reply(
+        { ...identity, ok: false, error: "An active plan is required." },
+        403,
+      );
     if (params.get("mode") === "resources")
       return reply({
         ok: true,
@@ -92,7 +101,11 @@ export const loader = async ({ request }) => {
     });
   } catch (error) {
     return reply(
-      { ok: false, error: error.message || "Value lookup failed." },
+      {
+        ...identity,
+        ok: false,
+        error: error.message || "Value lookup failed.",
+      },
       error instanceof RangeError ? 400 : 502,
     );
   }
@@ -104,13 +117,15 @@ export const action = async ({ request }) => {
       { ok: false, error: "Method not allowed." },
       { status: 405, headers: { Allow: "POST" } },
     );
+  let identity = {};
   try {
-    const plan = await getPlanEntitlement(admin);
     const form = await request.formData();
     const ownerType = String(form.get("ownerType") || "").toUpperCase(),
       ownerId = String(form.get("ownerId") || "");
     const namespace = String(form.get("namespace") || "vsn_metafields"),
       key = String(form.get("key") || "");
+    identity = { ownerType, ownerId, namespace, key };
+    const plan = await getPlanEntitlement(admin);
     const command = String(form.get("actionType") || "");
     if (!["set", "delete"].includes(command))
       throw new RangeError("Unsupported value action.");
@@ -133,6 +148,7 @@ export const action = async ({ request }) => {
     if (expected !== (existing?.compareDigest ?? null))
       return reply(
         {
+          ...identity,
           ok: false,
           error: "Value changed since you loaded it. Reload before editing.",
           code: "value_conflict",
@@ -162,7 +178,7 @@ export const action = async ({ request }) => {
     });
     if (!result.ok)
       return reply(
-        result,
+        { ...result, ...identity },
         result.code === "INVALID_COMPARE_DIGEST" ? 409 : 400,
       );
     return reply({
@@ -177,6 +193,7 @@ export const action = async ({ request }) => {
   } catch (error) {
     return reply(
       {
+        ...identity,
         ok: false,
         error: error.message || "Value action failed.",
         code: error.code,

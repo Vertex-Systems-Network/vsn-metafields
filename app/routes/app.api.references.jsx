@@ -2,6 +2,7 @@ import { authenticate } from "../shopify.server";
 import { hasActivePlan } from "../active-plan.server";
 import { graph } from "../definitions.server";
 import { featureJson, featureError } from "../feature-request.server";
+import { REFERENCE_TYPES } from "../value-types";
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
   try {
@@ -60,10 +61,19 @@ export const loader = async ({ request }) => {
         ]?.nodes;
     }
     if (!Array.isArray(nodes)) throw new Error("References unavailable.");
+    // Shopify Files can include ExternalVideo, which file_reference cannot save.
+    const supported = type === "file_reference"
+      ? nodes.filter((node) =>
+          typeof node.id === "string" &&
+          REFERENCE_TYPES.file_reference.some((owner) =>
+            node.id.startsWith(`gid://shopify/${owner}/`),
+          ),
+        )
+      : nodes;
     return featureJson({
       ok: true,
       type,
-      references: nodes.map((n) => ({
+      references: supported.map((n) => ({
         id: n.id,
         title: n.product
           ? `${n.product.title} / ${n.title}`

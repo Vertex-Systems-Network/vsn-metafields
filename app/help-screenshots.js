@@ -57,6 +57,34 @@ export const HELP_SCREENSHOTS = {
         "Choose Definition; its type determines the Value input.",
         "This example is empty. Enter a valid value before Save value becomes available."
       ]
+    },
+    {
+      "src": "/help/screenshots/value-invalid-v1-2-3-1791062888189.jpg",
+      "title": "Fix text that breaks a saved rule",
+      "alt": "Actual Care QA text editor showing minimum 3, maximum 120 and the rejected two-character value ab",
+      "width": 1363,
+      "height": 936,
+      "capturedAt": "2026-10-03T21:28:08.189000+00:00",
+      "version": "1.2.3",
+      "steps": [
+        "Choose Resource and Definition in Fields & values.",
+        "Read Value validation above the input. This example needs 3–120 characters.",
+        "The error explains why ab cannot save. Correct the text, then select Save value."
+      ]
+    },
+    {
+      "src": "/help/screenshots/value-readback-v1-2-3-1791063169545.jpg",
+      "title": "Reopen a saved value",
+      "alt": "Actual private staging QA product with the imported quoted text loaded again in its Care QA field",
+      "width": 1363,
+      "height": 936,
+      "capturedAt": "2026-10-03T21:32:49.545000+00:00",
+      "version": "1.2.3",
+      "steps": [
+        "Return to Fields & values after saving or importing.",
+        "Choose the same Resource and Definition again.",
+        "Read the loaded Value. The quoted QA text in this example survived import and reopening."
+      ]
     }
   ],
   "metaobjects": [
@@ -116,6 +144,34 @@ export const HELP_SCREENSHOTS = {
         "Compare Before → proposed and read Result for every row.",
         "Quoted commas and quotes are shown as the intended text.",
         "All rows in this example are invalid, so Apply / resume next chunk is disabled. Fix the input and make a new preview."
+      ]
+    },
+    {
+      "src": "/help/screenshots/import-result-v1-2-3-1791063080131.jpg",
+      "title": "Read saved and invalid results",
+      "alt": "Actual completed two-row staging import showing one saved care value and one invalid missing definition",
+      "width": 1363,
+      "height": 936,
+      "capturedAt": "2026-10-03T21:31:20.131000+00:00",
+      "version": "1.2.3",
+      "steps": [
+        "Check each Before → proposed value before confirming Apply only valid rows.",
+        "Select Apply / resume next chunk. Valid rows can save while invalid rows are skipped.",
+        "Reload Import & export, choose the completed job and read Result for each row. This example processed 2/2 with one saved and one invalid."
+      ]
+    },
+    {
+      "src": "/help/screenshots/import-conflict-v1-2-3-1791063345004.jpg",
+      "title": "Protect an edit made after preview",
+      "alt": "Actual staging import result showing a conflict and no write after the same private product field changed in native Shopify",
+      "width": 1363,
+      "height": 936,
+      "capturedAt": "2026-10-03T21:35:45.004000+00:00",
+      "version": "1.2.3",
+      "steps": [
+        "A preview records the value that existed when you reviewed it.",
+        "If someone changes that field before Apply, the old preview becomes a conflict.",
+        "Read Value changed after preview; no write was made. Check the newer value and create a new preview if another update is still needed."
       ]
     }
   ],
