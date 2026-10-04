@@ -280,7 +280,7 @@ export default function PackagesPage() {
               {current && subscription && (
                 <button
                   className="vsn-button danger vsn-plan-cancel"
-                  disabled={isLoading}
+                  disabled={isLoading || Boolean(result?.confirmationUrl)}
                   onClick={cancel}
                 >
                   {pendingAction === "cancel"
