@@ -605,6 +605,10 @@ body {
   position: relative;
 }
 .vsn-plan.featured {
+  border: 2px solid #c7d9cf;
+  padding: 23px;
+}
+.vsn-plan.current {
   border: 2px solid #176b4b;
   padding: 23px;
 }
@@ -620,6 +624,23 @@ body {
   font-size: 22px;
   letter-spacing: -0.6px;
   margin: 8px 0;
+}
+.vsn-plan-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.vsn-active-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #e1f2e7;
+  color: #176b4b;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 .vsn-plan p {
   font-size: 13px;
@@ -669,6 +690,9 @@ body {
 }
 .vsn-plan button {
   width: 100%;
+}
+.vsn-plan .vsn-plan-cancel {
+  margin-top: 10px;
 }
 .vsn-plan-status {
   margin-top: 14px;

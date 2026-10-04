@@ -1,6 +1,6 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
-import { submitBilling } from "../billing-client";
+import { openBillingApproval, submitBilling } from "../billing-client";
 import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
@@ -40,6 +40,9 @@ export default function PackagesPage() {
       ? latestRequest
       : null;
   const isLoading = statusFetcher.state !== "idle" || submitting;
+  useEffect(() => {
+    if (verified && currentPlan?.id === result?.requestedPlan) setResult(null);
+  }, [verified, currentPlan?.id, result?.requestedPlan]);
   const runBilling = async (formData) => {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -56,7 +59,19 @@ export default function PackagesPage() {
         fetch: window.fetch.bind(window),
         search: location.search,
       });
-      setResult(response);
+      if (response.confirmationUrl) {
+        const requestedPlan = String(formData.get("plan"));
+        setResult({ ...response, requestedPlan });
+        // App Bridge handles top-level navigation from an embedded app. The
+        // explicit link below remains available if the browser blocks it.
+        try {
+          openBillingApproval(response.confirmationUrl, window.open.bind(window));
+        } catch {
+          // A blocked top-level navigation still leaves the Shopify link below.
+        }
+      } else {
+        setResult(response);
+      }
       if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
       setResult({
@@ -145,13 +160,13 @@ export default function PackagesPage() {
             : "Shopify did not activate this request. Select a plan again to get a new approval link."}
         </div>
       )}
-      {result?.confirmationUrl && (
+      {result?.confirmationUrl && currentPlan?.id !== result.requestedPlan && (
         <div className="vsn-notice" role="status">
           <strong>Shopify approval is required to switch plans.</strong>{" "}
           {result.test && "This is test billing with no real charge. "}
           <p>
-            Your current plan remains active until you approve the new plan in
-            Shopify. Select the button below to review its terms.
+            Opening Shopify approval. If it does not open, use the button below.
+            Your current plan remains active until Shopify confirms the change.
           </p>
           <a
             className="vsn-button primary"
@@ -178,7 +193,7 @@ export default function PackagesPage() {
           const current = currentPlan?.id === plan.id;
           return (
             <article
-              className={`vsn-plan ${plan.id === "pro-plan" ? "featured" : ""}`}
+              className={`vsn-plan ${current ? "current" : plan.id === "pro-plan" ? "featured" : ""}`}
               key={plan.id}
               aria-label={`${plan.label} plan`}
             >
@@ -191,7 +206,10 @@ export default function PackagesPage() {
                       ? "More room for private content"
                       : "Start with the essentials"}
               </div>
-              <h2>{plan.label}</h2>
+              <h2 className="vsn-plan-heading">
+                {plan.label}
+                {current && <span className="vsn-active-badge">Active</span>}
+              </h2>
               <p>{plan.description}</p>
               <div className="vsn-price">
                 ${plan.amount}
@@ -259,6 +277,17 @@ export default function PackagesPage() {
                       ? `Switch to ${plan.label}`
                       : `Start ${plan.label} trial`}
               </button>
+              {current && subscription && (
+                <button
+                  className="vsn-button danger vsn-plan-cancel"
+                  disabled={isLoading}
+                  onClick={cancel}
+                >
+                  {pendingAction === "cancel"
+                    ? "Cancelling subscription…"
+                    : "Cancel this plan"}
+                </button>
+              )}
               <div className="vsn-plan-status">
                 {plan.id === "pro-plan"
                   ? "Existing Pro price and 5-day trial preserved."
@@ -335,17 +364,6 @@ export default function PackagesPage() {
         >
           Refresh subscription status
         </button>
-        {subscription && (
-          <button
-            className="vsn-button danger"
-            disabled={isLoading || Boolean(result?.confirmationUrl)}
-            onClick={cancel}
-          >
-            {pendingAction === "cancel"
-              ? "Cancelling subscription…"
-              : "Cancel active subscription"}
-          </button>
-        )}
       </div>
       {submitting && (
         <LoadingState
