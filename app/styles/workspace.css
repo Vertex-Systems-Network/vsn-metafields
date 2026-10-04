@@ -1506,7 +1506,7 @@ body {
 .vsn-workspace main { padding: 22px 8px 40px; }
 .vsn-workspace main > s-page {
   display: block;
-  inline-size: calc(100% - min(6vw, 96px)) !important;
+  inline-size: calc(100% - min(6vw, 96px) + 32px) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
