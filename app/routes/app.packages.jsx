@@ -1,7 +1,7 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { submitBilling } from "../billing-client";
-import { PLANS, planFromSubscriptions } from "../billing-config";
+import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 
@@ -25,6 +25,16 @@ export default function PackagesPage() {
       (s) => s.status === "ACTIVE" && s.name === currentPlan?.name,
     ) || subscriptions.find((s) => s.status === "ACTIVE");
   const verified = statusFetcher.data?.ok === true;
+  const latestRequest = Array.isArray(statusFetcher.data?.recentSubscriptions)
+    ? statusFetcher.data.recentSubscriptions.find((item) => PLAN_BY_ID[item.name])
+    : null;
+  const requestAge = Date.now() - Date.parse(latestRequest?.createdAt);
+  const recentRequest = latestRequest &&
+    ["PENDING", "DECLINED", "EXPIRED"].includes(latestRequest.status) &&
+    Number.isFinite(requestAge) && requestAge >= 0 &&
+    requestAge < 48 * 60 * 60 * 1000
+      ? latestRequest
+      : null;
   const isLoading = statusFetcher.state !== "idle" || submitting;
   const runBilling = async (formData) => {
     if (inFlight.current) return;
@@ -106,6 +116,19 @@ export default function PackagesPage() {
           {subscription?.currentPeriodEnd
             ? `Current period ends ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}.`
             : "Your editing tools are ready."}
+        </div>
+      )}
+      {recentRequest && (
+        <div
+          className={`vsn-notice ${recentRequest.status === "PENDING" ? "" : "error"}`}
+          role="status"
+        >
+          <strong>
+            Latest {PLAN_BY_ID[recentRequest.name].label} request: {recentRequest.status.toLowerCase()}.
+          </strong>{" "}
+          {recentRequest.status === "PENDING"
+            ? "Shopify has not activated this plan. Open its approval link if available, then refresh subscription status."
+            : "Shopify did not activate this request. Select a plan again to get a new approval link."}
         </div>
       )}
       {result?.confirmationUrl && (

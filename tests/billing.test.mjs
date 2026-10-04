@@ -220,6 +220,33 @@ test("each configured tier charges its server price and a plan switch has no new
     );
   }
 });
+
+test("status reads active and recent Shopify requests in one query without a billing mutation", async () => {
+  let calls = 0;
+  const admin = {
+    graphql: async (query, options) => {
+      calls++;
+      assert.match(query, /allSubscriptions\(first: 5, reverse: true, sortKey: CREATED_AT\)/);
+      assert.match(query, /activeSubscriptions/);
+      assert.equal(options, undefined);
+      return Response.json({
+        data: { currentAppInstallation: {
+          activeSubscriptions: [{ id: "gid://shopify/AppSubscription/1", name: PRO_PLAN.name, status: "ACTIVE", test: true }],
+          allSubscriptions: { nodes: [
+            { id: "gid://shopify/AppSubscription/2", name: "starter-plan", status: "PENDING", test: true, createdAt: "2026-10-04T10:00:00Z" },
+            { id: "gid://shopify/AppSubscription/1", name: PRO_PLAN.name, status: "ACTIVE", test: true, createdAt: "2026-10-03T10:00:00Z" },
+          ] },
+        } },
+      });
+    },
+  };
+  const response = await route(admin).loader({ request: new Request("https://staging.example/app/api/status") });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.plan.id, PRO_PLAN.id);
+  assert.equal(payload.recentSubscriptions[0].status, "PENDING");
+  assert.equal(calls, 1);
+});
 test("an unknown client-selected tier is rejected before any subscription query or write", async () => {
   let calls = 0;
   const admin = {
