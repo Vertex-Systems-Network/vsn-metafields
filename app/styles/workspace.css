@@ -2012,3 +2012,11 @@ body {
   .vsn-content main { padding: 18px 6px 28px; }
   .vsn-content main > s-page { inline-size: 100% !important; }
 }
+
+/* Shared Stock Down Sort text metrics for corresponding Metafields cards. */
+.vsn-hero { font-size: 16px; font-weight: 400; }
+.vsn-task-card p { color: #3e4144; font-weight: 400; line-height: 1.5; }
+.vsn-plan h2 { color: #3e4144; line-height: 1.5; }
+.vsn-plan p { color: #3e4144; font-weight: 400; line-height: 1.5; }
+.vsn-plan li { color: #4d5055; font-weight: 400; line-height: 1.5; }
+.vsn-price { color: #3e4144; }
