@@ -1,6 +1,6 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
-import { openBillingApproval, submitBilling } from "../billing-client";
+import { openBillingApproval, reserveBillingApproval, submitBilling } from "../billing-client";
 import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
@@ -43,7 +43,7 @@ export default function PackagesPage() {
   useEffect(() => {
     if (verified && currentPlan?.id === result?.requestedPlan) setResult(null);
   }, [verified, currentPlan?.id, result?.requestedPlan]);
-  const runBilling = async (formData) => {
+  const runBilling = async (formData, approvalWindow = null) => {
     if (inFlight.current) return;
     inFlight.current = true;
     setSubmitting(true);
@@ -65,15 +65,17 @@ export default function PackagesPage() {
         // App Bridge handles top-level navigation from an embedded app. The
         // explicit link below remains available if the browser blocks it.
         try {
-          openBillingApproval(response.confirmationUrl, window.open.bind(window));
+          openBillingApproval(response.confirmationUrl, window.open.bind(window), approvalWindow);
         } catch {
           // A blocked top-level navigation still leaves the Shopify link below.
         }
       } else {
+        approvalWindow?.close();
         setResult(response);
       }
       if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
+      approvalWindow?.close();
       setResult({
         error: error.message || "Billing could not complete. Try again.",
       });
@@ -94,7 +96,8 @@ export default function PackagesPage() {
     const form = new FormData();
     form.set("actionType", "create");
     form.set("plan", plan.id);
-    void runBilling(form);
+    const approvalWindow = reserveBillingApproval(window.open.bind(window));
+    void runBilling(form, approvalWindow);
   };
   const cancel = () => {
     if (
@@ -162,19 +165,19 @@ export default function PackagesPage() {
       )}
       {result?.confirmationUrl && currentPlan?.id !== result.requestedPlan && (
         <div className="vsn-notice" role="status">
-          <strong>Shopify approval is required to switch plans.</strong>{" "}
+          <strong>Approve {PLAN_BY_ID[result.requestedPlan]?.label || "the selected plan"} in Shopify to complete the switch.</strong>{" "}
           {result.test && "This is test billing with no real charge. "}
           <p>
-            Opening Shopify approval. If it does not open, use the button below.
+            Opening Shopify approval in a new tab. If it does not open, use the button below.
             Your current plan remains active until Shopify confirms the change.
           </p>
           <a
             className="vsn-button primary"
             href={result.confirmationUrl}
-            target="_top"
-            rel="noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Review and approve in Shopify
+            Approve {PLAN_BY_ID[result.requestedPlan]?.label || "plan"} in Shopify
           </a>
         </div>
       )}

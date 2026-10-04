@@ -7,10 +7,27 @@ export function validateBillingConfirmation(value) {
   return url.href;
 }
 
-export function openBillingApproval(url, open) {
+export function reserveBillingApproval(open) {
+  // Reserve a tab in the merchant's click gesture before async Shopify calls.
+  const pending = open("about:blank", "_blank");
+  if (pending) pending.opener = null;
+  return pending;
+}
+
+export function openBillingApproval(url, open, pending = null) {
   // Shopify App Bridge patches window.open for embedded top-level navigation.
   // Keep the returned URL visible as a link in case navigation is blocked.
-  open(validateBillingConfirmation(url), "_top");
+  const destination = validateBillingConfirmation(url);
+  if (pending && !pending.closed) {
+    try {
+      pending.location.replace(destination);
+      pending.focus?.();
+      return;
+    } catch {
+      pending.close?.();
+    }
+  }
+  open(destination, "_top");
 }
 
 export async function submitBilling(formData, { shopify, fetch, search = "" }) {
