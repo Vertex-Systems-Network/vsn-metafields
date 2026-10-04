@@ -1506,9 +1506,9 @@ body {
 .vsn-workspace main { padding: 22px 8px 40px; }
 .vsn-workspace main > s-page {
   display: block;
-  inline-size: calc(100% - min(6vw, 96px));
-  max-inline-size: none;
-  margin-inline: auto;
+  inline-size: calc(100% - min(6vw, 96px)) !important;
+  max-inline-size: none !important;
+  margin-inline: auto !important;
 }
 .vsn-intro { gap: 22px; margin-bottom: 22px; }
 .vsn-eyebrow { color: var(--vsn-accent); letter-spacing: 1.7px; font-weight: 750; }
