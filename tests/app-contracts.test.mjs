@@ -294,7 +294,7 @@ test("billing mutations require authenticated POST requests and guard active pla
   assert.match(status, /\[vsn-status-action\]/);
   assert.match(status, /\[vsn-status-action-auth-failed\]/);
   assert.match(status, /billingIsTest\(process\.env\)/);
-  assert.match(status, /billingReturnUrl\(\s*session\.shop,\s*process\.env\.SHOPIFY_API_KEY,?\s*\)/);
+  assert.match(status, /billingReturnUrl\(\s*session\.shop,\s*process\.env\.SHOPIFY_API_KEY,\s*selectedPlan\.id,?\s*\)/);
   assert.doesNotMatch(packages, /process\.env\.APP_ENV/);
   assert.doesNotMatch(packages, /process\.env\.NODE_ENV/);
   assert.doesNotMatch(

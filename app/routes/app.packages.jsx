@@ -25,6 +25,10 @@ export default function PackagesPage() {
       (s) => s.status === "ACTIVE" && s.name === currentPlan?.name,
     ) || subscriptions.find((s) => s.status === "ACTIVE");
   const verified = statusFetcher.data?.ok === true;
+  const params = new URLSearchParams(location.search);
+  const returnedPlan = params.get("billing_return") === "1"
+    ? PLAN_BY_ID[params.get("requested_plan")]
+    : null;
   const latestRequest = Array.isArray(statusFetcher.data?.recentSubscriptions)
     ? statusFetcher.data.recentSubscriptions.find((item) => PLAN_BY_ID[item.name])
     : null;
@@ -116,6 +120,16 @@ export default function PackagesPage() {
           {subscription?.currentPeriodEnd
             ? `Current period ends ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}.`
             : "Your editing tools are ready."}
+        </div>
+      )}
+      {returnedPlan && verified && (
+        <div
+          className={`vsn-notice ${currentPlan?.id === returnedPlan.id ? "success" : ""}`}
+          role="status"
+        >
+          {currentPlan?.id === returnedPlan.id
+            ? `Shopify confirms ${returnedPlan.label} is active.`
+            : `Returned from Shopify, but ${returnedPlan.label} is not active yet. Check the latest request status below or refresh subscription status.`}
         </div>
       )}
       {recentRequest && (

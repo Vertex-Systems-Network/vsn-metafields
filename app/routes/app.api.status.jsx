@@ -287,6 +287,7 @@ export const action = async ({ request }) => {
       const returnUrl = billingReturnUrl(
         session.shop,
         process.env.SHOPIFY_API_KEY,
+        selectedPlan.id,
       );
       const testBilling = billingIsTest(process.env);
       const activeSubscriptions = await getActiveSubscriptions(admin);

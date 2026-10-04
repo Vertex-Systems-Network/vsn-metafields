@@ -28,10 +28,11 @@ test("staging optimized builds create only test billing; explicit live remains r
   assert.equal(billingIsTest({ NODE_ENV: "development" }), true);
   assert.throws(() => billingIsTest({ APP_ENV: "typo" }), /environment/);
   assert.equal(
-    billingReturnUrl("example.myshopify.com", "abc123"),
-    "https://admin.shopify.com/store/example/apps/abc123",
+    billingReturnUrl("example.myshopify.com", "abc123", "starter-plan"),
+    "https://admin.shopify.com/store/example/apps/abc123/app/packages?billing_return=1&requested_plan=starter-plan",
   );
-  assert.throws(() => billingReturnUrl("attacker.com", "abc123"), /identity/);
+  assert.throws(() => billingReturnUrl("attacker.com", "abc123", "starter-plan"), /identity/);
+  assert.throws(() => billingReturnUrl("example.myshopify.com", "abc123", "../../admin"), /identity/);
 });
 
 test("billing POST carries a fresh token and returns approval without making another request", async () => {
@@ -168,7 +169,7 @@ test("actual billing route uses staging test mode and authenticated return ident
   assert.equal(variables.test, true);
   assert.equal(
     variables.returnUrl,
-    "https://admin.shopify.com/store/example/apps/abc123",
+    "https://admin.shopify.com/store/example/apps/abc123/app/packages?billing_return=1&requested_plan=pro-plan",
   );
   assert.equal(variables.trialDays, 5);
   assert.equal(
@@ -209,6 +210,7 @@ test("each configured tier charges its server price and a plan switch has no new
       200,
     );
     assert.equal(variables.name, selected.name);
+    assert.equal(new URL(variables.returnUrl).searchParams.get("requested_plan"), selected.id);
     assert.equal(variables.trialDays, 0);
     assert.equal(
       variables.lineItems[0].plan.appRecurringPricingDetails.price.amount,
