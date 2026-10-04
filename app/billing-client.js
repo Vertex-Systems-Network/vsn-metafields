@@ -7,6 +7,12 @@ export function validateBillingConfirmation(value) {
   return url.href;
 }
 
+export function openBillingApproval(url, open) {
+  // Shopify App Bridge patches window.open for embedded top-level navigation.
+  // Keep the returned URL visible as a link in case navigation is blocked.
+  open(validateBillingConfirmation(url), "_top");
+}
+
 export async function submitBilling(formData, { shopify, fetch, search = "" }) {
   if (!shopify?.idToken) throw new Error("Open this app inside Shopify admin to manage your plan.");
   // A fresh App Bridge token avoids redirecting a POST through session-token login.

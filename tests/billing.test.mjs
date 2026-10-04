@@ -6,9 +6,18 @@ import {
   billingReturnUrl,
 } from "../app/billing-environment.server.js";
 import {
+  openBillingApproval,
   submitBilling,
   validateBillingConfirmation,
 } from "../app/billing-client.js";
+
+test("approved Shopify confirmation opens in the top window", () => {
+  const calls = [];
+  openBillingApproval("https://admin.shopify.com/store/example/charges/123", (...args) => calls.push(args));
+  assert.deepEqual(calls, [["https://admin.shopify.com/store/example/charges/123", "_top"]]);
+  assert.throws(() => openBillingApproval("https://evil.example/charge", (...args) => calls.push(args)), /invalid/);
+  assert.equal(calls.length, 1);
+});
 import {
   PRO_PLAN,
   PLAN_BY_ID,
