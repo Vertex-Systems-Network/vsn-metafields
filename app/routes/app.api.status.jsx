@@ -3,11 +3,14 @@ import { PRO_PLAN, PLAN_BY_ID, planFromSubscriptions } from "../billing-config";
 import { billingIsTest, billingReturnUrl } from "../billing-environment.server";
 import { validateBillingConfirmation } from "../billing-client";
 
-async function getActiveSubscriptions(admin) {
+async function getActiveSubscriptions(admin, includeRecent = false) {
   const response = await admin.graphql(`
     #graphql
     query GetActiveSubscriptions {
       currentAppInstallation {
+        ${includeRecent ? `allSubscriptions(first: 5, reverse: true, sortKey: CREATED_AT) {
+          nodes { id name status test createdAt }
+        }` : ""}
         activeSubscriptions {
           id
           name
@@ -51,7 +54,11 @@ async function getActiveSubscriptions(admin) {
   const subscriptions = json?.data?.currentAppInstallation?.activeSubscriptions;
   if (!Array.isArray(subscriptions))
     throw new Error("Could not verify the active subscription.");
-  return subscriptions;
+  if (!includeRecent) return subscriptions;
+  const recentSubscriptions = json.data.currentAppInstallation.allSubscriptions?.nodes;
+  if (!Array.isArray(recentSubscriptions))
+    throw new Error("Could not verify recent subscription requests.");
+  return { subscriptions, recentSubscriptions };
 }
 
 // ─── GET: fetch subscription status ───────────────────────────────────────────
@@ -89,7 +96,8 @@ export const loader = async ({ request }) => {
   const { admin, session } = auth;
 
   try {
-    const activeSubscriptions = await getActiveSubscriptions(admin);
+    const { subscriptions: activeSubscriptions, recentSubscriptions } =
+      await getActiveSubscriptions(admin, true);
     // Shopify's test flag describes how the subscription is billed, not whether
     // an already-active subscription grants app access. Existing demo/test-store
     // subscriptions must stay valid after a production hosting migration.
@@ -102,6 +110,7 @@ export const loader = async ({ request }) => {
       shop: session.shop,
       hasActivePlan,
       subscriptions: activeSubscriptions,
+      recentSubscriptions,
       plan: planFromSubscriptions(activeSubscriptions),
     });
   } catch (error) {
@@ -278,6 +287,7 @@ export const action = async ({ request }) => {
       const returnUrl = billingReturnUrl(
         session.shop,
         process.env.SHOPIFY_API_KEY,
+        selectedPlan.id,
       );
       const testBilling = billingIsTest(process.env);
       const activeSubscriptions = await getActiveSubscriptions(admin);

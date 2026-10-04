@@ -6,9 +6,14 @@ export function billingIsTest(env) {
   return env.NODE_ENV !== "production";
 }
 
-export function billingReturnUrl(shop, apiKey) {
-  if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop) || !/^[a-z0-9]+$/i.test(apiKey || "")) {
+export function billingReturnUrl(shop, apiKey, planId) {
+  if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop) ||
+      !/^[a-z0-9]+$/i.test(apiKey || "") ||
+      !/^(starter|growth|pro)-plan$/.test(planId || "")) {
     throw new Error("Shopify billing identity is not configured.");
   }
-  return `https://admin.shopify.com/store/${shop.replace(/\.myshopify\.com$/i, "")}/apps/${apiKey}`;
+  const url = new URL(`https://admin.shopify.com/store/${shop.replace(/\.myshopify\.com$/i, "")}/apps/${apiKey}/app/packages`);
+  url.searchParams.set("billing_return", "1");
+  url.searchParams.set("requested_plan", planId);
+  return url.href;
 }

@@ -663,6 +663,10 @@ body {
   left: 0;
   color: #176b4b;
 }
+.vsn-plan li.vsn-pro-feature:before {
+  content: "–";
+  color: var(--vsn-muted);
+}
 .vsn-plan button {
   width: 100%;
 }
@@ -887,7 +891,7 @@ body {
   align-items: center;
   width: 100%;
   min-height: 32px;
-  padding: 4px 12px;
+  padding: 3px 12px;
   border: 1px solid #8a8a8a;
   border-radius: 8px;
   background: #fff;

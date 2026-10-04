@@ -1,0 +1,321 @@
+{
+  "date": "2026-10-03",
+  "recorded_at": "2026-10-03T20:41:09.162384+00:00",
+  "scope": "Authenticated staging baseline browser QA and actual documentation screenshots; no production acceptance",
+  "store": "staging-oath3rth",
+  "app": "VSN | Metafields (Staging)",
+  "observed_version": "1.2.3",
+  "deployed_source": "dd29e53bdf68de20dd34a45b1b647c035be7916b",
+  "authorization": "User explicitly renewed accounts.shopify.com staging sign-in and secure handoff; user then confirmed done. Sign-in and embedded app positively verified.",
+  "checks": [
+    {
+      "case": "Navigation and identity",
+      "result": "passed",
+      "evidence": "Staging title, v1.2.3, dashboard five routes; Shopify app menu has home only, without duplicate page children."
+    },
+    {
+      "case": "Desktop layout",
+      "result": "passed_for_observed_viewport",
+      "evidence": "Browser 1363x936; iframe1123x823. Expanded sidebar256px; collapsed72px. Header sticky top0; collapsed sidebar750px below73px header."
+    },
+    {
+      "case": "Collapsed tooltip",
+      "result": "keyboard_passed_hover_pending",
+      "evidence": "Tab focused Fields & values shows its label; Escape dismisses it. Actual mouse hover, screen reader and narrow/zoom modes not verified."
+    },
+    {
+      "case": "Name and key",
+      "result": "passed_unsaved",
+      "evidence": "Care instructions generates care_instructions. Manual care_notes survives name change. Use key from name restores generated key."
+    },
+    {
+      "case": "Type and resource dropdowns",
+      "result": "passed_desktop",
+      "evidence": "118 grouped types, icons, single line filter returns2 options, Escape restores trigger focus.26 resources, product filter returns Product and Product variant; no card clipping observed."
+    },
+    {
+      "case": "Control heights",
+      "result": "defect_fixed_locally_not_deployed",
+      "evidence": "Native field wrapper32px vs custom select34px. Trigger vertical padding4px→3px to align32px; staging verification awaits release."
+    },
+    {
+      "case": "Resource search",
+      "result": "defect_fixed_locally_not_deployed",
+      "evidence": "snowboard returned0 with forced title: filter; blank query fetched17. Preserve bounded Shopify query as GraphQL variable; route regression tests cover words, operators, quoted phrases, Unicode and overlong rejection."
+    },
+    {
+      "case": "Metaobject definition and entry",
+      "result": "passed_private_fixture",
+      "evidence": "Created private vsn_qa_20261004 definition, required title with min3/max100. ab rejected with visible length error and0 entries. Cotton size guide saved as Draft qa-guide, edited readback matches. Public activation not saved/tested."
+    },
+    {
+      "case": "CSV quoted paste preview",
+      "result": "partial",
+      "evidence": "Quoted comma and escaped quote parsed correctly. Two invalid rows previewed, processed0/2 revision0; apply disabled even with confirmation checked. File chooser timed out twice; no completed/resumed valid import or download acceptance."
+    },
+    {
+      "case": "Loaders",
+      "result": "observed",
+      "evidence": "Loading workspace… on navigation, Saving changes… during actual save."
+    },
+    {
+      "case": "Plans",
+      "result": "read_only_passed_presentation_defect_fixed_locally",
+      "evidence": "19/35/55 cards,5/20/100 import rows,8/32/128 list items,2/5/25 definition fields. Current Pro test plan. Removed duplicated check text and excluded Pro-only features from included check styling. No subscription transition."
+    },
+    {
+      "case": "Diagnostics",
+      "result": "observed_ready",
+      "evidence": "Environment staging, database reachable, subscription active, saved imports1. Values/metaobjects/pages/files Ready. Not full page/file picker flow certification."
+    },
+    {
+      "case": "Theme block registration and persistence",
+      "result": "passed_one_draft_empty_source_baseline",
+      "evidence": "Horizon194100724084 Draft: all5 blocks added to one section, actual settings inspected/screens captured, Save then reload retains all5, Single field reopened. Empty-source editor guidance observed. No real public value/filter rendering, two-theme or performance acceptance."
+    }
+  ],
+  "retained_fixtures": [
+    {
+      "resource": "metaobject",
+      "definition_type": "vsn_qa_20261004",
+      "entry_handle": "qa-guide",
+      "entry_status": "DRAFT",
+      "storefront_access": "NONE",
+      "cleanup": "Retained; no permanent deletion attempted."
+    },
+    {
+      "resource": "import_preview",
+      "created_at": "2026-10-03T20:20:09.086Z",
+      "status": "preview",
+      "processed": 0,
+      "rows": 2,
+      "writes": 0,
+      "cleanup": "Retained saved job; configured7-day retention applies."
+    },
+    {
+      "resource": "theme",
+      "id": "194100724084",
+      "name": "Horizon",
+      "status": "Draft",
+      "change": "One section containing5 VSN blocks with default empty sources saved for QA. Current test-data theme and publication unchanged."
+    },
+    {
+      "resource": "product",
+      "id": "gid://shopify/Product/15336402485620",
+      "status": "DRAFT",
+      "title": "VSN QA 20261004 private acceptance",
+      "cleanup": "Retained private QA fixture; no permanent deletion."
+    },
+    {
+      "resource": "metafield_definitions",
+      "owner_type": "PRODUCT",
+      "namespace": "vsn_qa_20261004",
+      "keys": [
+        "care",
+        "enabled",
+        "count",
+        "page",
+        "file"
+      ],
+      "storefront_access": "NONE",
+      "cleanup": "Retained private QA definitions."
+    },
+    {
+      "resource": "import_jobs",
+      "created_at": [
+        "2026-10-03T21:29:08.600Z",
+        "2026-10-03T21:33:52.535Z"
+      ],
+      "results": [
+        "complete 2/2: saved and invalid",
+        "complete 1/1: conflict without write"
+      ],
+      "cleanup": "Retained saved history; configured retention applies."
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "public/help/screenshots/collapsed-menu-v1-2-3-1791058397661.jpg",
+      "sha256": "a356e5966c9a2b2a859a61a415c413b0eeb950d20c2e4b8e54ae07bc607f4f9e",
+      "bytes": 100128
+    },
+    {
+      "path": "public/help/screenshots/connection-v1-2-3-1791059723687.jpg",
+      "sha256": "1886c7c5f34f3f06351380d42b4f4bb35edcff3833855075d519089a838cf090",
+      "bytes": 87580
+    },
+    {
+      "path": "public/help/screenshots/csv-preview-v1-2-3-1791058894515.jpg",
+      "sha256": "eea2d2138f62d6c85b43384c23a7a9baf535832062a0199ddc20dd6dbded7500",
+      "bytes": 101160
+    },
+    {
+      "path": "public/help/screenshots/definition-form-v1-2-3-1791058322833.jpg",
+      "sha256": "7902ad067c2b23327cd6e90f54f1cde5bb35547e270f5ad5c48931d1db7b93a7",
+      "bytes": 97106
+    },
+    {
+      "path": "public/help/screenshots/help-v1-2-3-1791059376238.jpg",
+      "sha256": "9f0d9653a8371d062c1c805a8a990332b0948fd4232c8d263144f341d60562b4",
+      "bytes": 124490
+    },
+    {
+      "path": "public/help/screenshots/imports-v1-2-3-1791058693478.jpg",
+      "sha256": "15a2d45e8e6544016e6c75219e36fca116731d3ede7da906382c116159c94cb9",
+      "bytes": 93776
+    },
+    {
+      "path": "public/help/screenshots/metaobject-validation-v1-2-3-1791058563743.jpg",
+      "sha256": "cc3587685a80fc79e18aa26bcb02b4e87b917ecc9dff1310144056bd099a58bf",
+      "bytes": 81053
+    },
+    {
+      "path": "public/help/screenshots/metaobjects-v1-2-3-1791058650647.jpg",
+      "sha256": "02c70d1bbf6bf139bffdd948d652655404d6465d90c15a4807e38ed1c61ceab1",
+      "bytes": 91145
+    },
+    {
+      "path": "public/help/screenshots/plans-v1-2-3-1791059307415.jpg",
+      "sha256": "87fc7f9fe7fdba42eb5c2050ef378c660dc6ab64333b658cf6d6a86d4620fb6a",
+      "bytes": 120885
+    },
+    {
+      "path": "public/help/screenshots/resource-picker-v1-2-3-1791058440430.jpg",
+      "sha256": "5234dda12d1e554312d1e7d6663ec12ddd9c0df1bbe74db53fefdfab29c48314",
+      "bytes": 95876
+    },
+    {
+      "path": "public/help/screenshots/theme-faq-v1-2-3-1791059386729.jpg",
+      "sha256": "996a025acc0829247f671f4593449608821b8784b90385c6dd80bd2a9b023c15",
+      "bytes": 112402
+    },
+    {
+      "path": "public/help/screenshots/theme-media-v1-2-3-1791059463202.jpg",
+      "sha256": "44c4ec7e8f44f2eb3f08d45ff665efcacff18ae647342185b5baf5e04e513249",
+      "bytes": 112682
+    },
+    {
+      "path": "public/help/screenshots/theme-reference-cards-v1-2-3-1791059432776.jpg",
+      "sha256": "1a9fbf62d735d7d195a7782e2e40ecc6a9bc9fd4ccc9515820dcd892f113882e",
+      "bytes": 116791
+    },
+    {
+      "path": "public/help/screenshots/theme-saved-v1-2-3-1791059530365.jpg",
+      "sha256": "7ed90d14c177983381f5d119acdd0d992b8c55c100113c6e0e36239db5dd780f",
+      "bytes": 114432
+    },
+    {
+      "path": "public/help/screenshots/theme-single-field-v1-2-3-1791059307457.jpg",
+      "sha256": "1f43ecbae8c20d12f7255928317d36ec1f585e20c22783057863090bd515559b",
+      "bytes": 94015
+    },
+    {
+      "path": "public/help/screenshots/theme-specifications-v1-2-3-1791059359237.jpg",
+      "sha256": "4953e8991d8c631ad8f28e745cd526c6e9c1eee629751c51aa5f7ac69531fdd4",
+      "bytes": 103688
+    },
+    {
+      "path": "public/help/screenshots/type-picker-v1-2-3-1791058301694.jpg",
+      "sha256": "fb8135064c626a052ca0ac47133c5935915ed87f30e5fe4b07400d43329a7517",
+      "bytes": 91085
+    },
+    {
+      "path": "public/help/screenshots/values-v1-2-3-1791059463680.jpg",
+      "sha256": "7df6d160fcb270d02a4ec6734425c15bea8580b00d1a8b93ad7a8149d451d948",
+      "bytes": 102897
+    },
+    {
+      "path": "public/help/screenshots/workspace-v1-2-3-1791058207145.jpg",
+      "sha256": "57646a515a781eeaf4074a2120b0afb153019bb5faab9d96a037094b84f38d48",
+      "bytes": 79483
+    },
+    {
+      "path": "public/help/screenshots/qa-draft-product-v1-2-3-1791062544126.jpg",
+      "sha256": "f0be2cccec0a8760ee8851a0532a660687c4fc88db56452565d2b977b627f5b2",
+      "bytes": 104359
+    },
+    {
+      "path": "public/help/screenshots/value-invalid-v1-2-3-1791062888189.jpg",
+      "sha256": "31c92b044956e72d9c96d833ff91118c2dcd6381a6225865e3ad24521f24f740",
+      "bytes": 88232
+    },
+    {
+      "path": "public/help/screenshots/import-result-v1-2-3-1791063080131.jpg",
+      "sha256": "b68693181eb16fe95c8737075c4503a126e1bc14297641b8fb22db52ccea5ab0",
+      "bytes": 101597
+    },
+    {
+      "path": "public/help/screenshots/value-readback-v1-2-3-1791063169545.jpg",
+      "sha256": "98d8e9393a9ea5206d2cbe93ec513f9ac43dfd1b995ed85a98813f87060adc97",
+      "bytes": 94459
+    },
+    {
+      "path": "public/help/screenshots/import-conflict-v1-2-3-1791063345004.jpg",
+      "sha256": "b9bb50c96b0945d9286f69f8cd8f907e5962aaab986f61661649802772048cdb",
+      "bytes": 97048
+    },
+    {
+      "path": "public/help/screenshots/typed-values-native-v1-2-3-1791064019218.jpg",
+      "sha256": "82d13d564f7511c241327872791ea918fcdfd518948e8cfe03b903e3f212d2c8",
+      "bytes": 88154
+    },
+    {
+      "path": "public/help/screenshots/file-reference-error-v1-2-3-1791064566301.jpg",
+      "sha256": "a9bdce90f796339ffc15e4f8dbdc8e111a4863655b00e07c596bf49fba520f37",
+      "bytes": 89539
+    }
+  ],
+  "local_checks": {
+    "targeted_tests": 23,
+    "failures": 0,
+    "full_release_check": "passed",
+    "node": "22.13.0",
+    "tests": 161,
+    "lint": "passed",
+    "typecheck": "passed",
+    "db_model_parity": "passed",
+    "build": "passed",
+    "repository_integrity": "passed",
+    "staging_isolation": "passed",
+    "diff_check": "passed",
+    "continuation_status": "Three affected test files pass; lint, typecheck, db-model parity, build, repository integrity, staging isolation and diff check pass. Full release command blocked by sandbox spawnSync EPERM in bulk-values Prisma child before assertions; old 161-test pass belongs to prior PR head.",
+    "continuation_affected_test_files_passed": 3,
+    "continuation_full_release_check": "blocked_by_sandbox_child_process_EPERM"
+  },
+  "limitations": [
+    "Images capture stagingv1.2.3, not new fixes.",
+    "Theme pictures show visible source controls; all148 setting explanations exist but every lower control does not yet have its own screenshot.",
+    "No local/dev or live login, merchant original metadata change, subscription change, theme publishing, receipt certification, restore drill or independent assurance.",
+    "Browser auto-review rejected a subsequent admin.shopify.com action before execution due its usage limit; no alternate browser route used. Supported MediaImage final save/readback, upload and export download remain unverified."
+  ],
+  "new_release_dispatched": false,
+  "continuation_at": "2026-10-04T00:51:37.422775+00:00",
+  "continuation_scope": "2026-10-04 authenticated private staging product and import browser QA; v1.2.3 only, draft fixes not deployed",
+  "continuation_checks": [
+    {
+      "case": "Private product values",
+      "result": "partial_pass",
+      "evidence": "Draft product gid://shopify/Product/15336402485620; five private Product definitions. Text minimum3 rejected ab; valid care saved/readback; false and0 independently read back in native Shopify Admin."
+    },
+    {
+      "case": "Page and file pickers",
+      "result": "partial",
+      "evidence": "Page lookup returned Contact/Your Privacy Choices; Contact selection saved in app. File lookup returned unsupported ExternalVideo and its save was rejected; supported MediaImage save final response/readback not observed before browser access block. Draft code filters unsupported IDs."
+    },
+    {
+      "case": "Pasted mixed import",
+      "result": "passed_for_observed_rows",
+      "evidence": "2/2 completed with one saved quoted value and one invalid unknown field. History and value readback after reload confirmed."
+    },
+    {
+      "case": "Stale import protection",
+      "result": "passed_for_observed_row",
+      "evidence": "Native product edited to Newer native edit must stay after preview. Stale apply reported conflict and no write; native reload retained newer text."
+    },
+    {
+      "case": "File upload and export download",
+      "result": "unverified",
+      "evidence": "Native file chooser attempts and download wait timed out; no successful upload/download claimed."
+    }
+  ]
+}

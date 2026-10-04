@@ -2,6 +2,7 @@ import { authenticate } from "../shopify.server";
 import { hasActivePlan } from "../active-plan.server";
 import { graph } from "../definitions.server";
 import { featureJson, featureError } from "../feature-request.server";
+import { REFERENCE_TYPES } from "../value-types";
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
   try {
@@ -12,11 +13,10 @@ export const loader = async ({ request }) => {
       );
     const params = new URL(request.url).searchParams,
       type = params.get("type");
-    const search = String(params.get("search") || "")
-      .slice(0, 60)
-      .replace(/[^\p{L}\p{N} _-]/gu, "")
-      .trim();
-    const query = search ? `title:${search}` : null;
+    const search = String(params.get("search") || "").trim();
+    if (search.length > 120)
+      throw new RangeError("Keep the Shopify search query within 120 characters.");
+    const query = search || null;
     const operations = {
       product_reference: `#graphql
         query ReferenceProducts($query:String) { products(first:20,query:$query) { nodes { id title } } }`,
@@ -61,10 +61,19 @@ export const loader = async ({ request }) => {
         ]?.nodes;
     }
     if (!Array.isArray(nodes)) throw new Error("References unavailable.");
+    // Shopify Files can include ExternalVideo, which file_reference cannot save.
+    const supported = type === "file_reference"
+      ? nodes.filter((node) =>
+          typeof node.id === "string" &&
+          REFERENCE_TYPES.file_reference.some((owner) =>
+            node.id.startsWith(`gid://shopify/${owner}/`),
+          ),
+        )
+      : nodes;
     return featureJson({
       ok: true,
       type,
-      references: nodes.map((n) => ({
+      references: supported.map((n) => ({
         id: n.id,
         title: n.product
           ? `${n.product.title} / ${n.title}`

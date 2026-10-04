@@ -28,10 +28,11 @@ test("staging optimized builds create only test billing; explicit live remains r
   assert.equal(billingIsTest({ NODE_ENV: "development" }), true);
   assert.throws(() => billingIsTest({ APP_ENV: "typo" }), /environment/);
   assert.equal(
-    billingReturnUrl("example.myshopify.com", "abc123"),
-    "https://admin.shopify.com/store/example/apps/abc123",
+    billingReturnUrl("example.myshopify.com", "abc123", "starter-plan"),
+    "https://admin.shopify.com/store/example/apps/abc123/app/packages?billing_return=1&requested_plan=starter-plan",
   );
-  assert.throws(() => billingReturnUrl("attacker.com", "abc123"), /identity/);
+  assert.throws(() => billingReturnUrl("attacker.com", "abc123", "starter-plan"), /identity/);
+  assert.throws(() => billingReturnUrl("example.myshopify.com", "abc123", "../../admin"), /identity/);
 });
 
 test("billing POST carries a fresh token and returns approval without making another request", async () => {
@@ -168,7 +169,7 @@ test("actual billing route uses staging test mode and authenticated return ident
   assert.equal(variables.test, true);
   assert.equal(
     variables.returnUrl,
-    "https://admin.shopify.com/store/example/apps/abc123",
+    "https://admin.shopify.com/store/example/apps/abc123/app/packages?billing_return=1&requested_plan=pro-plan",
   );
   assert.equal(variables.trialDays, 5);
   assert.equal(
@@ -209,6 +210,7 @@ test("each configured tier charges its server price and a plan switch has no new
       200,
     );
     assert.equal(variables.name, selected.name);
+    assert.equal(new URL(variables.returnUrl).searchParams.get("requested_plan"), selected.id);
     assert.equal(variables.trialDays, 0);
     assert.equal(
       variables.lineItems[0].plan.appRecurringPricingDetails.price.amount,
@@ -219,6 +221,33 @@ test("each configured tier charges its server price and a plan switch has no new
       "USD",
     );
   }
+});
+
+test("status reads active and recent Shopify requests in one query without a billing mutation", async () => {
+  let calls = 0;
+  const admin = {
+    graphql: async (query, options) => {
+      calls++;
+      assert.match(query, /allSubscriptions\(first: 5, reverse: true, sortKey: CREATED_AT\)/);
+      assert.match(query, /activeSubscriptions/);
+      assert.equal(options, undefined);
+      return Response.json({
+        data: { currentAppInstallation: {
+          activeSubscriptions: [{ id: "gid://shopify/AppSubscription/1", name: PRO_PLAN.name, status: "ACTIVE", test: true }],
+          allSubscriptions: { nodes: [
+            { id: "gid://shopify/AppSubscription/2", name: "starter-plan", status: "PENDING", test: true, createdAt: "2026-10-04T10:00:00Z" },
+            { id: "gid://shopify/AppSubscription/1", name: PRO_PLAN.name, status: "ACTIVE", test: true, createdAt: "2026-10-03T10:00:00Z" },
+          ] },
+        } },
+      });
+    },
+  };
+  const response = await route(admin).loader({ request: new Request("https://staging.example/app/api/status") });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.plan.id, PRO_PLAN.id);
+  assert.equal(payload.recentSubscriptions[0].status, "PENDING");
+  assert.equal(calls, 1);
 });
 test("an unknown client-selected tier is rejected before any subscription query or write", async () => {
   let calls = 0;

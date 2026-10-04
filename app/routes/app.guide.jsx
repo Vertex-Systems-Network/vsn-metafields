@@ -3,6 +3,12 @@ import { Link, useFetcher, useLocation } from "react-router";
 import { HELP_TOPICS } from "../help-content";
 import { FIRST_FIELD_STEPS, HELP_GLOSSARY } from "../help-details";
 import { THEME_HELP } from "../theme-help";
+import {
+  HELP_SCREENSHOTS,
+  WORKSPACE_SCREENSHOTS,
+  THEME_SCREENSHOTS,
+} from "../help-screenshots";
+import { HelpScreenshot } from "../components/HelpScreenshot";
 import { PageIntro } from "../components/Workspace";
 import { ConnectionPanel } from "../components/ConnectionPanel";
 import { requestReferencePermission } from "../permission-client";
@@ -61,6 +67,9 @@ export default function Guide() {
             stays highlighted. On a small screen, use Workspace menu to show or
             hide navigation above your content.
           </p>
+          {WORKSPACE_SCREENSHOTS.map((screenshot) => (
+            <HelpScreenshot key={screenshot.src} screenshot={screenshot} />
+          ))}
         </details>
         <details>
           <summary>Plain-language glossary</summary>
@@ -108,6 +117,12 @@ export default function Guide() {
             <p className="vsn-help-result">
               <strong>Check the result:</strong> {topic.result}
             </p>
+            <details className="vsn-help-illustration">
+              <summary>See the actual app and follow the controls</summary>
+              {HELP_SCREENSHOTS[topic.id].map((screenshot) => (
+                <HelpScreenshot key={screenshot.src} screenshot={screenshot} />
+              ))}
+            </details>
             {topic.sections.map((section) => (
               <details key={section.title}>
                 <summary>{section.title}</summary>
@@ -136,6 +151,7 @@ export default function Guide() {
                     block&apos;s presentation; they do not edit the saved
                     Shopify value.
                   </p>
+                  <HelpScreenshot screenshot={THEME_SCREENSHOTS[block.id]} />
                   <dl className="vsn-help-controls">
                     {block.settings.map((setting) => (
                       <div key={setting.id}>

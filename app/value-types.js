@@ -1,4 +1,17 @@
 // Shared input codec. Shopify remains authoritative for definition validations.
+export function valueResponseMatches(response, selection) {
+  return Boolean(
+    response &&
+    selection?.ownerType &&
+    selection.ownerId &&
+    selection.namespace &&
+    selection.key &&
+    ["ownerType", "ownerId", "namespace", "key"].every(
+      (part) => response[part] === selection[part],
+    ),
+  );
+}
+
 export const REFERENCE_TYPES = {
   product_reference: ["Product"],
   variant_reference: ["ProductVariant"],

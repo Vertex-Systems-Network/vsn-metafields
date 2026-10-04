@@ -1,36 +1,82 @@
-# Remaining acceptance batch — 2026-10-03
+# Remaining acceptance batch — 2026-10-04 continuation
 
-Base development: `4117a6588525f1c656259411ecbe02060ee1f1b1`. The request covers all nine remaining work units and a factual report. This batch completes executable engineering work; it does not claim unavailable merchant/theme observations or override release gates.
+## Plan-switch symptom reported 2026-10-04
 
-## Fixes and executed checks
+The merchant reported that switching a staging plan only refreshed the app. Their redacted Cloudflare trace shows an authenticated `POST /app/api/status` with HTTP200 and Worker outcome `ok`. It does **not** include the JSON response, Shopify confirmation page, approval decision, or subsequent `ACTIVE` subscription readback. The selected tier and whether a charge was created cannot be inferred from that trace.
 
-- Local `dev:shopify` pointed at `shopify@4.8.2`, rather than the official `@shopify/cli@4.8.2`. The command now uses the official pinned CLI and `--config local`. The actual version command returned `4.8.2`; no app-dev/login/install flow was started. Official source: https://shopify.dev/docs/api/shopify-cli.
-- The searchable dropdown previously treated the visible mobile viewport as starting at layout coordinate zero, and used visible height for a layout-relative bottom anchor. A panned zoom viewport or keyboard could place it outside the visible area. Positioning now uses visible offsets/bounds and layout height, follows both viewport resize and scroll, dismisses when its trigger leaves view, and removes event listeners on cleanup. Primary API source: https://drafts.csswg.org/cssom-view/#the-visualviewport-interface. These are implementation/regression results, not device-browser acceptance.
-- App version is `1.2.4`; Dev/Staging/base production title mapping and all sidebar destinations remain preserved.
-- Node 22.13.0 full release check passed 159 tests with zero failures, lint, typecheck, database-model parity and build. The targeted search/workspace file passed all 18 tests, including geometry and actual component event/listener regression. Repository integrity, isolation validation and diff checks passed.
-- Current development evidence PR185 quality run `37145095920` is successful. Prior exact-source staging v1.2.3 evidence remains preserved in `docs/evidence/metafields-environment-titles-2026-10-03.json` until this batch's release results are appended.
-- Backup inventory attempt used only the certified staging endpoint ID `ep-snowy-surf-b3gxl2wf`. The available Neon connection is unscoped and returned `project_id is required`; no project-list tool is exposed and the staging project ID is absent from the inspected project records. No project ID, backup existence or restore result is invented; no database/resource mutation was made.
+The Plans page previously called `window.open(confirmationUrl, "_top")` **after** the awaited billing POST, when the original click activation may have expired. This can navigate without showing an actionable step or fail silently in an embedded frame. The draft fix leaves the server's Shopify confirmation URL validation and current-plan query unchanged, presents a clear `Review and approve in Shopify` link with a direct `_top` click, and says the current plan stays active until Shopify approval. It does not create another subscription, cancel one, or claim the reported switch succeeded. Staging deployment and a merchant-approved test-mode plan transition/readback remain pending.
 
-## Each remaining task and its actual disposition
+A later merchant screenshot of the same deployed v1.2.3 Plans page resolves one uncertainty: `Pro is active · Test subscription` appears alongside `Test billing — no real charge. Continue to Shopify plan approval`. Thus a confirmation URL reached the UI, and the current Pro subscription still displayed. The screenshot shows neither Shopify approval nor a changed active plan. Clicking that visible approval link is the next merchant step; after returning, the app must requery Shopify and display the newly ACTIVE tier before the switch is certified. The later worker INFO authentication event alone adds no billing outcome.
 
-| Work unit | Existing verification | Still required / disposition |
+The merchant then reported that even clicking the signed Shopify charge link returned to the app without a changed tier. We have not opened or reused that signed URL. A later browser tab inventory attempt was **rejected by browser auto-review**, citing the earlier usage-limit block; no UI step executed, and no alternate browser route was used. The link's resulting Shopify status remains unknown. Official Shopify Admin GraphQL distinguishes PENDING/ACTIVE/DECLINED/EXPIRED and exposes `currentAppInstallation.allSubscriptions`. The draft status loader now retrieves the five most recent subscription requests and active subscriptions in **one** GraphQL call; the Plans page shows the latest recognized request's terminal or pending state only for a recent request. This is diagnostic code, not proof that the old staging charge activated, and has not been deployed. An actual merchant-approved staging transition and Shopify ACTIVE readback are still required.
+
+The existing subscription `returnUrl` pointed only to `/store/{shop}/apps/{apiKey}`, losing the Plans route after Shopify approval. The draft now uses `/store/{shop}/apps/{apiKey}/app/packages?billing_return=1&requested_plan={server-selected-tier}` so the returned Plans page checks Shopify's active subscriptions and reports whether that tier is actually active. The query parameters are presentational only and do not grant entitlement. This corrects the return location, but the supplied traces do not prove it caused Shopify's immediate refresh or that a prior charge was approved. New test-mode merchant verification remains required after a guarded staging release.
+
+## 2026-10-04 staging continuation (supersedes older pending wording below)
+
+Authenticated staging v1.2.3 was exercised against a **private Draft product** `gid://shopify/Product/15336402485620`. Five private Product definitions in namespace `vsn_qa_20261004` were saved for text, boolean, integer, page reference and file reference; no public access was enabled. Text `ab` failed the saved minimum length3 without a write. Valid text saved and reopened. Literal `false` and `0` saved; native Shopify product reload displayed False and 0. Page lookup returned Contact and Your Privacy Choices; Contact was selected and the app returned to a saved, removable state. File lookup offered `ExternalVideo`, but saving that ID failed with `Reference ID does not match the field type.` A later supported `MediaImage` save was clicked, yet its final response and readback were not observed. A local picker filter now excludes unsupported file IDs; deployment verification remains pending.
+
+Actual pasted CSV preview contained one valid quoted row and one invalid unknown field. Apply completed2/2, and history after reload showed the valid text imported and the invalid row reported. Reopening the product in Fields & values displayed the imported text. A separate stale preview was applied after a newer edit in native Shopify Admin: the job reported `Value changed after preview; no write was made.` Native reload retained `Newer native edit must stay`. File chooser attempts timed out, and a download event did not arrive in the export check; upload and export-download remain unverified. No genuine product or subscription was changed.
+
+Seven more actual v1.2.3 captures were retained, bringing the evidence total to26; four are also used in beginner Help (`values` and `imports`). The draft code scopes value banners to the selected owner/definition so a previous `Value saved.` message cannot follow another selection. Regression tests cover that identity and filtering of unsupported file IDs. These draft fixes are **not deployed** and staging UI does not certify them.
+
+The next browser action on `admin.shopify.com` was rejected before execution by browser auto-review due its usage limit. Further UI steps, including the supported file save readback, are pending; no alternate browser route was used. The dependency audit still blocks staging dispatch and release: the dev-tool `braces` advisory GHSA-vfj7-8cjw-p6xm remains without a published patch at the prior check. Draft PR187 stays unmerged.
+
+Continuation checks: three directly affected test files pass (route limits, value codec, screenshot assets); lint, typecheck, database-model parity, build, repository integrity, staging isolation and diff check pass. The full release command does **not** pass in this sandbox: `tests/bulk-values.test.mjs` cannot start its Prisma child process (`spawnSync ... EPERM`), before its assertions. Earlier161 passing tests apply to the older PR head, not this continuation. New CI status must be assessed on the new PR head before any release decision.
+
+Staging sign-in was explicitly renewed by the user, completed through the secure handoff and positively verified. The embedded **VSN | Metafields (Staging)** app runs **v1.2.3**, source `dd29e53bdf68de20dd34a45b1b647c035be7916b`. Development is v1.2.4 (`08868a52e872949d6f1572cfb13ddd3f8363f5e1`). New changes are reviewable draft work, not deployed. The historical declined sign-in/redirect rejection no longer blocks these authorized staging checks.
+
+## Work completed and directly observed
+
+- Shopify's app menu exposes home without duplicate page children. The dashboard's own five destinations work. The actual Staging title and version tag are visible.
+- At the observed desktop viewport, the app uses the available iframe width; the header stays sticky. Sidebar width is256px expanded/72px collapsed and occupies the remaining height below the73px header. Keyboard focus shows the collapsed item label; Escape dismisses it. Actual mouse hover/mobile/zoom/screen-reader acceptance is still pending.
+- Name generates a key; manual key edits survive renaming; Use key from name restores generation. The unsaved form exposes value-validation controls. Type search has118 grouped options/icons; the single-line search returns2 variants. Resource search exposes26 owners and narrows product to2. Escape closes both dropdowns; no desktop card clipping observed.
+- A private synthetic metaobject definition with required title/min3/max100 saved and reopened. Invalid `ab` produced a clear error without creating an entry. A valid `Cotton size guide` entry saved as Draft `qa-guide`; Edit readback matches. Public activation was not saved or certified.
+- Quoted CSV pasted through the actual UI preserved a comma and escaped quotes in proposed values. The durable preview has2 invalid rows,0 processed and revision0. Apply remains disabled, including after checking confirmation. File chooser automation timed out twice; upload, valid mixed-row completion/resume and downloaded export are not certified.
+- Workspace navigation and actual writes displayed their loading/saving messages. Diagnostics report staging, database reachable, active subscription,1 saved import and all four tool groups Ready. Readiness is not complete picker-flow acceptance.
+- Actual plan cards show $19/$35/$55 and5/20/100 import rows,8/32/128 list items,2/5/25 definition fields. Pro is the existing test subscription. No financial approval, cancellation or tier change was performed.
+- In the **unpublished Horizon draft194100724084**, all five VSN blocks were available, added to one section, inspected, saved and retained after editor reload; Single field reopened. Empty-source guidance is visible. No public content/filter rendering, second-theme acceptance or measured performance claim.
+- **19 real app/theme screenshots** are captured under `public/help/screenshots`, identified by version/date and SHA256 in the UI evidence. Help now includes topic and block screenshots with location/step instructions, enlarge links, alt text and lazy loading. Existing conceptual diagrams remain explicitly labeled. All148 option explanations remain; screenshots show the visible source controls, not every lower setting separately.
+
+## Fixes prepared from the observed issues
+
+1. Native field wrapper was32px while custom select was34px. Trigger vertical padding changes4px→3px to align with32px controls; deployed verification awaits release.
+2. Resource search forced words into `title:` and returned0 for `snowboard`, while an empty query fetched17 products. Both value/reference search routes now preserve bounded Shopify query syntax as GraphQL variables, including quoted phrases/operators/Unicode; over120 characters returns an actionable400 before resource lookup. Search guidance/labels describe this behavior. Primary reference: https://shopify.dev/docs/api/usage/search-syntax.
+3. Starter/Growth Pro-only features incorrectly inherited checkmarks, while Pro had duplicated check text. Restricted features now use a neutral marker and included features a single check. Billing terms/entitlements unchanged.
+4. Help uses actual screenshot walkthroughs for all seven topics and five blocks. These are stagingv1.2.3 baseline captures; they do not certify the pending fixes on staging.
+
+Earlier v1.2.4 work remains: official pinned `@shopify/cli@4.8.2` local command (actual version4.8.2) and dropdown handling for visual-viewport offsets, resize/scroll and offscreen dismissal. Prior159-test checks passed. This follow-up adds meaningful route and screenshot-asset regressions. Final Node22.13.0 release check passed161 tests with0 failures, lint/typecheck/database-model parity/build; repository integrity, isolation and diff checks also passed. Results are recorded in `docs/evidence/metafields-authenticated-ui-2026-10-03.json`.
+
+## Each remaining work unit
+
+| Work unit | New direct evidence | Still required |
 | --- | --- | --- |
-| META-004 Values editor | Representative API writes/readback, typed values, validation/conflict/reference contracts | Authenticated UI save/reopen, invalid/conflict states and actual page/file pickers; pending access |
-| META-005 Single Field | Extension build and supported Liquid/JS fixtures | Add/save/reopen and actual Shopify rendering in two unpublished themes; pending access |
-| META-006 Specifications | Fixture/layout contracts; saved setting IDs retained | Both themes, two instances/reordering/layouts and editor usability; 45-settings advisory persists |
-| META-007 Metaobjects | Definition/entry lifecycle and validation service evidence | Merchant dialogs/public-access confirmation/error UX; pending access |
-| META-008 Import/export | Immutable preview, mixed outcomes, resume/isolation/retry service and route contracts | Actual quoted CSV upload/task completion/history/export UI; pending access |
-| META-009 Typed blocks | Supported Reference Cards/FAQ/Media fixtures and bounded refresh JS | Actual Shopify rich-text/media filters, rapid variants, failures/recovery on both themes; pending access |
-| META-010 Onboarding, Help, plans | Diagnostics/scopes and tier route guards; environment names; all 148 setting explanations | Real installed local title, embedded menu/title/loader/picker/tier flows and actual current app/control screenshots; pending access |
-| META-011 Final staging QA | Local/CI/API acceptance plus fixes in this batch | Actual mobile/320px/200% zoom/keyboard/screen-reader/contrast, measured performance, signed compliance delivery receipts and isolated restore/outage drill; in progress |
-| META-012 Production rollout | Existing guarded release procedures | Not started: requires previous acceptance and independent release/production assurance; no main/live promotion in this batch |
+| META-004 Values | Resource/definition selection and empty typed editor; search defect reproduced/fixed locally | Valid UI save/reopen, invalid/conflict states and actual page/file reference pickers |
+| META-005 Single field | Horizon draft add/save/reload/reopen and actual controls | Configured public value rendering in two unpublished themes |
+| META-006 Specifications | Horizon draft persistence and real controls | Two themes, two instances/reordering/layouts and editor usability;45-setting advisory retained |
+| META-007 Metaobjects | Private definition/rules and invalid/valid draft entry save/reopen | Public-access confirmation, multi-field preservation and concurrent edit/error cases |
+| META-008 Import/export | Durable quoted paste preview; invalid-only apply guard | Actual file upload, valid mixed outcomes, resume/history/export-download acceptance |
+| META-009 Typed blocks | All five registered/persisted in one draft; empty-source guidance | Actual rich-text/media/reference filters and variant/failure/recovery behavior on two themes |
+| META-010 Help/plans/onboarding | Embedded identity/menu/loaders/diagnostics, read-only tiers,19 real captures | Direct installed local Dev title, lower per-setting images, actual tier transitions and new deployed Help/fixes |
+| META-011 Final QA | Authenticated staging baseline partial; source/route regression work | Accessibility/device/zoom/contrast/performance, signed compliance receipts, restore/outage drill and independent assurance |
+| META-012 Production | Guarded release procedures preserved | Not started: requires previous acceptance, reviewed development→main release and independent production assurance |
 
-The prior Shopify sign-in handoff was declined and automatic approval review rejected the subsequent accounts redirect. This instruction to continue the batch does not explicitly renew staging sign-in. No new auth flow, reused expired token URL, alternate browser login route or local-preview workaround was attempted. Current app screenshots therefore remain absent rather than being manufactured from illustrative diagrams or old uploaded screenshots.
+Queue remains **3 complete,7 verification_required,1 in_progress,1 not_started**. Partial observations do not close broad work-unit criteria.
 
-Three enqueued compliance deliveries from the previous release are not signed delivery receipts. Backup/restore needs the actual staging project/backup/isolated target; no destructive outage or source restore was run. Privacy/retention review, operator/risk assignments, Node patch-security assessment and tamper-evident privileged audit certification remain independent assurance gaps. Authorized self-review is not independent signoff.
+## Release and assurance blockers
 
-Queue counts remain **3 complete, 7 verification_required, 1 in_progress, 1 not_started**. No remaining work unit is closed solely because implementation or API tests passed. Production configuration, actual subscriptions and genuine merchant data are unchanged.
+PR186 merged to development `08868a52e872949d6f1572cfb13ddd3f8363f5e1`. Quality37146463670, validation37146463678 and staging-readiness37146463721 passed. **Dependency Security Audit37146463711 failed**. Draft PR187 contains the busboy3.2.0→3.2.2 published patch and correct runtime classification of prop-types/object-assign/react-is; its prior quality37147171812 and validation37147171818 passed. Production audit is0; the full development tree still has11 high affected package entries via the remaining `braces` advisory GHSA-vfj7-8cjw-p6xm (no published patched version at the recorded check). These are11 affected entries, not11 distinct vulnerabilities. The supported security gate remains failed, not waived. Advisory: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm.
 
-## Release evidence
+No new runtime/Shopify staging dispatch or main/live promotion followed that failure. Active extension remains `staging-metafields-dd29e53bdf68`; runtime run37144530937 and Shopify run37144739776 are the prior successful v1.2.3 release. The current UI checks certify that baseline only.
 
-Implementation CI and exact-source isolated staging runtime/extension results will be recorded here after they finish. Full authenticated merchant/theme acceptance remains subject to the access boundary above.
+Read-only Neon endpoint lookup for `ep-snowy-surf-b3gxl2wf` requires the actual staging project ID; the connected tool is unscoped and no project-list capability is exposed. Backup existence and isolated restore are unverified. Three enqueued compliance deliveries are not signed delivery receipts. Privacy/retention, operator/risk assignments, Node patch review, tamper-evident privileged audit and independent assurance remain separate gaps.
+
+## Retained QA fixtures
+
+- Private `vsn_qa_20261004` definition and Draft `qa-guide` entry remain in staging.
+- Saved2-row invalid preview from `2026-10-03T20:20:09.086Z` remains,0 processed; configured7-day retention applies.
+- Horizon draft194100724084 contains the saved empty-source QA section with five VSN blocks. Current `test-data` theme was not edited/published.
+
+No permanent fixture removal was attempted. Genuine product metadata, subscriptions and production were unchanged. Detailed observations, limitations and asset hashes: `docs/evidence/metafields-authenticated-ui-2026-10-03.json`.
+
+Next engineering gate: reviewed compatible remediation of the development-tool audit, then staging deployment and remaining browser acceptance. Staging login itself is complete and no longer needs renewed permission. Backup/restore needs the real staging project/isolated target; independent and production signoff are still outstanding.

@@ -405,12 +405,15 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-environment-titles-2026-10-03.json"
+        "docs/evidence/metafields-environment-titles-2026-10-03.json",
+        "docs/ai/REMAINING-BATCH-REPORT.md",
+        "docs/evidence/metafields-remaining-batch-2026-10-03.json"
       ],
       "update_notes": [
         "Reconciled 2026-10-03T17:36:55.550344+00:00 against exact-source development/staging 4af68de2eb63796aca93254186dca1a96d8333db. Service evidence is linked; status still follows work-unit merchant/theme acceptance, not code existence.",
         "Current screenshots, merchant/task and two-theme evidence remain pending for applicable modules.",
-        "v1.2.3 source dd29e53bdf68de20dd34a45b1b647c035be7916b: service regression and trusted environment titles passed; architecture/runbook/support/evidence records reconciled. Browser, independent review and drill outcomes remain pending."
+        "v1.2.3 source dd29e53bdf68de20dd34a45b1b647c035be7916b: service regression and trusted environment titles passed; architecture/runbook/support/evidence records reconciled. Browser, independent review and drill outcomes remain pending.",
+        "PR186 merged development 08868a52e872949d6f1572cfb13ddd3f8363f5e1 v1.2.4: official local CLI and visible-viewport dropdown fixes;159 local tests passed. Three merged-source checks passed; Dependency Security Audit37146463711 failed. Local busboy3.2.2/lock fix passed clean install and159tests;11 high braces-chain dependency entries remain without a published patch. No new staging dispatch; active staging remains v1.2.3/dd29e53bdf68. Merchant/theme/screenshots, receipts, drills and independent assurance pending."
       ],
       "removal_or_deprecation_notes": []
     }

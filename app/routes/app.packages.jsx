@@ -1,7 +1,7 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { submitBilling } from "../billing-client";
-import { PLANS, planFromSubscriptions } from "../billing-config";
+import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 
@@ -25,6 +25,20 @@ export default function PackagesPage() {
       (s) => s.status === "ACTIVE" && s.name === currentPlan?.name,
     ) || subscriptions.find((s) => s.status === "ACTIVE");
   const verified = statusFetcher.data?.ok === true;
+  const params = new URLSearchParams(location.search);
+  const returnedPlan = params.get("billing_return") === "1"
+    ? PLAN_BY_ID[params.get("requested_plan")]
+    : null;
+  const latestRequest = Array.isArray(statusFetcher.data?.recentSubscriptions)
+    ? statusFetcher.data.recentSubscriptions.find((item) => PLAN_BY_ID[item.name])
+    : null;
+  const requestAge = Date.now() - Date.parse(latestRequest?.createdAt);
+  const recentRequest = latestRequest &&
+    ["PENDING", "DECLINED", "EXPIRED"].includes(latestRequest.status) &&
+    Number.isFinite(requestAge) && requestAge >= 0 &&
+    requestAge < 48 * 60 * 60 * 1000
+      ? latestRequest
+      : null;
   const isLoading = statusFetcher.state !== "idle" || submitting;
   const runBilling = async (formData) => {
     if (inFlight.current) return;
@@ -43,13 +57,6 @@ export default function PackagesPage() {
         search: location.search,
       });
       setResult(response);
-      if (response.confirmationUrl) {
-        try {
-          window.open(response.confirmationUrl, "_top");
-        } catch {
-          /* The visible approval link supports a fresh user gesture. */
-        }
-      }
       if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
       setResult({
@@ -115,13 +122,45 @@ export default function PackagesPage() {
             : "Your editing tools are ready."}
         </div>
       )}
+      {returnedPlan && verified && (
+        <div
+          className={`vsn-notice ${currentPlan?.id === returnedPlan.id ? "success" : ""}`}
+          role="status"
+        >
+          {currentPlan?.id === returnedPlan.id
+            ? `Shopify confirms ${returnedPlan.label} is active.`
+            : `Returned from Shopify, but ${returnedPlan.label} is not active yet. Check the latest request status below or refresh subscription status.`}
+        </div>
+      )}
+      {recentRequest && (
+        <div
+          className={`vsn-notice ${recentRequest.status === "PENDING" ? "" : "error"}`}
+          role="status"
+        >
+          <strong>
+            Latest {PLAN_BY_ID[recentRequest.name].label} request: {recentRequest.status.toLowerCase()}.
+          </strong>{" "}
+          {recentRequest.status === "PENDING"
+            ? "Shopify has not activated this plan. Open its approval link if available, then refresh subscription status."
+            : "Shopify did not activate this request. Select a plan again to get a new approval link."}
+        </div>
+      )}
       {result?.confirmationUrl && (
         <div className="vsn-notice" role="status">
-          {result.test && "Test billing — no real charge. "}
-          <a href={result.confirmationUrl} target="_top" rel="noreferrer">
-            Continue to Shopify plan approval
+          <strong>Shopify approval is required to switch plans.</strong>{" "}
+          {result.test && "This is test billing with no real charge. "}
+          <p>
+            Your current plan remains active until you approve the new plan in
+            Shopify. Select the button below to review its terms.
+          </p>
+          <a
+            className="vsn-button primary"
+            href={result.confirmationUrl}
+            target="_top"
+            rel="noreferrer"
+          >
+            Review and approve in Shopify
           </a>
-          . After approving, reopen the app or refresh status below.
         </div>
       )}
       {result?.error && (
@@ -187,7 +226,7 @@ export default function PackagesPage() {
                   }
                 >
                   {plan.features.publicMetaobjects
-                    ? "✓ Public metaobject publishing"
+                    ? "Public metaobject publishing"
                     : "Public metaobject publishing · Pro only"}
                 </li>
                 <li
@@ -198,7 +237,7 @@ export default function PackagesPage() {
                   }
                 >
                   {plan.features.retryImports
-                    ? "✓ Failed-import retry preparation"
+                    ? "Failed-import retry preparation"
                     : "Failed-import retry preparation · Pro only"}
                 </li>
               </ul>

@@ -4,7 +4,7 @@ import { Link, useFetcher, useLocation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import TypedValueInput from "../components/TypedValueInput";
-import { editableValueType } from "../value-types";
+import { editableValueType, valueResponseMatches } from "../value-types";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
 import { useAppName } from "../components/AppIdentity";
@@ -92,6 +92,20 @@ export default function Index() {
     (field) => `${field.namespace}:${field.key}` === valueIdentity,
   );
   const selectedType = types.find((item) => item.name === type);
+  const valueSelection = {
+    ownerType,
+    ownerId: resourceId,
+    namespace: selectedDefinition?.namespace,
+    key: selectedDefinition?.key,
+  };
+  const valueActionMatches = valueResponseMatches(
+    valueActionFetcher.data,
+    valueSelection,
+  );
+  const valueLookupMatches = valueResponseMatches(
+    valueFetcher.data,
+    valueSelection,
+  );
   const visibleFields = filterDefinitions(fields, {
     search: filter,
     type: filterType,
@@ -171,20 +185,14 @@ export default function Index() {
     if (valueReady) setFieldValue(valueFetcher.data.value ?? "");
   }, [valueFetcher.data, valueReady]);
   useEffect(() => {
-    if (
-      valueActionFetcher.data?.success &&
-      valueActionFetcher.data.ownerType === ownerType &&
-      valueActionFetcher.data.ownerId === resourceId &&
-      valueActionFetcher.data.namespace === selectedDefinition?.namespace &&
-      valueActionFetcher.data.key === selectedDefinition?.key
-    )
-      loadValue();
+    if (valueActionFetcher.data?.success && valueActionMatches) loadValue();
   }, [
     valueActionFetcher.data,
     loadValue,
     ownerType,
     resourceId,
     selectedDefinition,
+    valueActionMatches,
   ]);
   const submit = (input) => {
     const form = new FormData();
@@ -811,8 +819,8 @@ export default function Index() {
           </s-text>
           <div className="vsn-resource-search">
             <s-search-field
-              label="Search resource title"
-              placeholder="Search by product or collection title"
+              label="Search resources"
+              placeholder="Search words or Shopify filters, e.g. title:Shirt*"
               value={resourceSearch}
               onInput={(event) => setResourceSearch(event.target.value)}
             />
@@ -919,17 +927,25 @@ export default function Index() {
               </div>
             </>
           )}
-          {valueFetcher.data?.error && (
-            <s-banner tone="critical">{valueFetcher.data.error}</s-banner>
-          )}
-          {valueActionFetcher.data?.error && (
-            <s-banner tone="critical">{valueActionFetcher.data.error}</s-banner>
-          )}
-          {valueActionFetcher.data?.success && (
-            <s-banner tone="success">
-              {valueActionFetcher.data.message}
-            </s-banner>
-          )}
+          {valueLookupMatches &&
+            valueFetcher.state === "idle" &&
+            valueFetcher.data?.error && (
+              <s-banner tone="critical">{valueFetcher.data.error}</s-banner>
+            )}
+          {valueActionMatches &&
+            valueActionFetcher.state === "idle" &&
+            valueActionFetcher.data?.error && (
+              <s-banner tone="critical">
+                {valueActionFetcher.data.error}
+              </s-banner>
+            )}
+          {valueActionMatches &&
+            valueActionFetcher.state === "idle" &&
+            valueActionFetcher.data?.success && (
+              <s-banner tone="success">
+                {valueActionFetcher.data.message}
+              </s-banner>
+            )}
         </s-section>
       )}
       <s-section heading="Storefront blocks">
