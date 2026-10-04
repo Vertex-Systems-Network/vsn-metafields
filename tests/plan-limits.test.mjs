@@ -22,6 +22,7 @@ import {
 import { previewImport, runImportChunk } from "../app/bulk-values.server.js";
 import { exportValueCsv } from "../app/bulk-csv.js";
 import { createHash } from "node:crypto";
+import { REFERENCE_TYPES } from "../app/value-types.js";
 
 const adminFor = (subscriptions) => ({
   graphql: async () =>
@@ -445,4 +446,137 @@ test("failed-import retry denies lower tiers before touching saved jobs and igno
   assert.equal(response.status, 403);
   assert.equal((await response.json()).code, "plan_limit");
   assert.equal(databaseReads, 0);
+});
+
+
+test("resource and reference searches preserve Shopify syntax as bounded GraphQL variables", async () => {
+  for (const file of ["app.api.values.jsx", "app.api.references.jsx"]) {
+    const queries = [];
+    const route = serverRoute(file, {
+      "../shopify.server": { authenticate: { admin: async () => ({ admin: {} }) } },
+      "../active-plan.server": { hasActivePlan: async () => true },
+      "../definitions.server": { graph: async (_, operation, variables) => {
+        assert.match(operation, /query:\$query/);
+        queries.push(variables.query);
+        return { products: { nodes: [{ id: "gid://shopify/Product/1", title: "The Complete Snowboard" }] } };
+      } },
+      "../metafield-values.server": { OWNER_GIDS: { PRODUCT: "Product" } },
+      "../value-types": {},
+      "../plan-limits.server": {},
+      "../feature-request.server": helpers,
+    });
+    const requestFor = (search) => new Request("https://staging.invalid/app/api/search?" + new URLSearchParams({
+      mode: "resources", ownerType: "PRODUCT", type: "product_reference", search,
+    }));
+    for (const [input, expected] of [
+      ["snowboard", "snowboard"],
+      [' title:"Cotton Shirt" OR title:Snow* ', 'title:"Cotton Shirt" OR title:Snow*'],
+      ["عنوان*", "عنوان*"],
+      ["  ", null],
+    ]) {
+      const response = await route.loader({ request: requestFor(input) });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).ok, true);
+      assert.equal(queries.at(-1), expected);
+    }
+    const count = queries.length;
+    const denied = await route.loader({ request: requestFor("x".repeat(121)) });
+    assert.equal(denied.status, 400);
+    assert.match((await denied.json()).error, /120 characters/);
+    assert.equal(queries.length, count);
+  }
+});
+
+test("actual value route labels lookup, validation and conflict errors with the selected field", async () => {
+  const identity = {
+    ownerType: "PRODUCT",
+    ownerId: "gid://shopify/Product/1",
+    namespace: "qa",
+    key: "care",
+  };
+  let existing = null,
+    writes = 0;
+  const route = serverRoute("app.api.values.jsx", {
+    "../shopify.server": {
+      authenticate: { admin: async () => ({ admin: {} }) },
+    },
+    "../active-plan.server": { hasActivePlan: async () => true },
+    "../plan-limits.server": { getPlanEntitlement: async () => PRO_PLAN },
+    "../definitions.server": {},
+    "../value-types": {},
+    "../metafield-values.server": {
+      findValueDefinition: async () => ({ type: "single_line_text_field" }),
+      readResourceValue: async () => existing,
+      validateValueInput: () => {
+        throw new RangeError("Text violates min length 3.");
+      },
+      mutateValue: async () => {
+        writes++;
+      },
+    },
+  });
+  for (const [saved, status, message] of [
+    [null, 400, /min length 3/],
+    [{ compareDigest: "newer" }, 409, /changed since you loaded/],
+  ]) {
+    existing = saved;
+    const body = new FormData();
+    for (const [key, value] of Object.entries({
+      ...identity,
+      actionType: "set",
+      compareDigest: "",
+      value: "ab",
+    }))
+      body.set(key, value);
+    const response = await route.action({
+      request: new Request("https://staging.invalid/app/api/values", {
+        method: "POST",
+        body,
+      }),
+    });
+    assert.equal(response.status, status);
+    const payload = await response.json();
+    for (const [key, value] of Object.entries(identity))
+      assert.equal(payload[key], value);
+    assert.match(payload.error, message);
+  }
+  const loaderRoute = serverRoute("app.api.values.jsx", {
+    "../shopify.server": {
+      authenticate: { admin: async () => ({ admin: {} }) },
+    },
+    "../active-plan.server": { hasActivePlan: async () => true },
+    "../plan-limits.server": {},
+    "../definitions.server": {},
+    "../value-types": {},
+    "../metafield-values.server": {
+      findValueDefinition: async () => {
+        throw new RangeError("Definition not found.");
+      },
+    },
+  });
+  const result = await loaderRoute.loader({
+    request: new Request(
+      "https://staging.invalid/app/api/values?" + new URLSearchParams(identity),
+    ),
+  });
+  assert.equal(result.status, 400);
+  const error = await result.json();
+  for (const [key, value] of Object.entries(identity))
+    assert.equal(error[key], value);
+  assert.equal(writes, 0);
+});
+
+test("actual file picker excludes IDs rejected by the file-reference codec", async () => {
+  const ids = ["MediaImage", "GenericFile", "Video", "ExternalVideo", "Product"].map((owner, i) => `gid://shopify/${owner}/${i + 1}`);
+  const route = serverRoute("app.api.references.jsx", {
+    "../shopify.server": { authenticate: { admin: async () => ({ admin: {} }) } },
+    "../active-plan.server": { hasActivePlan: async () => true },
+    "../definitions.server": { graph: async () => ({files: {nodes: ids.map(id => ({id, alt: id}))}}) },
+    "../feature-request.server": helpers,
+    "../value-types": {REFERENCE_TYPES},
+  });
+  const response = await route.loader({ request: new Request("https://staging.invalid/app/api/references?type=file_reference") });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.deepEqual(result.references.map(row => row.id), ids.slice(0, 3));
 });

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { encodeValue, valuesEquivalent } from "../app/value-types.js";
+import { encodeValue, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
 const rich = {
   type: "root",
   children: [
@@ -81,4 +81,32 @@ test("normalized structured writes recover without confusing changed values or t
   assert.equal(valuesEquivalent("json", '{"a":0,"b":false}', '{"b":false,"a":0}'), true);
   assert.equal(valuesEquivalent("single_line_text_field", "false", " false"), false);
   assert.equal(valuesEquivalent("list.dimension", '[{"value":10,"unit":"cm"}]', '[{"unit":"CENTIMETERS","value":10}]'), true);
+});
+
+test("value feedback cannot follow a different resource or field selection", () => {
+  const selected = {
+    ownerType: "PRODUCT",
+    ownerId: "gid://shopify/Product/1",
+    namespace: "qa",
+    key: "care",
+  };
+  for (const feedback of [
+    { success: true, message: "Value saved." },
+    { error: "Text violates min length 3." },
+    { error: "Reload before editing.", code: "value_conflict" },
+  ]) {
+    const response = { ...selected, ...feedback };
+    assert.equal(valueResponseMatches(response, selected), true);
+    for (const part of ["ownerType", "ownerId", "namespace", "key"])
+      assert.equal(
+        valueResponseMatches(response, { ...selected, [part]: "different" }),
+        false,
+      );
+    assert.equal(
+      valueResponseMatches(response, { ownerType: "PRODUCT" }),
+      false,
+    );
+    assert.equal(valueResponseMatches(feedback, selected), false);
+  }
+  assert.equal(valueResponseMatches(null, selected), false);
 });

@@ -4,8 +4,8 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "PR184 merged development dd29e53bdf68de20dd34a45b1b647c035be7916b, app1.2.3. Trusted environment titles implemented: Dev locally, Staging in isolated staging, base name for production. CI157 tests passed; implementation CI37144040756/37144040761 and development CI37144366043/37144366011 passed. Exact-source runtime37144530937 and Shopify staging release37144739776 passed; active staging-metafields-dd29e53bdf68. All21 representative values, validation/lifecycle/bulk/metaobjects/diagnostics and disposable cleanup passed with zero failures. Public landing title/heading and provider app name observed as Staging. Recovery/architecture/lifecycle/evidence records reconciled; drills and independent assurance remain pending.",
-  "next_valid_work_unit": "Execute docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md after fresh explicitly authorized staging sign-in. Capture real embedded app/control/theme images; verify Dev/Staging identity, dashboard-only navigation, sidebar/header/collapse/tooltips, search/dropdowns/validation/loaders and tier/two-theme/accessibility outcomes. Runtime/extension share dd29e53bdf68de20dd34a45b1b647c035be7916b, staging-metafields-dd29e53bdf68. Prior sign-in refusal/automatic redirect rejection and browser-preview rejection remain; generic continue does not renew access. Production promotion is separately guarded.",
+  "last_verified_completion": "PR186 merged development 08868a52e872949d6f1572cfb13ddd3f8363f5e1 v1.2.4: official local CLI and visible-viewport dropdown fixes;159 local tests passed. Three merged-source checks passed; Dependency Security Audit37146463711 failed. Local busboy3.2.2/lock fix passed clean install and159tests;11 high braces-chain dependency entries remain without a published patch. No new staging dispatch; active staging remains v1.2.3/dd29e53bdf68. Merchant/theme/screenshots, receipts, drills and independent assurance pending.",
+  "next_valid_work_unit": "Resolve the development-tool security gate with reviewed compatible remediation before staging release. Fresh staging sign-in is now authorized and verified; execute remaining valid-value/import/page-file picker, public metaobject, two-theme and accessibility/performance acceptance. Provide actual staging Neon project ID and verified isolated restore target; retain independent production gates.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -15,9 +15,10 @@
     "not_started": 1
   },
   "outstanding_updates": [
-    "Current actual app/control/theme screenshots and authenticated visual/focus/mobile/zoom acceptance; merchant page/file pickers and consent-flow UX (latest API scopes granted); billing approval navigation and real tier transitions, two-theme editor/storefront, accessibility, measured performance and compliance webhook receipt verification.",
+    "Authenticated staging v1.2.3 UI baseline and19 actual screenshots captured. Private metaobject validation/save/reopen and one Horizon draft five-block save/reload passed. Remaining: valid-value/conflict/page-file flows, valid mixed/resumable CSV upload/download, public access, tier transitions, real rendering in two themes, per-setting lower-control images, accessibility/performance, signed compliance receipts.",
     "Specifications settings-count advisory remains tracked nonblocking UX debt; actual editor-usability acceptance and final production assurance remain pending.",
-    "Environment title implementation and public staging/provider observations passed; actual installed local app and authenticated embedded Shopify title acceptance still pending. Three recovery procedures are registered; no restore/outage drill or operator assignment performed."
+    "Embedded Staging title/version/home-only Shopify menu verified directly. Installed local Dev title remains pending direct verification. No restore/outage drill or operator assignment performed.",
+    "Remaining batch: v1.2.4 is development-only; security gate failed and staging still runs v1.2.3. Busboy3.2.2 remediation and factual evidence are reviewable follow-up work. Full development-tool audit still has11 high braces-chain affected entries with no published patch. Neon inventory requires staging project ID."
   ],
   "outstanding_removals": [
     "Legacy Supabase source cleanup remains unperformed and needs a separate inventory, retention and backup decision.",
@@ -30,10 +31,10 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "representative_staging_API_passed_merchant_UI_theme_accessibility_pending",
-  "security_readiness": "cloudflare_live_verified_previous_version_retained_after_closure",
-  "last_reconciled_repository_ref": "dd29e53bdf68de20dd34a45b1b647c035be7916b",
-  "last_reconciled_at": "2026-10-03T18:38:46.218Z",
+  "qa_readiness": "authenticated_staging_baseline_partial_theme_content_accessibility_pending",
+  "security_readiness": "development_dependency_audit_failed_staging_release_held",
+  "last_reconciled_repository_ref": "08868a52e872949d6f1572cfb13ddd3f8363f5e1",
+  "last_reconciled_at": "2026-10-03T19:12:40.471874+00:00",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }
