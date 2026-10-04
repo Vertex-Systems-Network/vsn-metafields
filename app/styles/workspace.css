@@ -605,6 +605,7 @@ body {
   position: relative;
 }
 .vsn-plan.featured {
+  background: #f7f8f7;
   border: 2px solid #c7d9cf;
   padding: 25px;
 }
