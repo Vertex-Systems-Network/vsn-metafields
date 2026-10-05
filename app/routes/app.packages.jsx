@@ -1,6 +1,6 @@
 import { useFetcher, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
-import { openBillingApproval, reserveBillingApproval, submitBilling } from "../billing-client";
+import { openBillingApproval, submitBilling } from "../billing-client";
 import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
@@ -43,7 +43,7 @@ export default function PackagesPage() {
   useEffect(() => {
     if (verified && currentPlan?.id === result?.requestedPlan) setResult(null);
   }, [verified, currentPlan?.id, result?.requestedPlan]);
-  const runBilling = async (formData, approvalWindow = null) => {
+  const runBilling = async (formData) => {
     if (inFlight.current) return;
     inFlight.current = true;
     setSubmitting(true);
@@ -65,17 +65,15 @@ export default function PackagesPage() {
         // App Bridge handles top-level navigation from an embedded app. The
         // explicit link below remains available if the browser blocks it.
         try {
-          openBillingApproval(response.confirmationUrl, window.open.bind(window), approvalWindow);
+          openBillingApproval(response.confirmationUrl, window.open.bind(window));
         } catch {
           // A blocked top-level navigation still leaves the Shopify link below.
         }
       } else {
-        approvalWindow?.close();
         setResult(response);
       }
       if (response.cancelled) load(`/app/api/status${location.search}`);
     } catch (error) {
-      approvalWindow?.close();
       setResult({
         error: error.message || "Billing could not complete. Try again.",
       });
@@ -96,8 +94,7 @@ export default function PackagesPage() {
     const form = new FormData();
     form.set("actionType", "create");
     form.set("plan", plan.id);
-    const approvalWindow = reserveBillingApproval(window.open.bind(window));
-    void runBilling(form, approvalWindow);
+    void runBilling(form);
   };
   const cancel = () => {
     if (
