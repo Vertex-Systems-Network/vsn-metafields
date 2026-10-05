@@ -1,33 +1,44 @@
 export function validateBillingConfirmation(value) {
   const url = new URL(value);
-  if (url.protocol !== "https:" || url.username || url.password ||
-      !(url.hostname === "admin.shopify.com" || /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(url.hostname))) {
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    !(
+      url.hostname === "admin.shopify.com" ||
+      /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(url.hostname)
+    )
+  ) {
     throw new Error("Shopify returned an invalid billing confirmation URL.");
   }
+
+  if (
+    url.hostname.endsWith(".myshopify.com") &&
+    url.pathname.startsWith("/admin/charges/")
+  ) {
+    const storeHandle = url.hostname.slice(0, -".myshopify.com".length);
+    const modernAdminUrl = new URL(
+      `https://admin.shopify.com/store/${storeHandle}${url.pathname.slice("/admin".length)}`,
+    );
+    modernAdminUrl.search = url.search;
+    modernAdminUrl.hash = url.hash;
+    return modernAdminUrl.href;
+  }
+
   return url.href;
 }
 
-export function reserveBillingApproval(open) {
-  // Reserve a tab in the merchant's click gesture before async Shopify calls.
-  const pending = open("about:blank", "_blank");
-  if (pending) pending.opener = null;
-  return pending;
-}
+export function openBillingApproval(value, open) {
+  const confirmationUrl = validateBillingConfirmation(value);
+  const opened = open(confirmationUrl, "_top");
 
-export function openBillingApproval(url, open, pending = null) {
-  // Shopify App Bridge patches window.open for embedded top-level navigation.
-  // Keep the returned URL visible as a link in case navigation is blocked.
-  const destination = validateBillingConfirmation(url);
-  if (pending && !pending.closed) {
-    try {
-      pending.location.replace(destination);
-      pending.focus?.();
-      return;
-    } catch {
-      pending.close?.();
-    }
+  if (!opened) {
+    throw new Error(
+      "Shopify plan approval could not open automatically. Use the Shopify approval link shown below.",
+    );
   }
-  open(destination, "_top");
+
+  return confirmationUrl;
 }
 
 export async function submitBilling(formData, { shopify, fetch, search = "" }) {
