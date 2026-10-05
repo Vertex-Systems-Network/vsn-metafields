@@ -7,37 +7,27 @@ import {
 } from "../app/billing-environment.server.js";
 import {
   openBillingApproval,
-  reserveBillingApproval,
   submitBilling,
   validateBillingConfirmation,
 } from "../app/billing-client.js";
 
-test("approved Shopify confirmation opens in the top window", () => {
+test("Shopify confirmation opens directly in the top window and normalizes legacy store URLs", () => {
   const calls = [];
-  openBillingApproval("https://admin.shopify.com/store/example/charges/123", (...args) => calls.push(args));
-  assert.deepEqual(calls, [["https://admin.shopify.com/store/example/charges/123", "_top"]]);
-  assert.throws(() => openBillingApproval("https://evil.example/charge", (...args) => calls.push(args)), /invalid/);
+  const normalized = openBillingApproval(
+    "https://example.myshopify.com/admin/charges/123?token=abc",
+    (...args) => { calls.push(args); return {}; },
+  );
+  assert.equal(normalized, "https://admin.shopify.com/store/example/charges/123?token=abc");
+  assert.deepEqual(calls, [[normalized, "_top"]]);
+  assert.throws(
+    () => openBillingApproval("https://evil.example/charge", (...args) => calls.push(args)),
+    /invalid/,
+  );
+  assert.throws(
+    () => openBillingApproval("https://admin.shopify.com/store/example/charges/123", () => null),
+    /approval link/,
+  );
   assert.equal(calls.length, 1);
-});
-test("reserved merchant-click tab navigates to validated Shopify approval", () => {
-  const calls = [];
-  const pending = {
-    closed: false,
-    opener: {},
-    location: { replace: (url) => calls.push(url) },
-    focus: () => calls.push("focus"),
-  };
-  assert.equal(reserveBillingApproval((...args) => {
-    assert.deepEqual(args, ["about:blank", "_blank"]);
-    return pending;
-  }), pending);
-  assert.equal(pending.opener, null);
-  openBillingApproval("https://example.myshopify.com/admin/charges/123", () => {
-    throw new Error("unexpected fallback");
-  }, pending);
-  assert.deepEqual(calls, ["https://example.myshopify.com/admin/charges/123", "focus"]);
-  assert.throws(() => openBillingApproval("https://evil.example/", () => {}, pending), /invalid/);
-  assert.equal(calls.length, 2);
 });
 
 import {

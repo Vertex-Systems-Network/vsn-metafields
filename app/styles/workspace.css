@@ -1909,7 +1909,7 @@ body {
 }
 .vsn-content main > s-page {
   display: block;
-  inline-size: calc(100% - min(6vw, 96px) + 32px) !important;
+  inline-size: calc(100% - min(6vw, 96px)) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
