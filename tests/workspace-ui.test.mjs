@@ -337,3 +337,17 @@ test("actual Help screenshots cover every topic and block with valid dated JPEG 
   assert.match(html, /Concept diagram/);
   assert.doesNotMatch(await renderRoute("app.packages.jsx"), /✓ Public metaobject publishing/);
 });
+
+
+test("Metafields uses Stock Down Sort content width and top-level Shopify approval", async () => {
+  const styles = readFileSync("app/styles/workspace.css", "utf8");
+  const client = readFileSync("app/billing-client.js", "utf8");
+  const packages = readFileSync("app/routes/app.packages.jsx", "utf8");
+
+  assert.ok(styles.includes(".vsn-content main > s-page"));
+  assert.ok(styles.includes("inline-size: calc(100% - min(6vw, 96px)) !important;"));
+  assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
+  assert.ok(client.includes('open(confirmationUrl, "_top")'));
+  assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
+  assert.equal(packages.includes("reserveBillingApproval"), false);
+});
