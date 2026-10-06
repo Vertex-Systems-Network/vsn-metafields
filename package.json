@@ -17,7 +17,6 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "shopify": "shopify",
     "prisma": "prisma",
-    "graphql-codegen": "graphql-codegen",
     "vite": "vite",
     "typecheck": "react-router typegen && tsc --noEmit",
     "test:contracts": "node --test tests/app-contracts.test.mjs tests/active-plan.test.mjs tests/definition-removal.test.mjs tests/definition-update.test.mjs tests/standard-definitions.test.mjs tests/metafield-values.test.mjs tests/definitions.test.mjs tests/storefront.test.mjs tests/storefront-refresh.test.mjs tests/value-types.test.mjs tests/metaobjects.test.mjs tests/bulk-values.test.mjs tests/diagnostics.test.mjs tests/billing.test.mjs tests/probe-client.test.mjs tests/plan-limits.test.mjs tests/workspace-ui.test.mjs tests/search-workspace.test.mjs",
@@ -51,7 +50,6 @@
     "prop-types": "15.8.1"
   },
   "devDependencies": {
-    "@shopify/api-codegen-preset": "^3.0.0",
     "@shopify/polaris-types": "1.1.0",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.18.8",
@@ -66,7 +64,6 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "graphql-config": "^5.1.1",
     "liquidjs": "10.30.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
