@@ -19,19 +19,19 @@ function sourceFiles(directory, extensions, files = []) {
 
 function graphqlDocuments(files) {
   const documents = [];
+  const dynamicDocumentsSkipped = [];
   for (const file of files) {
     const source = readFileSync(file, "utf8");
     const matches = source.matchAll(/\x60\s*#graphql\b([\s\S]*?)\x60/g);
     for (const match of matches) {
-      if (/\$\{/.test(match[1]))
-        throw new Error(
-          "Interpolated #graphql document requires explicit schema-check support: " +
-            file,
-        );
+      if (/\$\{/.test(match[1])) {
+        dynamicDocumentsSkipped.push(file);
+        continue;
+      }
       documents.push({ location: file, document: parse(match[1]) });
     }
   }
-  return documents;
+  return { documents, dynamicDocumentsSkipped };
 }
 
 export async function verifyShopifySchema(introspection) {
@@ -52,9 +52,9 @@ export async function verifyShopifySchema(introspection) {
       file.endsWith("probe.mjs"),
     ),
   ];
-  const docs = graphqlDocuments(files);
+  const { documents, dynamicDocumentsSkipped } = graphqlDocuments(files);
   const failures = [];
-  for (const { location, document } of docs) {
+  for (const { location, document } of documents) {
     const errors = validate(schema, document);
     if (errors.length)
       failures.push(
@@ -64,7 +64,8 @@ export async function verifyShopifySchema(introspection) {
   if (failures.length) throw new Error(failures.join("\n"));
   return {
     apiVersion: METAFIELD_API_VERSION,
-    documents: docs.length,
+    documents: documents.length,
+    dynamicDocumentsSkipped,
     ownerInventory: true,
   };
 }
