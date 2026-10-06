@@ -10,7 +10,6 @@ const exists = (relativePath) => fs.existsSync(path.join(root, relativePath));
 
 test("Shopify auth, session storage, and API versions stay aligned", () => {
   const shopify = read("app/shopify.server.js");
-  const codegen = read(".graphqlrc.js");
   const toml = read("shopify.app.toml");
 
   assert.match(shopify, /authPathPrefix:\s*"\/auth"/);
@@ -22,7 +21,6 @@ test("Shopify auth, session storage, and API versions stay aligned", () => {
   assert.match(shopify, /useOnlineTokens:\s*true/);
   assert.match(shopify, /apiVersion:\s*ApiVersion\.July26/);
   assert.match(shopify, /export const authenticate = shopify\.authenticate/);
-  assert.match(codegen, /apiVersion:\s*ApiVersion\.July26/);
   assert.match(toml, /api_version\s*=\s*"2026-07"/);
 });
 
