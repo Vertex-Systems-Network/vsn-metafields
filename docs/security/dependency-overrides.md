@@ -26,3 +26,11 @@ The minimatch advisory was not handled with a permanent override. Instead:
 - the npm-generated lockfile resolves `@typescript-eslint/typescript-estree` to 8.70.1 and its nested `minimatch` to 10.2.6.
 
 The dependency security workflow gates the complete installed tree at **high** severity so future dev/build high or critical advisories cannot silently regress.
+
+## `braces` development-tool advisory
+
+- **Reason:** GHSA-vfj7-8cjw-p6xm affects `braces` through 3.0.3. The dependency was reachable only through the Shopify GraphQL code-generation preset and `graphql-config` development tooling.
+- **Evidence:** The application build does not run GraphQL codegen, no generated `app/types` output is tracked or consumed, and the repository tests referenced codegen only to check the API version already checked against `shopify.app.toml`.
+- **Resolution:** Removed the unused codegen dependencies, their config and script, and regenerated the lockfile. Runtime application dependencies and Shopify API behavior are unchanged.
+- **Re-enable condition:** Restore GraphQL codegen only after an upstream patched `braces` release is available and the generator is verified with a generated-output/build smoke test. Do not substitute an unverified package rename.
+- **Verification:** The regenerated lockfile contains no `braces` package and preserves all remaining package versions. Repository CI must pass before merging or staging.
