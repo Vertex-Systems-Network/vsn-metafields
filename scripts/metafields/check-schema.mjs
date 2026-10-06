@@ -21,7 +21,7 @@ function graphqlDocuments(files) {
   const documents = [];
   for (const file of files) {
     const source = readFileSync(file, "utf8");
-    const matches = source.matchAll(/\x60#graphql\b([\s\S]*?)\x60/g);
+    const matches = source.matchAll(/\x60\s*#graphql\b([\s\S]*?)\x60/g);
     for (const match of matches) {
       if (/\$\{/.test(match[1]))
         throw new Error(
