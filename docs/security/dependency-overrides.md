@@ -34,3 +34,10 @@ The dependency security workflow gates the complete installed tree at **high** s
 - **Resolution:** Removed the unused codegen dependencies, their config and script, and regenerated the lockfile. Runtime application dependencies and Shopify API behavior are unchanged.
 - **Re-enable condition:** Restore GraphQL codegen only after an upstream patched `braces` release is available and the generator is verified with a generated-output/build smoke test. Do not substitute an unverified package rename.
 - **Verification:** The regenerated lockfile contains no `braces` package and preserves all remaining package versions. Repository CI must pass before merging or staging.
+
+## Production audit updates (October 2026)
+
+- **`compression`:** updated from 1.8.1 to 1.8.2, the patched release for GHSA-vc2v-76pw-4v95 / CVE-2026-87776.
+- **`source-map-js`:** updated from 1.2.1 to 1.2.2, the patched release for GHSA-68fv-2mgg-jv7q / CVE-2026-93749.
+- Both are compatible with existing semver dependency ranges. The lockfile also records `compression@1.8.2`'s `destroy@1.2.0` dependency.
+- **Verification:** CI production audit and full dependency audit must pass on the updated lockfile before staging.
