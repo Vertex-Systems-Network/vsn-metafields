@@ -2027,24 +2027,3 @@ body {
 .vsn-plan p { color: #3e4144; font-weight: 400; line-height: 1.5; }
 .vsn-plan li { color: #4d5055; font-weight: 400; line-height: 1.5; }
 .vsn-price { color: #3e4144; }
-
-
-/* Keep the Plans page body at a 104px gutter on wide screens.
-   Expand its slotted content beyond Polaris large's 960px body cap; preserve
-   the same centered body position while narrowing the side whitespace. */
-.vsn-content main > s-page.vsn-plans-page > * {
-  inline-size: calc(100vw - var(--vsn-sidebar-width) - 208px) !important;
-  max-inline-size: none !important;
-  transform: translateX(
-    calc(
-      104px +
-        min(0px, (960px - 100vw + var(--vsn-sidebar-width)) / 2)
-    )
-  );
-}
-@media (max-width: 900px) {
-  .vsn-content main > s-page.vsn-plans-page > * {
-    inline-size: 100% !important;
-    transform: none;
-  }
-}
