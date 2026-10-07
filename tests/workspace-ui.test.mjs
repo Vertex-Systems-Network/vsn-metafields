@@ -11,6 +11,7 @@ import { HELP_SCREENSHOTS, WORKSPACE_SCREENSHOTS, THEME_SCREENSHOTS } from "../a
 import { THEME_HELP } from "../app/theme-help.js";
 import { APP_NAME, appDisplayName } from "../app/product-config.js";
 import { requestAppName } from "../app/product-identity.server.js";
+import { getPlanContentLayout } from "../app/plan-content-layout.js";
 
 const require = createRequire(import.meta.url);
 const cache = new Map();
@@ -351,10 +352,13 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(styles.includes("margin-inline-end: auto !important;"));
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
   assert.ok(packages.includes('className="vsn-plans-page"'));
-  assert.ok(styles.includes(".vsn-content main > s-page.vsn-plans-page > *"));
-  assert.ok(styles.includes("100vw - var(--vsn-sidebar-width) - 208px"));
-  assert.ok(styles.includes("104px +"));
-  assert.ok(styles.includes("transform: none;"));
+  assert.deepEqual(
+    getPlanContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
+    { inlineSize: 683, translateX: 87 },
+  );
+  assert.ok(packages.includes('className="vsn-plans-page"'));
+  assert.ok(packages.includes("getPlanContentLayout"));
+  assert.ok(packages.includes("new ResizeObserver(applyContentGutters)"));
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
   assert.equal(packages.includes("reserveBillingApproval"), false);
