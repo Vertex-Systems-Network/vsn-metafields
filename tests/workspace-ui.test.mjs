@@ -344,6 +344,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   const styles = readFileSync("app/styles/workspace.css", "utf8");
   const client = readFileSync("app/billing-client.js", "utf8");
   const packages = readFileSync("app/routes/app.packages.jsx", "utf8");
+  const workspace = readFileSync("app/components/Workspace.jsx", "utf8");
 
   assert.ok(styles.includes(".vsn-content main > s-page"));
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
@@ -354,11 +355,13 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(packages.includes('className="vsn-plans-page"'));
   assert.deepEqual(
     getPlanContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
-    { inlineSize: 683, translateX: 87 },
+    { inlineSize: 787, translateX: 35 },
   );
   assert.ok(packages.includes('className="vsn-plans-page"'));
   assert.ok(packages.includes("getPlanContentLayout"));
   assert.ok(packages.includes("new ResizeObserver(applyContentGutters)"));
+  assert.equal(workspace.includes("Workspace menu"), false);
+  assert.ok(styles.includes(".vsn-sidebar .vsn-navigation {\n    display: flex;"));
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
   assert.equal(packages.includes("reserveBillingApproval"), false);
