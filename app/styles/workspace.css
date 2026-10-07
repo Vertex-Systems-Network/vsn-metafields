@@ -1630,7 +1630,7 @@ body {
   min-height: 42px;
   padding: 10px 14px;
   background: var(--vsn-soft-teal);
-  border-bottom: 1px solid #ccecf0;
+  border-block: none;
   color: var(--vsn-ink);
   font-size: 13px;
   font-weight: 650;
