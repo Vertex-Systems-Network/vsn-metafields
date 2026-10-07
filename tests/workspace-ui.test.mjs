@@ -364,6 +364,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   const client = readFileSync("app/billing-client.js", "utf8");
   const packages = readFileSync("app/routes/app.packages.jsx", "utf8");
   const workspace = readFileSync("app/components/Workspace.jsx", "utf8");
+  const index = readFileSync("app/routes/app._index.jsx", "utf8");
 
   assert.ok(styles.includes(".vsn-content main > s-page"));
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
@@ -382,6 +383,9 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.equal(appDisplayVersion("development"), APP_VERSION);
   assert.equal(appDisplayVersion("staging"), APP_VERSION);
   assert.equal(appDisplayVersion("production"), "1.1.0");
+  assert.match(index, /<s-switch\\s+label="Pin in Shopify admin"\\s+checked=\\{pin\\}/);
+  assert.match(index, /onChange=\\{\\(event\\) => setPin\\(event.currentTarget.checked\\)\\}/);
+  assert.doesNotMatch(index, /<s-checkbox[^>]*label="Pin in Shopify admin"/);
   assert.ok(workspace.includes("getWorkspaceContentLayout"));
   assert.ok(workspace.includes("new ResizeObserver(applyContentGutters)"));
   assert.ok(workspace.includes('Array.from(main.children)'));
