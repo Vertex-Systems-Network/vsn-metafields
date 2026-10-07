@@ -4,7 +4,6 @@ import { openBillingApproval, submitBilling } from "../billing-client";
 import { PLAN_BY_ID, PLANS, planFromSubscriptions } from "../billing-config";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
-import { getPlanContentLayout } from "../plan-content-layout";
 
 export default function PackagesPage() {
   const statusFetcher = useFetcher();
@@ -12,7 +11,6 @@ export default function PackagesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [pendingAction, setPendingAction] = useState("");
   const inFlight = useRef(false);
-  const pageRef = useRef(null);
   const location = useLocation();
   const load = statusFetcher.load;
   useEffect(() => {
@@ -46,69 +44,6 @@ export default function PackagesPage() {
     if (verified && currentPlan?.id === result?.requestedPlan) setResult(null);
   }, [verified, currentPlan?.id, result?.requestedPlan]);
 
-  useEffect(() => {
-    const page = pageRef.current;
-    const content = page?.closest(".vsn-content");
-    if (!page || !content) return;
-
-    const originalStyles = new Map();
-    const remember = (child) => {
-      if (!originalStyles.has(child)) {
-        originalStyles.set(child, {
-          inlineSize: child.style.inlineSize,
-          maxInlineSize: child.style.maxInlineSize,
-          transform: child.style.transform,
-        });
-      }
-    };
-    const restore = (child) => {
-      const original = originalStyles.get(child);
-      if (!original) return;
-      child.style.inlineSize = original.inlineSize;
-      child.style.maxInlineSize = original.maxInlineSize;
-      child.style.transform = original.transform;
-    };
-    const applyContentGutters = () => {
-      const children = Array.from(page.children);
-      if (window.innerWidth <= 900) {
-        children.forEach(restore);
-        return;
-      }
-
-      const contentRect = content.getBoundingClientRect();
-      for (const child of children) {
-        remember(child);
-        child.style.transform = "none";
-        const layout = getPlanContentLayout({
-          contentLeft: contentRect.left,
-          contentWidth: contentRect.width,
-          bodyLeft: child.getBoundingClientRect().left,
-        });
-        child.style.inlineSize = `${layout.inlineSize}px`;
-        child.style.maxInlineSize = "none";
-        child.style.transform = `translateX(${layout.translateX}px)`;
-      }
-    };
-
-    applyContentGutters();
-    const resizeObserver =
-      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(applyContentGutters);
-    resizeObserver?.observe(content);
-    resizeObserver?.observe(page);
-    const mutationObserver =
-      typeof MutationObserver === "undefined"
-        ? null
-        : new MutationObserver(applyContentGutters);
-    mutationObserver?.observe(page, { childList: true });
-    window.addEventListener("resize", applyContentGutters);
-
-    return () => {
-      resizeObserver?.disconnect();
-      mutationObserver?.disconnect();
-      window.removeEventListener("resize", applyContentGutters);
-      Array.from(page.children).forEach(restore);
-    };
-  }, []);
   const runBilling = async (formData) => {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -175,7 +110,7 @@ export default function PackagesPage() {
     void runBilling(form);
   };
   return (
-    <s-page ref={pageRef} inline-size="large" heading="Plans" className="vsn-plans-page">
+    <s-page inline-size="large" heading="Plans">
       <PageIntro
         eyebrow="Room to grow"
         title="Choose the right fit for your store."
