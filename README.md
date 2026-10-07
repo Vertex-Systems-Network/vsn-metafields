@@ -1,6 +1,19 @@
 # Shopify Metafields Builder
 
-## Engineering status
+## Current staging status — 2026-10-07
+
+- **Application source under staging acceptance:** `c387156977483666b6bd5a27794e4056709f2f7e` (the docs branch adds no application code).
+- **Bulk loader CPU fix:** merged as PR #220 and deployed to isolated staging. [Staging deployment run #73](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37700944893) passed.
+- **Live staging request check:** selected an existing saved import and used **Refresh selected job**. The embedded page reloaded its saved-job data and rendered the stored result (complete, 1/1 processed, revision 3; stale-value conflict correctly showed “no write was made”). This was read-only; no import was applied.
+- **Read-only app page smoke:** Home, Fields & values, Metaobjects, Import & export, Plans and Help center rendered in the staging embedded app. Help diagnostics showed staging, database reachable, subscription active, and values/metaobjects/pages/files ready. These are page/load checks, not create/save/billing/theme acceptance.
+- **Not yet fully accepted:** a clean zero-start merchant journey, accessibility/performance, current theme/editor validation, and independent compliance-webhook receipt verification remain open.
+- **Production:** no production deploy, app release, subscription change, or import apply was performed in this validation.
+
+The detailed production migration and rollback records below are historical evidence from earlier phases. Their dates, SHAs and completion claims describe those records; they are not a current overall product-completion checklist.
+
+# Shopify Metafields Builder
+
+## Historical engineering status (earlier phase snapshot)
 
 - **Repository:** `Vertex-Systems-Network/vsn-metafields`
 - **Lifecycle:** PHASE-01 — Cloudflare subscription-safe migration
