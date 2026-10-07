@@ -1,5 +1,4 @@
 import { authenticate } from "../shopify.server";
-import { hasActivePlan } from "../active-plan.server";
 import {
   getPlanEntitlement,
   assertPlanCount,
@@ -25,11 +24,19 @@ export const loader = async ({ request }) => {
   const { admin, session } = await authenticate.admin(request);
   let db;
   try {
-    if (!(await hasActivePlan(admin)))
-      return featureJson(
-        { ok: false, error: "An active plan is required." },
-        403,
-      );
+    let plan;
+    try {
+      // This also proves an active entitlement. Reuse its result below instead
+      // of issuing a second subscription GraphQL request for the same loader.
+      plan = await getPlanEntitlement(admin);
+    } catch (error) {
+      if (error.code === "plan_limit")
+        return featureJson(
+          { ok: false, error: "An active plan is required." },
+          403,
+        );
+      throw error;
+    }
     db = createPrismaClient();
     const params = new URL(request.url).searchParams;
     if (params.get("id")) {
@@ -63,11 +70,7 @@ export const loader = async ({ request }) => {
         revision: true,
       },
     });
-    return featureJson({
-      ok: true,
-      jobs,
-      plan: await getPlanEntitlement(admin),
-    });
+    return featureJson({ ok: true, jobs, plan });
   } catch (error) {
     return featureError(error);
   } finally {
