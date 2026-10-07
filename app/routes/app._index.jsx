@@ -528,10 +528,10 @@ export default function Index() {
                   </s-option>
                 )}
               </s-select>
-              <s-checkbox
+              <s-switch
                 label="Pin in Shopify admin"
                 checked={pin}
-                onChange={(event) => setPin(event.target.checked)}
+                onChange={(event) => setPin(event.currentTarget.checked)}
               />
               <ValidationEditor
                 type={type}
