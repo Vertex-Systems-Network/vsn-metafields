@@ -934,7 +934,7 @@ test("metafield and metaobject creation reject duplicate/unsupported validation 
   ]);
 });
 
-test("desktop collapse and mobile disclosure are independent and navigation closes the mobile menu", async () => {
+test("desktop collapse works without the workspace menu toggle", async () => {
   const h = await componentHarness(
     "app/components/Workspace.jsx",
     [],
@@ -945,23 +945,12 @@ test("desktop collapse and mobile disclosure are independent and navigation clos
     allNodes(tree).find(
       (n) => n.type === "button" && n.props.className === name,
     );
+  assert.equal(button("vsn-sidebar-toggle"), undefined);
   button("vsn-sidebar-collapse").props.onClick();
   tree = h.render();
   assert.match(tree.props.className, /is-collapsed/);
-  assert.equal(
-    button("vsn-sidebar-collapse").props["aria-label"],
-    "Expand navigation",
-  );
+  assert.equal(button("vsn-sidebar-collapse").props["aria-label"], "Expand navigation");
   assert.equal(button("vsn-sidebar-collapse").props["aria-expanded"], false);
-  button("vsn-sidebar-toggle").props.onClick();
-  tree = h.render();
-  assert.equal(button("vsn-sidebar-toggle").props["aria-expanded"], true);
-  assert.match(tree.props.className, /is-collapsed/);
-  const item = allNodes(tree).find((n) => n.props?.label === "Metaobjects");
-  item.props.onNavigate();
-  tree = h.render();
-  assert.equal(button("vsn-sidebar-toggle").props["aria-expanded"], false);
-  assert.match(tree.props.className, /is-collapsed/);
   button("vsn-sidebar-collapse").props.onClick();
   tree = h.render();
   assert.doesNotMatch(tree.props.className, /is-collapsed/);

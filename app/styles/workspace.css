@@ -1362,11 +1362,8 @@ body {
     transform: rotate(180deg);
   }
   .vsn-sidebar .vsn-navigation {
-    display: none;
-    padding-top: 8px;
-  }
-  .vsn-sidebar.menu-open .vsn-navigation {
     display: flex;
+    padding-top: 8px;
   }
   .vsn-header {
     padding: 16px;

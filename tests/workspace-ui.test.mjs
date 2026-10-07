@@ -249,14 +249,15 @@ test("theme documentation covers every shipped block option and its actual defau
     }
   }
 });
-test("workspace sidebar preserves embedded context and provides a collapsed mobile toggle", async () => {
+test("workspace sidebar preserves embedded context without the workspace menu toggle", async () => {
   const html = await renderRoute(
     "../components/Workspace.jsx",
     [],
     "Workspace",
   );
   assert.match(html, /<aside class="vsn-sidebar">/);
-  assert.match(html, /aria-expanded="false" aria-controls=/);
+  assert.match(html, /aria-label="Collapse navigation"/);
+  assert.doesNotMatch(html, /Workspace menu/);
   assert.match(html, /aria-label="Workspace"/);
   assert.match(html, /aria-current="page"/);
   assert.equal((html.match(/class="vsn-nav-link/g) || []).length, 5);
@@ -344,6 +345,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   const styles = readFileSync("app/styles/workspace.css", "utf8");
   const client = readFileSync("app/billing-client.js", "utf8");
   const packages = readFileSync("app/routes/app.packages.jsx", "utf8");
+  const workspace = readFileSync("app/components/Workspace.jsx", "utf8");
 
   assert.ok(styles.includes(".vsn-content main > s-page"));
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
@@ -354,11 +356,13 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(packages.includes('className="vsn-plans-page"'));
   assert.deepEqual(
     getPlanContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
-    { inlineSize: 683, translateX: 87 },
+    { inlineSize: 787, translateX: 35 },
   );
   assert.ok(packages.includes('className="vsn-plans-page"'));
   assert.ok(packages.includes("getPlanContentLayout"));
   assert.ok(packages.includes("new ResizeObserver(applyContentGutters)"));
+  assert.equal(workspace.includes("Workspace menu"), false);
+  assert.ok(styles.includes(".vsn-sidebar .vsn-navigation {\n    display: flex;"));
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
   assert.equal(packages.includes("reserveBillingApproval"), false);

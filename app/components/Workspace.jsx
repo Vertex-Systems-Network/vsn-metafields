@@ -13,13 +13,11 @@ import { LoadingState } from "./LoadingState";
 import { AppNameContext } from "./AppIdentity";
 
 export function Workspace({ children, appName = APP_NAME }) {
-  const { search, pathname: currentPath } = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { search } = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const workspaceRef = useRef(null);
   const headerRef = useRef(null);
   const menuId = useId();
-  useEffect(() => setMenuOpen(false), [currentPath]);
   useEffect(() => {
     const measure = () => {
       const height = headerRef.current?.getBoundingClientRect().height;
@@ -68,7 +66,7 @@ export function Workspace({ children, appName = APP_NAME }) {
           Need a hand? <span aria-hidden="true">↗</span>
         </Link>
       </header>
-      <aside className={`vsn-sidebar${menuOpen ? " menu-open" : ""}`}>
+      <aside className="vsn-sidebar">
         <button className="vsn-sidebar-collapse" type="button"
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
           title={collapsed ? "Expand navigation" : "Collapse navigation"}
@@ -76,15 +74,6 @@ export function Workspace({ children, appName = APP_NAME }) {
           onClick={() => setCollapsed(!collapsed)}>
           <FieldIcon type={collapsed ? "panel-open" : "panel-close"} />
           <span className="vsn-nav-label">Collapse menu</span>
-        </button>
-        <button
-          className="vsn-sidebar-toggle"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls={menuId}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <FieldIcon type="menu" /> Workspace menu <FieldIcon type="chevron" />
         </button>
         <nav id={menuId} className="vsn-navigation" aria-label="Workspace">
           {routes.map(([pathname, label, icon]) => (
@@ -95,7 +84,6 @@ export function Workspace({ children, appName = APP_NAME }) {
               collapsed={collapsed}
               label={label}
               icon={icon}
-              onNavigate={() => setMenuOpen(false)}
             />
           ))}
         </nav>
