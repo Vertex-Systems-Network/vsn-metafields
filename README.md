@@ -1,6 +1,18 @@
 # Shopify Metafields Builder
 
-## Engineering status
+## Current staging status — 2026-10-07
+
+- **Current development source:** `c387156977483666b6bd5a27794e4056709f2f7e`.
+- **Bulk loader CPU fix:** merged as PR #220 and deployed to isolated staging. [Staging deployment run #73](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37700944893) passed.
+- **Live staging request check:** selected an existing saved import and used **Refresh selected job**. The embedded page reloaded its saved-job data and rendered the stored result (complete, 1/1 processed, revision 3; stale-value conflict correctly showed “no write was made”). This was read-only; no import was applied.
+- **Not yet fully accepted:** zero-start merchant flows across all app pages, accessibility/performance, current theme/editor validation, and independent compliance-webhook receipt verification remain open. The live UI check above covers only the bulk saved-job read/refresh path.
+- **Production:** no production deploy, app release, subscription change, or import apply was performed in this validation.
+
+The detailed production migration and rollback records below are historical evidence from earlier phases. Their dates, SHAs and completion claims describe those records; they are not a current overall product-completion checklist.
+
+# Shopify Metafields Builder
+
+## Historical engineering status (earlier phase snapshot)
 
 - **Repository:** `Vertex-Systems-Network/vsn-metafields`
 - **Lifecycle:** PHASE-01 — Cloudflare subscription-safe migration
