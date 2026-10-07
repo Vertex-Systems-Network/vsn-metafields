@@ -350,6 +350,7 @@ body {
   margin: 0;
   border-radius: 0;
   border-inline: none;
+  border-block: none;
   padding: 12px 32px;
   background: #eaf4ed;
 }
@@ -1965,7 +1966,6 @@ body {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 .vsn-sidebar-tooltip, .vsn-sidebar-tooltip::before { background: #3e4144; }

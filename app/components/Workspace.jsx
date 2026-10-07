@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import { useEffect, useId, useRef, useState } from "react";
 import FieldIcon from "./FieldIcon";
 import SidebarItem from "./SidebarItem";
-import { APP_NAME, appDisplayVersion, appEnvironmentTag } from "../product-config";
+import { APP_NAME, appEnvironmentTag, LIVE_APP_VERSION } from "../product-config";
 import { getWorkspaceContentLayout } from "../workspace-content-layout";
 import { LoadingState } from "./LoadingState";
 import { AppNameContext } from "./AppIdentity";
@@ -20,6 +20,8 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
   const mainRef = useRef(null);
   const headerRef = useRef(null);
   const menuId = useId();
+  const environmentTag = appEnvironmentTag(environment);
+  const isLive = environmentTag === "ver";
   useEffect(() => {
     const measure = () => {
       const height = headerRef.current?.getBoundingClientRect().height;
@@ -131,18 +133,15 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
             V
           </span>
           <span>{appName}</span>
-          <span
-            className="vsn-environment"
-            aria-label={`Environment ${appEnvironmentTag(environment)}`}
-          >
-            {appEnvironmentTag(environment)}
-          </span>
-          <span
-            className="vsn-version"
-            aria-label={`App version ${appDisplayVersion(environment)}`}
-          >
-            v{appDisplayVersion(environment)}
-          </span>
+          {isLive ? (
+            <span className="vsn-version" aria-label={`App version ${LIVE_APP_VERSION}`}>
+              v{LIVE_APP_VERSION}
+            </span>
+          ) : (
+            <span className="vsn-environment" aria-label={`Environment ${environmentTag}`}>
+              {environmentTag === "stag" ? "Stag" : "Dev"}
+            </span>
+          )}
         </Link>
         <Link className="vsn-help-link" to={{ pathname: "/app/guide", search }}>
           Need a hand? <span aria-hidden="true">↗</span>

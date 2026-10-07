@@ -341,12 +341,20 @@ test("actual Help screenshots cover every topic and block with valid dated JPEG 
 });
 
 
-test("workspace renders environment label and production version from its runtime environment", async () => {
-  const workspace = await renderRoute("../components/Workspace.jsx", [], "Workspace", {
+test("workspace shows only environment in non-production and only version in production", async () => {
+  for (const [environment, label] of [["development", "Dev"], ["staging", "Stag"]]) {
+    const workspace = await renderRoute("../components/Workspace.jsx", [], "Workspace", {
+      environment,
+    });
+    assert.match(workspace, new RegExp(`class="vsn-environment"[^>]*>${label}</span>`));
+    assert.doesNotMatch(workspace, /class="vsn-version"/);
+  }
+
+  const liveWorkspace = await renderRoute("../components/Workspace.jsx", [], "Workspace", {
     environment: "production",
   });
-  assert.match(workspace, /class="vsn-environment"[^>]*aria-label="Environment ver">ver<\/span>/);
-  assert.match(workspace, /aria-label="App version 1\.1\.0">v1\.1\.0<\/span>/);
+  assert.doesNotMatch(liveWorkspace, /class="vsn-environment"/);
+  assert.match(liveWorkspace, /aria-label="App version 1\.1\.0">v1\.1\.0<\/span>/);
 });
 
 test("Metafields uses Stock Down Sort content width and top-level Shopify approval", async () => {
@@ -359,6 +367,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
   assert.ok(styles.includes("@media (min-width: 901px)"));
   assert.ok(styles.includes(".vsn-environment"));
+  assert.match(styles, /\.vsn-workspace-progress \.vsn-loading-state \{[^}]*border-block: none;/s);
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
   assert.deepEqual(
     getWorkspaceContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
