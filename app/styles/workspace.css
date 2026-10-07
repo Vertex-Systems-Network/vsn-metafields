@@ -1956,6 +1956,18 @@ body {
 .vsn-loading-state { border-color: var(--vsn-border); }
 .vsn-skeleton span { background: #e9edf3; }
 .vsn-version { white-space: nowrap; }
+.vsn-environment {
+  color: #425c8a;
+  background: #eef2fb;
+  border: 1px solid #d6def1;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 .vsn-sidebar-tooltip, .vsn-sidebar-tooltip::before { background: #3e4144; }
 .vsn-sidebar-collapse { margin-bottom: 14px; }
 .vsn-sidebar-collapse:hover { background: #f6f5fb; }

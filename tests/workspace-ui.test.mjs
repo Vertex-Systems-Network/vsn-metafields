@@ -9,9 +9,9 @@ import { readFileSync, readdirSync } from "node:fs";
 import { HELP_TOPICS } from "../app/help-content.js";
 import { HELP_SCREENSHOTS, WORKSPACE_SCREENSHOTS, THEME_SCREENSHOTS } from "../app/help-screenshots.js";
 import { THEME_HELP } from "../app/theme-help.js";
-import { APP_NAME, appDisplayName } from "../app/product-config.js";
+import { APP_NAME, APP_VERSION, appDisplayName, appEnvironmentTag, appDisplayVersion } from "../app/product-config.js";
 import { requestAppName } from "../app/product-identity.server.js";
-import { getPlanContentLayout } from "../app/plan-content-layout.js";
+import { getWorkspaceContentLayout } from "../app/workspace-content-layout.js";
 
 const require = createRequire(import.meta.url);
 const cache = new Map();
@@ -341,6 +341,14 @@ test("actual Help screenshots cover every topic and block with valid dated JPEG 
 });
 
 
+test("workspace renders environment label and production version from its runtime environment", async () => {
+  const workspace = await renderRoute("../components/Workspace.jsx", [], "Workspace", {
+    environment: "production",
+  });
+  assert.match(workspace, /class="vsn-environment"[^>]*aria-label="Environment ver">ver<\/span>/);
+  assert.match(workspace, /aria-label="App version 1\.1\.0">v1\.1\.0<\/span>/);
+});
+
 test("Metafields uses Stock Down Sort content width and top-level Shopify approval", async () => {
   const styles = readFileSync("app/styles/workspace.css", "utf8");
   const client = readFileSync("app/billing-client.js", "utf8");
@@ -350,19 +358,25 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(styles.includes(".vsn-content main > s-page"));
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
   assert.ok(styles.includes("@media (min-width: 901px)"));
-  assert.ok(styles.includes("margin-inline-start: -8px !important;"));
-  assert.ok(styles.includes("margin-inline-end: auto !important;"));
+  assert.ok(styles.includes(".vsn-environment"));
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
-  assert.ok(packages.includes('className="vsn-plans-page"'));
   assert.deepEqual(
-    getPlanContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
+    getWorkspaceContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
     { inlineSize: 787, translateX: 35 },
   );
-  assert.ok(packages.includes('className="vsn-plans-page"'));
-  assert.ok(packages.includes("getPlanContentLayout"));
-  assert.ok(packages.includes("new ResizeObserver(applyContentGutters)"));
+  assert.equal(appEnvironmentTag("development"), "dev");
+  assert.equal(appEnvironmentTag("staging"), "stag");
+  assert.equal(appEnvironmentTag("production"), "ver");
+  assert.equal(appDisplayVersion("development"), APP_VERSION);
+  assert.equal(appDisplayVersion("staging"), APP_VERSION);
+  assert.equal(appDisplayVersion("production"), "1.1.0");
+  assert.ok(workspace.includes("getWorkspaceContentLayout"));
+  assert.ok(workspace.includes("new ResizeObserver(applyContentGutters)"));
+  assert.ok(workspace.includes('Array.from(main.children)'));
   assert.equal(workspace.includes("Workspace menu"), false);
   assert.ok(styles.includes(".vsn-sidebar .vsn-navigation {\n    display: flex;"));
+  assert.equal(packages.includes("pageRef"), false);
+  assert.equal(packages.includes("vsn-plans-page"), false);
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
   assert.equal(packages.includes("reserveBillingApproval"), false);
