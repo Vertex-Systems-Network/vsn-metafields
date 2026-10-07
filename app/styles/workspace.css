@@ -1909,11 +1909,11 @@ body {
 }
 .vsn-content main > s-page {
   display: block;
-  inline-size: calc(100% - 36px) !important;
+  inline-size: calc(100% - 18px) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
-/* Match Stock Down Sort's content inset while accounting for main and s-page padding. */
+/* Halve the desktop s-page inset and give the released space to content. */
 .vsn-hero a:not(.vsn-button) { color: #bfeef3 !important; }
 .vsn-hero-summary {
   display: flex;
