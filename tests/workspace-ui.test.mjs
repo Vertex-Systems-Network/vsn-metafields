@@ -346,7 +346,7 @@ test("workspace shows only environment in non-production and only version in pro
     const workspace = await renderRoute("../components/Workspace.jsx", [], "Workspace", {
       environment,
     });
-    assert.match(workspace, new RegExp(`class="vsn-environment"[^>]*>\\${label}</span>`));
+    assert.match(workspace, new RegExp(`class="vsn-environment"[^>]*>${label}</span>`));
     assert.doesNotMatch(workspace, /class="vsn-version"/);
   }
 
@@ -354,7 +354,7 @@ test("workspace shows only environment in non-production and only version in pro
     environment: "production",
   });
   assert.doesNotMatch(liveWorkspace, /class="vsn-environment"/);
-  assert.match(liveWorkspace, /aria-label="App version 1\\.1\\.0">v1\\.1\\.0</span>/);
+  assert.match(liveWorkspace, /aria-label="App version 1\.1\.0">v1\.1\.0<\/span>/);
 });
 
 test("Metafields uses Stock Down Sort content width and top-level Shopify approval", async () => {
