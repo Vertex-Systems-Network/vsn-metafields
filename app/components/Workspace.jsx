@@ -8,14 +8,16 @@ import PropTypes from "prop-types";
 import { useEffect, useId, useRef, useState } from "react";
 import FieldIcon from "./FieldIcon";
 import SidebarItem from "./SidebarItem";
-import { APP_NAME, APP_VERSION } from "../product-config";
+import { APP_NAME, appDisplayVersion, appEnvironmentTag } from "../product-config";
+import { getWorkspaceContentLayout } from "../workspace-content-layout";
 import { LoadingState } from "./LoadingState";
 import { AppNameContext } from "./AppIdentity";
 
-export function Workspace({ children, appName = APP_NAME }) {
+export function Workspace({ children, appName = APP_NAME, environment = "development" }) {
   const { search } = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const workspaceRef = useRef(null);
+  const mainRef = useRef(null);
   const headerRef = useRef(null);
   const menuId = useId();
   useEffect(() => {
@@ -28,6 +30,80 @@ export function Workspace({ children, appName = APP_NAME }) {
     if (headerRef.current) observer?.observe(headerRef.current);
     window.addEventListener("resize", measure);
     return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
+  }, []);
+
+  useEffect(() => {
+    const main = mainRef.current;
+    const content = main?.closest(".vsn-content");
+    if (!main || !content) return;
+
+    const originalStyles = new Map();
+    const getPages = () =>
+      Array.from(main.children).filter((child) => child.tagName === "S-PAGE");
+    const getPageChildren = () =>
+      getPages().flatMap((page) => Array.from(page.children));
+    const remember = (child) => {
+      if (!originalStyles.has(child)) {
+        originalStyles.set(child, {
+          inlineSize: child.style.inlineSize,
+          maxInlineSize: child.style.maxInlineSize,
+          transform: child.style.transform,
+        });
+      }
+    };
+    const restore = (child) => {
+      const original = originalStyles.get(child);
+      if (!original) return;
+      child.style.inlineSize = original.inlineSize;
+      child.style.maxInlineSize = original.maxInlineSize;
+      child.style.transform = original.transform;
+    };
+    const applyContentGutters = () => {
+      const children = getPageChildren();
+      if (window.innerWidth <= 900) {
+        children.forEach(restore);
+        return;
+      }
+
+      const contentRect = content.getBoundingClientRect();
+      for (const child of children) {
+        remember(child);
+        child.style.transform = "none";
+        const layout = getWorkspaceContentLayout({
+          contentLeft: contentRect.left,
+          contentWidth: contentRect.width,
+          bodyLeft: child.getBoundingClientRect().left,
+        });
+        child.style.inlineSize = `${layout.inlineSize}px`;
+        child.style.maxInlineSize = "none";
+        child.style.transform = `translateX(${layout.translateX}px)`;
+      }
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(applyContentGutters);
+    const observePages = () => getPages().forEach((page) => resizeObserver?.observe(page));
+    resizeObserver?.observe(content);
+    resizeObserver?.observe(main);
+    observePages();
+    applyContentGutters();
+
+    const mutationObserver =
+      typeof MutationObserver === "undefined"
+        ? null
+        : new MutationObserver(() => {
+            observePages();
+            applyContentGutters();
+          });
+    mutationObserver?.observe(main, { childList: true, subtree: true });
+    window.addEventListener("resize", applyContentGutters);
+
+    return () => {
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+      window.removeEventListener("resize", applyContentGutters);
+      getPageChildren().forEach(restore);
+    };
   }, []);
   const navigation = useNavigation();
   const fetchers = useFetchers();
@@ -57,9 +133,10 @@ export function Workspace({ children, appName = APP_NAME }) {
           <span>{appName}</span>
           <span
             className="vsn-version"
-            aria-label={`App version ${APP_VERSION}`}
+            className="vsn-environment"
+            aria-label={`Environment ${appEnvironmentTag(environment)}`}
           >
-            v{APP_VERSION}
+            {appEnvironmentTag(environment)}
           </span>
         </Link>
         <Link className="vsn-help-link" to={{ pathname: "/app/guide", search }}>
@@ -96,7 +173,7 @@ export function Workspace({ children, appName = APP_NAME }) {
             />
           </div>
         )}
-        <main id="workspace-content" aria-busy={busy}>
+        <main id="workspace-content" ref={mainRef} aria-busy={busy}>
           <AppNameContext.Provider value={appName}>{children}</AppNameContext.Provider>
         </main>
         <footer className="vsn-footer">
