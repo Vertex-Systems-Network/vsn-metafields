@@ -383,8 +383,8 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.equal(appDisplayVersion("development"), APP_VERSION);
   assert.equal(appDisplayVersion("staging"), APP_VERSION);
   assert.equal(appDisplayVersion("production"), "1.1.0");
-  assert.match(index, /<s-switch\\s+label="Pin in Shopify admin"\\s+checked=\\{pin\\}/);
-  assert.match(index, /onChange=\\{\\(event\\) => setPin\\(event.currentTarget.checked\\)\\}/);
+  assert.match(index, /<s-switch\s+label="Pin in Shopify admin"\s+checked=\{pin\}/);
+  assert.match(index, /onChange=\{\(event\) => setPin\(event.currentTarget.checked\)\}/);
   assert.doesNotMatch(index, /<s-checkbox[^>]*label="Pin in Shopify admin"/);
   assert.ok(workspace.includes("getWorkspaceContentLayout"));
   assert.ok(workspace.includes("new ResizeObserver(applyContentGutters)"));
