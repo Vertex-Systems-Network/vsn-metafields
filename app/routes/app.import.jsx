@@ -70,7 +70,7 @@ export default function Import() {
         <LoadingState label="Loading saved import jobs…" skeleton />
       )}
       <s-text>
-        Your plan allows {list.data?.plan?.limits?.importRows || "up to 100"}{" "}
+        Your plan allows {list.data?.plan?.limits?.importRows ?? "checking"}{" "}
         rows per import job.{" "}
         <HelpLink topic="plans">Compare plan limits</HelpLink>
       </s-text>
@@ -228,10 +228,10 @@ export default function Import() {
             </ActionButton>
             {["preview", "paused", "running"].includes(job.status) && (
               <>
-                <s-checkbox
+                <s-switch
                   label={`Apply only valid rows from preview ${job.inputHash.slice(0, 12)}`}
                   checked={confirmed}
-                  onChange={(e) => setConfirmed(e.target.checked)}
+                  onChange={(event) => setConfirmed(event.currentTarget.checked)}
                 />
                 <ActionButton
                   variant="primary"
