@@ -132,11 +132,16 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
           </span>
           <span>{appName}</span>
           <span
-            className="vsn-version"
             className="vsn-environment"
             aria-label={`Environment ${appEnvironmentTag(environment)}`}
           >
             {appEnvironmentTag(environment)}
+          </span>
+          <span
+            className="vsn-version"
+            aria-label={`App version ${appDisplayVersion(environment)}`}
+          >
+            v{appDisplayVersion(environment)}
           </span>
         </Link>
         <Link className="vsn-help-link" to={{ pathname: "/app/guide", search }}>
@@ -186,7 +191,11 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
     </div>
   );
 }
-Workspace.propTypes = { children: PropTypes.node, appName: PropTypes.string };
+Workspace.propTypes = {
+  children: PropTypes.node,
+  appName: PropTypes.string,
+  environment: PropTypes.string,
+};
 
 export function PageIntro({ eyebrow, title, description, children }) {
   return (
