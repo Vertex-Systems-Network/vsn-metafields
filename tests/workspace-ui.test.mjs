@@ -383,6 +383,15 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.equal(appDisplayVersion("development"), APP_VERSION);
   assert.equal(appDisplayVersion("staging"), APP_VERSION);
   assert.equal(appDisplayVersion("production"), "1.1.0");
+  const imports = readFileSync("app/routes/app.import.jsx", "utf8");
+  assert.match(imports, /<s-switch\s+label=\{\x60Apply only valid rows/);
+  assert.match(imports, /onChange=\{\(event\) => setConfirmed\(event\.currentTarget\.checked\)\}/);
+  assert.doesNotMatch(imports, /<s-checkbox[^>]*Apply only valid rows/);
+  assert.match(imports, /importRows \?\? "checking"/);
+  assert.doesNotMatch(imports, /importRows \|\| "up to 100"/);
+  const appRoute = readFileSync("app/routes/app.jsx", "utf8");
+  assert.match(appRoute, /vsn-auth-redirect/);
+  assert.match(appRoute, /error\.status >= 300 && error\.status < 400/);
   assert.match(index, /<s-switch\s+label="Pin in Shopify admin"\s+checked=\{pin\}/);
   assert.match(index, /<s-table-header listSlot="primary">Name<\/s-table-header>/);
   assert.match(index, /onChange=\{\(event\) => setPin\(event.currentTarget.checked\)\}/);
