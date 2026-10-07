@@ -346,6 +346,9 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
 
   assert.ok(styles.includes(".vsn-content main > s-page"));
   assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
+  assert.ok(styles.includes("@media (min-width: 901px)"));
+  assert.ok(styles.includes("margin-inline-start: -8px !important;"));
+  assert.ok(styles.includes("margin-inline-end: auto !important;"));
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));

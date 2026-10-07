@@ -1913,7 +1913,14 @@ body {
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
-/* Halve the desktop s-page inset and give the released space to content. */
+@media (min-width: 901px) {
+  .vsn-content main > s-page {
+    inline-size: 100% !important;
+    margin-inline-start: -8px !important;
+    margin-inline-end: auto !important;
+  }
+}
+/* Halve the visible desktop gutter and add it to content width. */
 .vsn-hero a:not(.vsn-button) { color: #bfeef3 !important; }
 .vsn-hero-summary {
   display: flex;
