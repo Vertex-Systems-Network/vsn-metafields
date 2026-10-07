@@ -6,6 +6,8 @@ The staging bulk saved-job read/refresh path was exercised in the Shopify embedd
 
 ## Evidence
 
+- Read-only page smoke also opened Home, Fields & values, Metaobjects, Plans and Help center. Fields & values loaded 7 registered definitions and 248 standard templates for the selected resource; Metaobjects showed the existing QA definition; Plans showed the active Starter test subscription. No create/edit/save/plan-switch controls were submitted.
+- Help center diagnostics reported Environment=Staging, Database=Reachable, Subscription=Active, with product/collection values, metaobjects, pages/articles and files/media marked Ready. The panel showed 3 saved imports.
 - Fix: PR [#220](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/220), merged to `development` at `c387156977483666b6bd5a27794e4056709f2f7e`.
 - Staging deployment and acceptance: [workflow run #73](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37700944893), successful on the same source SHA.
 - Shopify staging app: `staging-oath3rth`, Import & export page.
