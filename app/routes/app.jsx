@@ -64,6 +64,19 @@ export const loader = async ({ request, context }) => {
   try {
     await authenticate.admin(request);
   } catch (error) {
+    // Embedded client-side transitions renew Shopify auth with a redirect.
+    // Keep this expected control flow out of application error diagnostics.
+    if (error instanceof Response && error.status >= 300 && error.status < 400) {
+      console.info(
+        "[vsn-auth-redirect]",
+        JSON.stringify({
+          route: url.pathname,
+          status: error.status,
+          idTokenPresent: Boolean(url.searchParams.get("id_token")),
+        }),
+      );
+      throw error;
+    }
     const idTokenPayload = decodeJwtPayload(url.searchParams.get("id_token"));
     const sessionDiagnostic = await getSessionDiagnostic(shop);
     const audience = idTokenPayload?.aud;
