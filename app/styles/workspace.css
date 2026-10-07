@@ -350,6 +350,7 @@ body {
   margin: 0;
   border-radius: 0;
   border-inline: none;
+  border-block: none;
   padding: 12px 32px;
   background: #eaf4ed;
 }
