@@ -21,7 +21,6 @@ The staging bulk saved-job read/refresh path now passes after PR #220. Cloudflar
 - No import apply/retry/remove action was used.
 - No metafield value, definition, product, subscription, or production resource was changed.
 - Cloudflare observability was queried read-only for route, response status, outcome, CPU time and Worker version; request query strings and sensitive values were excluded.
-- No import apply/retry/remove action was used.
 - This live check is narrow; it is not a complete zero-start or merchant acceptance test.
 
 ## Still outstanding
