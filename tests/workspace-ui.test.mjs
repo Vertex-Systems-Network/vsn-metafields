@@ -372,7 +372,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.equal(appDisplayVersion("production"), "1.1.0");
   assert.ok(workspace.includes("getWorkspaceContentLayout"));
   assert.ok(workspace.includes("new ResizeObserver(applyContentGutters)"));
-  assert.ok(workspace.includes('main.querySelectorAll'));
+  assert.ok(workspace.includes('Array.from(main.children)'));
   assert.equal(workspace.includes("Workspace menu"), false);
   assert.ok(styles.includes(".vsn-sidebar .vsn-navigation {\n    display: flex;"));
   assert.equal(packages.includes("pageRef"), false);
