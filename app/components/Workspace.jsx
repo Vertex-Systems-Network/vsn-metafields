@@ -84,7 +84,6 @@ export function Workspace({ children, appName = APP_NAME }) {
               collapsed={collapsed}
               label={label}
               icon={icon}
-              onNavigate={() => setMenuOpen(false)}
             />
           ))}
         </nav>
