@@ -10,7 +10,7 @@ export default function SidebarItem({
   collapsed,
   label,
   icon,
-  onNavigate,
+  onNavigate = () => {},
 }) {
   const link = useRef(null),
     timer = useRef(null),

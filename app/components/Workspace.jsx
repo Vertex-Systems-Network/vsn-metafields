@@ -163,6 +163,7 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
               end={pathname === "/app"}
               to={{ pathname, search }}
               collapsed={collapsed}
+              onNavigate={() => setCollapsed(false)}
               label={label}
               icon={icon}
             />
