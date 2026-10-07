@@ -57,6 +57,7 @@ async function getSessionDiagnostic(shop) {
 export const loader = async ({ request, context }) => {
   // eslint-disable-next-line no-undef
   const env = process.env;
+  const runtimeEnv = context?.cloudflare?.env ?? env;
   const url = new URL(request.url);
   const shop = url.searchParams.get("shop") || "unknown";
 
@@ -104,7 +105,7 @@ export const loader = async ({ request, context }) => {
   return {
     apiKey: env.SHOPIFY_API_KEY || "",
     appName: requestAppName(context),
-    environment: env.APP_ENV || env.NODE_ENV || "development",
+    environment: runtimeEnv.APP_ENV || runtimeEnv.NODE_ENV || "development",
   };
 };
 
