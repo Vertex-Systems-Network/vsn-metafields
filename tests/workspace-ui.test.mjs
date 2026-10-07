@@ -249,14 +249,15 @@ test("theme documentation covers every shipped block option and its actual defau
     }
   }
 });
-test("workspace sidebar preserves embedded context and provides a collapsed mobile toggle", async () => {
+test("workspace sidebar preserves embedded context without the workspace menu toggle", async () => {
   const html = await renderRoute(
     "../components/Workspace.jsx",
     [],
     "Workspace",
   );
   assert.match(html, /<aside class="vsn-sidebar">/);
-  assert.match(html, /aria-expanded="false" aria-controls=/);
+  assert.match(html, /aria-label="Collapse navigation"/);
+  assert.doesNotMatch(html, /Workspace menu/);
   assert.match(html, /aria-label="Workspace"/);
   assert.match(html, /aria-current="page"/);
   assert.equal((html.match(/class="vsn-nav-link/g) || []).length, 5);
