@@ -738,7 +738,7 @@ export default function Index() {
         </p>
         <s-table>
           <s-table-header-row>
-            <s-table-header>Name</s-table-header>
+            <s-table-header listSlot="primary">Name</s-table-header>
             <s-table-header>Namespace / key</s-table-header>
             <s-table-header>Type / access</s-table-header>
             <s-table-header>Actions</s-table-header>
