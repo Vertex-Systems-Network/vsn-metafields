@@ -1909,11 +1909,11 @@ body {
 }
 .vsn-content main > s-page {
   display: block;
-  inline-size: calc(100% - min(6vw, 96px)) !important;
+  inline-size: calc(100% - 36px) !important;
   max-inline-size: none !important;
   margin-inline: auto !important;
 }
-/* Shopify's s-page adds 16px on each side of its slotted content. */
+/* Match Stock Down Sort's content inset while accounting for main and s-page padding. */
 .vsn-hero a:not(.vsn-button) { color: #bfeef3 !important; }
 .vsn-hero-summary {
   display: flex;
