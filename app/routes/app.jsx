@@ -101,11 +101,15 @@ export const loader = async ({ request, context }) => {
     throw error;
   }
 
-  return { apiKey: env.SHOPIFY_API_KEY || "", appName: requestAppName(context) };
+  return {
+    apiKey: env.SHOPIFY_API_KEY || "",
+    appName: requestAppName(context),
+    environment: env.APP_ENV || env.NODE_ENV || "development",
+  };
 };
 
 export default function App() {
-  const { apiKey, appName } = useLoaderData();
+  const { apiKey, appName, environment } = useLoaderData();
 
   return (
     <AppProvider embedded apiKey={apiKey}>
@@ -114,7 +118,7 @@ export default function App() {
           Fields & values
         </Link>
       </NavMenu>
-      <Workspace appName={appName}>
+      <Workspace appName={appName} environment={environment}>
         <Outlet />
       </Workspace>
     </AppProvider>
