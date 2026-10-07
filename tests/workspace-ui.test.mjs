@@ -368,6 +368,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(styles.includes("@media (min-width: 901px)"));
   assert.ok(styles.includes(".vsn-environment"));
   assert.match(styles, /\.vsn-workspace-progress \.vsn-loading-state \{[^}]*border-block: none;/s);
+  assert.match(styles, /\.vsn-workspace-progress \{[^}]*border-block: none;/s);
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
   assert.deepEqual(
     getWorkspaceContentLayout({ contentLeft: 459, contentWidth: 891, bodyLeft: 476 }),
