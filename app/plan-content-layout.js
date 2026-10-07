@@ -1,4 +1,4 @@
-export const PLAN_CONTENT_GUTTER = 104;
+export const PLAN_CONTENT_GUTTER = 52;
 
 export function getPlanContentLayout({ contentLeft, contentWidth, bodyLeft }) {
   return {
