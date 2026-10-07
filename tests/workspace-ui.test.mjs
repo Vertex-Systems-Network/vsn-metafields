@@ -345,7 +345,7 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   const packages = readFileSync("app/routes/app.packages.jsx", "utf8");
 
   assert.ok(styles.includes(".vsn-content main > s-page"));
-  assert.ok(styles.includes("inline-size: calc(100% - 36px) !important;"));
+  assert.ok(styles.includes("inline-size: calc(100% - 18px) !important;"));
   assert.equal(styles.includes("min(6vw, 96px) + 32px"), false);
   assert.ok(client.includes('open(confirmationUrl, "_top")'));
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
