@@ -182,6 +182,7 @@ test("mixed preview skips invalid duplicates and is isolated from other shops", 
     );
   assert.equal(job.rows[0].valid, true);
   assert.equal(job.rows[1].valid, false);
+  assert.deepEqual(Object.keys(job.rows[1]).sort(), ["error", "row", "valid"]);
   assert.equal(admin.writes, 0);
   await assert.rejects(readJob(db, "other.myshopify.com", job.id), /not found/);
   const done = await runImportChunk(admin, db, shop, apply(job));
