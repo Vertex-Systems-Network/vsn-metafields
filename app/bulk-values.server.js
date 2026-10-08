@@ -49,7 +49,7 @@ export async function previewImport(admin, db, shop, csv, plan) {
     identities = new Set(),
     rows = [];
   for (const item of input) {
-    const row = {
+    let row = {
       row: item.row,
       ownerType: item.ownerType,
       ownerId: item.ownerId,
@@ -95,8 +95,12 @@ export async function previewImport(admin, db, shop, csv, plan) {
       row.compareDigest = before?.compareDigest ?? null;
       row.valid = true;
     } catch (error) {
-      row.valid = false;
-      row.error = String(error.message || "Validation failed.").slice(0, 300);
+      // Invalid input has no use after preview; do not persist raw CSV fields.
+      row = {
+        row: item.row,
+        valid: false,
+        error: String(error.message || "Validation failed.").slice(0, 300),
+      };
     }
     rows.push(row);
   }
