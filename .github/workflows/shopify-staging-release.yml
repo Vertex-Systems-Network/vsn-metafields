@@ -15,7 +15,7 @@ concurrency:
 jobs:
   release-staging-blocks:
     if: github.ref_name == 'development' && github.event.inputs.confirm == 'RELEASE_METAFIELDS_TO_STAGING'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: cloudflare-staging
     env:
