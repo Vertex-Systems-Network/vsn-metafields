@@ -18,10 +18,13 @@ The staging bulk saved-job read/refresh path now passes after PR #220. Cloudflar
 - Cloudflare telemetry showed one HTTP 503 with outcome `exceededCpu` at `2026-10-07T22:53:23Z` on previous Worker version `a891304d-3532-4331-9e59-50d2acc0166d`. PR #220 removes the duplicate Shopify subscription GraphQL request and reuses the entitlement result. The fix was deployed in staging workflow run #73; current Worker version `67521451-4d0e-41b3-acb3-63c85357f93f` began serving traffic at `2026-10-07T23:13:50Z`.
 - After that deployment, 9 correlated `/app/api/bulk.data` request records in the 90-minute observation window returned HTTP 200 with outcome `ok`. Recent UI refreshes were among the successful requests. The prior 503 did not recur on the current version.
 
+- Read-only reference-picker smoke (2026-10-08): selected the existing Page and File definitions for an existing QA product, searched by each saved reference's title, and both results appeared in the app's reference picker. A schema-validated read-only Shopify Admin GraphQL query resolved the saved references as an existing published Page and a READY MediaImage. No Save or Remove action was used. This verifies existing-reference search and saved-reference resolution; new reference writes and conflict handling remain untested.
+- Limited keyboard smoke on Help center (2026-10-08): the Connection and permissions panel reported Staging, Database=Reachable and Subscription=Active, with product/collection values, metaobjects, pages/articles and files/media Ready. Tab moved focus from Refresh status to Copy support diagnostics. The staging browser console check returned no warning/error entries. This is not a complete accessibility or performance audit.
+
 ## Boundaries
 
 - No import apply/retry/remove action was used.
-- No metafield value, definition, product, subscription, or production resource was changed.
+- No metafield value, definition, product, theme, plan, subscription or production resource was changed. No Save, Remove, import Apply, retry or job removal action was used.
 - Cloudflare observability was queried read-only for route, response status, outcome, CPU time and Worker version; request query strings and sensitive values were excluded.
 - This live check is narrow; it is not a complete zero-start or merchant acceptance test.
 
@@ -29,9 +32,9 @@ The staging bulk saved-job read/refresh path now passes after PR #220. Cloudflar
 
 1. **Zero-start app acceptance:** a fresh merchant journey through all app areas, including definitions, values, metaobjects, plans, import/export and help/error recovery. Existing staging state and saved records mean a truly clean install/user journey has not been demonstrated.
 2. **Theme acceptance:** Horizon exposes the five app blocks and renders an existing Specifications block's empty state, but Shopify CLI/theme validation, configured populated-value rendering and editor settings review remain open. The `debut-vintage-theme` draft exposes no app blocks for its section; its app-block compatibility remains unverified/unsupported in this editor.
-3. **Accessibility and performance:** browser-based keyboard, reflow, accessibility and performance checks across the app.
+3. **Accessibility and performance:** one limited Help center tab-focus smoke passed; keyboard coverage across all app pages, reflow/zoom, assistive-technology checks, WCAG audit and performance measurements remain open.
 4. **Compliance webhooks:** independent receipt verification for the webhook deliveries recorded by prior staging release evidence.
-5. **Issue #4:** remains open. Its original body requires staging validation before production URL cutover and explicitly says the issue alone does not authorize cutover. This staging page check does not justify closing it or changing production.
+5. **Issue #4:** remains open for separate migration cleanup work. The latest issue comment says to keep it open until Railway project/service state is identified and any authorized cleanup has provider evidence. This staging validation does not close it or authorize a production change.
 6. **Issue #68:** remains open as a non-blocking GitHub Support/platform cleanup follow-up for historical pull refs; this is outside application code and needs provider-side handling if pursued.
 7. **Other open PRs observed:** #148 remains a draft to `development` with theme/browser/staging acceptance gates listed in its description; #124 targets `main` and concerns a historical Session migration rerun path. Neither is part of this staging CPU fix; no merge/closure was performed.
 
