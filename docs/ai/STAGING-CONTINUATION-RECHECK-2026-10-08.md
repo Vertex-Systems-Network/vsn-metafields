@@ -48,3 +48,15 @@ This evidence does not indicate a Prisma session-table or connectivity failure. 
 Repository review confirmed the dedicated staging Shopify config declares all three compliance topics (customers/data_request, customers/redact, shop/redact) and points them to the staging Worker. The corresponding route handlers call authenticate.webhook; the two customer routes state that no customer payload is stored, and the shop-redact route delegates shop-scoped session cleanup to the uninstall webhook. A staging-only workflow exists that releases the prepared staging-webhooks-2 app version, then sends one CLI test delivery for each compliance topic and checks that production config remains untouched.
 
 This is code/config evidence only. The workflow has not been dispatched and no test delivery receipt was observed, so registration and live delivery handling remain unverified. The workflow requires the RELEASE_STAGING_WEBHOOKS_2 dispatch input and staging environment secrets. No available GitHub connector action in this session dispatches workflows; Shopify CLI was not run directly. Exact files: shopify.app.cloudflare-staging.toml, .github/workflows/shopify-staging-release.yml, and app/routes/webhooks.customers.data_request.jsx, app/routes/webhooks.customers.redact.jsx, app/routes/webhooks.shop.redact.jsx.
+
+## Read-only UI and telemetry rerun — 2026-10-08
+
+Revisited Metaobjects, Import & export, Plans, Help center, then returned the installed staging app to Home. Initial loading/checking states resolved on later snapshots; the observed route responses were successful:
+
+- /app/api/metaobjects.data: HTTP 200, Worker outcome ok, 3,192 ms wall / 27 ms CPU.
+- /app/api/bulk.data: HTTP 200, Worker outcome ok, 4,691 ms wall / 29 ms CPU.
+- /app/api/status.data: HTTP 200, Worker outcome ok, 2,652 ms wall / 16 ms CPU.
+- /app/guide.data: HTTP 200, Worker outcome ok, 2,537 ms wall / 15 ms CPU.
+- /app/api/diagnostics.data: HTTP 200, Worker outcome ok, 4,877 ms wall / 27 ms CPU.
+
+The pages resolved to the existing Size guide (QA) metaobject definition, 3 saved import jobs, active Starter test subscription through 2026-11-06, and Help diagnostics Environment=Staging, Database=Reachable, Subscription=Active, with product/collection, metaobject, page/article, and file/media groups Ready. The Home page then resolved to 7/7 definitions and 248/248 loaded standard templates, with the Starter subscription verified. No create, edit, apply, billing, permission, or theme action was submitted. A 10-minute exact-Worker error/warning query returned zero events. Keyboard Tab moved focus from the Help center nav item to its Connection & permissions link; this is a narrow focus smoke only, not a full accessibility audit.
