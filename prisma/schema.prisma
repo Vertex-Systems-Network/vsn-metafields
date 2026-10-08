@@ -29,7 +29,8 @@ model Session {
   refreshTokenExpires DateTime?
 }
 
-// Bounded, shop-isolated import ledger. No tokens or customer/order data.
+// Bounded, shop-isolated import ledger. Valid rows hold merchant-provided values;
+// invalid rows retain only row numbers and errors. Expiry and shop redaction clear it.
 model MetafieldJob {
   id          String   @id
   shop        String
