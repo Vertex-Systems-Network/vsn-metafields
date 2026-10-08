@@ -30,7 +30,8 @@ model Session {
 }
 
 // Bounded, shop-isolated import ledger. Valid rows hold merchant-provided values;
-// invalid rows retain only row numbers and errors. Expiry and shop redaction clear it.
+// invalid rows retain only row numbers and errors. Expired jobs clear on preview;
+// shop and customer redaction erase their corresponding jobs.
 model MetafieldJob {
   id          String   @id
   shop        String
