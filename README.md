@@ -1,6 +1,6 @@
 # Shopify Metafields Builder
 
-## Current staging status — 2026-10-07
+## Current staging status — 2026-10-08
 
 - **Application source under staging acceptance:** `c387156977483666b6bd5a27794e4056709f2f7e` (the docs branch adds no application code).
 - **Bulk loader CPU fix:** merged as PR #220 and deployed to isolated staging. [Staging deployment run #73](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37700944893) passed.
