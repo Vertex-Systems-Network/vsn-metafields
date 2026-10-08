@@ -87,3 +87,15 @@ After the one-hour no-repeat check, I selected a sample product and the existing
 ## Compliance webhook receipt log check — 2026-10-08
 
 A 30-day read-only query of the exact staging Worker found four successful POSTs across all three compliance routes: `customers/data_request` twice, `customers/redact` once, and `shop/redact` once. All four returned HTTP 200 with Worker outcome `ok`. For each request, telemetry showed the Shopify topic, HMAC, API-version, and content-type header names; header values and payloads were not inspected. The route source uses `authenticate.webhook`, so these are evidence of handled inbound deliveries. These events ran on versions preceding the current version 70 deployment. They provide historical receipt evidence, but do not substitute for a controlled delivery test against version 70; the existing staging release workflow has not been dispatched.
+
+
+## Additional read-only resource type smoke — 2026-10-08
+
+On the existing Home screen I switched the resource selector to Collection and Product variant, then restored Product. No definitions or values were created, edited, or removed.
+
+- Collection loaded capability state with no current definitions, as expected for this store. Its `/app/api/fields.data` and `/app/api/values.data?mode=resources` GETs returned HTTP 200 / outcome `ok` on version 70.
+- Product variant loaded its 10 standard templates. Its `fields.data` and read-only resource-search requests returned HTTP 200 / outcome `ok` on version 70.
+- Product was restored on Home and resolved again to 7/7 existing definitions and 248/248 loaded standard templates.
+- The app was left on the Home route. No writes were submitted.
+
+The 30-day webhook logs establish successful historical signed-header-bearing receipts for all three compliance paths. A controlled workflow delivery against current version 70 is still outstanding; the workflow was not dispatched.
