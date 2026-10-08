@@ -42,3 +42,9 @@ A narrowly scoped seven-day Observability query for the exact staging Worker and
 - The request had no `id_token`, so token decode/audience/destination checks were false.
 
 This evidence does not indicate a Prisma session-table or connectivity failure. It is consistent with an authentication redirect, but the available event does not establish why the 302 was emitted; root cause remains unconfirmed. No session, app, billing, theme, or production state was changed.
+
+## Follow-up: compliance webhook path review
+
+Repository review confirmed the dedicated staging Shopify config declares all three compliance topics (customers/data_request, customers/redact, shop/redact) and points them to the staging Worker. The corresponding route handlers call authenticate.webhook; the two customer routes state that no customer payload is stored, and the shop-redact route delegates shop-scoped session cleanup to the uninstall webhook. A staging-only workflow exists that releases the prepared staging-webhooks-2 app version, then sends one CLI test delivery for each compliance topic and checks that production config remains untouched.
+
+This is code/config evidence only. The workflow has not been dispatched and no test delivery receipt was observed, so registration and live delivery handling remain unverified. The workflow requires the RELEASE_STAGING_WEBHOOKS_2 dispatch input and staging environment secrets. No available GitHub connector action in this session dispatches workflows; Shopify CLI was not run directly. Exact files: shopify.app.cloudflare-staging.toml, .github/workflows/shopify-staging-release.yml, and app/routes/webhooks.customers.data_request.jsx, app/routes/webhooks.customers.redact.jsx, app/routes/webhooks.shop.redact.jsx.
