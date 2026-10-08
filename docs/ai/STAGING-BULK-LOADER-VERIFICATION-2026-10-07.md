@@ -53,3 +53,13 @@ The staging bulk saved-job read/refresh path now passes after PR #220. Cloudflar
 ## Completion statement
 
 The CPU fix is deployed and the live staging saved-job read/refresh path now passes. The whole product is **not complete**: the acceptance items above remain. Production remains untouched.
+
+
+## Staging recheck — 2026-10-08 (follow-up)
+
+This follow-up supersedes only the earlier same-day resource-search observations; it does not change the wider acceptance status above.
+
+- The earlier Fields & values search that remained in a loading state was retried in the same staging store. After a short loading interval, the Resource picker returned exactly one match, `The Complete Snowboard`. Selecting it and the existing `Snowboard length` definition loaded its saved dimension value. Read-only Cloudflare Worker Observability showed relevant `/app/api/values.data` requests returning HTTP 200/outcome `ok`, with observed wall times around 2.7–3.6 seconds. The previous empty-picker observation was real for that attempt, but is not a persistent failure in this recheck; no code fix was made. More repeated/latency coverage remains outstanding.
+- Repeated a controlled populated Single field preview entirely in staging. Through the app UI, created temporary Product definition `vsn_test_20261008.staging_single_field_smoke` (single-line text, Storefront API public read) and saved `Staging Single field render smoke 2026-10-08` on the existing `The Complete Snowboard` product. The unpublished Horizon product preview used Resource=Product, Product override=`The Complete Snowboard`, the exact namespace/key, and label `Staging smoke`. The Shopify theme editor showed the configured block/label but no saved value in the storefront preview. This is a second failed populated Single field preview; it narrows the issue to theme/storefront rendering or context, but does not establish the implementation root cause. No theme Save or Publish occurred.
+- Cleanup: the app UI confirmed “Value removed.”, then “Definition removed; existing values retained.” The refreshed Registered definitions table returned to 7 of 7 entries and no longer listed the temporary definition; Resource values returned to “Choose a field” with Save/Remove disabled. The Horizon editor’s “Leave page with unsaved changes?” prompt was accepted with **Leave page**, discarding the temporary block/settings. The staging app remained installed and active; its workspace showed the verified Starter subscription. No production resource was changed.
+
