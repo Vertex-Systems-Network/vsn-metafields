@@ -77,3 +77,8 @@ This check supersedes the earlier 10-minute zero-error observation with a fresh 
 ## Updated acceptance result
 
 The current 100% staging release has a passing direct `bulk.data` request and no observed Worker error-level or warning-level records since deployment. Historical auth redirects and the version 69 CPU-limit 503 are absent from that post-deployment error review, but their original causes are not proven. The two `values.data` HTTP 400s are consistent with stale requests to the removed test namespace; two subsequent requests passed and no recurrence was observed in the one-hour recheck. Zero-start acceptance, independent webhook delivery receipts, saved/published theme behavior, and a full accessibility audit remain outstanding. The staging app was returned to its Home screen and remains installed and active.
+
+
+## Additional values read confirmation — 2026-10-08
+
+After the one-hour no-repeat check, I selected a sample product and the existing Snowboard length definition in the staging UI. The saved value loaded as 159.0 cm. Cloudflare recorded `/app/api/values.data` HTTP 200 / outcome `ok` (2,950 ms wall time, 20 ms CPU) on Worker version 70. I did not submit Save or Remove. This successful live read supports the stale-test-namespace explanation for the two earlier 400s; the original response body remains unavailable, so that attribution is still an inference.
