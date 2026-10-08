@@ -82,3 +82,8 @@ The current 100% staging release has a passing direct `bulk.data` request and no
 ## Additional values read confirmation — 2026-10-08
 
 After the one-hour no-repeat check, I selected a sample product and the existing Snowboard length definition in the staging UI. The saved value loaded as 159.0 cm. Cloudflare recorded `/app/api/values.data` HTTP 200 / outcome `ok` (2,950 ms wall time, 20 ms CPU) on Worker version 70. I did not submit Save or Remove. This successful live read supports the stale-test-namespace explanation for the two earlier 400s; the original response body remains unavailable, so that attribution is still an inference.
+
+
+## Compliance webhook receipt log check — 2026-10-08
+
+A 30-day read-only query of the exact staging Worker found four successful POSTs across all three compliance routes: `customers/data_request` twice, `customers/redact` once, and `shop/redact` once. All four returned HTTP 200 with Worker outcome `ok`. For each request, telemetry showed the Shopify topic, HMAC, API-version, and content-type header names; header values and payloads were not inspected. The route source uses `authenticate.webhook`, so these are evidence of handled inbound deliveries. These events ran on versions preceding the current version 70 deployment. They provide historical receipt evidence, but do not substitute for a controlled delivery test against version 70; the existing staging release workflow has not been dispatched.
