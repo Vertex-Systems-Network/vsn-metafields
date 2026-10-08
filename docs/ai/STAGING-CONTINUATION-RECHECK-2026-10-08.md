@@ -31,3 +31,14 @@ The successful current `fields.data` requests show recovery for this check; they
 ## Result
 
 The live `bulk.data` and `fields.data` routes passed this recheck, and the Specifications preview passed. Staging acceptance is **not complete** while historical error cause, zero-start acceptance and independent webhook receipt verification remain outstanding.
+
+## Follow-up: historical auth diagnostic detail
+
+A narrowly scoped seven-day Observability query for the exact staging Worker and the `shopify-admin-auth-failed` event recovered one diagnostic (2026-10-07 UTC). The route loader's diagnostic payload recorded:
+
+- Authentication threw a `Response` with status 302.
+- The database was reachable; the staging shop had 2 stored sessions, including 1 online session.
+- `SHOPIFY_APP_URL` matched the request origin.
+- The request had no `id_token`, so token decode/audience/destination checks were false.
+
+This evidence does not indicate a Prisma session-table or connectivity failure. It is consistent with an authentication redirect, but the available event does not establish why the 302 was emitted; root cause remains unconfirmed. No session, app, billing, theme, or production state was changed.
