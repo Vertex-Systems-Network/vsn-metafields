@@ -18,7 +18,7 @@ concurrency:
 jobs:
   deploy-staging:
     if: github.event.inputs.confirm == 'DEPLOY_DEVELOPMENT_TO_STAGING'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     environment: cloudflare-staging
     env:
@@ -45,6 +45,21 @@ jobs:
         with:
           node-version: "22.13.0"
           cache: npm
+
+      - name: Pin staging database SSL mode
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
+              for name in ("DATABASE_URL", "DIRECT_URL"):
+                  parts = urlsplit(os.environ[name])
+                  query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key.lower() != "sslmode"]
+                  query.append(("sslmode", "verify-full"))
+                  env_file.write(f"{name}={urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))}\\n")
+          PY
 
       - name: Require staging-only credentials and bindings
         shell: bash
