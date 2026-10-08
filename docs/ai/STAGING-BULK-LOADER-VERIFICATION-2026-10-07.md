@@ -2,7 +2,7 @@
 
 ## Result
 
-The staging bulk saved-job read/refresh path was exercised in the Shopify embedded app after the CPU fix. The test passed and made no writes to Shopify metafields.
+The staging bulk saved-job read/refresh path now passes after PR #220. Cloudflare telemetry records the earlier 503 on the previous Worker version, then successful requests on the deployed fix. No Shopify metafields were written.
 
 ## Evidence
 
@@ -12,13 +12,15 @@ The staging bulk saved-job read/refresh path was exercised in the Shopify embedd
 - Staging deployment and acceptance: [workflow run #73](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/37700944893), successful on the same source SHA.
 - Shopify staging app: `staging-oath3rth`, Import & export page.
 - Selected an existing saved job dated `2026-10-03T21:33:52.535Z`, then used **Refresh selected job**. The page issued its normal saved-job read request and rendered the returned record: status complete, 1/1 processed, revision 3. Its row showed a stale-value conflict and explicitly stated that no write was made.
-- The app route implementation is `app/routes/app.api.bulk.jsx`; its loader authenticates the Admin request, checks the plan entitlement, reads the requested job and returns its public representation. The UI refresh verifies this live read path through the embedded app, not a separately hand-crafted HTTP request.
+- The app route implementation is `app/routes/app.api.bulk.jsx`; its loader authenticates the Admin request, checks the plan entitlement, reads the requested job and returns its public representation. The UI refresh generated the live `/app/api/bulk.data` requests.
+- Cloudflare telemetry showed one HTTP 503 with outcome `exceededCpu` at `2026-10-07T22:53:23Z` on previous Worker version `a891304d-3532-4331-9e59-50d2acc0166d`. PR #220 removes the duplicate Shopify subscription GraphQL request and reuses the entitlement result. The fix was deployed in staging workflow run #73; current Worker version `67521451-4d0e-41b3-acb3-63c85357f93f` began serving traffic at `2026-10-07T23:13:50Z`.
+- After that deployment, 9 correlated `/app/api/bulk.data` request records in the 90-minute observation window returned HTTP 200 with outcome `ok`. Recent UI refreshes were among the successful requests. The prior 503 did not recur on the current version.
 
 ## Boundaries
 
 - No import apply/retry/remove action was used.
 - No metafield value, definition, product, subscription, or production resource was changed.
-- Cloudflare observability did not yield a usable request-log record in the prior check, so this report does not claim log-level confirmation.
+- Cloudflare observability was queried read-only for route, response status, outcome, CPU time and Worker version; request query strings and sensitive values were excluded.
 - This live check is narrow; it is not a complete zero-start or merchant acceptance test.
 
 ## Still outstanding
