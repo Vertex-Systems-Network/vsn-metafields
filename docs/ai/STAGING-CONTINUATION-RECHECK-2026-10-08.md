@@ -13,7 +13,7 @@ Read-only acceptance on the existing Shopify staging store `staging-oath3rth` an
 
 ## Outstanding
 
-- **Current direct `/app/api/fields.data` HTTP result is unverified.** The attempted staging telemetry request used an invalid route and returned 404. An account-wide retry was rejected by automatic review because it could include production telemetry. No further telemetry request was made.
+- **Current direct `/app/api/fields.data` HTTP result is unverified.** A read-only Worker Observability query over a 20-minute window, filtered to the exact staging Worker and route, returned zero matching events. That proves no matching event was present in that query result; it does not establish an HTTP status or route health.
 - A separate seven-day, exact-staging-Worker error review previously found four error events: three historical `/app/api/fields.data` HTTP 502s (Oct 2–3 UTC) and one Oct 7 auth/database diagnostic. The app Home now loads its workspace and definitions, but that does not establish the root cause or prove those historical errors are fixed. No warning events were reported in that review.
 - Zero-start installation acceptance remains untested: this active staging installation is populated, and resetting or uninstalling it would conflict with the instruction to keep it active.
 - Theme verification is editor-preview coverage only. Saved/published storefront behavior remains intentionally untested.
