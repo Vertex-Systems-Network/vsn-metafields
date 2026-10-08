@@ -252,6 +252,8 @@ test("configured webhooks authenticate and shop cleanup is complete and scoped",
   const shopRedact = read("app/routes/webhooks.shop.redact.jsx");
   assert.match(shopRedact, /db\.metafieldJob\.deleteMany\(\{ where: \{ shop \} \}\)/);
   assert.match(shopRedact, /db\.session\.deleteMany\(\{ where: \{ shop \} \}\)/);
+  const customerRedact = read("app/routes/webhooks.customers.redact.jsx");
+  assert.match(customerRedact, /redactCustomerJobs\(db, shop, payload\)/);
   assert.doesNotMatch(uninstall + shopRedact, /deleteMany\(\s*\{\s*\}\s*\)/);
 });
 
