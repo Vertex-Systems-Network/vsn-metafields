@@ -11,6 +11,7 @@ import {
   runImportChunk,
   retryImport,
   readJob,
+  redactCustomerJobs,
 } from "../app/bulk-values.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-bulk-tests-"));
 let db;
@@ -182,6 +183,7 @@ test("mixed preview skips invalid duplicates and is isolated from other shops", 
     );
   assert.equal(job.rows[0].valid, true);
   assert.equal(job.rows[1].valid, false);
+  assert.deepEqual(Object.keys(job.rows[1]).sort(), ["error", "row", "valid"]);
   assert.equal(admin.writes, 0);
   await assert.rejects(readJob(db, "other.myshopify.com", job.id), /not found/);
   const done = await runImportChunk(admin, db, shop, apply(job));
@@ -321,4 +323,26 @@ test("a lost ledger persistence after Shopify write reconciles safely on resume"
   });
   assert.equal(final.results[0].status, "unchanged");
   assert.equal(admin.writes, 1);
+});
+
+test("customer redaction removes only matching legacy jobs for the authenticated shop", async () => {
+  const otherShop = "unrelated.myshopify.com";
+  const rowsJson = JSON.stringify([{
+    ownerType: "CUSTOMER", ownerId: "gid://shopify/Customer/42",
+    value: "legacy preview", valid: false,
+  }]);
+  for (const [id, jobShop, rows] of [
+    ["redact-match", shop, rowsJson],
+    ["redact-other-shop", otherShop, rowsJson],
+    ["redact-unrelated", shop, JSON.stringify([row(999)])],
+  ]) await db.metafieldJob.create({ data: {
+    id, shop: jobShop, rowsJson: rows, inputHash: "legacy",
+    expiresAt: new Date(Date.now() + 60000),
+  } });
+  assert.equal(await redactCustomerJobs(db, shop, {
+    customer: { id: 42 }, orders_to_redact: [],
+  }), 1);
+  assert.equal(await db.metafieldJob.findUnique({ where: { id: "redact-match" } }), null);
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "redact-other-shop" } }));
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "redact-unrelated" } }));
 });

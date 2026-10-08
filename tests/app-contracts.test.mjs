@@ -225,7 +225,7 @@ test("SSR entry stays Web-Streams compatible for Workers and Node 22", () => {
   assert.match(entry, /new Response\(body,/);
 });
 
-test("configured webhooks authenticate and uninstall cleanup is shop-scoped", () => {
+test("configured webhooks authenticate and shop cleanup is complete and scoped", () => {
   const toml = read("shopify.app.toml");
   const routes = [
     ["app/uninstalled", "/webhooks/app/uninstalled", "app/routes/webhooks.app.uninstalled.jsx"],
@@ -247,7 +247,14 @@ test("configured webhooks authenticate and uninstall cleanup is shop-scoped", ()
     uninstall,
     /deleteMany\(\{\s*where:\s*\{\s*shop\s*\}\s*\}\)/
   );
-  assert.doesNotMatch(uninstall, /deleteMany\(\s*\{\s*\}\s*\)/);
+  assert.match(uninstall, /db\.session\.deleteMany\(\{ where: \{ shop \} \}\)/);
+  assert.doesNotMatch(uninstall, /if \(session\)/);
+  const shopRedact = read("app/routes/webhooks.shop.redact.jsx");
+  assert.match(shopRedact, /db\.metafieldJob\.deleteMany\(\{ where: \{ shop \} \}\)/);
+  assert.match(shopRedact, /db\.session\.deleteMany\(\{ where: \{ shop \} \}\)/);
+  const customerRedact = read("app/routes/webhooks.customers.redact.jsx");
+  assert.match(customerRedact, /redactCustomerJobs\(db, shop, payload\)/);
+  assert.doesNotMatch(uninstall + shopRedact, /deleteMany\(\s*\{\s*\}\s*\)/);
 });
 
 test("Pro billing configuration stays centralized at 5 trial days and $55 across API and UI", () => {
