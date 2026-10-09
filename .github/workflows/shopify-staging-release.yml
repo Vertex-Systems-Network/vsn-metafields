@@ -76,7 +76,6 @@ jobs:
       - name: Release only the staging app version
         run: |
           npx --yes @shopify/cli@4.8.2 app release --config cloudflare-staging --version "$STAGING_VERSION" --allow-updates
-          npx --yes @shopify/cli@4.8.2 app versions list --config cloudflare-staging
           git diff --exit-code -- shopify.app.toml
           echo "production_app_changed=false"
 
