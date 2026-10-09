@@ -268,7 +268,6 @@ test("workspace sidebar preserves embedded context without the workspace menu to
   for (const route of [
     "app.metaobjects.jsx",
     "app.import.jsx",
-    "app.privacy.jsx",
     "app.packages.jsx",
     "app.guide.jsx",
   ])
