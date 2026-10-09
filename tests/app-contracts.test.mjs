@@ -212,6 +212,10 @@ test("Cloudflare Worker entry delegates to the React Router server build", () =>
   assert.match(worker, /export default/);
   assert.match(worker, /async fetch\(request, env, ctx\)/);
   assert.match(worker, /cloudflare:\s*\{\s*env,\s*ctx\s*\}/);
+  assert.match(worker, /async scheduled\(/);
+  assert.match(worker, /ctx\.waitUntil\(/);
+  assert.match(worker, /purgeExpiredJobs\(db\)/);
+  assert.deepEqual(wrangler.triggers.crons, ["0 * * * *"]);
 });
 
 test("SSR entry stays Web-Streams compatible for Workers and Node 22", () => {

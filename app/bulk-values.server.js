@@ -295,6 +295,13 @@ export async function retryImport(db, shop, input) {
   return publicJob(await readJob(db, shop, job.id));
 }
 
+export async function purgeExpiredJobs(db, now = new Date()) {
+  const result = await db.metafieldJob.deleteMany({
+    where: { expiresAt: { lte: now } },
+  });
+  return result.count;
+}
+
 // Older previews might contain identifiers or contact text, including in invalid rows.
 // Remove the whole matching job so preview and result snapshots disappear together.
 export async function redactCustomerJobs(db, shop, payload) {
@@ -309,11 +316,14 @@ export async function redactCustomerJobs(db, shop, payload) {
   const orderGids = new Set([...orders].map((id) => `gid://shopify/Order/${id}`));
   const jobs = await db.metafieldJob.findMany({
     where: { shop },
-    select: { id: true, rowsJson: true },
+    select: { id: true, rowsJson: true, resultsJson: true },
   });
   let removed = 0;
   for (const job of jobs) {
-    const rows = JSON.parse(job.rowsJson);
+    const rows = [
+      ...JSON.parse(job.rowsJson),
+      ...JSON.parse(job.resultsJson),
+    ];
     if (!rows.some((row) => {
       const snapshot = JSON.stringify(row).toLowerCase();
       return (row.ownerType === "CUSTOMER" && row.ownerId === customerGid) ||
