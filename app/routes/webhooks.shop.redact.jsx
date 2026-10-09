@@ -5,6 +5,7 @@ export const action = async ({ request }) => {
   const { shop } = await authenticate.webhook(request);
   const db = createPrismaClient();
   try {
+    await db.privacyRequest.deleteMany({ where: { shop } });
     await db.metafieldJob.deleteMany({ where: { shop } });
     await db.session.deleteMany({ where: { shop } });
   } finally {

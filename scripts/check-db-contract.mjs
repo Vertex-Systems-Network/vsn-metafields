@@ -6,7 +6,7 @@ const model = (path, name) => {
   if (!match) throw new Error(`${name} model missing in ${path}`);
   return match[1].trim().replace(/\s+/g, " ");
 };
-for (const name of ["Session", "MetafieldJob"]) {
+for (const name of ["Session", "MetafieldJob", "PrivacyRequest"]) {
   if (
     model("prisma/schema.prisma", name) !==
     model("prisma/local/schema.prisma", name)
@@ -16,4 +16,4 @@ for (const name of ["Session", "MetafieldJob"]) {
     );
   }
 }
-console.log("Local SQLite and Neon Session and MetafieldJob models match.");
+console.log("Local SQLite and Neon Session, MetafieldJob and PrivacyRequest models match.");

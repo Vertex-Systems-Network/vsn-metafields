@@ -7,6 +7,7 @@ export const action = async ({ request }) => {
   // Authenticated, shop-scoped cleanup is idempotent even if sessions are already gone.
   const db = createPrismaClient();
   try {
+    await db.privacyRequest.deleteMany({ where: { shop } });
     await db.metafieldJob.deleteMany({ where: { shop } });
     await db.session.deleteMany({ where: { shop } });
   } finally {

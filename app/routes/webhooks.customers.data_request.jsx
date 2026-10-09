@@ -1,8 +1,14 @@
 import { authenticate } from "../shopify.server";
+import { createPrismaClient } from "../db.server";
+import { recordDataRequest } from "../privacy-requests.server";
 
 export const action = async ({ request }) => {
-  await authenticate.webhook(request);
-  // Bulk accepts product, variant and collection values only. Merchant-provided
-  // text can still contain personal information; see the privacy review notes.
+  const { shop, payload } = await authenticate.webhook(request);
+  const db = createPrismaClient();
+  try {
+    await recordDataRequest(db, shop, payload);
+  } finally {
+    await db.$disconnect();
+  }
   return new Response();
 };

@@ -20,7 +20,7 @@ export default function Import() {
     mutation = useFetcher(),
     location = useLocation();
   const [csv, setCsv] = useState(""),
-    [selected, setSelected] = useState(""),
+    [selected, setSelected] = useState(new URLSearchParams(location.search).get("id") || ""),
     [confirmed, setConfirmed] = useState(false);
   const url = useCallback(
     (params = {}) => {

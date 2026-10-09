@@ -118,6 +118,7 @@ export function Workspace({ children, appName = APP_NAME, environment = "develop
     ["/app", "Fields & values", "field"],
     ["/app/metaobjects", "Metaobjects", "reference"],
     ["/app/import", "Import & export", "import"],
+    ["/app/privacy", "Privacy requests", "help"],
     ["/app/packages", "Plans", "plans"],
     ["/app/guide", "Help center", "help"],
   ];
