@@ -295,12 +295,16 @@ export async function retryImport(db, shop, input) {
   return publicJob(await readJob(db, shop, job.id));
 }
 
-// Older invalid previews could retain customer/order identifiers in raw CSV fields.
-// Remove the whole matching job so its preview and result snapshots are erased together.
+// Older previews might contain identifiers or contact text, including in invalid rows.
+// Remove the whole matching job so preview and result snapshots disappear together.
 export async function redactCustomerJobs(db, shop, payload) {
   const customerId = String(payload?.customer?.id ?? "");
   const orders = new Set((payload?.orders_to_redact ?? []).map(String));
-  if (!/^\d+$/.test(customerId) && orders.size === 0) return 0;
+  const email = String(payload?.customer?.email ?? "").trim().toLowerCase();
+  const phone = String(payload?.customer?.phone ?? "").trim();
+  const hasPhone = /^\+?[0-9 ()-]{7,}$/.test(phone);
+  if (!/^\d+$/.test(customerId) && orders.size === 0 && !email && !hasPhone)
+    return 0;
   const customerGid = `gid://shopify/Customer/${customerId}`;
   const orderGids = new Set([...orders].map((id) => `gid://shopify/Order/${id}`));
   const jobs = await db.metafieldJob.findMany({
@@ -310,10 +314,13 @@ export async function redactCustomerJobs(db, shop, payload) {
   let removed = 0;
   for (const job of jobs) {
     const rows = JSON.parse(job.rowsJson);
-    if (!rows.some((row) =>
-      (row.ownerType === "CUSTOMER" && row.ownerId === customerGid) ||
-      (row.ownerType === "ORDER" && orderGids.has(row.ownerId))
-    )) continue;
+    if (!rows.some((row) => {
+      const snapshot = JSON.stringify(row).toLowerCase();
+      return (row.ownerType === "CUSTOMER" && row.ownerId === customerGid) ||
+        (row.ownerType === "ORDER" && orderGids.has(row.ownerId)) ||
+        (email && snapshot.includes(email)) ||
+        (hasPhone && snapshot.includes(phone.toLowerCase()));
+    })) continue;
     const result = await db.metafieldJob.deleteMany({ where: { id: job.id, shop } });
     removed += result.count;
   }
