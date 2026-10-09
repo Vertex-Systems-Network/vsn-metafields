@@ -112,7 +112,7 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(releaseWorkflow, /staging-metafields-\$\{GITHUB_SHA:0:12\}/);
   assert.match(releaseWorkflow, /--no-release/);
   assert.doesNotMatch(releaseWorkflow, /github.event_name == 'push'/);
-  assert.match(releaseWorkflow, /app versions list/);
+  assert.doesNotMatch(releaseWorkflow, /app versions list/);
   assert.match(releaseWorkflow, /app release/);
   assert.match(releaseWorkflow, /--allow-updates/);
   assert.doesNotMatch(releaseWorkflow, /--allow-deletes/);
