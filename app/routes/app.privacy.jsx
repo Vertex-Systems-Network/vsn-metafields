@@ -28,6 +28,8 @@ export const action = async ({ request }) => {
   }
 };
 
+export const headers = () => ({ "Cache-Control": "no-store" });
+
 export default function PrivacyRequests() {
   const { requests } = useLoaderData();
   const fetcher = useFetcher();
