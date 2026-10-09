@@ -6,6 +6,9 @@
   "assets": {
     "directory": "build/client"
   },
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
   "observability": {
     "enabled": true
   },
