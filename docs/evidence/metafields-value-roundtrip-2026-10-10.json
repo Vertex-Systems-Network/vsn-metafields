@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-10",
+  "scope": "Staging-only manual QA of product metafield value save, readback, validation and cleanup. No live/production actions.",
+  "environment": {
+    "shop": "staging-oath3rth",
+    "app": "VSN | Metafields (Staging)",
+    "resource": "The Complete Snowboard",
+    "definition": "vsn_qa_20261004.care",
+    "type": "single_line_text_field",
+    "validation": {
+      "min_characters": 3,
+      "max_characters": 120
+    }
+  },
+  "checks": [
+    {
+      "case": "Save and read back value",
+      "result": "passed",
+      "evidence": "Saved 'Staging QA round-trip 2026-10-10'; after app reload and data load, the resource value field displayed the exact saved string."
+    },
+    {
+      "case": "Remove temporary test value",
+      "result": "passed",
+      "evidence": "Clicked Remove value and confirmed the staging-only removal dialog. After reload and data load, the value field was empty, Save value and Remove value were disabled, and the app displayed 'Value removed.'"
+    },
+    {
+      "case": "Minimum-length rejection",
+      "result": "passed",
+      "evidence": "Entered 'ab' and attempted Save. The app displayed 'Text violates min length 3.' and Remove value remained disabled. Cleared the unsaved draft; no value was written."
+    },
+    {
+      "case": "Page and file resource picker selection",
+      "result": "passed_for_selection_only",
+      "evidence": "Earlier staging session selected page and media resources and displayed typed Shopify GIDs. Reference selection save/readback was not part of this value round-trip."
+    }
+  ],
+  "limitations": [
+    "This is manual staging UI evidence; it does not replace automated tests or type-aware conflict and resource-reference save/readback coverage.",
+    "No screenshot artifact was retained in the repository for this check.",
+    "No live deployment, production data change, or app release was performed."
+  ]
+}
