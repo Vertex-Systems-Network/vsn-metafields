@@ -76,7 +76,7 @@ export async function completeDataRequest(db, shop, id, confirmation) {
   if (confirmation !== `FULFILLED:${id}`) throw new RangeError("Explicit fulfillment confirmation required.");
   const result = await db.privacyRequest.updateMany({
     where: { id, shop, status: "pending" },
-    data: { status: "fulfilled", completedAt: new Date(), customerEmail: null, customerPhone: null },
+    data: { status: "fulfilled", completedAt: new Date(), customerId: null, customerEmail: null, customerPhone: null, ordersJson: "[]" },
   });
   if (result.count !== 1) throw new RangeError("Request was already fulfilled or not found.");
 }
