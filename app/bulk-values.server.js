@@ -302,8 +302,8 @@ export async function redactCustomerJobs(db, shop, payload) {
   const orders = new Set((payload?.orders_to_redact ?? []).map(String));
   const email = String(payload?.customer?.email ?? "").trim().toLowerCase();
   const phone = String(payload?.customer?.phone ?? "").trim();
-  const hasPhone = /^\\+?[0-9 ()-]{7,}$/.test(phone);
-  if (!/^\\d+$/.test(customerId) && orders.size === 0 && !email && !hasPhone)
+  const hasPhone = /^\+?[0-9 ()-]{7,}$/.test(phone);
+  if (!/^\d+$/.test(customerId) && orders.size === 0 && !email && !hasPhone)
     return 0;
   const customerGid = `gid://shopify/Customer/${customerId}`;
   const orderGids = new Set([...orders].map((id) => `gid://shopify/Order/${id}`));
