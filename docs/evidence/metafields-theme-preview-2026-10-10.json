@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-10",
+  "scope": "Staging-only manual QA of VSN theme app blocks in the unpublished Horizon theme. No app deployment, theme publication, or Live/production action.",
+  "environment": {
+    "shop": "staging-oath3rth",
+    "app": "VSN | Metafields (Staging)",
+    "theme": {
+      "name": "Horizon",
+      "id": "194100724084",
+      "status": "unpublished draft"
+    },
+    "product": "The Complete Snowboard",
+    "metafield": {
+      "namespace": "vsn_theme_smoke_20261009",
+      "key": "material",
+      "value": "Staging theme smoke: stainless steel, 500 g",
+      "storefront_access": "public read"
+    }
+  },
+  "checks": [
+    {
+      "case": "Single Field block configuration persistence",
+      "result": "passed",
+      "evidence": "Added Single field to the Horizon Default product template, set Resource=Product and namespace/key to vsn_theme_smoke_20261009.material, saved, reloaded the theme editor, and confirmed the saved settings remained."
+    },
+    {
+      "case": "Single Field public value rendering",
+      "result": "passed",
+      "evidence": "After save and again after editor reload, the unpublished Horizon product preview rendered the label 'Details' and exact value 'Staging theme smoke: stainless steel, 500 g'."
+    },
+    {
+      "case": "Specifications public value rendering",
+      "result": "passed",
+      "evidence": "The same Horizon product preview rendered the Specifications block with Material and the exact public value."
+    },
+    {
+      "case": "Legacy draft theme compatibility",
+      "result": "not_verified",
+      "evidence": "Earlier inspection of debut-vintage-theme showed its legacy product template without an app-block insertion point. It was not modified or published."
+    }
+  ],
+  "limitations": [
+    "Only one unpublished theme was verified for actual public-value rendering; two-theme acceptance remains open.",
+    "Specifications ordering, multiple instances, and full setting usability were not exhaustively tested.",
+    "Mobile-preview mode was opened, but this pass does not certify responsive/accessibility acceptance.",
+    "This evidence is manual UI verification; automated checks and Cloudflare request-log review are separate.",
+    "No screenshot artifact was retained in the repository.",
+    "No live deployment, theme publication, production data change, or app release was performed."
+  ]
+}
