@@ -48,3 +48,19 @@ model MetafieldJob {
   @@index([shop, createdAt])
   @@index([expiresAt])
 }
+
+model PrivacyRequest {
+  id            String    @id
+  shop          String
+  customerId    String?
+  customerEmail String?
+  customerPhone String?
+  ordersJson    String    @default("[]")
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+  updatedAt     DateTime  @updatedAt
+
+  @@index([shop, createdAt])
+  @@index([status, completedAt])
+}
