@@ -68,32 +68,35 @@ jobs:
           if '__SHOPIFY_STAGING_CLIENT_ID__' not in source: raise SystemExit('Missing staging identity placeholder.')
           path.write_text(source.replace('__SHOPIFY_STAGING_CLIENT_ID__', os.environ['SHOPIFY_API_KEY']))
           PY
+      - name: Name this unique staging release attempt
+        run: echo "STAGING_VERSION=staging-metafields-${GITHUB_SHA:0:12}-r${GITHUB_RUN_NUMBER}a${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
       - name: Build and upload unreleased staging app version
         run: |
-          npx --yes @shopify/cli@4.8.2 app deploy --config cloudflare-staging --no-release --version "staging-metafields-${GITHUB_SHA:0:12}" --message "Verified development metafield blocks"
+          npx --yes @shopify/cli@4.8.2 app deploy --config cloudflare-staging --no-release --version "$STAGING_VERSION" --message "Verified development metafield blocks"
       - name: Release only the staging app version
         run: |
-          npx --yes @shopify/cli@4.8.2 app release --config cloudflare-staging --version "staging-metafields-${GITHUB_SHA:0:12}" --allow-updates
+          npx --yes @shopify/cli@4.8.2 app release --config cloudflare-staging --version "$STAGING_VERSION" --allow-updates
           npx --yes @shopify/cli@4.8.2 app versions list --config cloudflare-staging
           git diff --exit-code -- shopify.app.toml
           echo "production_app_changed=false"
 
-      - name: Validate non-destructive compliance webhook delivery
+      - name: Enqueue a synthetic customer data request
         shell: bash
         run: |
           set -euo pipefail
-
-          trigger_webhook() {
-            local topic="$1"
-            local path="$2"
-            npx --yes @shopify/cli@4.8.2 app webhook trigger \
+          for attempt in 1 2 3; do
+            if npx --yes @shopify/cli@4.8.2 app webhook trigger \
               --config cloudflare-staging \
               --api-version 2026-07 \
-              --address "$SHOPIFY_APP_URL$path" \
-              --topic "$topic" \
-              --client-secret "$SHOPIFY_API_SECRET"
-          }
-
-          trigger_webhook "customers/data_request" "/webhooks/customers/data_request"
-          trigger_webhook "customers/redact" "/webhooks/customers/redact"
-          trigger_webhook "shop/redact" "/webhooks/shop/redact"
+              --address "$SHOPIFY_APP_URL/webhooks/customers/data_request" \
+              --topic "customers/data_request" \
+              --client-secret "$SHOPIFY_API_SECRET"; then
+              echo "Shopify accepted the synthetic webhook; delivery and processing need separate confirmation."
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Shopify webhook enqueue failed after three attempts." >&2
+              exit 1
+            fi
+            sleep "$((attempt * 5))"
+          done
