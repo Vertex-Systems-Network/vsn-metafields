@@ -222,7 +222,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Horizon Draft Single field added/saved/reloaded/reopened. Actual configured public value rendering in two unpublished themes remains required."
+        "Horizon draft Single Field configured for a public product metafield; the exact value persisted and rendered after theme-editor reload. Verification in a second compatible unpublished theme remains required."
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -245,7 +245,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-theme-preview-2026-10-10.json"
       ]
     },
     {
@@ -260,7 +261,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Horizon Draft Specifications added/saved/reloaded; controls observed. Two-theme data/layout/reordering/multiple-instance and45-setting usability acceptance remain required."
+        "Horizon draft Specifications rendered the configured public Material value. Two-theme layout, reordering, multiple-instance behavior and 45-setting usability acceptance remain required."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -283,7 +284,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-theme-preview-2026-10-10.json"
       ]
     },
     {
