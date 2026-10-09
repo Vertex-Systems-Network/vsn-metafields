@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests } from "../app/privacy-requests.server.js";
+import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests } from "../app/privacy-requests.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-privacy-"));
 let db;
 before(async () => {
@@ -21,6 +21,13 @@ before(async () => {
 after(async () => { await db?.$disconnect(); rmSync(folder,{recursive:true,force:true}); });
 const shop = "privacy-test.myshopify.com";
 const payload = {shop_domain:shop,data_request:{id:42},customer:{id:null,email:"Person@Example.COM",phone:null},orders_requested:[]};
+test("Shopify CLI placeholder mismatch is acknowledged only for signed test delivery", () => {
+  const fixture = { ...payload, shop_domain: "{shop}.myshopify.com" };
+  assert.equal(isSyntheticShopMismatch("shop.myshopify.com", fixture, "true"), true);
+  assert.equal(isSyntheticShopMismatch("shop.myshopify.com", fixture, null), false);
+  assert.equal(isSyntheticShopMismatch(shop, payload, "true"), false);
+  assert.throws(() => parseDataRequest("shop.myshopify.com", fixture), /Shop mismatch/);
+});
 test("authenticated request idempotency and shop isolation", async () => {
   assert.throws(()=>parseDataRequest("other.myshopify.com",payload),/Shop mismatch/);
   await recordDataRequest(db,shop,payload);
