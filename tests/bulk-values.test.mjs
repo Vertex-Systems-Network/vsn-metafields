@@ -346,3 +346,28 @@ test("customer redaction removes only matching legacy jobs for the authenticated
   assert.ok(await db.metafieldJob.findUnique({ where: { id: "redact-other-shop" } }));
   assert.ok(await db.metafieldJob.findUnique({ where: { id: "redact-unrelated" } }));
 });
+
+test("email-only customer redaction removes matching snapshots without touching other shops", async () => {
+  const match = JSON.stringify([{
+    ownerType: "PRODUCT", ownerId: "gid://shopify/Product/900",
+    value: "Contact NAME@example.com", valid: true,
+  }]);
+  const unrelated = JSON.stringify([{
+    ownerType: "PRODUCT", ownerId: "gid://shopify/Product/901",
+    value: "No personal contact", valid: true,
+  }]);
+  for (const [id, jobShop, rowsJson] of [
+    ["email-match", shop, match],
+    ["email-other-shop", "unrelated.myshopify.com", match],
+    ["email-unrelated", shop, unrelated],
+  ]) await db.metafieldJob.create({ data: {
+    id, shop: jobShop, rowsJson, inputHash: "legacy",
+    expiresAt: new Date(Date.now() + 60000),
+  } });
+  assert.equal(await redactCustomerJobs(db, shop, {
+    customer: { email: "name@example.com" }, orders_to_redact: [],
+  }), 1);
+  assert.equal(await db.metafieldJob.findUnique({ where: { id: "email-match" } }), null);
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "email-other-shop" } }));
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "email-unrelated" } }));
+});
