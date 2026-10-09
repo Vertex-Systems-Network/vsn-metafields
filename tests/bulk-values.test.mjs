@@ -12,6 +12,7 @@ import {
   retryImport,
   readJob,
   redactCustomerJobs,
+  purgeExpiredJobs,
 } from "../app/bulk-values.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-bulk-tests-"));
 let db;
@@ -370,4 +371,31 @@ test("email-only customer redaction removes matching snapshots without touching 
   assert.equal(await db.metafieldJob.findUnique({ where: { id: "email-match" } }), null);
   assert.ok(await db.metafieldJob.findUnique({ where: { id: "email-other-shop" } }));
   assert.ok(await db.metafieldJob.findUnique({ where: { id: "email-unrelated" } }));
+});
+
+test("scheduled retention physically removes expired jobs across shops and preserves live jobs", async () => {
+  const now = new Date();
+  for (const [id, jobShop, expiresAt] of [
+    ["expired-a", shop, new Date(now.getTime() - 1000)],
+    ["expired-b", "unrelated.myshopify.com", now],
+    ["not-expired", shop, new Date(now.getTime() + 60000)],
+  ]) await db.metafieldJob.create({ data: {
+    id, shop: jobShop, rowsJson: "[]", inputHash: "test", expiresAt,
+  } });
+  assert.equal(await purgeExpiredJobs(db, now), 2);
+  assert.equal(await db.metafieldJob.findUnique({ where: { id: "expired-a" } }), null);
+  assert.equal(await db.metafieldJob.findUnique({ where: { id: "expired-b" } }), null);
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "not-expired" } }));
+});
+
+test("customer redaction also removes matching legacy result snapshots", async () => {
+  await db.metafieldJob.create({ data: {
+    id: "result-snapshot", shop, rowsJson: JSON.stringify([row(987)]),
+    resultsJson: JSON.stringify([{ row: 1, error: "Contact NAME@example.com" }]),
+    inputHash: "legacy", expiresAt: new Date(Date.now() + 60000),
+  } });
+  assert.equal(await redactCustomerJobs(db, shop, {
+    customer: { email: "name@example.com" }, orders_to_redact: [],
+  }), 1);
+  assert.equal(await db.metafieldJob.findUnique({ where: { id: "result-snapshot" } }), null);
 });
