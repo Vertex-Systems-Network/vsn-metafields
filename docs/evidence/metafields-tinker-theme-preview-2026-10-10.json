@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-10",
+  "scope": "Staging-only manual QA in the unpublished Tinker theme. No app deployment, theme publication, or Live/production action.",
+  "environment": {
+    "shop": "staging-oath3rth",
+    "app": "VSN | Metafields (Staging)",
+    "theme": {
+      "name": "Tinker",
+      "id": "194546532724",
+      "status": "unpublished draft"
+    },
+    "product": "The Complete Snowboard",
+    "metafield": {
+      "namespace": "vsn_theme_smoke_20261009",
+      "key": "material",
+      "expected_value": "Staging theme smoke: stainless steel, 500 g",
+      "source_evidence": "docs/evidence/metafields-theme-preview-2026-10-10.json"
+    }
+  },
+  "checks": [
+    {
+      "case": "Theme editor supports adding Single field app block",
+      "result": "passed",
+      "evidence": "Tinker Default product > Product information > Details exposed the VSN | Metafields (Staging) Single field app block; block was added to the unpublished draft."
+    },
+    {
+      "case": "Block settings save",
+      "result": "passed",
+      "evidence": "Resource=Product, namespace=vsn_theme_smoke_20261009, key=material, label=Details were saved; Save became disabled and the editor reported changes saved."
+    },
+    {
+      "case": "Single Field value rendering",
+      "result": "failed",
+      "evidence": "The Tinker product preview showed the Details label with an empty value while the source/key settings were configured. No root cause established; not treated as pass."
+    },
+    {
+      "case": "Theme publication",
+      "result": "not_performed",
+      "evidence": "Tinker remains an unpublished staging draft; Publish was not clicked."
+    }
+  ],
+  "limitations": [
+    "This result is a theme-specific render failure/verification blocker, not a confirmed root cause or code diagnosis.",
+    "Specifications was not tested in Tinker.",
+    "No mobile/responsive, accessibility, ordering, or multiple-instance acceptance is claimed.",
+    "No app deployment, live deployment, theme publication, or production-data change was performed."
+  ]
+}
