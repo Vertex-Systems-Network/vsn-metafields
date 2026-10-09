@@ -183,7 +183,7 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Staging picker check on 2026-10-10: file_reference and page_reference searches returned selectable resources and populated typed Shopify GIDs; selections were not saved. Still required: a valid value save/reopen, type-aware invalid/conflict behavior, and end-to-end evidence."
+        "Staging QA on 2026-10-10: page_reference and file_reference pickers returned selectable resources and typed Shopify GIDs (selection only); single_line_text_field value save/readback passed, then the temporary value was removed and blank state confirmed after reload; min-length violation returned 'Text violates min length 3.' with no saved value. Remaining: type-aware invalid/conflict behavior across supported types, resource-reference save/readback, and complete end-to-end evidence."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -206,7 +206,8 @@
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-value-roundtrip-2026-10-10.json"
       ]
     },
     {
