@@ -222,7 +222,7 @@
       "priority": 5,
       "status": "verification_required",
       "blockers": [
-        "Horizon draft Single Field configured for a public product metafield; exact value persisted and rendered after editor reload. Tinker draft accepts saved Product/namespace/key settings but displays an empty value for the same product source; second-theme rendering is not verified and root cause is unknown. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
+        "Horizon and Tinker unpublished drafts both render the configured public product metafield after saving/reloading. Tinker settings persist when entered through normal keyboard UI input. Manual two-theme render gate is met; remaining module-specific automated contract/end-to-end evidence must be reconciled before completion. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
       ],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
@@ -262,7 +262,7 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Horizon draft Specifications rendered the configured public Material value. Tinker Single Field showed a blank value with saved source/key; Specifications has not been tested there. Two-theme rendering, layout, reordering, multiple instances, and 45-setting usability remain open. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
+        "Horizon and Tinker unpublished drafts both render the public Material value in Specifications after saving/reloading. Two-theme public-value rendering is verified. Reordering, multiple instances, full 45-setting usability and broader automated acceptance remain open. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
