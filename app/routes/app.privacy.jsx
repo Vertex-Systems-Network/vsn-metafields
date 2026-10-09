@@ -39,7 +39,7 @@ export default function PrivacyRequests() {
       <PageIntro eyebrow="Privacy" title="Review customer data requests"
         description="Shopify sends requests here. Review saved import snapshots, provide any personal data directly to the store owner, then record fulfillment." />
       <s-banner tone="warning">
-        A receipt is not fulfillment. Check all saved imports for personal information in merchant text, including unmatched jobs. Import snapshots expire after seven days; check Shopify's own records separately. Respond to the store owner within 30 days.
+        A receipt is not fulfillment. Check all saved imports for personal information in merchant text, including unmatched jobs. Import snapshots expire after seven days; check Shopify&apos;s own records separately. Respond to the store owner within 30 days.
       </s-banner>
       <s-section heading={`Pending requests (${pending.length})`}>
         {!pending.length && <s-text>No pending requests.</s-text>}
