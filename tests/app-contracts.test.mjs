@@ -120,8 +120,10 @@ test("Shopify staging config uses a dedicated app identity and declares required
   assert.match(releaseWorkflow, /Refusing to release staging version with the production Shopify client ID/);
   assert.match(releaseWorkflow, /vsn-metafields-staging\.vertexsystemsnetwork\.workers\.dev/);
   assert.match(releaseWorkflow, /customers\/data_request/);
-  assert.match(releaseWorkflow, /customers\/redact/);
-  assert.match(releaseWorkflow, /shop\/redact/);
+  assert.doesNotMatch(releaseWorkflow, /--topic "customers\/redact"/);
+  assert.doesNotMatch(releaseWorkflow, /--topic "shop\/redact"/);
+  assert.match(releaseWorkflow, /GITHUB_RUN_NUMBER/);
+  assert.match(releaseWorkflow, /GITHUB_RUN_ATTEMPT/);
   assert.doesNotMatch(releaseWorkflow, /trigger_webhook "app\/uninstalled"/);
   assert.doesNotMatch(releaseWorkflow, /trigger_webhook "app\/scopes_update"/);
 });
