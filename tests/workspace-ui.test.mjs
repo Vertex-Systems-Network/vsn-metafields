@@ -262,12 +262,13 @@ test("workspace sidebar preserves embedded context without the workspace menu to
   const workspaceSource = readFileSync("app/components/Workspace.jsx", "utf8");
   assert.match(workspaceSource, /onNavigate=\{\(\) => setCollapsed\(false\)\}/);
   assert.match(html, /aria-current="page"/);
-  assert.equal((html.match(/class="vsn-nav-link/g) || []).length, 5);
-  assert.equal((html.match(/shop=example.myshopify.com/g) || []).length, 8);
+  assert.equal((html.match(/class="vsn-nav-link/g) || []).length, 6);
+  assert.equal((html.match(/shop=example.myshopify.com/g) || []).length, 9);
   assert.ok(html.indexOf("<aside") < html.indexOf('class="vsn-content"'));
   for (const route of [
     "app.metaobjects.jsx",
     "app.import.jsx",
+    "app.privacy.jsx",
     "app.packages.jsx",
     "app.guide.jsx",
   ])
