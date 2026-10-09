@@ -1,6 +1,12 @@
 const numericId = (value) => /^\d+$/.test(String(value ?? "")) ? String(value) : "";
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
+// Shopify CLI's signed sample may have a placeholder shop_domain.
+// Acknowledge a test-only mismatch without creating a merchant request.
+export function isSyntheticShopMismatch(shop, payload, testHeader) {
+  return testHeader === "true" && Boolean(shop) && payload?.shop_domain !== shop;
+}
+
 export function parseDataRequest(shop, payload) {
   if (!shop || payload?.shop_domain !== shop) throw new RangeError("Shop mismatch.");
   const requestId = numericId(payload?.data_request?.id);
