@@ -47,6 +47,8 @@ test("merchant confirmation clears contact data; completed record expires", asyn
   const completed=await db.privacyRequest.findUnique({where:{id}});
   assert.equal(completed.status,"fulfilled");
   assert.equal(completed.customerEmail,null);
+  assert.equal(completed.customerId,null);
+  assert.equal(completed.ordersJson,"[]");
   await recordDataRequest(db,shop,payload);
   assert.equal((await db.privacyRequest.findUnique({where:{id}})).status,"fulfilled");
   assert.equal(await purgeCompletedRequests(db,new Date(Date.now()+31*86400000)),1);
