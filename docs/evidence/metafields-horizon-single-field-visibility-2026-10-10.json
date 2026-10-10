@@ -1,0 +1,43 @@
+{
+  "workUnit": "META-005/META-006",
+  "checkedAt": "2026-10-10",
+  "environment": "Shopify staging store staging-oath3rth",
+  "theme": {
+    "name": "Horizon Info Draft",
+    "status": "unpublished",
+    "id": "194100724084"
+  },
+  "previewResource": "The Complete Snowboard",
+  "configuredMetafield": {
+    "namespace": "vsn_theme_smoke_20261009",
+    "key": "material",
+    "label": "Material",
+    "value": "Staging theme smoke: stainless steel, 500 g"
+  },
+  "checks": [
+    {
+      "name": "single_field_show_label",
+      "result": "pass",
+      "details": "The Single field block used Product resource and the configured namespace/key. With Show label enabled, Details and the stored value rendered; with it disabled, the label disappeared and the same value remained. Reload restored Show label enabled and Save disabled."
+    },
+    {
+      "name": "specifications_device_visibility",
+      "result": "pass",
+      "details": "Temporarily set Specifications to Mobile only. It was absent from the desktop preview and rendered on the editor's mobile preview. Reload restored All devices, the block and value, and Save disabled."
+    },
+    {
+      "name": "empty_rows_toggle",
+      "result": "inconclusive",
+      "details": "Toggled Hide empty rows off and back through reload. This block had no configured keys for fields 2–5, so it did not create empty row candidates; this did not verify the placeholder behavior."
+    }
+  ],
+  "changesPersisted": false,
+  "themePublished": false,
+  "liveDeployment": false,
+  "limitations": [
+    "Smoke-level editor preview only; no saved/reopened theme changes.",
+    "No keyboard, screen-reader, zoom/reflow, or full accessibility certification.",
+    "No full 45-setting usability, value-type, override, fallback, private-value, or two-theme acceptance is claimed.",
+    "No screenshot artifact is stored in this evidence record."
+  ]
+}
