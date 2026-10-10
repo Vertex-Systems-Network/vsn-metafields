@@ -183,7 +183,7 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Staging QA on 2026-10-10: page_reference and file_reference pickers returned selectable resources and typed Shopify GIDs (selection only); single_line_text_field value save/readback passed, then the temporary value was removed and blank state confirmed after reload; min-length violation returned 'Text violates min length 3.' with no saved value. Remaining: type-aware invalid/conflict behavior across supported types, resource-reference save/readback, and complete end-to-end evidence."
+        "Staging QA on 2026-10-10: single_line_text_field save/readback and cleanup passed; min-length violation was rejected without saving; page_reference and file_reference picker selections populated typed Shopify GIDs, saved, and read back after a full app reload using the existing Page (QA) and File (QA) definitions on The Complete Snowboard. Temporary reference values were removed and the app confirmed removal. Remaining: type-aware invalid/conflict behavior across supported types and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",

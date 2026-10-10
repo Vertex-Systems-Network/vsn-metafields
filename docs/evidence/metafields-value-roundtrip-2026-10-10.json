@@ -1,6 +1,6 @@
 {
   "date": "2026-10-10",
-  "scope": "Staging-only manual QA of product metafield value save, readback, validation and cleanup. No live/production actions.",
+  "scope": "Staging-only manual QA of typed product metafield value save, readback, validation and cleanup. No live/production actions.",
   "environment": {
     "shop": "staging-oath3rth",
     "app": "VSN | Metafields (Staging)",
@@ -29,14 +29,20 @@
       "evidence": "Entered 'ab' and attempted Save. The app displayed 'Text violates min length 3.' and Remove value remained disabled. Cleared the unsaved draft; no value was written."
     },
     {
-      "case": "Page and file resource picker selection",
-      "result": "passed_for_selection_only",
-      "evidence": "Earlier staging session selected page and media resources and displayed typed Shopify GIDs. Reference selection save/readback was not part of this value round-trip."
+      "case": "Page-reference save, readback and cleanup",
+      "result": "passed",
+      "evidence": "On The Complete Snowboard, selected the existing Page (QA) definition, searched for Contact, and selected it from the app picker. The editor populated a typed Shopify Page GID; save returned 'Value saved.' After a full app reload and reselecting the same product/definition, the exact GID was read back. Removed the temporary value; the app confirmed 'Value removed.'"
+    },
+    {
+      "case": "File-reference save, readback and cleanup",
+      "result": "passed",
+      "evidence": "On The Complete Snowboard, selected the existing File (QA) definition, searched for snowboard, and selected an existing ready media image from the app picker. The editor populated a typed Shopify MediaImage GID; save returned 'Value saved.' After a full app reload and reselecting the same product/definition, the exact GID was read back. Removed the temporary value; the app confirmed 'Value removed.'"
     }
   ],
   "limitations": [
-    "This is manual staging UI evidence; it does not replace automated tests or type-aware conflict and resource-reference save/readback coverage.",
-    "No screenshot artifact was retained in the repository for this check.",
-    "No live deployment, production data change, or app release was performed."
+    "Manual staging UI evidence covers one existing page and one existing media file on one product; it does not replace automated tests or broader end-to-end acceptance.",
+    "Invalid, stale, conflicting and unsupported reference behavior remains unverified, as do other supported value types.",
+    "No screenshot artifact was retained in the repository.",
+    "No live deployment, production data change, theme publish or app release was performed."
   ]
 }
