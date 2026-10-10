@@ -18,9 +18,9 @@ export default async function handleRequest(
     <ServerRouter context={reactRouterContext} url={request.url} />,
     {
       signal: request.signal,
-      onError(error) {
+      onError() {
         didError = true;
-        console.error(error);
+        console.error("[vsn-ssr] render failed");
       },
     },
   );

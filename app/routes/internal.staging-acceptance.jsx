@@ -96,7 +96,7 @@ export const loader = async ({ request }) => {
   try {
     storedSessions = await sessionStorage.findSessionsByShop(shop);
   } catch (error) {
-    console.error("[vsn-staging-acceptance] session-store read failed", error);
+    console.error("[vsn-staging-acceptance] session-store read failed");
     return noStoreJson(
       {
         ok: false,
@@ -136,10 +136,7 @@ export const loader = async ({ request }) => {
   try {
     ({ admin, session } = await unauthenticated.admin(shop));
   } catch (error) {
-    console.error(
-      "[vsn-staging-acceptance] offline session unavailable",
-      error,
-    );
+    console.error("[vsn-staging-acceptance] offline session unavailable");
     return noStoreJson(
       {
         ok: false,
@@ -170,10 +167,7 @@ export const loader = async ({ request }) => {
       }
     `);
   } catch (error) {
-    console.error(
-      "[vsn-staging-acceptance] admin GraphQL request failed",
-      error,
-    );
+    console.error("[vsn-staging-acceptance] admin GraphQL request failed");
 
     let directProbe = {
       attempted: false,
@@ -243,10 +237,7 @@ export const loader = async ({ request }) => {
           errorMessages,
         };
       } catch (directError) {
-        console.error(
-          "[vsn-staging-acceptance] direct GraphQL probe failed",
-          directError,
-        );
+        console.error("[vsn-staging-acceptance] direct GraphQL probe failed");
         directProbe = {
           attempted: true,
           ok: false,

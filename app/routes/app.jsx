@@ -104,10 +104,6 @@ export const loader = async ({ request, context }) => {
             ? "Error"
             : typeof error,
       responseStatus: error instanceof Response ? error.status : undefined,
-      responseStatusText:
-        error instanceof Response ? error.statusText : undefined,
-      errorName: error instanceof Error ? error.name : undefined,
-      errorMessage: error instanceof Error ? error.message : undefined,
       ...sessionDiagnostic,
     };
 

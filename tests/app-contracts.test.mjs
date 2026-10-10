@@ -170,6 +170,26 @@ test("staging acceptance probe is signed, staging-only, and read-only", () => {
   assert.match(workflow, /urllib\.error\.HTTPError/);
 });
 
+test("staging observability keeps app logs but excludes request invocations and raw exceptions", () => {
+  const wrangler = JSON.parse(read("wrangler.jsonc"));
+  assert.equal(wrangler.observability.redact_query_string, true);
+  assert.equal(wrangler.observability.logs.enabled, true);
+  assert.equal(wrangler.observability.logs.persist, true);
+  assert.equal(wrangler.observability.logs.invocation_logs, false);
+
+  const appRoute = read("app/routes/app.jsx");
+  const statusRoute = read("app/routes/app.api.status.jsx");
+  const stagingProbe = read("app/routes/internal.staging-acceptance.jsx");
+  const serverEntry = read("app/entry.server.jsx");
+  assert.doesNotMatch(appRoute, /errorMessage:\s*error\.message/);
+  assert.doesNotMatch(statusRoute, /errorMessage:\s*error\.message/);
+  assert.doesNotMatch(serverEntry, /console\.error\(error\)/);
+  assert.doesNotMatch(
+    stagingProbe,
+    /console\.error\([\s\S]{0,120},\s*(?:error|directError)\s*,?\s*\)/,
+  );
+});
+
 test("public health contract exposes only deployment-safe plan metadata", () => {
   const health = read("app/routes/healthz.jsx");
   const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
