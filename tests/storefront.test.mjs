@@ -36,7 +36,7 @@ const schema = (name) =>
       /{% schema %}([\s\S]*?){% endschema %}/,
     )[1],
   );
-async function renderBlock(name, overrides = {}, context = {}) {
+async function renderBlock(name, overrides = {}, context = {}, omittedSettings = []) {
   const defaults = Object.fromEntries(
     schema(name)
       .settings.filter((s) => s.id)
@@ -47,7 +47,14 @@ async function renderBlock(name, overrides = {}, context = {}) {
     "",
   );
   return engine.parseAndRender(source, {
-    block: { id: "test-1", settings: { ...defaults, ...overrides } },
+    block: {
+      id: "test-1",
+      settings: Object.fromEntries(
+        Object.entries({ ...defaults, ...overrides }).filter(
+          ([id]) => !omittedSettings.includes(id),
+        ),
+      ),
+    },
     section: { id: "product-section" },
     request: { page_type: "product", design_mode: false },
     ...context,
@@ -244,6 +251,7 @@ test("specifications fall back to an em dash for older blocks without empty row 
       hide_empty: false,
     },
     { product: { id: 1, metafields: { custom: {} } } },
+    ["empty_text"],
   );
   assert.match(output, /<dt>Missing field<\/dt><dd>—<\/dd>/);
 });
