@@ -1,0 +1,51 @@
+{
+  "workUnit": "META-006",
+  "checkedAt": "2026-10-10",
+  "environment": "Shopify staging store staging-oath3rth",
+  "theme": {
+    "name": "Horizon Info Draft",
+    "status": "unpublished",
+    "editorUrl": "https://admin.shopify.com/store/staging-oath3rth/themes/194100724084/editor?previewPath=%2Fproducts%2Fthe-complete-snowboard%3Fview%3D__DEFAULT__"
+  },
+  "previewResource": "The Complete Snowboard",
+  "configuredMetafield": {
+    "namespace": "vsn_theme_smoke_20261009",
+    "key": "material",
+    "label": "Material",
+    "value": "Staging theme smoke: stainless steel, 500 g"
+  },
+  "checks": [
+    {
+      "name": "layouts",
+      "result": "pass",
+      "details": "Rows, Table style, and Cards rendered the same configured public Material value. Rows was restored; Save returned disabled."
+    },
+    {
+      "name": "block_order",
+      "result": "pass",
+      "details": "Specifications was moved above Single field in the editor and rendered in that order. Reload discarded the unsaved reorder and restored the persisted order."
+    },
+    {
+      "name": "duplicate_instance",
+      "result": "pass",
+      "details": "Duplicating Specifications created a second instance; both rendered the same configured Material value. Reload discarded the unsaved duplicate; one persisted instance remained and Save was disabled."
+    },
+    {
+      "name": "reload_cleanup",
+      "result": "pass",
+      "details": "After reload, one Specifications block rendered the configured value in the saved order; Save was disabled."
+    },
+    {
+      "name": "mobile_preview",
+      "result": "pass",
+      "details": "On Shopify's mobile theme-editor preview, the card remained within the viewport and the label/value wrapped cleanly; no clipping was visible. This is a narrow visual smoke, not an accessibility/reflow certification."
+    }
+  ],
+  "changesPersisted": false,
+  "themePublished": false,
+  "liveDeployment": false,
+  "limitations": [
+    "No keyboard, screen-reader, responsive/zoom, or full 45-setting usability certification is claimed.",
+    "No screenshot artifact is stored in this evidence record."
+  ]
+}
