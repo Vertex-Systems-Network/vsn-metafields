@@ -58,7 +58,7 @@
   {%- capture value_output -%}{%- render 'vsn-field-value', field: field, settings: block.settings -%}{%- endcapture -%}
   {%- if field_key != blank -%}
     {%- if value_output != blank or block.settings.hide_empty == false -%}
-      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | escape }}{% endif %}</dd></div>
+      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
     {%- endif -%}
   {%- endif -%}
 {%- endfor -%}
