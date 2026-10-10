@@ -217,3 +217,33 @@ test("specifications preserve configured order and hide empty fields", async () 
   assert.match(output, />0</);
   assert.doesNotMatch(output, /<dt>missing/);
 });
+test("specifications show the configured placeholder when empty rows are allowed", async () => {
+  const output = await renderBlock(
+    "vsn-specifications",
+    {
+      source: "product",
+      namespace: "custom",
+      key_1: "missing",
+      label_1: "Missing field",
+      hide_empty: false,
+      empty_text: "Not provided",
+    },
+    { product: { id: 1, metafields: { custom: {} } } },
+  );
+  assert.match(output, /<dt>Missing field<\/dt><dd>Not provided<\/dd>/);
+});
+
+test("specifications fall back to an em dash for older blocks without empty row text", async () => {
+  const output = await renderBlock(
+    "vsn-specifications",
+    {
+      source: "product",
+      namespace: "custom",
+      key_1: "missing",
+      label_1: "Missing field",
+      hide_empty: false,
+    },
+    { product: { id: 1, metafields: { custom: {} } } },
+  );
+  assert.match(output, /<dt>Missing field<\/dt><dd>—<\/dd>/);
+});
