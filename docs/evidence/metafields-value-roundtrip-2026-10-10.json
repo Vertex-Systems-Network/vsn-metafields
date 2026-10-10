@@ -37,12 +37,17 @@
       "case": "File-reference save, readback and cleanup",
       "result": "passed",
       "evidence": "On The Complete Snowboard, selected the existing File (QA) definition, searched for snowboard, and selected an existing ready media image from the app picker. The editor populated a typed Shopify MediaImage GID; save returned 'Value saved.' After a full app reload and reselecting the same product/definition, the exact GID was read back. Removed the temporary value; the app confirmed 'Value removed.'"
+    },
+    {
+      "case": "Stale page-reference write conflict",
+      "result": "passed",
+      "evidence": "Two staging app tabs loaded the same empty Page (QA) value on The Complete Snowboard. The first tab saved Contact. The second tab submitted its pre-change snapshot and received “Value changed since you loaded it. Reload before editing.” The first tab's saved value remained present; after the test it was removed, and after reload the QA value field was empty."
     }
   ],
   "limitations": [
     "Manual staging UI evidence covers one existing page and one existing media file on one product; it does not replace automated tests or broader end-to-end acceptance.",
-    "Invalid, stale, conflicting and unsupported reference behavior remains unverified, as do other supported value types.",
     "No screenshot artifact was retained in the repository.",
-    "No live deployment, production data change, theme publish or app release was performed."
+    "No live deployment, production data change, theme publish or app release was performed.",
+    "Stale-write coverage is one page-reference case; invalid/conflict behavior across other supported value types and broader automated/end-to-end acceptance remain outstanding."
   ]
 }
