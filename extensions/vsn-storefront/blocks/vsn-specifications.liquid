@@ -54,11 +54,17 @@
       assign field_key = field_identity | last
     endif
     assign field = owner.metafields[field_namespace][field_key]
+    assign value_is_empty = true
+    if field
+      if field.type == 'boolean' or field.value != blank
+        assign value_is_empty = false
+      endif
+    endif
   -%}
   {%- capture value_output -%}{%- render 'vsn-field-value', field: field, settings: block.settings -%}{%- endcapture -%}
   {%- if field_key != blank -%}
-    {%- if value_output != blank or block.settings.hide_empty == false -%}
-      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
+    {%- if value_is_empty == false or block.settings.hide_empty == false -%}
+      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_is_empty == false %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
     {%- endif -%}
   {%- endif -%}
 {%- endfor -%}

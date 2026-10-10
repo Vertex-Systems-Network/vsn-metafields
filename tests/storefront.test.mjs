@@ -255,3 +255,24 @@ test("specifications fall back to an em dash for older blocks without empty row 
   );
   assert.match(output, /<dt>Missing field<\/dt><dd>—<\/dd>/);
 });
+
+test("specifications show the placeholder for a present metafield with an empty value", async () => {
+  const output = await renderBlock(
+    "vsn-specifications",
+    {
+      source: "product",
+      namespace: "custom",
+      key_1: "material",
+      label_1: "Material",
+      hide_empty: false,
+      empty_text: "Not provided",
+    },
+    {
+      product: {
+        id: 1,
+        metafields: { custom: { material: { type: "single_line_text_field", value: "" } } },
+      },
+    },
+  );
+  assert.match(output, /<dt>Material<\/dt><dd>Not provided<\/dd>/);
+});
