@@ -10,7 +10,8 @@
     "crons": ["0 * * * *"]
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "redact_query_string": true
   },
   "compatibility_flags": [
     "nodejs_compat"
