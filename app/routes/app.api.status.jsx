@@ -85,9 +85,12 @@ export const loader = async ({ request }) => {
         method: request.method,
         pathname: url.pathname,
         status: error instanceof Response ? error.status : undefined,
-        statusText: error instanceof Response ? error.statusText : undefined,
-        errorName: error instanceof Error ? error.name : undefined,
-        errorMessage: error instanceof Error ? error.message : undefined,
+        errorKind:
+          error instanceof Response
+            ? "Response"
+            : error instanceof Error
+              ? "Error"
+              : typeof error,
       }),
     );
     throw error;
@@ -181,9 +184,12 @@ export const action = async ({ request }) => {
         pathname: url.pathname,
         actionType: String(actionType || ""),
         status: error instanceof Response ? error.status : undefined,
-        statusText: error instanceof Response ? error.statusText : undefined,
-        errorName: error instanceof Error ? error.name : undefined,
-        errorMessage: error instanceof Error ? error.message : undefined,
+        errorKind:
+          error instanceof Response
+            ? "Response"
+            : error instanceof Error
+              ? "Error"
+              : typeof error,
       }),
     );
     throw error;

@@ -11,7 +11,12 @@
   },
   "observability": {
     "enabled": true,
-    "redact_query_string": true
+    "redact_query_string": true,
+    "logs": {
+      "enabled": true,
+      "persist": true,
+      "invocation_logs": false
+    }
   },
   "compatibility_flags": [
     "nodejs_compat"
