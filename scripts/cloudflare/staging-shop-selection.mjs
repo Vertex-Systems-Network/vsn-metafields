@@ -1,5 +1,5 @@
 const PRODUCTION_SHOP = "vertex-systems-network.myshopify.com";
-const SHOP_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9-]*\\.myshopify\\.com$/i;
+const SHOP_DOMAIN_PATTERN = /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i;
 
 export function normalizeExpectedStagingShop(value) {
   const shop = String(value || "").trim().toLowerCase();
