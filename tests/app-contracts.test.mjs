@@ -257,8 +257,8 @@ test("staging acceptance selects only the configured Staging shop and tolerates 
     () => resolveStagingShop(rows, "missing-staging.myshopify.com"),
     /No Shopify session exists/,
   );
-  assert.match(resolver, /where:\\s*\\{ shop: expectedShop \\}/);
-  assert.match(workflow, /STAGING_SHOP: staging-oath3rth\\.myshopify\\.com/);
+  assert.match(resolver, /where:\s*\{ shop: expectedShop \}/);
+  assert.match(workflow, /STAGING_SHOP: staging-oath3rth\.myshopify\.com/);
 });
 
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
