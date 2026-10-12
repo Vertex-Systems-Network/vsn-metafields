@@ -2,18 +2,9 @@ import ActionButton from "../components/ActionButton";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { exportValueCsv } from "../bulk-csv";
+import { downloadCsv } from "../download-csv";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
-function download(name, source) {
-  const url = URL.createObjectURL(
-    new Blob([source], { type: "text/csv;charset=utf-8" }),
-  );
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 export default function Import() {
   const list = useFetcher(),
     detail = useFetcher(),
@@ -83,7 +74,7 @@ export default function Import() {
         </s-text>
         <ActionButton
           onClick={() =>
-            download(
+            downloadCsv(
               "metafields-template.csv",
               exportValueCsv([
                 {
@@ -204,7 +195,7 @@ export default function Import() {
             </s-text>
             <ActionButton
               onClick={() =>
-                download(
+                downloadCsv(
                   `metafields-before-${job.id}.csv`,
                   exportValueCsv(
                     job.rows
@@ -218,7 +209,7 @@ export default function Import() {
             </ActionButton>
             <ActionButton
               onClick={() =>
-                download(
+                downloadCsv(
                   `metafields-proposed-${job.id}.csv`,
                   exportValueCsv(job.rows.filter((r) => r.valid)),
                 )
