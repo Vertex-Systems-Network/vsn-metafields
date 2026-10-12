@@ -12,7 +12,8 @@ export default function Import() {
     location = useLocation();
   const [csv, setCsv] = useState(""),
     [selected, setSelected] = useState(new URLSearchParams(location.search).get("id") || ""),
-    [confirmed, setConfirmed] = useState(false);
+    [confirmed, setConfirmed] = useState(false),
+    [visibleExport, setVisibleExport] = useState(null);
   const url = useCallback(
     (params = {}) => {
       const s = new URLSearchParams(location.search);
@@ -29,6 +30,7 @@ export default function Import() {
   useEffect(() => {
     if (selected) loadDetail(url({ id: selected }));
     setConfirmed(false);
+    setVisibleExport(null);
   }, [selected, loadDetail, url]);
   useEffect(() => {
     if (mutation.data?.ok) {
@@ -42,6 +44,12 @@ export default function Import() {
   }, [mutation.data, load, url, loadDetail]);
   const job = detail.data?.job?.id === selected ? detail.data.job : null,
     busy = mutation.state !== "idle";
+  const beforeCsv = job ? exportValueCsv(
+    job.rows
+      .filter((row) => row.valid && row.before !== null)
+      .map((row) => ({ ...row, value: row.before })),
+  ) : "";
+  const proposedCsv = job ? exportValueCsv(job.rows.filter((row) => row.valid)) : "";
   const submit = (input) =>
     mutation.submit(input, {
       method: "post",
@@ -195,28 +203,28 @@ export default function Import() {
             </s-text>
             <ActionButton
               onClick={() =>
-                downloadCsv(
-                  `metafields-before-${job.id}.csv`,
-                  exportValueCsv(
-                    job.rows
-                      .filter((r) => r.valid && r.before !== null)
-                      .map((r) => ({ ...r, value: r.before })),
-                  ),
-                )
+                downloadCsv(`metafields-before-${job.id}.csv`, beforeCsv)
               }
             >
               Export before snapshot
             </ActionButton>
             <ActionButton
               onClick={() =>
-                downloadCsv(
-                  `metafields-proposed-${job.id}.csv`,
-                  exportValueCsv(job.rows.filter((r) => r.valid)),
-                )
+                downloadCsv(`metafields-proposed-${job.id}.csv`, proposedCsv)
               }
             >
               Export proposed values
             </ActionButton>
+            <ActionButton onClick={() => setVisibleExport(visibleExport === "before" ? null : "before")}>Show before CSV</ActionButton>
+            <ActionButton onClick={() => setVisibleExport(visibleExport === "proposed" ? null : "proposed")}>Show proposed CSV</ActionButton>
+            {visibleExport && (
+              <div>
+                <label htmlFor="visible-import-export">{visibleExport === "before" ? "Before snapshot CSV" : "Proposed values CSV"}</label>
+                <p>If your browser blocks the download, select and copy this CSV.</p>
+                <textarea id="visible-import-export" readOnly value={visibleExport === "before" ? beforeCsv : proposedCsv}
+                  rows={8} style={{ width: "100%" }} />
+              </div>
+            )}
             {["preview", "paused", "running"].includes(job.status) && (
               <>
                 <s-switch
