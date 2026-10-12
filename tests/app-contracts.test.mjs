@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { normalizeExpectedStagingShop, resolveStagingShop } from "../scripts/cloudflare/staging-shop-selection.mjs";
 
 const root = process.cwd();
 const read = (relativePath) =>
@@ -234,6 +235,30 @@ test("Cloudflare staging deploy is manual and always checks out development", ()
   assert.match(workflow, /Staging deploy must use the dedicated staging Shopify app identity, not production/);
   assert.match(workflow, /PROD_CLIENT_ID/);
   assert.doesNotMatch(workflow, /environment:\s*production/);
+});
+
+test("staging acceptance selects only the configured Staging shop and tolerates stale test sessions", () => {
+  const resolver = read("scripts/cloudflare/resolve-staging-shop.mjs");
+  const workflow = read(".github/workflows/cloudflare-staging-deploy.yml");
+  const rows = [
+    { shop: "vsn-metafields-fresh-install-20261012.myshopify.com" },
+    { shop: "staging-oath3rth.myshopify.com" },
+  ];
+
+  assert.equal(
+    resolveStagingShop(rows, "staging-oath3rth.myshopify.com"),
+    "staging-oath3rth.myshopify.com",
+  );
+  assert.throws(
+    () => normalizeExpectedStagingShop("vertex-systems-network.myshopify.com"),
+    /non-production/,
+  );
+  assert.throws(
+    () => resolveStagingShop(rows, "missing-staging.myshopify.com"),
+    /No Shopify session exists/,
+  );
+  assert.match(resolver, /where:\\s*\\{ shop: expectedShop \\}/);
+  assert.match(workflow, /STAGING_SHOP: staging-oath3rth\\.myshopify\\.com/);
 });
 
 test("Cloudflare Worker entry delegates to the React Router server build", () => {
