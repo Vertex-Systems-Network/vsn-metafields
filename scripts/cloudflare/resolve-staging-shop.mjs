@@ -1,8 +1,10 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import process from "node:process";
+import { normalizeExpectedStagingShop, resolveStagingShop } from "./staging-shop-selection.mjs";
 
-const PRODUCTION_SHOP = "vertex-systems-network.myshopify.com";
 const connectionString = process.env.DATABASE_URL;
+const expectedShop = normalizeExpectedStagingShop(process.env.STAGING_SHOP);
 
 if (!connectionString) {
   throw new Error("DATABASE_URL is required.");
@@ -14,28 +16,11 @@ const prisma = new PrismaClient({
 
 try {
   const rows = await prisma.session.findMany({
+    where: { shop: expectedShop },
     select: { shop: true },
-    distinct: ["shop"],
+    take: 1,
   });
-
-  const shops = [...new Set(
-    rows
-      .map((row) => String(row.shop || "").trim().toLowerCase())
-      .filter(
-        (shop) =>
-          shop &&
-          shop !== PRODUCTION_SHOP &&
-          /^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(shop),
-      ),
-  )];
-
-  if (shops.length !== 1) {
-    throw new Error(
-      `Expected exactly one non-production staging shop session, found ${shops.length}.`,
-    );
-  }
-
-  process.stdout.write(shops[0]);
+  process.stdout.write(resolveStagingShop(rows, expectedShop));
 } finally {
   await prisma.$disconnect();
 }
