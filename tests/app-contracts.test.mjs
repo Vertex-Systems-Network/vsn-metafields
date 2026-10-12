@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import process from "node:process";
 
 const root = process.cwd();
 const read = (relativePath) =>
@@ -85,6 +86,17 @@ test("Shopify admin sets only the hidden home route; page navigation lives in th
   assert.match(index, /pathname:\s*"\/app\/packages"/);
   assert.match(index, /search:\s*location\.search/);
   assert.doesNotMatch(index, /target="_top"/);
+});
+
+test("import and metaobject tables declare a primary Polaris header", () => {
+  for (const route of ["app/routes/app.import.jsx", "app/routes/app.metaobjects.jsx"]) {
+    const source = read(route);
+    assert.match(
+      source,
+      /<s-table-header-row>\s*<s-table-header listSlot="primary">/,
+      `${route} must provide the required primary table header`,
+    );
+  }
 });
 
 test("Shopify staging config uses a dedicated app identity and declares required webhooks", () => {

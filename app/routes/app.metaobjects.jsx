@@ -486,7 +486,7 @@ export default function Metaobjects() {
             )}
           <s-table>
             <s-table-header-row>
-              <s-table-header>Entry</s-table-header>
+              <s-table-header listSlot="primary">Entry</s-table-header>
               <s-table-header>Status</s-table-header>
               <s-table-header>Actions</s-table-header>
             </s-table-header-row>

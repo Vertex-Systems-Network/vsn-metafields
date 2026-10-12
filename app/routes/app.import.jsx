@@ -167,7 +167,7 @@ export default function Import() {
             </s-text>
             <s-table>
               <s-table-header-row>
-                <s-table-header>Row / resource</s-table-header>
+                <s-table-header listSlot="primary">Row / resource</s-table-header>
                 <s-table-header>Field</s-table-header>
                 <s-table-header>Before → proposed</s-table-header>
                 <s-table-header>Result</s-table-header>
