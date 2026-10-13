@@ -56,15 +56,21 @@ export function matchingJobIds(request, jobs) {
 }
 
 export async function listDataRequests(db, shop) {
-  const [requests, jobs] = await Promise.all([
-    db.privacyRequest.findMany({ where: { shop }, orderBy: { createdAt: "desc" }, take: 50 }),
+  const [requests, pendingCount, completedCount, jobs] = await Promise.all([
+    db.privacyRequest.findMany({
+      where: { shop, status: "pending" },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: 50,
+    }),
+    db.privacyRequest.count({ where: { shop, status: "pending" } }),
+    db.privacyRequest.count({ where: { shop, status: "fulfilled" } }),
     db.metafieldJob.findMany({
       where: { shop, expiresAt: { gt: new Date() } },
       select: { id: true, rowsJson: true, resultsJson: true },
       take: 20,
     }),
   ]);
-  return requests.map((request) => ({
+  return { requests: requests.map((request) => ({
     id: request.id,
     customerId: request.customerId,
     customerEmail: request.customerEmail,
@@ -75,7 +81,7 @@ export async function listDataRequests(db, shop) {
     completedAt: request.completedAt,
     candidateJobIds: matchingJobIds(request, jobs),
     allJobIds: jobs.map((job) => job.id),
-  }));
+  })), pendingCount, completedCount };
 }
 
 export async function completeDataRequest(db, shop, id, confirmation) {
