@@ -43,7 +43,7 @@ test("identifiers find legacy snapshots, while all jobs remain reviewable", asyn
     id:"free-text",shop,inputHash:"hash",rowsJson:JSON.stringify([{row:1,valid:true,value:"Unknown personal text"}]),
     resultsJson:"[]",expiresAt:new Date(Date.now()+86400000),
   }});
-  const [request]=await listDataRequests(db,shop);
+  const { requests: [request] }=await listDataRequests(db,shop);
   assert.deepEqual(request.candidateJobIds,["legacy"]);
   assert.deepEqual(new Set(request.allJobIds),new Set(["legacy","free-text"]));
 });
@@ -59,4 +59,28 @@ test("merchant confirmation clears contact data; completed record expires", asyn
   await recordDataRequest(db,shop,payload);
   assert.equal((await db.privacyRequest.findUnique({where:{id}})).status,"fulfilled");
   assert.equal(await purgeCompletedRequests(db,new Date(Date.now()+31*86400000)),1);
+});
+
+test("completed history cannot hide an older pending privacy backlog", async () => {
+  const createdAt = new Date("2026-10-01T00:00:00Z");
+  await db.privacyRequest.createMany({ data: Array.from({ length: 55 }, (_, i) => ({
+    id: `${shop}:${100 + i}`, shop, status: "pending", ordersJson: "[]", createdAt,
+  })) });
+  await db.privacyRequest.createMany({ data: Array.from({ length: 60 }, (_, i) => ({
+    id: `${shop}:done-${i}`, shop, status: "fulfilled",
+    ordersJson: "[]", createdAt: new Date("2026-10-12T00:00:00Z"),
+    completedAt: new Date("2026-10-12T00:00:00Z"),
+  })) });
+
+  const first = await listDataRequests(db, shop);
+  assert.equal(first.pendingCount, 55);
+  assert.equal(first.completedCount, 60);
+  assert.equal(first.requests.length, 50);
+  assert.equal(first.requests[0].id, `${shop}:100`);
+
+  await completeDataRequest(db, shop, first.requests[0].id, `FULFILLED:${first.requests[0].id}`);
+  const next = await listDataRequests(db, shop);
+  assert.equal(next.pendingCount, 54);
+  assert.equal(next.completedCount, 61);
+  assert.equal(next.requests[0].id, `${shop}:101`);
 });
