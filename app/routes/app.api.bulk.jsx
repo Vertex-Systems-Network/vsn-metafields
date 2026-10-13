@@ -61,7 +61,6 @@ export const loader = async ({ request }) => {
     const jobs = await db.metafieldJob.findMany({
       where: { shop: session.shop, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: "desc" },
-      take: 20,
       select: {
         id: true,
         status: true,
