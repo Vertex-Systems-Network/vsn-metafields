@@ -108,6 +108,8 @@ export default function Import() {
               const file = e.target.files?.[0];
               if (!file) return;
               if (file.size > 256000) {
+                setCsv("");
+                e.target.value = "";
                 window.alert("Use a CSV under 256 KB.");
                 return;
               }
