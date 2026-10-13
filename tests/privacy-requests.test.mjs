@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { transformSync } from "esbuild";
+import { featureError } from "../app/feature-request.server.js";
 import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests } from "../app/privacy-requests.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-privacy-"));
 let db;
@@ -101,4 +103,49 @@ test("privacy review includes every retained job when legacy or concurrent write
   assert.ok(request);
   for (const id of ids) assert.ok(request.allJobIds.includes(id), id);
   assert.ok(request.candidateJobIds.includes("retained-20"));
+});
+
+test("fulfillment conflict returns a page-level error and releases the database", async () => {
+  const code = transformSync(readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8"), {
+    loader: "jsx", format: "cjs",
+  }).code;
+  let disconnected = 0;
+  let failure = new RangeError("Request was already fulfilled or not found.");
+  const dependencies = {
+    react: { useState: () => {} },
+    "react/jsx-runtime": {},
+    "react-router": {},
+    "../shopify.server": { authenticate: { admin: async () => ({ session: { shop } }) } },
+    "../db.server": { createPrismaClient: () => ({ $disconnect: async () => { disconnected++; } }) },
+    "../privacy-requests.server": {
+      listDataRequests: async () => ({}),
+      completeDataRequest: async () => { if (failure) throw failure; },
+    },
+    "../components/Workspace": {},
+    "../components/ActionButton": {},
+    "../feature-request.server": { featureError },
+  };
+  const route = { exports: {} };
+  new Function("require", "module", "exports", code)((id) => {
+    assert.ok(id in dependencies, id);
+    return dependencies[id];
+  }, route, route.exports);
+  const request = () => new Request("https://example.invalid/app/privacy", {
+    method: "POST", body: new URLSearchParams({ id: `${shop}:42`, confirm: `FULFILLED:${shop}:42` }),
+  });
+
+  const response = await route.exports.action({ request: request() });
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    ok: false, error: "Request was already fulfilled or not found.",
+  });
+  assert.equal(disconnected, 1);
+
+  failure = null;
+  assert.deepEqual(await route.exports.action({ request: request() }), { ok: true });
+  assert.equal(disconnected, 2);
+
+  failure = new Error("Database unavailable");
+  await assert.rejects(() => route.exports.action({ request: request() }), /Database unavailable/);
+  assert.equal(disconnected, 3);
 });
