@@ -67,7 +67,6 @@ export async function listDataRequests(db, shop) {
     db.metafieldJob.findMany({
       where: { shop, expiresAt: { gt: new Date() } },
       select: { id: true, rowsJson: true, resultsJson: true },
-      take: 20,
     }),
   ]);
   return { requests: requests.map((request) => ({
