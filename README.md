@@ -1,6 +1,23 @@
 # Shopify Metafields Builder
 
-## Current staging status — 2026-10-11
+## Current engineering checkpoint — 2026-10-13
+
+The `development` branch is at `1a0c88584346cea28942d9ce014693c7623df39d` after [PR #292](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/292) fixed a race between asynchronous CSV file reads, rejected oversized files and manual edits. Its post-merge [App Validation](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38385765973), [AI Native Quality Gates](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38385766053), [Dependency Security Audit](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38385766082) and [Cloudflare Staging Readiness](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38385765941) all passed. These are source and CI checks, not a Staging deployment.
+
+The latest verified [Staging deploy #95](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38383939059) used earlier source `ee266115c68b715c990c6aee8e0df88823317033`. The merged CSV race fix is not yet deployed or browser-accepted there. The dedicated Shopify Staging app version last recorded here is [release #27](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38091921365); Worker deployment and Shopify app-version release are separate actions.
+
+Verified-complete work units in `config/ai/execution-plan.json`: **3/12 (25%)**. The other nine are seven `verification_required`, one `in_progress` and one `not_started`. This measures accepted work units, not code volume or submission readiness.
+
+| Phase | Verified-complete progress | Current plan status |
+| --- | --- | --- |
+| META-PHASE-01 — capability and definitions | ███ 3/3 | Complete |
+| META-PHASE-02 — values and storefront blocks | ░░░ 0/3 | Verification required |
+| META-PHASE-03 — metaobjects and bulk workflows | ░░░ 0/3 | Verification required |
+| META-PHASE-04 — operations and release assurance | ░░░ 0/3 | One verification required, one in progress, one not started |
+
+Remaining acceptance includes the Staging file-chooser and downloaded-file readback, a representative privacy request delivery/fulfillment, and a full browser accessibility/performance audit. Full fresh-install and both theme-draft matrices stay on standby until the other gates finish, per the requested sequence. No Live deployment or Shopify App Store submission is claimed. `config/ai/project-state.json` still describes a 2026-10-03 checkpoint and needs a separately reviewed control-plane reconciliation.
+
+## Earlier staging status — 2026-10-11
 
 | Area | Evidence | Status |
 | --- | --- | --- |
