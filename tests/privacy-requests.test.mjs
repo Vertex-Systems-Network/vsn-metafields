@@ -84,3 +84,21 @@ test("completed history cannot hide an older pending privacy backlog", async () 
   assert.equal(next.completedCount, 61);
   assert.equal(next.requests[0].id, `${shop}:101`);
 });
+
+test("privacy review includes every retained job when legacy or concurrent writes exceed 20", async () => {
+  const ids = Array.from({ length: 21 }, (_, i) => `retained-${i}`);
+  await db.metafieldJob.createMany({ data: ids.map((id, i) => ({
+    id, shop, inputHash: "hash",
+    rowsJson: JSON.stringify([{ row: 1, valid: true, value: i === 20 ? "person@example.com" : "other" }]),
+    resultsJson: "[]", expiresAt: new Date(Date.now() + 86400000),
+  })) });
+  await db.privacyRequest.create({ data: {
+    id: `${shop}:review-all`, shop, customerEmail: "person@example.com", ordersJson: "[]",
+  } });
+
+  const { requests } = await listDataRequests(db, shop);
+  const request = requests.find((item) => item.id === `${shop}:review-all`);
+  assert.ok(request);
+  for (const id of ids) assert.ok(request.allJobIds.includes(id), id);
+  assert.ok(request.candidateJobIds.includes("retained-20"));
+});
