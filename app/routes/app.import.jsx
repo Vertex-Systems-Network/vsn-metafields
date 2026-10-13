@@ -215,8 +215,20 @@ export default function Import() {
             >
               Export proposed values
             </ActionButton>
-            <ActionButton onClick={() => setVisibleExport(visibleExport === "before" ? null : "before")}>Show before CSV</ActionButton>
-            <ActionButton onClick={() => setVisibleExport(visibleExport === "proposed" ? null : "proposed")}>Show proposed CSV</ActionButton>
+            <ActionButton
+              aria-expanded={visibleExport === "before"}
+              aria-controls={visibleExport === "before" ? "visible-import-export" : undefined}
+              onClick={() => setVisibleExport(visibleExport === "before" ? null : "before")}
+            >
+              Show before CSV
+            </ActionButton>
+            <ActionButton
+              aria-expanded={visibleExport === "proposed"}
+              aria-controls={visibleExport === "proposed" ? "visible-import-export" : undefined}
+              onClick={() => setVisibleExport(visibleExport === "proposed" ? null : "proposed")}
+            >
+              Show proposed CSV
+            </ActionButton>
             {visibleExport && (
               <div>
                 <label htmlFor="visible-import-export">{visibleExport === "before" ? "Before snapshot CSV" : "Proposed values CSV"}</label>
