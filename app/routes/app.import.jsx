@@ -1,7 +1,8 @@
 import ActionButton from "../components/ActionButton";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { exportValueCsv } from "../bulk-csv";
+import { createCsvFileSelection } from "../csv-file-selection";
 import { downloadCsv } from "../download-csv";
 import { PageIntro, HelpLink } from "../components/Workspace";
 import { LoadingState } from "../components/LoadingState";
@@ -10,6 +11,8 @@ export default function Import() {
     detail = useFetcher(),
     mutation = useFetcher(),
     location = useLocation();
+  const fileSelection = useRef(null);
+  if (!fileSelection.current) fileSelection.current = createCsvFileSelection();
   const [csv, setCsv] = useState(""),
     [selected, setSelected] = useState(new URLSearchParams(location.search).get("id") || ""),
     [confirmed, setConfirmed] = useState(false),
@@ -107,20 +110,24 @@ export default function Import() {
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              if (file.size > 256000) {
-                setCsv("");
-                e.target.value = "";
+              e.target.value = "";
+              setCsv("");
+              const result = await fileSelection.current.read(file);
+              if (result.status === "ready") setCsv(result.csv);
+              if (result.status === "oversized")
                 window.alert("Use a CSV under 256 KB.");
-                return;
-              }
-              setCsv(await file.text());
+              if (result.status === "unreadable")
+                window.alert("The CSV file could not be read. Choose it again.");
             }}
           />
         </label>
         <s-text-area
           label="CSV content"
           value={csv}
-          onInput={(e) => setCsv(e.target.value)}
+          onInput={(e) => {
+            fileSelection.current.invalidate();
+            setCsv(e.target.value);
+          }}
         />
         <ActionButton
           variant="primary"
