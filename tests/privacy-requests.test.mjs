@@ -92,12 +92,12 @@ test("privacy review includes every retained job when legacy or concurrent write
     rowsJson: JSON.stringify([{ row: 1, valid: true, value: i === 20 ? "person@example.com" : "other" }]),
     resultsJson: "[]", expiresAt: new Date(Date.now() + 86400000),
   })) });
-  await db.privacyRequest.create({ data: {
-    id: `${shop}:review-all`, shop, customerEmail: "person@example.com", ordersJson: "[]",
-  } });
+  await db.privacyRequest.update({
+    where: { id: `${shop}:101` }, data: { customerEmail: "person@example.com" },
+  });
 
   const { requests } = await listDataRequests(db, shop);
-  const request = requests.find((item) => item.id === `${shop}:review-all`);
+  const request = requests.find((item) => item.id === `${shop}:101`);
   assert.ok(request);
   for (const id of ids) assert.ok(request.allJobIds.includes(id), id);
   assert.ok(request.candidateJobIds.includes("retained-20"));
