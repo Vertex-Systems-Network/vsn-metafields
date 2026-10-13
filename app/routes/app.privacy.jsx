@@ -5,6 +5,7 @@ import { createPrismaClient } from "../db.server";
 import { listDataRequests, completeDataRequest } from "../privacy-requests.server";
 import { PageIntro } from "../components/Workspace";
 import ActionButton from "../components/ActionButton";
+import { featureError } from "../feature-request.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -23,6 +24,9 @@ export const action = async ({ request }) => {
   try {
     await completeDataRequest(db, session.shop, String(form.get("id") || ""), String(form.get("confirm") || ""));
     return { ok: true };
+  } catch (error) {
+    if (error instanceof RangeError) return featureError(error);
+    throw error;
   } finally {
     await db.$disconnect();
   }
@@ -74,7 +78,8 @@ export default function PrivacyRequests() {
           );
         })}
       </s-section>
-      {fetcher.data?.ok && <s-banner tone="success">Fulfillment recorded. Refresh to see the updated queue.</s-banner>}
+      {fetcher.data?.ok && <s-banner tone="success">Fulfillment recorded.</s-banner>}
+      {fetcher.data?.error && <s-banner tone="critical">{fetcher.data.error}</s-banner>}
       <s-section heading="Completed requests">
         <s-text>{completedCount} completed records. Identifying contact details are cleared on completion; records are purged after 30 days.</s-text>
       </s-section>
