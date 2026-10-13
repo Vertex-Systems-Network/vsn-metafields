@@ -10,7 +10,7 @@ export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const db = createPrismaClient();
   try {
-    return { requests: await listDataRequests(db, session.shop) };
+    return await listDataRequests(db, session.shop);
   } finally {
     await db.$disconnect();
   }
@@ -31,11 +31,10 @@ export const action = async ({ request }) => {
 export const headers = () => ({ "Cache-Control": "no-store" });
 
 export default function PrivacyRequests() {
-  const { requests } = useLoaderData();
+  const { requests, pendingCount, completedCount } = useLoaderData();
   const fetcher = useFetcher();
   const { search } = useLocation();
   const [confirmed, setConfirmed] = useState("");
-  const pending = requests.filter((r) => r.status === "pending");
   return (
     <s-page inline-size="large" heading="Customer data requests">
       <PageIntro eyebrow="Privacy" title="Review customer data requests"
@@ -43,9 +42,14 @@ export default function PrivacyRequests() {
       <s-banner tone="warning">
         A receipt is not fulfillment. Check all saved imports for personal information in merchant text, including unmatched jobs. Import snapshots expire after seven days; check Shopify&apos;s own records separately. Respond to the store owner within 30 days.
       </s-banner>
-      <s-section heading={`Pending requests (${pending.length})`}>
-        {!pending.length && <s-text>No pending requests.</s-text>}
-        {pending.map((item) => {
+      <s-section heading={`Pending requests (${pendingCount})`}>
+        {!pendingCount && <s-text>No pending requests.</s-text>}
+        {pendingCount > requests.length && (
+          <s-banner tone="warning">
+            Showing the 50 oldest pending requests. Fulfill reviewed requests and refresh to continue through the remaining {pendingCount - requests.length}.
+          </s-banner>
+        )}
+        {requests.map((item) => {
           const requestId = item.id.slice(item.id.lastIndexOf(":") + 1);
           const overdue = Date.now() - new Date(item.createdAt).getTime() > 30 * 86400000;
           return (
@@ -72,7 +76,7 @@ export default function PrivacyRequests() {
       </s-section>
       {fetcher.data?.ok && <s-banner tone="success">Fulfillment recorded. Refresh to see the updated queue.</s-banner>}
       <s-section heading="Completed requests">
-        <s-text>{requests.filter((r) => r.status === "fulfilled").length} completed records. Identifying contact details are cleared on completion; records are purged after 30 days.</s-text>
+        <s-text>{completedCount} completed records. Identifying contact details are cleared on completion; records are purged after 30 days.</s-text>
       </s-section>
     </s-page>
   );
