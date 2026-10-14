@@ -16,7 +16,18 @@ export default function Import() {
   const [csv, setCsv] = useState(""),
     [selected, setSelected] = useState(new URLSearchParams(location.search).get("id") || ""),
     [confirmed, setConfirmed] = useState(false),
-    [visibleExport, setVisibleExport] = useState(null);
+    [visibleExport, setVisibleExport] = useState(null),
+    [showTemplate, setShowTemplate] = useState(false);
+  const templateCsv = exportValueCsv([
+    {
+      ownerType: "PRODUCT",
+      ownerId: "gid://shopify/Product/REPLACE",
+      namespace: "vsn_metafields",
+      key: "care",
+      type: "single_line_text_field",
+      value: "Example text",
+    },
+  ]);
   const url = useCallback(
     (params = {}) => {
       const s = new URLSearchParams(location.search);
@@ -84,24 +95,25 @@ export default function Import() {
           value_json.
         </s-text>
         <ActionButton
-          onClick={() =>
-            downloadCsv(
-              "metafields-template.csv",
-              exportValueCsv([
-                {
-                  ownerType: "PRODUCT",
-                  ownerId: "gid://shopify/Product/REPLACE",
-                  namespace: "vsn_metafields",
-                  key: "care",
-                  type: "single_line_text_field",
-                  value: "Example text",
-                },
-              ]),
-            )
-          }
+          onClick={() => downloadCsv("metafields-template.csv", templateCsv)}
         >
           Download CSV template
         </ActionButton>
+        <ActionButton
+          aria-expanded={showTemplate}
+          aria-controls={showTemplate ? "visible-import-template" : undefined}
+          onClick={() => setShowTemplate(!showTemplate)}
+        >
+          {showTemplate ? "Hide CSV template" : "Show CSV template"}
+        </ActionButton>
+        {showTemplate && (
+          <div>
+            <label htmlFor="visible-import-template">CSV template for copying</label>
+            <p>If your browser blocks the download, copy this template and replace the sample values.</p>
+            <textarea id="visible-import-template" readOnly value={templateCsv}
+              rows={4} style={{ width: "100%" }} />
+          </div>
+        )}
         <label>
           CSV file{" "}
           <input
