@@ -1,0 +1,70 @@
+{
+  "recorded_at": "2026-10-14T12:23:38.055689+00:00",
+  "environment": "staging",
+  "source_sha_from_workflow": "8238390910868f3a8337f62d407ec29a88ab4ec7",
+  "feature_pr": 309,
+  "staging_run": 38561975085,
+  "staging_run_number": 99,
+  "staging_job": 115845030692,
+  "staging_conclusion": "success",
+  "shop": "staging-oath3rth.myshopify.com",
+  "owner_id": "gid://shopify/Product/15336402485620",
+  "field": "vsn_qa_20261004.file",
+  "saved_value": "gid://shopify/MediaImage/56389915246964",
+  "invalid_or_unsaved_input": "gid://shopify/Page/715667669364",
+  "local_release": {
+    "node": "22.13.0",
+    "tests": 189,
+    "passed": 189,
+    "failed": 0,
+    "lint": true,
+    "typecheck": true,
+    "model_contract": true,
+    "build": true
+  },
+  "browser": {
+    "reload_disabled_during_read": true,
+    "reload_enabled_when_idle": true,
+    "unsaved_draft_restored_to_saved_value": true,
+    "invalid_save_error": "Reference ID does not match the field type.",
+    "reload_disabled_during_mutation": true,
+    "reload_after_rejected_save_restored_value": true,
+    "reload_after_rejected_save_cleared_error": true,
+    "selected_resource_and_definition_retained": true
+  },
+  "deployed_service": {
+    "schema_documents": 51,
+    "typed_cases": 21,
+    "lifecycle": true,
+    "cleanup": true,
+    "cleanup_failures": [],
+    "subscription": "ACTIVE starter-plan test:true"
+  },
+  "retained_logs": {
+    "query_id": "metafields-staging-reload-recovery-20261014",
+    "from": 1791978443098,
+    "to": 1791980243098,
+    "warning_error_text_matches": 0,
+    "boundary": "Retained application logs only; not every-request status or signed privacy delivery proof."
+  },
+  "help_gallery": {
+    "pr": 310,
+    "head": "4ed91d522e11813742ab35d80a24e3efef16a8f2",
+    "status": "draft_independent_review_required",
+    "captured_version": "1.2.4",
+    "captured_date": "2026-10-14",
+    "proposed_gate": "Accept historical capture1.2.3 or current APP_VERSION; preserve rendered-image/JPEG/dimensions/date checks.",
+    "local_release_tests_passed": 189,
+    "merged": false,
+    "deployed": false
+  },
+  "boundaries": [
+    "The new control is verified for unsaved-draft and validation-error recovery; a new real concurrent-editor conflict or failed-lookup retry was not exercised in this batch.",
+    "Exact runtime /healthz commitSha attestation still needs PR298 independent review.",
+    "Mixed browser CSV Apply was not retried; previous automatic approval rejection remains unresolved.",
+    "Full merchant/theme/accessibility/privacy/operational assurance remains open.",
+    "No Live deployment, subscription change or permission grant."
+  ],
+  "accepted_work_units": 3,
+  "total_work_units": 12
+}
