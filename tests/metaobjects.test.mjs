@@ -152,6 +152,10 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
                 type: "vsn_faq",
                 updatedAt: "new",
                 handle: "one",
+                fields: [
+                  { key: "question", value: "Old question" },
+                  { key: "answer", value: "Old answer" },
+                ],
               },
             },
           };
@@ -163,7 +167,12 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
                 id,
                 type: "vsn_faq",
                 handle: "one",
-                fields: mutation.fields,
+                fields: mutation.fields || Object.entries(mutation.values).map(
+                  ([key, value]) => ({ key, value }),
+                ),
+                values: mutation.values
+                  ? { question: mutation.values.question, answer: null }
+                  : undefined,
               },
               userErrors: [],
             },
@@ -185,10 +194,27 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
     id,
     updatedAt: "new",
     handle: "one",
-    values: { question: "Q", answer: "" },
+    values: { question: "Q" },
   });
   assert.deepEqual(mutation.fields, [{ key: "question", value: "Q" }]);
   assert.equal(mutation.values, undefined);
+  await saveMetaobjectEntry(admin, definition, {
+    id,
+    updatedAt: "new",
+    handle: "one",
+    values: { question: "Q", answer: "" },
+  });
+  assert.equal(mutation.fields, undefined);
+  assert.deepEqual(mutation.values, { question: "Q" });
+  await assert.rejects(
+    saveMetaobjectEntry(admin, definition, {
+      id,
+      updatedAt: "new",
+      handle: "one",
+      values: { question: "" },
+    }),
+    /required/,
+  );
 });
 test("unconfirmed definition removal stops before any GraphQL read or mutation", async () => {
   let calls = 0;
