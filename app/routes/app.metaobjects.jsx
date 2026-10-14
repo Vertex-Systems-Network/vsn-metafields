@@ -20,6 +20,7 @@ export default function Metaobjects() {
     entries = useFetcher(),
     mutation = useFetcher(),
     references = useFetcher(),
+    freshEntry = useFetcher(),
     location = useLocation();
   const [definitionId, setDefinitionId] = useState(""),
     [name, setName] = useState(""),
@@ -31,7 +32,8 @@ export default function Metaobjects() {
     [handle, setHandle] = useState(""),
     [values, setValues] = useState({}),
     [status, setStatus] = useState("DRAFT"),
-    [publicConfirm, setPublicConfirm] = useState(false);
+    [publicConfirm, setPublicConfirm] = useState(false),
+    [refreshTarget, setRefreshTarget] = useState(null);
   const url = useCallback(
     (params = {}) => {
       const search = new URLSearchParams(location.search);
@@ -64,6 +66,39 @@ export default function Metaobjects() {
       setPublicConfirm(false);
     }
   }, [mutation.data, load, url]);
+  useEffect(() => {
+    const entry = freshEntry.data?.entry;
+    if (
+      !refreshTarget ||
+      !freshEntry.data?.ok ||
+      freshEntry.data.refresh !== refreshTarget.refresh ||
+      freshEntry.data.type !== refreshTarget.type ||
+      definition?.type !== refreshTarget.type ||
+      editing?.id !== refreshTarget.id ||
+      entry?.id !== refreshTarget.id
+    )
+      return;
+    mutation.reset();
+    setEditing(entry);
+    setHandle(entry.handle);
+    setValues(
+      Object.fromEntries(
+        entry.fields.map((field) => [field.key, field.value || ""]),
+      ),
+    );
+    setStatus(entry.capabilities?.publishable?.status || "DRAFT");
+    setPublicConfirm(false);
+    setRefreshTarget(null);
+    loadEntries(url({ type: refreshTarget.type }));
+  }, [
+    freshEntry.data,
+    refreshTarget,
+    definition,
+    editing,
+    mutation,
+    loadEntries,
+    url,
+  ]);
   const busy = mutation.state !== "idle",
     ready = catalog.state === "idle" && catalog.data?.ok;
   const submit = (input) =>
@@ -86,6 +121,8 @@ export default function Metaobjects() {
     );
   const select = (id) => {
     mutation.reset();
+    freshEntry.reset();
+    setRefreshTarget(null);
     setDefinitionId(id);
     setEditing(null);
     setHandle("");
@@ -426,6 +463,7 @@ export default function Metaobjects() {
             loading={busy}
             disabled={
               busy ||
+              freshEntry.state !== "idle" ||
               !definition.editable ||
               (definition.access?.storefront === "PUBLIC_READ" &&
                 (status === "ACTIVE" ||
@@ -454,10 +492,38 @@ export default function Metaobjects() {
             Save entry
           </ActionButton>
           {editing && (
+            <s-text>
+              Reload entry discards unsaved edits and fetches Shopify’s latest
+              values.
+            </s-text>
+          )}
+          {editing && (
             <ActionButton
-              disabled={busy}
+              loading={freshEntry.state !== "idle"}
+              disabled={busy || freshEntry.state !== "idle"}
+              onClick={() => {
+                const refresh = String(Date.now());
+                setRefreshTarget({
+                  id: editing.id,
+                  type: definition.type,
+                  refresh,
+                });
+                freshEntry.reset();
+                freshEntry.load(
+                  url({ type: definition.type, entryId: editing.id, refresh }),
+                );
+              }}
+            >
+              Reload entry
+            </ActionButton>
+          )}
+          {editing && (
+            <ActionButton
+              disabled={busy || freshEntry.state !== "idle"}
               onClick={() => {
                 mutation.reset();
+                freshEntry.reset();
+                setRefreshTarget(null);
                 setEditing(null);
                 setValues({});
                 setHandle("");
@@ -505,9 +571,15 @@ export default function Metaobjects() {
                   </s-table-cell>
                   <s-table-cell>
                     <ActionButton
-                      disabled={busy || !definition.editable}
+                      disabled={
+                        busy ||
+                        freshEntry.state !== "idle" ||
+                        !definition.editable
+                      }
                       onClick={() => {
                         mutation.reset();
+                        freshEntry.reset();
+                        setRefreshTarget(null);
                         setEditing(entry);
                         setHandle(entry.handle);
                         setValues(
@@ -525,7 +597,11 @@ export default function Metaobjects() {
                     </ActionButton>
                     <ActionButton
                       tone="critical"
-                      disabled={busy || !definition.editable}
+                      disabled={
+                        busy ||
+                        freshEntry.state !== "idle" ||
+                        !definition.editable
+                      }
                       onClick={() => {
                         if (
                           window.confirm(
@@ -571,7 +647,7 @@ export default function Metaobjects() {
           </ActionButton>
         </s-section>
       )}
-      {[catalog, entries, mutation, references].map((f, i) =>
+      {[catalog, entries, mutation, references, freshEntry].map((f, i) =>
         f.data?.error ? (
           <s-banner key={i} tone="critical">
             {f.data.error}

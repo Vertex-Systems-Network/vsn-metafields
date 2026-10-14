@@ -10,6 +10,7 @@ import {
 import {
   listMetaobjectDefinitions,
   listMetaobjectEntries,
+  readMetaobjectEntry,
   createMetaobjectDefinition,
   updateMetaobjectDefinition,
   saveMetaobjectEntry,
@@ -31,6 +32,18 @@ export const loader = async ({ request }) => {
         403,
       );
     const params = new URL(request.url).searchParams;
+    if (params.get("entryId")) {
+      const type = params.get("type");
+      const refresh = params.get("refresh");
+      if (!type || !/^\d+$/.test(refresh || ""))
+        throw new RangeError("Select an entry to reload.");
+      return featureJson({
+        ok: true,
+        type,
+        refresh,
+        entry: await readMetaobjectEntry(admin, params.get("entryId"), type),
+      });
+    }
     if (params.get("type"))
       return featureJson({
         ok: true,
