@@ -45,6 +45,20 @@ export const HELP_SCREENSHOTS = {
   ],
   "values": [
     {
+      "src": "/help/screenshots/value-reload-v1-2-4-20261014.jpg",
+      "title": "Reload saved content after an error",
+      "alt": "Actual Staging File QA editor with Reload value and the saved media reference restored after a rejected Page ID",
+      "width": 1363,
+      "height": 936,
+      "capturedAt": "2026-10-14",
+      "version": "1.2.4",
+      "steps": [
+        "Keep the intended Resource and Definition selected.",
+        "Select Reload value to discard the unsaved draft and read Shopify's saved content again. The button is disabled during a value read or save.",
+        "Check the restored value before editing again. This staging example preserved its saved media reference and cleared the rejected input's error."
+      ]
+    },
+    {
       "src": "/help/screenshots/values-v1-2-3-1791059463680.jpg",
       "title": "Select an item and its field",
       "alt": "Actual Resource values panel with a selected product, selected text definition, empty value and disabled save",
