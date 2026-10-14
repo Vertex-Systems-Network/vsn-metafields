@@ -308,7 +308,8 @@
       "status": "verification_required",
       "blockers": [
         "Private QA definition saved/reopened; min-length error and valid Draft save/readback verified. Public-access confirmation, field-preservation and conflict flows remain required.",
-        "2026-10-14: min/max title rejection, saved private QA readback, cancel/re-edit/definition-change feedback recovery and Starter2-field/public-access controls verified on Staging100/PR312. Two-tab stale timestamp rejection and entry Reload recovery verified on Staging101/PR315. Real public-access, tier transitions, omitted-field browser preservation and timestamp read-to-mutation race still pending."
+        "2026-10-14: min/max title rejection, saved private QA readback, cancel/re-edit/definition-change feedback recovery and Starter2-field/public-access controls verified on Staging100/PR312. Two-tab stale timestamp rejection and entry Reload recovery verified on Staging101/PR315. Real public-access, tier transitions, omitted-field browser preservation and timestamp read-to-mutation race still pending.",
+        "2026-10-15: PR318 optional text-field clear contract passes and Staging103 service deployed; representative browser clear/readback remains unverified because existing QA definition has only required Title. Full public/tier/omitted-field and race gates remain."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -333,7 +334,8 @@
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-metaobject-feedback-2026-10-14.json",
-        "docs/evidence/metafields-metaobject-entry-reload-2026-10-14.json"
+        "docs/evidence/metafields-metaobject-entry-reload-2026-10-14.json",
+        "docs/evidence/metafields-metaobject-optional-clear-2026-10-15.json"
       ]
     },
     {

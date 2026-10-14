@@ -1,0 +1,22 @@
+{
+  "recorded_at": "2026-10-14T22:10:38Z",
+  "environment": "staging",
+  "source_pr": 318,
+  "source_sha": "0bb0b1914644882cbda40fd0eb6a1b8f5af3260d",
+  "staging_run": 38645117846,
+  "staging_run_number": 103,
+  "staging_job": 116129943933,
+  "conclusion": "success",
+  "runtime_health": "pass",
+  "lifecycle_cleanup": true,
+  "local_release_checks": "lint, typecheck, DB contract, 189/189 tests, build passed",
+  "ci": [
+    "AI Native Quality Gates success",
+    "App Validation success"
+  ],
+  "browser_check": "Installed Staging app and private Size guide QA definition opened; only required Title field available, so optional-clear mutation not exercised.",
+  "remaining": "Representative optional-clear readback and mixed-type behavior, public/tier transitions, broader META-007 and META-011 acceptance remain open.",
+  "live_deployed": false,
+  "accepted_work_units": 3,
+  "total_work_units": 12
+}
