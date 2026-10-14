@@ -1,0 +1,84 @@
+{
+  "recorded_at": "2026-10-14T11:46:16.873712+00:00",
+  "environment": "staging",
+  "shop": "staging-oath3rth.myshopify.com",
+  "product": "gid://shopify/Product/15336402485620",
+  "namespace": "vsn_qa_20261004",
+  "before_source": "17f9395b6a27f96fb475edc008ee8dc46fcce314",
+  "fix_pr": 307,
+  "deployed_workflow_source": "ccb748003d9310266e042c8e2a632a604c460f32",
+  "staging_run": 38557844645,
+  "staging_run_number": 98,
+  "staging_job": 115831309929,
+  "staging_conclusion": "success",
+  "local_release": {
+    "node": "22.13.0",
+    "tests": 189,
+    "passed": 189,
+    "failed": 0,
+    "lint": true,
+    "typecheck": true,
+    "db_contract": true,
+    "build": true
+  },
+  "browser_rejections": [
+    {
+      "field": "count",
+      "type": "number_integer",
+      "input": "1.2",
+      "error": "Enter a whole number within the supported range.",
+      "before": "0",
+      "after": "0"
+    },
+    {
+      "field": "care",
+      "type": "single_line_text_field",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "error": "Text violates max length 120.",
+      "before": "Newer native edit must stay",
+      "after": "Newer native edit must stay"
+    },
+    {
+      "field": "page",
+      "type": "page_reference",
+      "input": "gid://shopify/Product/15336402485620",
+      "error": "Reference ID does not match the field type.",
+      "before": "gid://shopify/Page/715667669364",
+      "after": "gid://shopify/Page/715667669364"
+    },
+    {
+      "field": "file",
+      "type": "file_reference",
+      "input": "gid://shopify/Page/715667669364",
+      "error": "Reference ID does not match the field type.",
+      "before": "gid://shopify/MediaImage/56389915246964",
+      "after": "gid://shopify/MediaImage/56389915246964"
+    }
+  ],
+  "defect": {
+    "before": "Returning to File after visiting another definition resurfaced discarded invalid-reference feedback next to the saved valid MediaImage ID.",
+    "fix": "Reset the value action fetcher when owner, resource or field selection changes.",
+    "post_fix_sequence": [
+      "Load File baseline",
+      "Submit Page ID to File; visible reference-type rejection",
+      "Select Care; saved text preserved and reference error absent",
+      "Return to File; saved MediaImage reference preserved and old error absent"
+    ],
+    "post_fix_passed": true
+  },
+  "retained_logs": {
+    "query_id": "metafields-staging-feedback-postfix-20261014",
+    "from": 1791976446024,
+    "to": 1791978246024,
+    "warning_error_text_matches": 0,
+    "boundary": "Retained application logs only; invocation logging disabled. Not proof of every request status or signed privacy delivery."
+  },
+  "boundaries": [
+    "Workflow source SHA is not independent /healthz commitSha attestation; PR 298 review remains pending.",
+    "Four representative browser rejection cases, not the full browser matrix.",
+    "No Live deployment, subscription change or scope grant.",
+    "Mixed CSV browser Apply not retried; exact approval remains pending."
+  ],
+  "accepted_work_units": 3,
+  "total_work_units": 12
+}

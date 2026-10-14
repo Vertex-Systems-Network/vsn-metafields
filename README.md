@@ -2,6 +2,8 @@
 
 ## Current engineering checkpoint — 2026-10-14
 
+Latest: [PR #307](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/307) fixed discarded value feedback reappearing when returning to a field. [Staging #98](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38557844645) passed from `ccb748003d9310266e042c8e2a632a604c460f32`; the actual File → Care → File regression passed with the saved reference preserved. Four representative browser rejection/readback cases passed; local release checks remain **189/189**. [Current evidence report](docs/ai/STAGING-VALUE-FEEDBACK-2026-10-14.md). Full acceptance remains **3/12 (25%)**, Phase 04 **0/3**; Live held.
+
 [PR #304](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/304) merged to development at `17f9395b6a27f96fb475edc008ee8dc46fcce314`, fixing stale native import-job labels. [Staging deploy #97](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38491950164) passed migrations, identity, Worker health/billing, session/subscription reads and complete disposable lifecycle acceptance. Fresh browser regression showed complete/1 processed in selector and details, unchanged result.
 
 Local Node 22.13 release checks passed **189/189 tests**; the fresh **full dependency audit has zero vulnerabilities**. Local SQLite migrated and HTTP health reported `VSN | Metafields (Dev)`. Actual page/file picker options and saved reference reads, keyboard tooltip/Escape and 5.86:1 button contrast were verified. Retained Staging logs returned zero warning/error text matches in the recorded 24-hour window. Manual restore comparison/repair is recorded in PR #303.

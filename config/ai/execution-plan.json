@@ -183,7 +183,8 @@
       "priority": 4,
       "status": "verification_required",
       "blockers": [
-        "Staging QA on 2026-10-10: valid scalar and page/file references save, reload and clean up successfully; minimum-length validation rejects invalid input; stale-write conflict is confirmed in two concurrent staging tabs and preserves the newer saved reference. Remaining: invalid behavior across the broader supported type matrix and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json."
+        "Staging QA on 2026-10-10: valid scalar and page/file references save, reload and clean up successfully; minimum-length validation rejects invalid input; stale-write conflict is confirmed in two concurrent staging tabs and preserves the newer saved reference. Remaining: invalid behavior across the broader supported type matrix and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json.",
+        "2026-10-14: 46-type local malformed codec matrix and four representative Staging editor rejection/readback cases passed. PR307 stale feedback fix verified on deploy98. Complete supported-type browser acceptance remains pending."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -207,7 +208,8 @@
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
-        "docs/evidence/metafields-value-roundtrip-2026-10-10.json"
+        "docs/evidence/metafields-value-roundtrip-2026-10-10.json",
+        "docs/evidence/metafields-value-feedback-2026-10-14.json"
       ]
     },
     {
