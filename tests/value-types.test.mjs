@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { encodeValue, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
+import { editableValueType, encodeValue, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
 const rich = {
   type: "root",
   children: [
@@ -16,10 +16,18 @@ test("structured and list codecs preserve false, zero and safe typed data", () =
     ["rating", '{"value":"4","scale_min":"1","scale_max":"5"}'],
     ["rich_text_field", JSON.stringify(rich)],
     ["list.number_integer", "[0,2]"],
-    ["list.boolean", "[false,true]"],
+    ["list.link", '[{"text":"Docs","url":"https://shopify.dev/docs"}]'],
   ])
     assert.ok(encodeValue(type, raw));
   assert.equal(encodeValue("boolean", "false"), "false");
+  assert.deepEqual(JSON.parse(encodeValue("list.link", '[{"text":"Docs","url":"https://shopify.dev/docs"}]')), [{ text: "Docs", url: "https://shopify.dev/docs" }]);
+});
+test("unsupported Shopify list types route to the native editor", () => {
+  for (const type of ["list.boolean", "list.multi_line_text_field", "list.json", "list.money"] ) {
+    assert.equal(editableValueType(type), false);
+    assert.throws(() => encodeValue(type, "[]"), /native value editor/);
+  }
+  assert.equal(editableValueType("list.link"), true);
 });
 test("invalid structures, oversized input, unsupported nodes and mismatched references are rejected", () => {
   for (const [type, raw] of [
@@ -30,7 +38,7 @@ test("invalid structures, oversized input, unsupported nodes and mismatched refe
     ["dimension", '{"value":1,"unit":"evil"}'],
     ["rating", '{"value":8,"scale_min":1,"scale_max":5}'],
     ["product_reference", "gid://shopify/Collection/1"],
-    ["list.boolean", '["yes"]'],
+    ["list.link", '[{"text":"Unsafe","url":"javascript:alert(1)"}]'],
     [
       "rich_text_field",
       '{"type":"root","children":[{"type":"script","children":[]}]}',
