@@ -883,6 +883,20 @@ export default function Index() {
             placeholder="Choose a field"
             searchPlaceholder="Search by name, namespace or key"
           />
+          {selectedDefinition && resourceId && (
+            <ActionButton
+              disabled={
+                valueFetcher.state !== "idle" ||
+                valueActionFetcher.state !== "idle"
+              }
+              onClick={() => {
+                resetValueAction();
+                loadValue();
+              }}
+            >
+              Reload value
+            </ActionButton>
+          )}
           {valueReady && (
             <>
               <TypedValueInput
