@@ -60,6 +60,7 @@ const TOPICS = [
     steps: [
       "Create a definition, such as Size guide, with a merchant-owned type and fields: Title, Size and Fit notes.",
       "Add an entry with a unique handle and save it as Draft.",
+      "If an edit is rejected because the entry changed, use Reload entry to discard unsaved edits and fetch the latest Shopify values before saving again.",
       "For public content on Pro, review its fields, enable Public API access and explicitly confirm publishing an Active entry. Starter and Growth include private draft metaobjects.",
     ],
     faqs: [
