@@ -4,7 +4,7 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "PR309 merged development8238390910868f3a8337f62d407ec29a88ab4ec7; Staging99/run38561975085 passed with lifecycle cleanup. Actual Reload value restores saved File reference from an unsaved draft and after rejected Save, clears old error, preserves selection and disables during reads/mutations. Local release189/189 plus lint/typecheck/model/build. Full acceptance remains open.",
+  "last_verified_completion": "PR #312 merged development 182e27a33c9ced092a7fd8b267e9e4ecb19443f6; Staging #100/run38568356016 passed with lifecycle cleanup. Actual private metaobject min/max rejection and cancel/re-edit/definition recovery preserve saved title/handle/Draft. Starter2-field and public-access-disabled controls verified. Local release189/189 plus lint/typecheck/model/build. Full acceptance remains open.",
   "next_valid_work_unit": "Close remaining META-011 gates: independent PR #298 review and runtime SHA attestation, explicit mixed CSV browser Apply approval, file-transfer acceptance, matching signed privacy delivery/fulfillment and complete accessibility/performance evidence. Then run fresh Shopify install and both full theme-draft matrices in the requested sequence. Live explicitly held.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
@@ -15,6 +15,7 @@
     "not_started": 1
   },
   "outstanding_updates": [
+    "Current metaobject feedback evidence: docs/evidence/metafields-metaobject-feedback-2026-10-14.json. Recovery/private QA checks pass; public/tier/conflict/preservation full browser acceptance pending. New screenshot attachment unavailable; no broken image or gallery change published.",
     "Current Reload evidence: docs/evidence/metafields-value-reload-2026-10-14.json. Draft PR310 in-app screenshot plus version-aware protected test passes local189/189 but is unmerged/undeployed pending independent review.",
     "Current value editor evidence: docs/evidence/metafields-value-feedback-2026-10-14.json; four representative browser rejection cases passed, stale feedback fixed; full supported-type UI acceptance remains open.",
     "Current batch evidence: docs/evidence/metafields-staging-batch-2026-10-14.json",
@@ -35,8 +36,8 @@
   "critical_defects": [],
   "qa_readiness": "staging_service_passed_browser_acceptance_partial",
   "security_readiness": "full_dependency_audit_passed_independent_review_pending",
-  "last_reconciled_repository_ref": "8238390910868f3a8337f62d407ec29a88ab4ec7",
-  "last_reconciled_at": "2026-10-14T12:23:38.055689+00:00",
+  "last_reconciled_repository_ref": "182e27a33c9ced092a7fd8b267e9e4ecb19443f6",
+  "last_reconciled_at": "2026-10-14T13:13:45.345763+00:00",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }
