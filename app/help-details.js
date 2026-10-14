@@ -43,7 +43,7 @@ export const FIRST_FIELD_STEPS = [
   "Under Create custom definition, enter Care instructions as Name, custom as Namespace and care_instructions as Key. The app suggests the key from your name; check it before saving.",
   "Choose a single-line text type with One. Add the description Short washing instructions. In Value validation, set Maximum characters to 120 if that rule is offered for this type.",
   "For a storefront example, choose Public read for Storefront access. Review the preview and select Save definition. Wait for the success message before moving on.",
-  "Under Resource values, search for the shirt's title, select Search, then choose the exact Resource and the Care instructions Definition. Enter Wash at 30°C. Select Save value, then Reload to check the saved value.",
+  "Under Resource values, search for the shirt's title, select Search, then choose the exact Resource and the Care instructions Definition. Enter Wash at 30°C. Select Save value, then Reload value to check the saved value.",
   "Open the theme editor from Shopify Admin. In an app-block-compatible section, add Single field from VSN | Metafields. Set namespace custom and key care_instructions, then label Care instructions. Preview the same shirt before saving the theme.",
 ];
 
@@ -253,7 +253,7 @@ export const HELP_DETAILS = {
             "Saving one shirt does not update every shirt.",
           ],
           [
-            "Reload",
+            "Reload value",
             "Fetch the saved content again. This may replace an unsaved draft, so copy important unsaved text first.",
             "Use after a conflict to review another editor's change.",
           ],
