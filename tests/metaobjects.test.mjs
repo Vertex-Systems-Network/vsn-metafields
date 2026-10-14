@@ -207,6 +207,21 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
   assert.equal(mutation.fields, undefined);
   assert.deepEqual(mutation.values, { question: "Q" });
   await assert.rejects(
+    saveMetaobjectEntry(admin, {
+      ...definition,
+      fieldDefinitions: [
+        ...definition.fieldDefinitions,
+        { key: "details", name: "Details", type: { name: "json" } },
+      ],
+    }, {
+      id,
+      updatedAt: "new",
+      handle: "one",
+      values: { question: "Q", answer: "" },
+    }),
+    /native editor/,
+  );
+  await assert.rejects(
     saveMetaobjectEntry(admin, definition, {
       id,
       updatedAt: "new",

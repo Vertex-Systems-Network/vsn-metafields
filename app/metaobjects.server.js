@@ -262,28 +262,21 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     // Shopify's fields input patches keys; values replaces the whole set and
     // clears omitted keys. Use replacement only for an explicit blank value.
     if (cleared.length) {
-      const allValues = Object.fromEntries(
-        existing.fields.map((field) => {
-          const definitionField = definition.fieldDefinitions.find(
-            (item) => item.key === field.key,
-          );
-          const structured =
-            definitionField?.type.name === "json" ||
-            definitionField?.type.name.startsWith("list.");
-          return [field.key, structured ? JSON.parse(field.value) : field.value];
-        }),
-      );
-      for (const field of fields) {
-        const definitionField = definition.fieldDefinitions.find(
-          (item) => item.key === field.key,
+      if (
+        definition.fieldDefinitions.some(
+          (field) =>
+            !["single_line_text_field", "multi_line_text_field"].includes(
+              field.type.name,
+            ),
+        )
+      )
+        throw new RangeError(
+          "Clear optional fields in Shopify’s native editor when this definition contains other value types.",
         );
-        const structured =
-          definitionField.type.name === "json" ||
-          definitionField.type.name.startsWith("list.");
-        allValues[field.key] = structured
-          ? JSON.parse(field.value)
-          : field.value;
-      }
+      const allValues = Object.fromEntries(
+        existing.fields.map((field) => [field.key, field.value]),
+      );
+      for (const field of fields) allValues[field.key] = field.value;
       for (const key of cleared) delete allValues[key];
       delete entry.fields;
       entry.values = allValues;
