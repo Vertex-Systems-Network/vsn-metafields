@@ -47,7 +47,16 @@
       "limit": 2,
       "add_field_disabled": true
     },
-    "public_access_option_disabled_on_starter": true
+    "public_access_option_disabled_on_starter": true,
+    "two_tab_stale_edit": {
+      "observed_at": "2026-10-14T16:45:44Z",
+      "first_tab_saved": "Cotton size guide QA",
+      "second_tab_attempted": "Stale overwrite attempt",
+      "second_tab_error": "Entry changed. Reload before editing.",
+      "original_title_restored_and_read_back": true,
+      "final_handle": "qa-guide",
+      "final_status": "DRAFT"
+    }
   },
   "service_checks": {
     "schema_documents": 51,
@@ -70,7 +79,7 @@
   },
   "remaining": [
     "Real public-access/publishing and plan-transition acceptance",
-    "Real concurrent metaobject conflict and omitted-field browser preservation",
+    "Broader concurrent metaobject race and omitted-field browser preservation",
     "PR298 runtime attestation and PR310 screenshot gate independent reviews",
     "Mixed CSV browser Apply exact approval and file-transfer checks",
     "Full theme/accessibility/performance, matching signed privacy fulfillment and operational assurance"

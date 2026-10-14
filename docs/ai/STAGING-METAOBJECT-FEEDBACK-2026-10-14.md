@@ -15,11 +15,13 @@
 | Fresh saved-entry read preserves title, handle and Draft | Pass |
 | Starter new-definition editor stops at2/2 fields | Pass; Add field disabled |
 | Starter public-access option disabled | Pass; no access change performed |
+| Two-tab edit: second tab submits its older timestamp after the first tab saves | Pass; rejected with `Entry changed. Reload before editing.` |
+| QA entry restored after the conflict check | Pass; fresh edit shows `Cotton size guide`, `qa-guide`, Draft |
 
-The private QA definition is `Size guide (QA)` / `vsn_qa_20261004`; saved entry `qa-guide` remains `Cotton size guide`, Draft. No successful browser save, definition creation, deletion, publication, billing or permission change was performed. The extra second field existed only in an unsaved local form. These checks do not certify real tier transitions, public content, sibling-field preservation or concurrent-editor conflicts.
+The private QA definition is `Size guide (QA)` / `vsn_qa_20261004`; saved entry `qa-guide` remains `Cotton size guide`, Draft. The two-tab check used a temporary `Cotton size guide QA` title in the first tab, then tried to overwrite it from the stale second tab; the stale write was rejected, and a fresh edit restored and read back the original title. No definition creation, deletion, publication, billing or permission change was performed. The extra second field existed only in an unsaved local form. These checks do not certify real tier transitions, public content, sibling-field preservation or a race in the interval between the server's timestamp read and Shopify's update mutation.
 
 Retained logs returned **0 warning/error text matches** in the recorded30-minute window. Invocation logging remains disabled, so this is not proof of every request outcome or signed privacy delivery. [Machine evidence](../evidence/metafields-metaobject-feedback-2026-10-14.json).
 
 A real recovery screenshot was captured and inspected, but its attachment could not be made available through the documented browser shared-file path. No broken image reference was published and no additional in-app screenshot change was added. Draft PR310 remains the prior independently reviewable Reload-gallery/test proposal; it is not merged or deployed.
 
-Acceptance remains **3/12 (25%); Phase04 0/3**. META007 still needs the remaining public/access, conflict and preservation browser flows. PR298/310 independent review, mixed browser Apply exact approval, file transfers, complete merchant/theme/accessibility/performance, signed privacy and operational acceptance remain open. Live remains held. [Full task report](STAGING-BATCH-REPORT-2026-10-14.md).
+Acceptance remains **3/12 (25%); Phase04 0/3**. META007 still needs public/access, omitted-field preservation and broader conflict/race acceptance. PR298/310 independent review, mixed browser Apply exact approval, file transfers, complete merchant/theme/accessibility/performance, signed privacy and operational acceptance remain open. Live remains held. [Full task report](STAGING-BATCH-REPORT-2026-10-14.md).
