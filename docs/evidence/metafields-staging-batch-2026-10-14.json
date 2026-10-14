@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-14",
+  "scope": "Development and isolated Staging; Live held",
+  "source_sha": "17f9395b6a27f96fb475edc008ee8dc46fcce314",
+  "app_version": "1.2.4",
+  "fix_pr": 304,
+  "ci_runs": [
+    38491612899,
+    38491612989
+  ],
+  "staging_deploy": {
+    "run": 38491950164,
+    "number": 97,
+    "job": 115618965435,
+    "conclusion": "success",
+    "worker": "vsn-metafields-staging",
+    "shop": "staging-oath3rth.myshopify.com",
+    "neon_endpoint": "ep-snowy-surf-b3gxl2wf",
+    "schema_documents": 51,
+    "typed_value_cases": 21,
+    "stale_digest_rejected": true,
+    "omitted_metaobject_fields_preserved": true,
+    "bulk_mixed_conflict_completed_resume_isolation": "passed in disposable service fixtures",
+    "cleanup": true,
+    "cleanup_failures": [],
+    "runtime_sha_attestation": "pending PR298 independent review; health has no APP_COMMIT_SHA binding"
+  },
+  "local": {
+    "node": "22.13.0",
+    "npm_ci": "passed",
+    "lint": "passed",
+    "typecheck": "passed",
+    "db_contract": "passed",
+    "tests_passed": 189,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "build": "passed",
+    "full_audit_vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "sqlite_migrations": 3,
+    "dev_health_title": "VSN | Metafields (Dev)",
+    "boundary": "Isolated local HTTP health with example credentials; not installed Shopify Dev app acceptance."
+  },
+  "browser": {
+    "original_safe_job": "complete 1/1; unchanged",
+    "post_fix_job_created_at": "2026-10-14T00:56:00.120Z",
+    "post_fix_preview_hash": "81060a8a35dd",
+    "post_fix_result": "complete 1/1, revision3, unchanged; selector and details both complete / 1 processed",
+    "mixed_preview_hash": "be04d7884055",
+    "mixed_preview": "text row valid; integer row invalid; 0/2 processed",
+    "mixed_apply": "automatic approval review rejected this different payload; not executed",
+    "file_chooser": "10-second timeout, unverified",
+    "export_download": "10-second timeout, unverified",
+    "page_picker": "Contact and Your Privacy Choices returned; saved Page GID read back",
+    "file_picker": "Actual image options returned; saved MediaImage GID read back",
+    "metaobjects": "QA definition and Draft entry reopened; Starter two-field cap and disabled Pro public-access option observed",
+    "collapsed_menu": "Tab focus showed Fields & values tooltip; Escape removed it and retained focus",
+    "primary_button": {
+      "foreground": "rgb(255,255,255)",
+      "background": "rgb(98,91,168)",
+      "contrast_ratio": 5.86,
+      "height_px": 40
+    },
+    "zoom": "Shortcut did not change measured viewport; browser security policy denied settings URL. No 200%/320px/mobile/screen-reader pass claimed.",
+    "screenshot": "docs/evidence/metafields-import-fixed-2026-10-14.jpg"
+  },
+  "cloudflare_logs": {
+    "query_id": "metafields-staging-warnings-errors-20261014",
+    "from_unix_ms": 1791853105485,
+    "to_unix_ms": 1791939505485,
+    "warning_error_text_matches": 0,
+    "boundary": "Retained logs only; invocation logs disabled. Not every-request outcomes or signed-webhook receipts."
+  },
+  "restore_evidence": "docs/evidence/staging-neon-restore-2026-10-13.md",
+  "shopify_cli_self_review": "Canonical requirements doc fetch failed: EAI_AGAIN shopify.dev; no full review claimed.",
+  "production_deployment": false,
+  "app_store_submission": false,
+  "verified_complete_work_units": 3,
+  "total_work_units": 12
+}

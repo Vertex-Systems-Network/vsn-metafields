@@ -4,8 +4,8 @@
   "current_phase": "META-PHASE-04",
   "current_module": "MOD-META-OPERATIONS",
   "current_work_unit": "META-011",
-  "last_verified_completion": "PR186 merged development 08868a52e872949d6f1572cfb13ddd3f8363f5e1 v1.2.4: official local CLI and visible-viewport dropdown fixes;159 local tests passed. Three merged-source checks passed; Dependency Security Audit37146463711 failed. Local busboy3.2.2/lock fix passed clean install and159tests;11 high braces-chain dependency entries remain without a published patch. No new staging dispatch; active staging remains v1.2.3/dd29e53bdf68. Merchant/theme/screenshots, receipts, drills and independent assurance pending.",
-  "next_valid_work_unit": "Resolve the development-tool security gate with reviewed compatible remediation before staging release. Fresh staging sign-in is now authorized and verified; execute remaining valid-value/import/page-file picker, public metaobject, two-theme and accessibility/performance acceptance. Provide actual staging Neon project ID and verified isolated restore target; retain independent production gates.",
+  "last_verified_completion": "PR #304 merged development 17f9395b6a27f96fb475edc008ee8dc46fcce314; native import-job label fix verified on Staging #97/run38491950164. Local Node 22.13 release checks:189/189 contracts, lint/typecheck/model parity/build pass; full npm audit zero vulnerabilities. Staging 51 schema documents, 21 typed cases, metaobject/bulk lifecycle and disposable cleanup passed. Manual restore comparison recorded in PR #303. Full merchant/theme/accessibility and independent release gates remain open.",
+  "next_valid_work_unit": "Close remaining META-011 gates: independent PR #298 review and runtime SHA attestation, explicit mixed CSV browser Apply approval, file-transfer acceptance, matching signed privacy delivery/fulfillment and complete accessibility/performance evidence. Then run fresh Shopify install and both full theme-draft matrices in the requested sequence. Live explicitly held.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
@@ -15,10 +15,10 @@
     "not_started": 1
   },
   "outstanding_updates": [
-    "Authenticated staging v1.2.3 UI baseline and19 actual screenshots captured. Private metaobject validation/save/reopen and one Horizon draft five-block save/reload passed. Remaining: valid-value/conflict/page-file flows, valid mixed/resumable CSV upload/download, public access, tier transitions, real rendering in two themes, per-setting lower-control images, accessibility/performance, signed compliance receipts.",
-    "Specifications settings-count advisory remains tracked nonblocking UX debt; actual editor-usability acceptance and final production assurance remain pending.",
-    "Embedded Staging title/version/home-only Shopify menu verified directly. Installed local Dev title remains pending direct verification. No restore/outage drill or operator assignment performed.",
-    "Remaining batch: v1.2.4 is development-only; security gate failed and staging still runs v1.2.3. Busboy3.2.2 remediation and factual evidence are reviewable follow-up work. Full development-tool audit still has11 high braces-chain affected entries with no published patch. Neon inventory requires staging project ID."
+    "Current batch evidence: docs/evidence/metafields-staging-batch-2026-10-14.json",
+    "Historical failed development audit is superseded by zero-vulnerability full audit. Manual Neon restore/schema/count check passed; automatic backups/RTO/RPO/outage/ownership remain pending.",
+    "META004..010 remain verification_required: complete merchant/theme matrices, lower-control images, real tier/permission transitions and installed Dev-app UI incomplete. Local Dev HTTP health title is verified only.",
+    "Mixed browser Apply rejected by automatic approval review; chooser/download events timed out. Canonical Shopify CLI self-review fetch failed with EAI_AGAIN. No full mobile/zoom/screen-reader certification."
   ],
   "outstanding_removals": [
     "Legacy Supabase source cleanup remains unperformed and needs a separate inventory, retention and backup decision.",
@@ -31,10 +31,10 @@
     "Resolve capability-dependent GitHub security checks before making them required."
   ],
   "critical_defects": [],
-  "qa_readiness": "authenticated_staging_baseline_partial_theme_content_accessibility_pending",
-  "security_readiness": "development_dependency_audit_failed_staging_release_held",
-  "last_reconciled_repository_ref": "08868a52e872949d6f1572cfb13ddd3f8363f5e1",
-  "last_reconciled_at": "2026-10-03T19:12:40.471874+00:00",
+  "qa_readiness": "staging_service_passed_browser_acceptance_partial",
+  "security_readiness": "full_dependency_audit_passed_independent_review_pending",
+  "last_reconciled_repository_ref": "17f9395b6a27f96fb475edc008ee8dc46fcce314",
+  "last_reconciled_at": "2026-10-14T01:05:45.599422+00:00",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }

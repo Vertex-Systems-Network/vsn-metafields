@@ -341,7 +341,7 @@
       "priority": 8,
       "status": "verification_required",
       "blockers": [
-        "Quoted paste preview and disabled apply for invalid rows verified. File chooser timed out; valid mixed/resumable completion, history and export-download UI remain required."
+        "Same-value one-row preview/apply/history completed on Staging; mixed preview separates valid/invalid rows. Mixed browser Apply rejected by automatic approval review; file chooser/export downloads unverified. Disposable service mixed/conflict/resume/isolation passed in deploy #97."
       ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -364,7 +364,9 @@
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-staging-batch-2026-10-14.json",
+        "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md"
       ]
     },
     {
@@ -418,7 +420,7 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Staging title/menu/loader/diagnostics and19 actual screenshots verified. Help integration and presentation/search fixes local; local Dev title, lower-control per-setting images and actual tier transition acceptance remain required."
+        "Staging title/menu/diagnostics remain verified. Local Dev HTTP health title and granted page/file picker readbacks verified on 2026-10-14. Installed Dev-app UI, lower-control screenshots, actual tier transitions and non-granted consent-session acceptance remain pending."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
@@ -443,7 +445,9 @@
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/ai/REMAINING-BATCH-REPORT.md",
         "docs/evidence/metafields-remaining-batch-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-staging-batch-2026-10-14.json",
+        "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md"
       ]
     },
     {
@@ -460,7 +464,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Authenticated staging baseline partial. Release held by full development dependency audit. Mobile/zoom/hover/screen-reader/contrast/performance, signed receipts, backup/restore and independent assurance remain required."
+        "Node 22.13 release checks passed with 189 tests and zero full-tree audit vulnerabilities; Staging #97 service acceptance passed; manual Neon restore comparison verified. Remaining: exact runtime SHA (PR #298 independent review), full browser/theme/mobile/zoom/screen-reader/performance acceptance, representative signed privacy receipts/fulfillment, automated backup/RTO/RPO/outage and independent release assurance."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -485,7 +489,9 @@
         "docs/evidence/metafields-environment-titles-2026-10-03.json",
         "docs/ai/REMAINING-BATCH-REPORT.md",
         "docs/evidence/metafields-remaining-batch-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-staging-batch-2026-10-14.json",
+        "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md"
       ]
     },
     {
