@@ -224,18 +224,25 @@ export async function saveMetaobjectEntry(admin, definition, input) {
   )
     throw new RangeError("Fields do not match the definition.");
   const fields = [];
+  const cleared = [];
   for (const field of definition.fieldDefinitions) {
     const raw = input.values[field.key];
-    if (raw === undefined || raw === "") {
+    if (raw === undefined) {
       if (!input.id && field.required)
         throw new RangeError(`${field.name} is required.`);
       continue; // Omitted fields are preserved during metadata/entry edits.
+    }
+    if (raw === "") {
+      if (field.required) throw new RangeError(`${field.name} is required.`);
+      if (input.id) cleared.push(field.key);
+      continue;
     }
     const value = encodeValue(field.type.name, raw, field.validations);
     await verifyReferences(admin, field.type.name, value);
     fields.push({ key: field.key, value });
   }
-  if (!fields.length) throw new RangeError("Enter at least one field value.");
+  if (!fields.length && !cleared.length)
+    throw new RangeError("Enter at least one field value.");
   const entry = {
     handle,
     fields,
@@ -252,11 +259,33 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     );
     if (!input.updatedAt || existing.updatedAt !== input.updatedAt)
       throw new RangeError("Entry changed. Reload before editing.");
+    // Shopify's fields input patches keys; values replaces the whole set and
+    // clears omitted keys. Use replacement only for an explicit blank value.
+    if (cleared.length) {
+      if (
+        definition.fieldDefinitions.some(
+          (field) =>
+            !["single_line_text_field", "multi_line_text_field"].includes(
+              field.type.name,
+            ),
+        )
+      )
+        throw new RangeError(
+          "Clear optional fields in Shopify’s native editor when this definition contains other value types.",
+        );
+      const allValues = Object.fromEntries(
+        existing.fields.map((field) => [field.key, field.value]),
+      );
+      for (const field of fields) allValues[field.key] = field.value;
+      for (const key of cleared) delete allValues[key];
+      delete entry.fields;
+      entry.values = allValues;
+    }
     const data = await graph(
       admin,
       `#graphql
       mutation UpdateMerchantMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
-        metaobjectUpdate(id:$id,metaobject:$metaobject) { metaobject { id type handle fields { key value } } userErrors { field message code } }
+        metaobjectUpdate(id:$id,metaobject:$metaobject) { metaobject { id type handle fields { key value } values } userErrors { field message code } }
       }`,
       { id: input.id, metaobject: entry },
     );
@@ -285,7 +314,8 @@ export async function saveMetaobjectEntry(admin, definition, input) {
         !saved.fields?.some(
           (f) => f.key === field.key && f.value === field.value,
         ),
-    )
+    ) ||
+    cleared.some((key) => saved.values?.[key] != null)
   )
     throw new Error("Shopify did not confirm the entry and field values.");
   return saved;
