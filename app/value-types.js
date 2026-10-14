@@ -47,7 +47,7 @@ export function editableValueType(type) {
     SCALAR_TYPES.includes(type?.replace(/^list\./, "")) &&
     !(
       type?.startsWith("list.") &&
-      ["json", "rich_text_field", "money", "link"].includes(type.slice(5))
+      ["boolean", "json", "rich_text_field", "money", "multi_line_text_field"].includes(type.slice(5))
     )
   );
 }
@@ -290,7 +290,7 @@ export function encodeValue(type, raw, validations = []) {
     result = JSON.stringify(
       list.map((item) => {
         const encoded = scalar(base, item);
-        return ["dimension", "volume", "weight", "rating"].includes(base)
+        return ["dimension", "volume", "weight", "rating", "link"].includes(base)
           ? json(encoded)
           : encoded;
       }),
