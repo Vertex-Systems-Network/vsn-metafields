@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-14T22:10:38Z",
+  "recorded_at": "2026-10-14T22:18:57Z",
   "environment": "staging",
   "source_pr": 318,
   "source_sha": "0bb0b1914644882cbda40fd0eb6a1b8f5af3260d",
@@ -14,9 +14,20 @@
     "AI Native Quality Gates success",
     "App Validation success"
   ],
-  "browser_check": "Installed Staging app and private Size guide QA definition opened; only required Title field available, so optional-clear mutation not exercised.",
-  "remaining": "Representative optional-clear readback and mixed-type behavior, public/tier transitions, broader META-007 and META-011 acceptance remain open.",
+  "browser_check": "Installed Staging app saved optional_qa_note as Clear QA 20261015, reopened it, then saved blank. Shopify Admin readback returned title Cotton size guide and optional_qa_note null; entry remained private Draft.",
+  "remaining": "Mixed-type clear stays in native editor; broader public/tier and META-007/011 acceptance remain open.",
   "live_deployed": false,
   "accepted_work_units": 3,
-  "total_work_units": 12
+  "total_work_units": 12,
+  "browser_readback": {
+    "definition": "vsn_qa_20261004",
+    "entry_id": "gid://shopify/Metaobject/372124451188",
+    "handle": "qa-guide",
+    "title": "Cotton size guide",
+    "optional_qa_note": null,
+    "status": "DRAFT",
+    "public_access": false,
+    "temporary_value": "Clear QA 20261015",
+    "cleared": true
+  }
 }
