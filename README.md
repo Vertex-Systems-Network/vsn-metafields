@@ -1,6 +1,16 @@
 # Shopify Metafields Builder
 
-## Current engineering checkpoint — 2026-10-13
+## Current engineering checkpoint — 2026-10-14
+
+[PR #304](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/304) merged to development at `17f9395b6a27f96fb475edc008ee8dc46fcce314`, fixing stale native import-job labels. [Staging deploy #97](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38491950164) passed migrations, identity, Worker health/billing, session/subscription reads and complete disposable lifecycle acceptance. Fresh browser regression showed complete/1 processed in selector and details, unchanged result.
+
+Local Node 22.13 release checks passed **189/189 tests**; the fresh **full dependency audit has zero vulnerabilities**. Local SQLite migrated and HTTP health reported `VSN | Metafields (Dev)`. Actual page/file picker options and saved reference reads, keyboard tooltip/Escape and 5.86:1 button contrast were verified. Retained Staging logs returned zero warning/error text matches in the recorded 24-hour window. Manual restore comparison/repair is recorded in PR #303.
+
+**Remaining:** fresh Shopify install and both full theme matrices (standby until prerequisites close), chooser/export downloads, mixed browser Apply (automatic review rejected the different payload), actual tier/public-metaobject paths, full mobile/zoom/screen-reader/storefront performance, matching signed privacy request/fulfillment, automatic backup/RPO/RTO/operational assurance and independent review. Exact runtime SHA attestation still needs independent review on draft PR #298. Canonical CLI self-review fetch failed with EAI_AGAIN shopify.dev. No full completion, Live deployment or App Store submission claimed.
+
+Verified-complete work units remain **3/12 (25%)**, Phase 04 **0/3**. [Full batch report](docs/ai/STAGING-BATCH-REPORT-2026-10-14.md) lists every work unit, subgate and evidence boundary. The machine checkpoint now reflects this batch rather than the old failed-audit state.
+
+## Previous engineering checkpoint — 2026-10-13
 
 The verified `development` application baseline is `59dbfda1b8674cb924c821f821188614e0dcb419`. [PR #292](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/292) fixed asynchronous CSV selection races; [PR #294](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/294) keeps the oldest pending privacy requests visible; [PR #295](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/295) and [PR #296](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/296) expose all retained import jobs for privacy review and cleanup; [PR #297](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/297) shows stale fulfillment errors in context. Post-merge [App Validation](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38417791525) and [AI Native Quality Gates](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38417791354) passed for that exact baseline. These are source and CI checks, not Staging acceptance.
 
