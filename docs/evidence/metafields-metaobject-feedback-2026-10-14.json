@@ -1,0 +1,81 @@
+{
+  "recorded_at": "2026-10-14T13:13:45.345763+00:00",
+  "environment": "staging",
+  "feature_pr": 312,
+  "workflow_source_sha": "182e27a33c9ced092a7fd8b267e9e4ecb19443f6",
+  "staging_run": 38568356016,
+  "staging_run_number": 100,
+  "staging_job": 115866731177,
+  "conclusion": "success",
+  "local_release": {
+    "node": "22.13.0",
+    "tests": 189,
+    "passed": 189,
+    "failed": 0,
+    "lint": true,
+    "typecheck": true,
+    "model_contract": true,
+    "build": true
+  },
+  "qa_definition": {
+    "name": "Size guide (QA)",
+    "type": "vsn_qa_20261004",
+    "access": "Private"
+  },
+  "qa_entry": {
+    "handle": "qa-guide",
+    "title": "Cotton size guide",
+    "status": "DRAFT"
+  },
+  "before_defect": "Cancel edit returned to a blank new-entry form but left the rejected edit error visible; re-entering Edit also retained that error.",
+  "browser_checks": {
+    "minimum_title_rejected": {
+      "input": "ab",
+      "error": "Text violates min length 3."
+    },
+    "maximum_title_rejected": {
+      "input_length": 101,
+      "error": "Text violates max length 100."
+    },
+    "cancel_disabled_while_save_pending": true,
+    "cancel_clears_discarded_error": true,
+    "reedit_clears_discarded_error": true,
+    "definition_change_clears_discarded_error": true,
+    "fresh_entry_read_preserves_title_handle_and_draft": true,
+    "starter_new_definition_cap": {
+      "field_count": 2,
+      "limit": 2,
+      "add_field_disabled": true
+    },
+    "public_access_option_disabled_on_starter": true
+  },
+  "service_checks": {
+    "schema_documents": 51,
+    "typed_cases": 21,
+    "lifecycle": true,
+    "cleanup": true,
+    "cleanup_failures": []
+  },
+  "retained_logs": {
+    "query_id": "metafields-staging-metaobject-recovery-20261014",
+    "from": 1791981390028,
+    "to": 1791983190028,
+    "warning_error_text_matches": 0,
+    "boundary": "Retained application log text only, not every-request status or signed privacy delivery evidence."
+  },
+  "screenshot": {
+    "captured_and_visually_inspected": true,
+    "attachment_available": false,
+    "boundary": "Browser-produced image could not be made available through the documented shared-file path; no broken artifact link or in-app gallery change published."
+  },
+  "remaining": [
+    "Real public-access/publishing and plan-transition acceptance",
+    "Real concurrent metaobject conflict and omitted-field browser preservation",
+    "PR298 runtime attestation and PR310 screenshot gate independent reviews",
+    "Mixed CSV browser Apply exact approval and file-transfer checks",
+    "Full theme/accessibility/performance, matching signed privacy fulfillment and operational assurance"
+  ],
+  "live_deployed": false,
+  "accepted_work_units": 3,
+  "total_work_units": 12
+}
