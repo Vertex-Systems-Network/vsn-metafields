@@ -1,0 +1,239 @@
+{
+  "checked_at": "2026-10-14T11:14:53.354Z",
+  "source_sha": "17f9395b6a27f96fb475edc008ee8dc46fcce314",
+  "scope": "Local shared codec malformed-input rejection; not Shopify API or browser acceptance",
+  "total": 46,
+  "passed": 46,
+  "cases": [
+    {
+      "type": "single_line_text_field",
+      "rejected": true,
+      "message": "Enter valid text for this field."
+    },
+    {
+      "type": "list.single_line_text_field",
+      "rejected": true,
+      "message": "Enter valid text for this field."
+    },
+    {
+      "type": "multi_line_text_field",
+      "rejected": true,
+      "message": "Enter a value under 64,000 bytes."
+    },
+    {
+      "type": "list.multi_line_text_field",
+      "rejected": true,
+      "message": "Enter valid text for this field."
+    },
+    {
+      "type": "number_integer",
+      "rejected": true,
+      "message": "Enter a whole number within the supported range."
+    },
+    {
+      "type": "list.number_integer",
+      "rejected": true,
+      "message": "Enter a whole number within the supported range."
+    },
+    {
+      "type": "number_decimal",
+      "rejected": true,
+      "message": "Enter a finite decimal number."
+    },
+    {
+      "type": "list.number_decimal",
+      "rejected": true,
+      "message": "Enter a finite decimal number."
+    },
+    {
+      "type": "boolean",
+      "rejected": true,
+      "message": "Choose true or false."
+    },
+    {
+      "type": "list.boolean",
+      "rejected": true,
+      "message": "Choose true or false."
+    },
+    {
+      "type": "date",
+      "rejected": true,
+      "message": "Enter a valid date as YYYY-MM-DD."
+    },
+    {
+      "type": "list.date",
+      "rejected": true,
+      "message": "Enter a valid date as YYYY-MM-DD."
+    },
+    {
+      "type": "date_time",
+      "rejected": true,
+      "message": "Enter a valid date as YYYY-MM-DD."
+    },
+    {
+      "type": "list.date_time",
+      "rejected": true,
+      "message": "Enter a valid date as YYYY-MM-DD."
+    },
+    {
+      "type": "url",
+      "rejected": true,
+      "message": "Enter a valid HTTPS URL without credentials."
+    },
+    {
+      "type": "list.url",
+      "rejected": true,
+      "message": "Enter a valid HTTPS URL without credentials."
+    },
+    {
+      "type": "color",
+      "rejected": true,
+      "message": "Enter a color as #RRGGBB."
+    },
+    {
+      "type": "list.color",
+      "rejected": true,
+      "message": "Enter a color as #RRGGBB."
+    },
+    {
+      "type": "json",
+      "rejected": true,
+      "message": "Enter valid JSON."
+    },
+    {
+      "type": "rich_text_field",
+      "rejected": true,
+      "message": "Unsupported rich text node."
+    },
+    {
+      "type": "dimension",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "list.dimension",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "volume",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "list.volume",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "weight",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "list.weight",
+      "rejected": true,
+      "message": "Invalid measurement value or unit."
+    },
+    {
+      "type": "rating",
+      "rejected": true,
+      "message": "Rating must be within its scale."
+    },
+    {
+      "type": "list.rating",
+      "rejected": true,
+      "message": "Rating must be within its scale."
+    },
+    {
+      "type": "money",
+      "rejected": true,
+      "message": "Enter an ISO currency code."
+    },
+    {
+      "type": "link",
+      "rejected": true,
+      "message": "Link label is required."
+    },
+    {
+      "type": "product_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.product_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "variant_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.variant_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "collection_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.collection_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "page_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.page_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "article_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.article_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "file_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.file_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "metaobject_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.metaobject_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "mixed_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    },
+    {
+      "type": "list.mixed_reference",
+      "rejected": true,
+      "message": "Reference ID does not match the field type."
+    }
+  ]
+}
