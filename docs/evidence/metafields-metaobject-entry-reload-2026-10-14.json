@@ -1,0 +1,56 @@
+{
+  "recorded_at": "2026-10-14T21:50:44Z",
+  "environment": "staging",
+  "feature_pr": 315,
+  "source_sha": "8887354a3c4cb066864b2f59812785e74d9a9073",
+  "staging_run": 38616316193,
+  "staging_run_number": 101,
+  "staging_job": 116032205027,
+  "conclusion": "success",
+  "help_update": {
+    "pr": 316,
+    "source_sha": "9894b8a245cfe4386574441772a7b7f422bdc523",
+    "staging_run": 38617680921,
+    "staging_run_number": 102,
+    "staging_job": 116036878491,
+    "conclusion": "success",
+    "actual_help_instruction_visible": true
+  },
+  "local_release": {
+    "node": "22.13.0",
+    "tests": 189,
+    "passed": 189,
+    "failed": 0,
+    "lint": true,
+    "typecheck": true,
+    "db_contract": true,
+    "build": true
+  },
+  "browser_checks": {
+    "definition": "vsn_qa_20261004",
+    "entry_handle": "qa-guide",
+    "status": "DRAFT",
+    "rejected_input": "ab",
+    "rejection": "Text violates min length 3.",
+    "reload_action_present": true,
+    "reload_restored_saved_title": "Cotton size guide",
+    "reload_cleared_old_error": true,
+    "invalid_edit_saved": false
+  },
+  "retained_logs": {
+    "query_id": "metafields-staging-metaobject-reload-20261014",
+    "from": 1792001388824,
+    "to": 1792003188824,
+    "warning_error_text_matches": 0,
+    "boundary": "Retained application log text only; invocation logging is disabled."
+  },
+  "remaining": [
+    "Omitted sibling-field preservation, public access and tier transitions",
+    "Timestamp read-to-mutation race and broader conflict acceptance",
+    "Independent protected PR298/310 reviews",
+    "Mixed CSV Apply exact approval, file transfer, theme/accessibility/performance, signed privacy and operational assurance"
+  ],
+  "accepted_work_units": 3,
+  "total_work_units": 12,
+  "live_deployed": false
+}
