@@ -130,6 +130,10 @@ export default function Index() {
   const loadStandards = standardsFetcher.load;
   const loadResources = resourcesFetcher.load;
   const loadResourceValue = valueFetcher.load;
+  const resetValueAction = valueActionFetcher.reset;
+  useEffect(() => {
+    resetValueAction();
+  }, [ownerType, resourceId, valueIdentity, resetValueAction]);
   const reload = useCallback(() => {
     loadFields(apiUrl("/app/api/fields", { ownerType }));
     loadStandards(
