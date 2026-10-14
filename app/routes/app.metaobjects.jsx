@@ -85,6 +85,7 @@ export default function Metaobjects() {
       ),
     );
   const select = (id) => {
+    mutation.reset();
     setDefinitionId(id);
     setEditing(null);
     setHandle("");
@@ -454,7 +455,9 @@ export default function Metaobjects() {
           </ActionButton>
           {editing && (
             <ActionButton
+              disabled={busy}
               onClick={() => {
+                mutation.reset();
                 setEditing(null);
                 setValues({});
                 setHandle("");
@@ -504,6 +507,7 @@ export default function Metaobjects() {
                     <ActionButton
                       disabled={busy || !definition.editable}
                       onClick={() => {
+                        mutation.reset();
                         setEditing(entry);
                         setHandle(entry.handle);
                         setValues(
