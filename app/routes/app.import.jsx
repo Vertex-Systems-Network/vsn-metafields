@@ -149,6 +149,7 @@ export default function Import() {
           </div>
         )}
         <s-select
+          key={(list.data?.jobs || []).map((item) => `${item.id}:${item.revision}`).join("|")}
           label="Import job"
           value={selected}
           onInput={(e) => setSelected(e.target.value)}
