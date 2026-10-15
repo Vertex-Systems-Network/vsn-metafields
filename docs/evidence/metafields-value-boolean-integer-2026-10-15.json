@@ -35,7 +35,13 @@
       "invalid_result": "Save displayed Enter a finite decimal number; Remove value stayed disabled.",
       "valid_input": "1.25",
       "valid_result": "Saved value; Reload value read back 1.25; removed with confirmation and editor showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261015.decimal_norm_qa_20261015",
+      "type": "number_decimal",
+      "input": "1.00",
+      "result": "Saved on The Complete Snowboard; app showed Value saved and editor changed to 1.0. Explicit Reload value again showed 1.0, confirming Shopify normalized the stored decimal string. Removed value with confirmation; app showed Value removed and empty editor. Removed the disposable private Product definition; app showed Definition removed. No storefront access was granted."
     }
   ],
-  "boundary": "Four representative live browser cases, not complete supported-type acceptance. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
+  "boundary": "Five representative live browser cases, not complete supported-type acceptance. The 1.00 to 1.0 Staging readback reproduces the decimal-equivalence condition fixed in PR #327; that code is not yet deployed to Staging. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
 }
