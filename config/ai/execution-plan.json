@@ -186,7 +186,8 @@
         "Staging QA on 2026-10-10: valid scalar and page/file references save, reload and clean up successfully; minimum-length validation rejects invalid input; stale-write conflict is confirmed in two concurrent staging tabs and preserves the newer saved reference. Remaining: invalid behavior across the broader supported type matrix and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json.",
         "2026-10-14: 46-type local malformed codec matrix and four representative Staging editor rejection/readback cases passed. PR307 stale feedback fix verified on deploy98. Complete supported-type browser acceptance remains pending.",
         "2026-10-14: Reload value unsaved-draft and rejected-save recovery verified on Staging99. Full type/browser acceptance remains pending; new in-app help capture/test update is draft PR310, independent review required.",
-        "2026-10-15: Installed Staging app Boolean False, integer 0, list.link HTTPS array, and disposable decimal 1.25 save/reload/remove passed; malformed integer abc, link without URL, and decimal comma rejected. Full supported-type browser acceptance and independent release evidence remain pending."
+        "2026-10-15: Installed Staging app Boolean False, integer 0, list.link HTTPS array, and disposable decimal 1.25 save/reload/remove passed; malformed integer abc, link without URL, and decimal comma rejected. Full supported-type browser acceptance and independent release evidence remain pending.",
+        "2026-10-16: decimal equivalence fix merged and Staging #108/#109 exact-source acceptance passed. Full supported-type browser matrix remains open."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -213,7 +214,8 @@
         "docs/evidence/metafields-value-roundtrip-2026-10-10.json",
         "docs/evidence/metafields-value-feedback-2026-10-14.json",
         "docs/evidence/metafields-value-reload-2026-10-14.json",
-        "docs/evidence/metafields-value-boolean-integer-2026-10-15.json"
+        "docs/evidence/metafields-value-boolean-integer-2026-10-15.json",
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
       ]
     },
     {
@@ -267,7 +269,8 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Horizon and Tinker unpublished drafts both render the public Material value in Specifications after saving/reloading. Two-theme public-value rendering is verified. Reordering, multiple instances, full 45-setting usability and broader automated acceptance remain open. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
+        "Horizon and Tinker unpublished drafts both render the public Material value in Specifications after saving/reloading. Two-theme public-value rendering is verified. Reordering, multiple instances, full 45-setting usability and broader automated acceptance remain open. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json.",
+        "2026-10-16: unsupported rendered Specifications row fix shipped in staging-only Shopify extension release #28; ordering, multiple instances and complete setting usability still require browser acceptance."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -292,7 +295,8 @@
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-theme-preview-2026-10-10.json",
-        "docs/evidence/metafields-tinker-theme-preview-2026-10-10.json"
+        "docs/evidence/metafields-tinker-theme-preview-2026-10-10.json",
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
       ]
     },
     {
@@ -310,7 +314,8 @@
       "blockers": [
         "Private QA definition saved/reopened; min-length error and valid Draft save/readback verified. Public-access confirmation, field-preservation and conflict flows remain required.",
         "2026-10-14: min/max title rejection, saved private QA readback, cancel/re-edit/definition-change feedback recovery and Starter2-field/public-access controls verified on Staging100/PR312. Two-tab stale timestamp rejection and entry Reload recovery verified on Staging101/PR315. Real public-access, tier transitions, omitted-field browser preservation and timestamp read-to-mutation race still pending.",
-        "2026-10-15: PR318 optional text-field clear contract, Staging103 service and actual private QA browser/Shopify readback passed; required Title preserved and optional field null. Mixed-type clear remains native. Full public/tier/omitted-field and race gates remain."
+        "2026-10-15: PR318 optional text-field clear contract, Staging103 service and actual private QA browser/Shopify readback passed; required Title preserved and optional field null. Mixed-type clear remains native. Full public/tier/omitted-field and race gates remain.",
+        "2026-10-16: installed Staging private QA Title-only edit retained optional note after Shopify reload; optional note then cleared and original Title restored. Raw omitted-field browser request, public/tier transitions and read-to-mutation race still pending."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -336,7 +341,8 @@
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-metaobject-feedback-2026-10-14.json",
         "docs/evidence/metafields-metaobject-entry-reload-2026-10-14.json",
-        "docs/evidence/metafields-metaobject-optional-clear-2026-10-15.json"
+        "docs/evidence/metafields-metaobject-optional-clear-2026-10-15.json",
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
       ]
     },
     {
@@ -474,7 +480,7 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "Node 22.13 release checks passed with 189 tests and zero full-tree audit vulnerabilities; Staging #97 service acceptance passed; manual Neon restore comparison verified. Remaining: exact runtime SHA (PR #298 independent review), full browser/theme/mobile/zoom/screen-reader/performance acceptance, representative signed privacy receipts/fulfillment, automated backup/RTO/RPO/outage and independent release assurance."
+        "2026-10-16: exact runtime source SHA attestation passed on Staging #109 (850065e2a5e88fec54d850a7e937d2fd6d2e97ec), and staging-only extension release #28 passed. Remaining: full browser/theme/mobile/zoom/screen-reader/performance acceptance, representative signed privacy receipts/fulfillment, automated backup/RTO/RPO/outage and independent release assurance."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -501,7 +507,8 @@
         "docs/evidence/metafields-remaining-batch-2026-10-03.json",
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-staging-batch-2026-10-14.json",
-        "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md"
+        "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md",
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
       ]
     },
     {
