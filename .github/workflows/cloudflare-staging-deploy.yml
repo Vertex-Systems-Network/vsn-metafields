@@ -41,6 +41,14 @@ jobs:
           ref: development
           persist-credentials: false
 
+      - name: Bind checked-out development source SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git rev-parse --verify HEAD)"
+          echo "APP_COMMIT_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
+          echo "staging_source_sha=$SOURCE_SHA"
+
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -157,7 +165,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes wrangler@4.141.0 deploy             --secrets-file /tmp/vsn-metafields-staging-secrets.json             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"             --var "APP_ENV:staging"
+          npx --yes wrangler@4.141.0 deploy             --secrets-file /tmp/vsn-metafields-staging-secrets.json             --var "SHOPIFY_API_KEY:$SHOPIFY_API_KEY"             --var "SHOPIFY_APP_URL:$SHOPIFY_APP_URL"             --var "SCOPES:$SCOPES"             --var "APP_ENV:staging"             --var "APP_COMMIT_SHA:$APP_COMMIT_SHA"
 
       - name: Verify deployed staging runtime contract
         shell: bash
@@ -190,6 +198,12 @@ jobs:
                       raise RuntimeError("health payload ok flag is not true")
                   if payload.get("service") != "vsn-metafields":
                       raise RuntimeError("unexpected service identity")
+                  if payload.get("commitSha") != os.environ["APP_COMMIT_SHA"]:
+                      raise RuntimeError(
+                          f"deployed source SHA mismatch: expected={os.environ['APP_COMMIT_SHA']} "
+                          f"actual={payload.get('commitSha')}"
+                      )
+                  print("staging_source_sha=pass")
 
                   plan = payload.get("plan") or {}
                   expected = {
