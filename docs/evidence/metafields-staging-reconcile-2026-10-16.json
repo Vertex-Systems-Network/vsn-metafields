@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-16",
+  "environment": "staging",
+  "shop": "staging-oath3rth.myshopify.com",
+  "source": {
+    "worker_deployment_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38800795836",
+    "checkout_sha": "850065e2a5e88fec54d850a7e937d2fd6d2e97ec",
+    "runtime_sha_check": "passed",
+    "cloudflare_version_id": "acd0a4a9-e1c9-47cf-b89a-d7c4e5d676ac",
+    "shopify_extension_release_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38799028451",
+    "extension_source_sha": "20e0e4791e3859b3e6f03c888cd2d2f38e763349"
+  },
+  "checks": [
+    {
+      "case": "Worker source attestation and staging acceptance",
+      "result": "passed",
+      "detail": "Run #109 completed all steps, including runtime commitSha match, staging isolation, Shopify session/subscription reads and retained-value lifecycle."
+    },
+    {
+      "case": "Shopify staging extension",
+      "result": "passed",
+      "detail": "Run #28 released the staging-only app version after exact source acceptance and block contracts."
+    },
+    {
+      "case": "Help recovery screenshot",
+      "result": "passed",
+      "detail": "Installed Staging Help center rendered Reload saved content after an error; image loaded with natural size 1363x936."
+    },
+    {
+      "case": "Private metaobject field preservation",
+      "result": "passed",
+      "detail": "Size guide (QA), qa-guide: saved optional note, reopened, changed only Title, reopened and confirmed note retained; restored original Title and empty optional note and reloaded from Shopify."
+    }
+  ],
+  "limitations": [
+    "Browser readback does not itself prove the raw request omitted unchanged fields; the changed-field payload is covered by tests/metaobjects.test.mjs, and a network-level browser assertion remains open.",
+    "Public metaobject access, actual tier transitions, full supported-type/value and two-theme typed storefront acceptance, fresh install, accessibility/performance, privacy receipts and recovery drills remain open.",
+    "No Live deployment or App Store submission."
+  ]
+}
