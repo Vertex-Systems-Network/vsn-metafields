@@ -226,10 +226,8 @@
         "META-004"
       ],
       "priority": 5,
-      "status": "verification_required",
-      "blockers": [
-        "Horizon and Tinker unpublished drafts both render the configured public product metafield after saving/reloading. Tinker settings persist when entered through normal keyboard UI input. Manual two-theme render gate is met; remaining module-specific automated contract/end-to-end evidence must be reconciled before completion. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Single Field block verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -253,7 +251,8 @@
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-theme-preview-2026-10-10.json",
-        "docs/evidence/metafields-tinker-theme-preview-2026-10-10.json"
+        "docs/evidence/metafields-tinker-theme-preview-2026-10-10.json",
+        "docs/evidence/metafields-single-field-closure-2026-10-16.json"
       ]
     },
     {
