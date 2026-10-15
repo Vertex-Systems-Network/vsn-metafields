@@ -348,9 +348,17 @@ export function encodeValue(type, raw, validations = []) {
 export function valuesEquivalent(type, left, right) {
   try {
     const a = encodeValue(type, left), b = encodeValue(type, right);
-    // Shopify may canonicalize the string representation of decimal values.
-    // Both inputs have already passed the finite decimal codec above.
-    if (type === "number_decimal") return Number(a) === Number(b);
+    // Shopify may remove trailing fractional zeroes. Compare decimal strings
+    // exactly after that normalization to retain digits beyond JS precision.
+    if (type === "number_decimal") {
+      const canonical = (value) => {
+        const [integer, fraction = ""] = value.split(".");
+        const digits = fraction.replace(/0+$/, "");
+        const whole = integer === "-0" ? "0" : integer;
+        return digits ? `${whole}.${digits}` : whole;
+      };
+      return canonical(a) === canonical(b);
+    }
     if (!type.startsWith("list.") && !["json", "rich_text_field", "dimension", "weight", "volume", "rating", "money", "link"].includes(type)) return a === b;
     const stable = (value) => Array.isArray(value) ? value.map(stable) :
       value && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map((k) => [k, stable(value[k])])) : value;
