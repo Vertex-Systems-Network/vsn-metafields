@@ -90,6 +90,10 @@ test("Shopify uppercase measurement responses can be re-edited and aliases canon
   assert.deepEqual(JSON.parse(encodeValue("list.dimension", '[{"value":2,"unit":"CENTIMETERS"}]')), [{value: 2, unit: "CENTIMETERS"}]);
 });
 test("normalized structured writes recover without confusing changed values or text", () => {
+  assert.equal(valuesEquivalent("number_decimal", "1.00", "1"), true);
+  assert.equal(valuesEquivalent("number_decimal", "-0.0", "0"), true);
+  assert.equal(valuesEquivalent("number_decimal", "1.01", "1"), false);
+  assert.equal(valuesEquivalent("number_decimal", "invalid", "1"), false);
   assert.equal(valuesEquivalent("dimension", '{"value":10,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), true);
   assert.equal(valuesEquivalent("dimension", '{"value":11,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), false);
   assert.equal(valuesEquivalent("json", '{"a":0,"b":false}', '{"b":false,"a":0}'), true);
