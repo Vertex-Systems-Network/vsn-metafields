@@ -26,7 +26,16 @@
       "invalid_result": "Save displayed Enter a valid HTTPS URL; Remove value remained disabled.",
       "valid_input": "[{\"text\":\"QA link\",\"url\":\"https://example.com\"}]",
       "valid_result": "Saved value; after Reload value the editor showed the same JSON array; removed with the app confirmation dialog; editor was empty and showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261015.decimal_qa_20261015",
+      "type": "number_decimal",
+      "definition_lifecycle": "Created disposable private Product definition in Staging; after value cleanup removed it; app reported Definition removed and registered count returned to 9 of 9.",
+      "invalid_input": "1,25",
+      "invalid_result": "Save displayed Enter a finite decimal number; Remove value stayed disabled.",
+      "valid_input": "1.25",
+      "valid_result": "Saved value; Reload value read back 1.25; removed with confirmation and editor showed Value removed."
     }
   ],
-  "boundary": "These are two more representative live browser cases, not complete supported-type acceptance. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
+  "boundary": "Four representative live browser cases, not complete supported-type acceptance. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
 }
