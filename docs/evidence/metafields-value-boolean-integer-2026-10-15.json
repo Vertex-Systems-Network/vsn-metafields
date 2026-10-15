@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "environment": "staging",
+  "shop": "staging-oath3rth.myshopify.com",
+  "app": "VSN | Metafields (Staging)",
+  "resource": "The Complete Snowboard",
+  "browser_cases": [
+    {
+      "definition": "vsn_qa_20261004.enabled",
+      "type": "boolean",
+      "input": "False",
+      "result": "Saved value; after Reload value, the selected value was still False; removed with the app's confirmation dialog; the editor returned to Choose a value and showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261004.count",
+      "type": "number_integer",
+      "invalid_input": "abc",
+      "invalid_result": "Save displayed Enter a whole number within the supported range; Remove value stayed disabled and no saved value was shown.",
+      "valid_input": "0",
+      "valid_result": "Saved value; after Reload value, the editor still showed 0; removed with the app's confirmation dialog; the editor was empty and showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261015.link_list_qa_20261015",
+      "type": "list.link",
+      "invalid_input": "[{\"text\":\"QA\"}]",
+      "invalid_result": "Save displayed Enter a valid HTTPS URL; Remove value remained disabled.",
+      "valid_input": "[{\"text\":\"QA link\",\"url\":\"https://example.com\"}]",
+      "valid_result": "Saved value; after Reload value the editor showed the same JSON array; removed with the app confirmation dialog; editor was empty and showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261015.decimal_qa_20261015",
+      "type": "number_decimal",
+      "definition_lifecycle": "Created disposable private Product definition in Staging; after value cleanup removed it; app reported Definition removed and registered count returned to 9 of 9.",
+      "invalid_input": "1,25",
+      "invalid_result": "Save displayed Enter a finite decimal number; Remove value stayed disabled.",
+      "valid_input": "1.25",
+      "valid_result": "Saved value; Reload value read back 1.25; removed with confirmation and editor showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261015.decimal_norm_qa_20261015",
+      "type": "number_decimal",
+      "input": "1.00",
+      "result": "Saved on The Complete Snowboard; app showed Value saved and editor changed to 1.0. Explicit Reload value again showed 1.0, confirming Shopify normalized the stored decimal string. Removed value with confirmation; app showed Value removed and empty editor. Removed the disposable private Product definition; app showed Definition removed. No storefront access was granted."
+    }
+  ],
+  "boundary": "Five representative live browser cases, not complete supported-type acceptance. The 1.00 to 1.0 Staging readback reproduces the decimal-equivalence condition fixed in PR #327; that code is not yet deployed to Staging. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
+}
