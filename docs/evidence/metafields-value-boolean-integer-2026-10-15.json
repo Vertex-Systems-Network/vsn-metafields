@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-15",
+  "environment": "staging",
+  "shop": "staging-oath3rth.myshopify.com",
+  "app": "VSN | Metafields (Staging)",
+  "resource": "The Complete Snowboard",
+  "browser_cases": [
+    {
+      "definition": "vsn_qa_20261004.enabled",
+      "type": "boolean",
+      "input": "False",
+      "result": "Saved value; after Reload value, the selected value was still False; removed with the app's confirmation dialog; the editor returned to Choose a value and showed Value removed."
+    },
+    {
+      "definition": "vsn_qa_20261004.count",
+      "type": "number_integer",
+      "invalid_input": "abc",
+      "invalid_result": "Save displayed Enter a whole number within the supported range; Remove value stayed disabled and no saved value was shown.",
+      "valid_input": "0",
+      "valid_result": "Saved value; after Reload value, the editor still showed 0; removed with the app's confirmation dialog; the editor was empty and showed Value removed."
+    }
+  ],
+  "boundary": "These are two more representative live browser cases, not complete supported-type acceptance. Exact runtime source SHA and broader type/billing invariants were not independently verified in this session. No Live deployment or App Store submission."
+}
