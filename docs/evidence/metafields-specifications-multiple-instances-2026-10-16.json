@@ -19,6 +19,11 @@
       "case": "Cleanup",
       "result": "passed",
       "evidence": "Removed the temporary QA second specs block and saved. Save became disabled and only the original Specifications block remained in the editor navigation; original product value remained in preview."
+    },
+    {
+      "case": "Mobile preview of retained Specifications block",
+      "result": "passed",
+      "evidence": "After cleanup, switched Horizon editor to mobile preview. Material and exact public value wrapped within the Specifications card without visible clipping at the editor's mobile viewport. This is a targeted visual check, not a full responsive or accessibility certification."
     }
   ],
   "remaining": "This check narrows META006; full 45-setting usability, row ordering beyond these block instances, and broader responsive/accessibility acceptance remain open."
