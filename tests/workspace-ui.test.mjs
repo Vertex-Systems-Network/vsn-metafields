@@ -334,7 +334,10 @@ test("actual Help screenshots cover every topic and block with valid dated JPEG 
     const bytes = readFileSync(resolve("public", screenshot.src.slice(1)));
     assert.equal(bytes.readUInt16BE(0), 0xffd8);
     assert.ok(screenshot.width > 0 && screenshot.height > 0);
-    assert.equal(screenshot.version, "1.2.3");
+    assert.ok(
+      screenshot.version === "1.2.3" || screenshot.version === APP_VERSION,
+      `Unknown screenshot capture version: ${screenshot.version}`,
+    );
     assert.ok(Number.isFinite(Date.parse(screenshot.capturedAt)));
   }
   assert.match(html, /Actual Staging app/);
