@@ -276,3 +276,20 @@ test("specifications show the placeholder for a present metafield with an empty 
   );
   assert.match(output, /<dt>Material<\/dt><dd>Not provided<\/dd>/);
 });
+
+test("specifications hide unsupported rendered values instead of showing empty rows", async () => {
+  const product = {
+    id: 1,
+    metafields: { custom: {
+      unsupported: { type: "json", value: { secret: "private" } },
+      count: { type: "number_integer", value: 0 },
+      enabled: { type: "boolean", value: false },
+    } },
+  };
+  const output = await renderBlock("vsn-specifications", {
+    namespace: "custom", key_1: "unsupported", key_2: "count", key_3: "enabled",
+  }, { product });
+  assert.doesNotMatch(output, /unsupported|private|<dd><\/dd>/);
+  assert.match(output, /<dd>0<\/dd>/);
+  assert.match(output, /<dd>No<\/dd>/);
+});
