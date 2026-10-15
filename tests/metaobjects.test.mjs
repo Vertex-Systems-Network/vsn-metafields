@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { entryValuesForSave } from "../app/metaobject-entry-values.js";
 import {
   merchantMetaobjectType,
   createMetaobjectDefinition,
@@ -167,9 +168,12 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
                 id,
                 type: "vsn_faq",
                 handle: "one",
-                fields: mutation.fields || Object.entries(mutation.values).map(
-                  ([key, value]) => ({ key, value }),
-                ),
+                fields:
+                  mutation.fields ||
+                  Object.entries(mutation.values).map(([key, value]) => ({
+                    key,
+                    value,
+                  })),
                 values: mutation.values
                   ? { question: mutation.values.question, answer: null }
                   : undefined,
@@ -207,18 +211,22 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
   assert.equal(mutation.fields, undefined);
   assert.deepEqual(mutation.values, { question: "Q" });
   await assert.rejects(
-    saveMetaobjectEntry(admin, {
-      ...definition,
-      fieldDefinitions: [
-        ...definition.fieldDefinitions,
-        { key: "details", name: "Details", type: { name: "json" } },
-      ],
-    }, {
-      id,
-      updatedAt: "new",
-      handle: "one",
-      values: { question: "Q", answer: "" },
-    }),
+    saveMetaobjectEntry(
+      admin,
+      {
+        ...definition,
+        fieldDefinitions: [
+          ...definition.fieldDefinitions,
+          { key: "details", name: "Details", type: { name: "json" } },
+        ],
+      },
+      {
+        id,
+        updatedAt: "new",
+        handle: "one",
+        values: { question: "Q", answer: "" },
+      },
+    ),
     /native editor/,
   );
   await assert.rejects(
@@ -354,4 +362,36 @@ test("definition deletion blocks nonempty, mismatched and malformed collection e
     );
     assert.equal(mutations, 0, scenario);
   }
+});
+test("entry edit sends only changed fields and preserves intentional clears", () => {
+  const entry = {
+    fields: [
+      { key: "title", value: "Original" },
+      { key: "note", value: "Keep me" },
+    ],
+  };
+  assert.deepEqual(
+    entryValuesForSave(entry, {
+      title: "Changed",
+      note: "Keep me",
+    }),
+    { title: "Changed" },
+  );
+  assert.deepEqual(
+    entryValuesForSave(entry, {
+      title: "Original",
+      note: "",
+    }),
+    { note: "" },
+  );
+  assert.deepEqual(
+    entryValuesForSave(entry, {
+      title: "Original",
+      note: "Keep me",
+    }),
+    { title: "Original", note: "Keep me" },
+  );
+  assert.deepEqual(entryValuesForSave(null, { title: "New" }), {
+    title: "New",
+  });
 });

@@ -8,6 +8,7 @@ import { LoadingState } from "../components/LoadingState";
 import SearchableSelect from "../components/SearchableSelect";
 import ValidationEditor from "../components/ValidationEditor";
 import { fieldTypeOption } from "../field-presentation";
+import { entryValuesForSave } from "../metaobject-entry-values";
 const initialField = () => ({
   key: "title",
   name: "Title",
@@ -481,7 +482,7 @@ export default function Metaobjects() {
                 id: editing?.id,
                 updatedAt: editing?.updatedAt,
                 handle,
-                values,
+                values: entryValuesForSave(editing, values),
                 status,
                 confirmPublic: publicConfirm
                   ? `PUBLISH:${definition.type}:${handle}`
