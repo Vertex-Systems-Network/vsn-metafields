@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { editableValueType, encodeValue, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
+import { editableValueType, encodeValue, valueInputHint, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
 const rich = {
   type: "root",
   children: [
@@ -28,6 +28,12 @@ test("unsupported Shopify list types route to the native editor", () => {
     assert.throws(() => encodeValue(type, "[]"), /native value editor/);
   }
   assert.equal(editableValueType("list.link"), true);
+});
+test("list guidance matches structured link and reference input", () => {
+  assert.match(valueInputHint("list.link"), /\[\{"text":"Learn more","url":"https:\/\/example\.com"\}\]/);
+  assert.match(valueInputHint("list.product_reference"), /gid:\/\/shopify\/Product\/123/);
+  assert.match(valueInputHint("list.dimension"), /dimension objects/);
+  assert.match(valueInputHint("list.single_line_text_field"), /\["cotton", "linen"\]/);
 });
 test("invalid structures, oversized input, unsupported nodes and mismatched references are rejected", () => {
   for (const [type, raw] of [

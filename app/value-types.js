@@ -52,8 +52,16 @@ export function editableValueType(type) {
   );
 }
 export function valueInputHint(type) {
-  if (type.startsWith("list."))
+  if (type.startsWith("list.")) {
+    const itemType = type.slice(5);
+    if (itemType === "link")
+      return 'JSON array of links, for example [{"text":"Learn more","url":"https://example.com"}]';
+    if (REFERENCE_TYPES[itemType])
+      return 'JSON array of Shopify resource IDs, for example ["gid://shopify/Product/123"]';
+    if (["dimension", "volume", "weight", "rating"].includes(itemType))
+      return `JSON array of ${itemType} objects.`;
     return 'JSON array, for example ["cotton", "linen"]';
+  }
   if (REFERENCE_TYPES[type])
     return "Choose a reference or enter a Shopify resource ID.";
   return (
