@@ -186,7 +186,7 @@
         "Staging QA on 2026-10-10: valid scalar and page/file references save, reload and clean up successfully; minimum-length validation rejects invalid input; stale-write conflict is confirmed in two concurrent staging tabs and preserves the newer saved reference. Remaining: invalid behavior across the broader supported type matrix and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json.",
         "2026-10-14: 46-type local malformed codec matrix and four representative Staging editor rejection/readback cases passed. PR307 stale feedback fix verified on deploy98. Complete supported-type browser acceptance remains pending.",
         "2026-10-14: Reload value unsaved-draft and rejected-save recovery verified on Staging99. Full type/browser acceptance remains pending; new in-app help capture/test update is draft PR310, independent review required.",
-        "2026-10-15: Installed Staging app boolean False and integer 0 save/reload/remove passed; malformed integer abc rejected. Complete supported-type browser acceptance and independent release evidence remain pending."
+        "2026-10-15: Installed Staging app Boolean False, integer 0 and list.link HTTPS array save/reload/remove passed; malformed integer abc and link without URL rejected. Complete supported-type browser acceptance and independent release evidence remain pending."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
