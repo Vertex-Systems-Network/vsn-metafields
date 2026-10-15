@@ -93,6 +93,7 @@ test("normalized structured writes recover without confusing changed values or t
   assert.equal(valuesEquivalent("number_decimal", "1.00", "1"), true);
   assert.equal(valuesEquivalent("number_decimal", "-0.0", "0"), true);
   assert.equal(valuesEquivalent("number_decimal", "1.01", "1"), false);
+  assert.equal(valuesEquivalent("number_decimal", "9007199254740992", "9007199254740993"), false);
   assert.equal(valuesEquivalent("number_decimal", "invalid", "1"), false);
   assert.equal(valuesEquivalent("dimension", '{"value":10,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), true);
   assert.equal(valuesEquivalent("dimension", '{"value":11,"unit":"cm"}', '{"unit":"CENTIMETERS","value":10}'), false);
