@@ -270,7 +270,8 @@
       "status": "verification_required",
       "blockers": [
         "Horizon and Tinker unpublished drafts both render the public Material value after save/reload. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json.",
-        "2026-10-16: unsupported rendered row fix shipped in staging-only extension release #28. Horizon second Specifications instance and three configured rows saved and displayed exact public value in order; temporary QA changes removed and draft saved clean. Targeted mobile preview wrapped Material/value without clipping. Remaining: full 45-setting usability, mixed-type row browser matrix and broader responsive/accessibility acceptance. See docs/evidence/metafields-specifications-multiple-instances-2026-10-16.json and docs/evidence/metafields-specifications-row-order-2026-10-16.json. 2026-10-16: malformed namespace.key.extra is now rejected without placeholder on installed Staging #110/#29; see docs/evidence/metafields-specifications-malformed-staging-2026-10-16.json."
+        "2026-10-16: unsupported rendered row fix shipped in staging-only extension release #28. Horizon second Specifications instance and three configured rows saved and displayed exact public value in order; temporary QA changes removed and draft saved clean. Targeted mobile preview wrapped Material/value without clipping. Remaining: full 45-setting usability, mixed-type row browser matrix and broader responsive/accessibility acceptance. See docs/evidence/metafields-specifications-multiple-instances-2026-10-16.json and docs/evidence/metafields-specifications-row-order-2026-10-16.json. 2026-10-16: malformed namespace.key.extra is now rejected without placeholder on installed Staging #110/#29; see docs/evidence/metafields-specifications-malformed-staging-2026-10-16.json.",
+        "2026-10-16: Tinker unpublished draft Table style and Cards/Two saved with exact public Material value; Rows/One and Hide empty rows ON restored, reloaded and verified. Mixed-type/full-setting/responsive/accessibility gates remain; see docs/evidence/metafields-tinker-specifications-layout-2026-10-16.json."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -299,7 +300,8 @@
         "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
         "docs/evidence/metafields-specifications-multiple-instances-2026-10-16.json",
         "docs/evidence/metafields-specifications-row-order-2026-10-16.json",
-        "docs/evidence/metafields-specifications-malformed-staging-2026-10-16.json"
+        "docs/evidence/metafields-specifications-malformed-staging-2026-10-16.json",
+        "docs/evidence/metafields-tinker-specifications-layout-2026-10-16.json"
       ]
     },
     {
