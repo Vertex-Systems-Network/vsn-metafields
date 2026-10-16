@@ -60,14 +60,26 @@
       assign valid_identity = false
     endif
     assign field = nil
+    assign has_field_value = false
     if valid_identity
       assign field = owner.metafields[field_namespace][field_key]
+      if field != nil
+        if field.value != blank or field.type == 'boolean'
+          assign has_field_value = true
+        endif
+      endif
     endif
   -%}
   {%- capture value_output -%}{%- render 'vsn-field-value', field: field, settings: block.settings -%}{%- endcapture -%}
+  {%- liquid
+    assign has_rendered_value = false
+    if has_field_value and value_output != blank
+      assign has_rendered_value = true
+    endif
+  -%}
   {%- if valid_identity -%}
-    {%- if value_output != blank or block.settings.hide_empty == false -%}
-      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
+    {%- if has_rendered_value or block.settings.hide_empty == false -%}
+      <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if has_rendered_value %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
     {%- endif -%}
   {%- endif -%}
 {%- endfor -%}

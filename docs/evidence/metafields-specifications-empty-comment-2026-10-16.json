@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-16",
+  "environment": "Shopify staging-oath3rth; Tinker unpublished default product; installed Staging extension release #29",
+  "finding": "Hide empty rows ON still rendered a missing key as a blank definition.",
+  "reproduction": [
+    "Configured Field 2 key vsn_missing_qa_20261016 and label Missing QA on The Complete Snowboard.",
+    "With Hide empty rows OFF, row appeared with empty definition; Material public value remained correct.",
+    "With Hide empty rows ON, saved draft; storefront iframe refreshed and Missing QA term still appeared with empty definition.",
+    "Read-only DOM showed dd contents only Shopify-generated BEGIN/END app snippet HTML comments, which make captured output nonblank."
+  ],
+  "fix": "Require a metafield value before treating captured snippet output as rendered. Preserve boolean false and integer zero; use placeholder when Hide empty rows OFF.",
+  "cleanup": "Temporary key and label cleared, Hide empty rows ON, saved draft; Save disabled.",
+  "limits": "Fix needs CI and installed staging extension acceptance; no Live."
+}
