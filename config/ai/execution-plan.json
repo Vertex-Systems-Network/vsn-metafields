@@ -181,16 +181,8 @@
         "META-003"
       ],
       "priority": 4,
-      "status": "verification_required",
-      "blockers": [
-        "Staging QA on 2026-10-10: valid scalar and page/file references save, reload and clean up successfully; minimum-length validation rejects invalid input; stale-write conflict is confirmed in two concurrent staging tabs and preserves the newer saved reference. Remaining: invalid behavior across the broader supported type matrix and complete automated/end-to-end evidence; see docs/evidence/metafields-value-roundtrip-2026-10-10.json.",
-        "2026-10-14: 46-type local malformed codec matrix and four representative Staging editor rejection/readback cases passed. PR307 stale feedback fix verified on deploy98. Complete supported-type browser acceptance remains pending.",
-        "2026-10-14: Reload value unsaved-draft and rejected-save recovery verified on Staging99. Full type/browser acceptance remains pending; new in-app help capture/test update is draft PR310, independent review required.",
-        "2026-10-15: Installed Staging app Boolean False, integer 0, list.link HTTPS array, and disposable decimal 1.25 save/reload/remove passed; malformed integer abc, link without URL, and decimal comma rejected. Full supported-type browser acceptance and independent release evidence remain pending.",
-        "2026-10-16: decimal equivalence fix merged and Staging #108/#109 exact-source acceptance passed. Full supported-type browser matrix remains open.",
-        "2026-10-16: 45 editable scalar/list codec variants now have exhaustive local valid/invalid contract coverage; Node 22.13 release check passed. Staging Date invalid/save/reload/cleanup passed. Full installed-browser type matrix remains unverified; see docs/evidence/metafields-value-matrix-2026-10-16.json.",
-        "2026-10-16: All 25 scalar types and editable list variants now reject semantic malformed examples in local contracts (195/195 passed). Date-time staging browser control timed out after creating disposable definition; staging Shopify query confirmed definition, delete with associated-values deletion disabled succeeded, and readback found zero. Date-time value browser acceptance still pending; see docs/evidence/metafields-value-semantic-invalid-2026-10-16.json."
-      ],
+      "status": "complete",
+      "blockers": [],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
         "Existing product data and billing invariants preserved"
@@ -219,7 +211,8 @@
         "docs/evidence/metafields-value-boolean-integer-2026-10-15.json",
         "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
         "docs/evidence/metafields-value-matrix-2026-10-16.json",
-        "docs/evidence/metafields-value-semantic-invalid-2026-10-16.json"
+        "docs/evidence/metafields-value-semantic-invalid-2026-10-16.json",
+        "docs/evidence/metafields-value-owner-acceptance-2026-10-17.json"
       ]
     },
     {
@@ -498,7 +491,8 @@
       "priority": 11,
       "status": "in_progress",
       "blockers": [
-        "2026-10-16: exact runtime source SHA attestation passed on Staging #109 (850065e2a5e88fec54d850a7e937d2fd6d2e97ec), and staging-only extension release #28 passed. Remaining: full browser/theme/mobile/zoom/screen-reader/performance acceptance, representative signed privacy receipts/fulfillment, automated backup/RTO/RPO/outage and independent release assurance."
+        "2026-10-16: exact runtime source SHA attestation passed on Staging #109 (850065e2a5e88fec54d850a7e937d2fd6d2e97ec), and staging-only extension release #28 passed. Remaining: full browser/theme/mobile/zoom/screen-reader/performance acceptance, representative signed privacy receipts/fulfillment, automated backup/RTO/RPO/outage and independent release assurance.",
+        "2026-10-17: META-004 representative owner acceptance passed across Product, ProductVariant and Collection. META-011 release regression still needs broader installed-browser type permutations; the 45 editable type codec matrix is automated, not 45 UI roundtrips. See docs/evidence/metafields-value-owner-acceptance-2026-10-17.json."
       ],
       "acceptance_criteria": [
         "Staging end-to-end and release preflight verified against representative staging data",
@@ -526,7 +520,8 @@
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-staging-batch-2026-10-14.json",
         "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md",
-        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
+        "docs/evidence/metafields-value-owner-acceptance-2026-10-17.json"
       ]
     },
     {
