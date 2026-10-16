@@ -1,12 +1,63 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { editableValueType, encodeValue, valueInputHint, valuesEquivalent, valueResponseMatches } from "../app/value-types.js";
+import { editableValueType, encodeValue, valueInputHint, valuesEquivalent, valueResponseMatches, SCALAR_TYPES } from "../app/value-types.js";
 const rich = {
   type: "root",
   children: [
     { type: "paragraph", children: [{ type: "text", value: "Text <safe>" }] },
   ],
 };
+test("every advertised editable scalar and list has a valid roundtrip and rejects malformed input", () => {
+  const values = {
+    single_line_text_field: "Cotton",
+    multi_line_text_field: "Care\nInstructions",
+    number_integer: "0",
+    number_decimal: "1.25",
+    boolean: "false",
+    date: "2026-10-16",
+    date_time: "2026-10-16T12:30:00Z",
+    url: "https://example.com/path",
+    color: "#A1b2C3",
+    json: '{"a":false}',
+    rich_text_field: JSON.stringify(rich),
+    dimension: '{"value":10,"unit":"cm"}',
+    volume: '{"value":1,"unit":"l"}',
+    weight: '{"value":1,"unit":"kg"}',
+    rating: '{"value":4,"scale_min":1,"scale_max":5}',
+    money: '{"amount":"10.00","currency_code":"USD"}',
+    link: '{"text":"Docs","url":"https://example.com"}',
+    product_reference: "gid://shopify/Product/123",
+    variant_reference: "gid://shopify/ProductVariant/123",
+    collection_reference: "gid://shopify/Collection/123",
+    page_reference: "gid://shopify/Page/123",
+    article_reference: "gid://shopify/Article/123",
+    file_reference: "gid://shopify/MediaImage/123",
+    metaobject_reference: "gid://shopify/Metaobject/123",
+    mixed_reference: "gid://shopify/Metaobject/123",
+  };
+  assert.deepEqual(Object.keys(values).sort(), [...SCALAR_TYPES].sort());
+  const listExcluded = new Set(["boolean", "json", "rich_text_field", "money", "multi_line_text_field"]);
+  let covered = 0;
+  for (const type of SCALAR_TYPES) {
+    const raw = values[type];
+    const encoded = encodeValue(type, raw);
+    assert.equal(valuesEquivalent(type, raw, encoded), true, type);
+    assert.throws(() => encodeValue(type, ""), RangeError, type);
+    covered++;
+    const listType = `list.${type}`;
+    if (listExcluded.has(type)) {
+      assert.equal(editableValueType(listType), false, listType);
+      continue;
+    }
+    const listRaw = JSON.stringify([type.startsWith("number_") ? Number(raw) :
+      ["dimension", "volume", "weight", "rating", "link"].includes(type) ? JSON.parse(raw) : raw]);
+    const listEncoded = encodeValue(listType, listRaw);
+    assert.equal(valuesEquivalent(listType, listRaw, listEncoded), true, listType);
+    assert.throws(() => encodeValue(listType, "{}"), RangeError, listType);
+    covered++;
+  }
+  assert.equal(covered, 45);
+});
 test("structured and list codecs preserve false, zero and safe typed data", () => {
   for (const [type, raw] of [
     ["number_decimal", "0.25"],
