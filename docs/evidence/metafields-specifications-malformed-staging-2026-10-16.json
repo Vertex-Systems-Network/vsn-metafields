@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-16",
+  "scope": "Staging-only acceptance for malformed Specifications field identity after PR335",
+  "source": {
+    "development_sha": "68579f00da3f1373a33256a24e33168ee95eb2ac",
+    "cloudflare_staging_run": 110,
+    "shopify_staging_release_run": 29,
+    "theme": "Horizon unpublished draft",
+    "product": "The Complete Snowboard"
+  },
+  "checks": [
+    {
+      "case": "CI",
+      "result": "passed",
+      "evidence": "PR335 App Validation #512 contract tests and theme extension build passed; AI Native Quality Gates #881 passed."
+    },
+    {
+      "case": "Exact Staging source",
+      "result": "passed",
+      "evidence": "Cloudflare Staging Deploy #110 and Shopify Staging Release #29 completed successfully for the same development SHA."
+    },
+    {
+      "case": "Installed browser readback",
+      "result": "passed",
+      "evidence": "Set a temporary second Specifications row to vsn_theme_smoke_20261009.material.extra with label QA malformed; turned Hide empty rows off and saved. Product preview retained only valid Material with exact public value Staging theme smoke: stainless steel, 500 g; malformed row did not render even as an empty placeholder."
+    },
+    {
+      "case": "Cleanup",
+      "result": "passed",
+      "evidence": "Cleared temporary key/label, restored Hide empty rows on, saved. Save disabled, only Material row remained."
+    }
+  ],
+  "limitations": [
+    "Does not certify full 45-setting, mixed-type and accessibility matrix.",
+    "No theme publication or Live release."
+  ]
+}
