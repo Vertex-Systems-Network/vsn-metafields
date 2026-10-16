@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16",
+  "work_unit": "META-004",
+  "local": {
+    "coverage": "25 scalar semantic malformed values; editable list variants additionally reject nonarrays and malformed member values",
+    "checks": "Node 22.13.0 lint and 195/195 contract tests passed"
+  },
+  "staging": {
+    "attempt": "Date and time private Product QA definition was created in installed app, but browser control timed out before value testing.",
+    "recovery": "Staging Shopify Admin GraphQL read verified exact definition gid://shopify/MetafieldDefinition/293952160116; deleted with deleteAllAssociatedMetafields:false and no userErrors; follow-up query returned zero matching definitions.",
+    "browser_acceptance": "Not claimed for date_time; no value mutation was attempted."
+  },
+  "remaining": "Full installed-app browser matrix remains open.",
+  "live_deployed": false
+}
