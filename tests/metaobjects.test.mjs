@@ -167,13 +167,18 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
               metaobject: {
                 id,
                 type: "vsn_faq",
-                handle: "one",
+                handle: mutation.handle,
                 fields:
                   mutation.fields ||
-                  Object.entries(mutation.values).map(([key, value]) => ({
-                    key,
-                    value,
-                  })),
+                  (mutation.values
+                    ? Object.entries(mutation.values).map(([key, value]) => ({
+                        key,
+                        value,
+                      }))
+                    : [
+                        { key: "question", value: "Old question" },
+                        { key: "answer", value: "Old answer" },
+                      ]),
                 values: mutation.values
                   ? { question: mutation.values.question, answer: null }
                   : undefined,
@@ -201,6 +206,14 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
     values: { question: "Q" },
   });
   assert.deepEqual(mutation.fields, [{ key: "question", value: "Q" }]);
+  assert.equal(mutation.values, undefined);
+  await saveMetaobjectEntry(admin, definition, {
+    id,
+    updatedAt: "new",
+    handle: "renamed",
+    values: {},
+  });
+  assert.equal(mutation.fields, undefined);
   assert.equal(mutation.values, undefined);
   await saveMetaobjectEntry(admin, definition, {
     id,
@@ -389,7 +402,7 @@ test("entry edit sends only changed fields and preserves intentional clears", ()
       title: "Original",
       note: "Keep me",
     }),
-    { title: "Original", note: "Keep me" },
+    {},
   );
   assert.deepEqual(entryValuesForSave(null, { title: "New" }), {
     title: "New",

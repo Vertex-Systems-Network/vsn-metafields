@@ -241,11 +241,11 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     await verifyReferences(admin, field.type.name, value);
     fields.push({ key: field.key, value });
   }
-  if (!fields.length && !cleared.length)
+  if (!input.id && !fields.length && !cleared.length)
     throw new RangeError("Enter at least one field value.");
   const entry = {
     handle,
-    fields,
+    ...(fields.length ? { fields } : {}),
     ...(definition.capabilities?.publishable?.enabled
       ? { capabilities: { publishable: { status } } }
       : {}),

@@ -1,5 +1,5 @@
 // Send only edited fields so Shopify's patch mutation preserves untouched keys.
-// An unchanged form still sends its existing values for handle/status edits.
+// Handle/status-only edits leave the field patch empty.
 export function entryValuesForSave(editing, values) {
   if (!editing) return values;
   const previous = Object.fromEntries(
@@ -8,5 +8,5 @@ export function entryValuesForSave(editing, values) {
   const changed = Object.fromEntries(
     Object.entries(values).filter(([key, value]) => value !== previous[key]),
   );
-  return Object.keys(changed).length ? changed : values;
+  return changed;
 }
