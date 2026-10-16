@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-17",
+  "environment": "Shopify Staging / VSN | Metafields (Staging)",
+  "work_unit": "META-007",
+  "definition": {
+    "type": "vsn_qa_20261004",
+    "name": "Size guide (QA)",
+    "access": "private",
+    "entry_count": 1
+  },
+  "entry": {
+    "handle": "qa-guide",
+    "title": "Cotton size guide",
+    "optional_qa_note": null,
+    "status": "DRAFT"
+  },
+  "checks": [
+    {
+      "name": "populated definition removal guard",
+      "action": "Check and remove empty definition, confirm",
+      "result": "Refused: Definition still contains entries; definition and entry remained."
+    },
+    {
+      "name": "Starter public access control",
+      "result": "Public API access · Pro option disabled; no public access change."
+    },
+    {
+      "name": "status roundtrip",
+      "result": "Existing private QA entry changed Draft to Active, then restored to Draft; listing readback DRAFT."
+    },
+    {
+      "name": "optional field preservation",
+      "result": "Saved optional note QA note preservation 20261017; re-edit readback. Saved Title Cotton size guide QA; re-edit showed Title updated and note retained."
+    },
+    {
+      "name": "optional field clear and restoration",
+      "result": "Restored Title Cotton size guide and cleared optional note; re-edit readback showed empty optional field and DRAFT."
+    }
+  ],
+  "remaining": [
+    "Raw browser request inspection for omitted unchanged field",
+    "Public access and tier transitions with authorized test entitlement",
+    "Read-to-mutation race acceptance"
+  ],
+  "scope": "Disposable staging QA content only; no Live changes."
+}
