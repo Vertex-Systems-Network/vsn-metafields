@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-16",
+  "environment": "staging-oath3rth.myshopify.com",
+  "work_unit": "META-007",
+  "scope": "Disposable private QA entry restoration after browser session interruption",
+  "entry_id": "gid://shopify/Metaobject/372124451188",
+  "before": {
+    "handle": "qa-guide-batch-20261016",
+    "title": "Cotton size guide",
+    "optional_qa_note": "Batch QA preserve 2026-10-16",
+    "publishable_status": "DRAFT"
+  },
+  "action": "Shopify Admin GraphQL metaobjectUpdate on Staging: handle qa-guide; optional_qa_note empty string; title omitted to preserve its value.",
+  "after_readback": {
+    "handle": "qa-guide",
+    "title": "Cotton size guide",
+    "optional_qa_note": null,
+    "publishable_status": "DRAFT",
+    "updated_at": "2026-10-16T18:41:33Z"
+  },
+  "result": "passed",
+  "limitations": [
+    "This verifies QA restoration and Shopify API readback; it is not installed app browser acceptance.",
+    "Raw browser payload, public/tier transitions and read-to-mutation race remain open."
+  ],
+  "live_deployed": false
+}
