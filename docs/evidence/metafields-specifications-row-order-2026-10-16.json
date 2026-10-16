@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-16",
+  "scope": "Staging-only Horizon unpublished theme, Specifications ordered rows browser QA",
+  "environment": {
+    "shop": "staging-oath3rth",
+    "product": "The Complete Snowboard",
+    "namespace": "vsn_theme_smoke_20261009",
+    "key": "material",
+    "public_value": "Staging theme smoke: stainless steel, 500 g"
+  },
+  "checks": [
+    {
+      "case": "Saved ordered rows",
+      "result": "passed",
+      "evidence": "In Specifications settings, kept row 1 as Material and set row 2 and row 3 to the same public material key with labels QA second row and QA third row. Saved unpublished draft and selected The Complete Snowboard. Preview displayed Material, QA second row, QA third row in configured order, each with exact public value."
+    },
+    {
+      "case": "Restore draft",
+      "result": "passed",
+      "evidence": "Cleared temporary rows 2 and 3 key and label controls, saved, and confirmed Save disabled and only Material/expected public value remained in preview."
+    }
+  ],
+  "limitations": [
+    "One public metafield repeated across rows tests ordered placement and render, not a mixed type matrix.",
+    "Theme remained unpublished; no Live action.",
+    "Full 45-setting usability and broader accessibility/responsive coverage remain."
+  ]
+}
