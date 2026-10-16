@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16",
+  "environment": "Shopify staging-oath3rth, Tinker unpublished draft, default product, The Complete Snowboard",
+  "scope": "Specifications block layout browser QA",
+  "observations": [
+    "Initial Table style selected and saved; Material displayed public value 'Staging theme smoke: stainless steel, 500 g'.",
+    "Cards with Two columns selected and saved; preview retained exact Material value.",
+    "Rows and One column restored and saved; reload and reopened block confirmed Rows selected, One column, Hide empty rows pressed, exact Material value. Save disabled."
+  ],
+  "limitations": [
+    "One public text row; mixed-type rows, full 45-setting usability, responsive/accessibility acceptance remain open.",
+    "No theme publish or Live deployment."
+  ],
+  "screenshot": "staging-tinker-restored-1792112288000.jpg (browser evidence attached in conversation)"
+}
