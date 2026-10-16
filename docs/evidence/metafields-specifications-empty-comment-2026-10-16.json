@@ -10,5 +10,14 @@
   ],
   "fix": "Require a metafield value before treating captured snippet output as rendered. Preserve boolean false and integer zero; use placeholder when Hide empty rows OFF.",
   "cleanup": "Temporary key and label cleared, Hide empty rows ON, saved draft; Save disabled.",
-  "limits": "Fix needs CI and installed staging extension acceptance; no Live."
+  "limits": "Fix needs CI and installed staging extension acceptance; no Live.",
+  "staging_acceptance": {
+    "source_sha": "0b0bbb19a41815f6c88cb40090620190a39edb33",
+    "cloudflare_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38833484901",
+    "cloudflare_conclusion": "success",
+    "shopify_release_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38833832898",
+    "shopify_release_conclusion": "success",
+    "browser": "Tinker unpublished default product preview, The Complete Snowboard: Hide empty rows ON removed missing Field 2 row while preserving Material exact value; OFF rendered Missing QA with em dash; temporary key/label cleared and ON restored, draft saved with Save disabled.",
+    "remaining": "Full mixed-type, responsive/accessibility, and 45-setting matrix remains."
+  }
 }
