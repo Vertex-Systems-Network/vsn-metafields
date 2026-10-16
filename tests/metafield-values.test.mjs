@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateValueInput, mutateValue } from "../app/metafield-values.server.js";
+import { validateValueInput, mutateValue, readResourceValue } from "../app/metafield-values.server.js";
 
 const definition = { namespace: "vsn_metafields", key: "care", type: "single_line_text_field" };
 const productId = "gid://shopify/Product/123";
@@ -19,6 +19,32 @@ test("typed values reject malformed integer, boolean, calendar date and unsafe U
     assert.throws(() => validateValueInput("PRODUCT", productId, { ...definition, type }, value), RangeError);
   }
   assert.equal(validateValueInput("PRODUCT", productId, { ...definition, type: "boolean" }, "false"), "false");
+});
+
+test("product, variant and collection values enforce owner identity during read and write", async () => {
+  for (const [ownerType, shopifyType] of [
+    ["PRODUCT", "Product"],
+    ["PRODUCTVARIANT", "ProductVariant"],
+    ["COLLECTION", "Collection"],
+  ]) {
+    const ownerId = `gid://shopify/${shopifyType}/123`;
+    const value = validateValueInput(ownerType, ownerId, definition, "Care");
+    assert.equal(value, "Care");
+    const admin = { graphql: async (_, { variables }) => ({ json: async () => ({
+      data: variables.id
+        ? { node: { __typename: shopifyType, id: ownerId, metafield: { value } } }
+        : { metafieldsSet: { metafields: [{
+          id: "gid://shopify/Metafield/1", owner: { id: ownerId },
+          namespace: definition.namespace, key: definition.key,
+          type: definition.type, value,
+        }], userErrors: [] } },
+    }) }) };
+    assert.equal((await readResourceValue(admin, ownerType, ownerId, definition.namespace, definition.key)).value, value);
+    assert.equal((await mutateValue(admin, { action: "set", ownerId, definition, value })).ok, true);
+    const wrongOwnerId = `gid://shopify/${shopifyType === "Product" ? "Collection" : "Product"}/456`;
+    assert.throws(() => validateValueInput(ownerType, wrongOwnerId, definition, value), /Resource/);
+    await assert.rejects(() => readResourceValue(admin, ownerType, wrongOwnerId, definition.namespace, definition.key), /Resource/);
+  }
 });
 
 test("set sends only selected identity and type, and rejects Shopify errors", async () => {
