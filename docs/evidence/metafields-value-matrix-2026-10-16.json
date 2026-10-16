@@ -32,5 +32,13 @@
     "before": "{\"value\":159.0,\"unit\":\"CENTIMETERS\"}",
     "invalid": "{\"value\":1,\"unit\":\"evil\"}",
     "result": "Invalid measurement value or unit; Reload value restored original 159.0 CENTIMETERS, so invalid draft did not overwrite saved data."
+  },
+  "browser_case_json": {
+    "resource": "The Complete Snowboard",
+    "definition": "vsn_qa_20261016.json_qa_20261016",
+    "type": "json",
+    "invalid": "{ rejected with Enter valid JSON; no value existed",
+    "valid": "{\"a\":false,\"n\":0} saved and explicitly reloaded unchanged",
+    "cleanup": "Value removed; definition removed; filtered list returned 0 of 9 definitions."
   }
 }
