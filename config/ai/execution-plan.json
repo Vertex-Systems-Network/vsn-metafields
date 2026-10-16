@@ -322,7 +322,8 @@
         "2026-10-14: min/max title rejection, saved private QA readback, cancel/re-edit/definition-change feedback recovery and Starter2-field/public-access controls verified on Staging100/PR312. Two-tab stale timestamp rejection and entry Reload recovery verified on Staging101/PR315. Real public-access, tier transitions, omitted-field browser preservation and timestamp read-to-mutation race still pending.",
         "2026-10-15: PR318 optional text-field clear contract, Staging103 service and actual private QA browser/Shopify readback passed; required Title preserved and optional field null. Mixed-type clear remains native. Full public/tier/omitted-field and race gates remain.",
         "2026-10-16: installed Staging private QA Title-only edit retained optional note after Shopify reload; optional note then cleared and original Title restored. Raw omitted-field browser request, public/tier transitions and read-to-mutation race still pending.",
-        "2026-10-16: PR342 metadata-only update merged and Staging #112 passed. Private QA handle-only save/reopen retained Title and optional note. Shopify Admin Staging readback found the attempted restoration had not persisted; the disposable QA entry was restored through metaobjectUpdate and independently read back as handle qa-guide, Title Cotton size guide, optional note null and Draft. Raw browser request, public/tier transitions and read-to-mutation race remain; see docs/evidence/metafields-metaobject-restoration-2026-10-16.json."
+        "2026-10-16: PR342 metadata-only update merged and Staging #112 passed. Private QA handle-only save/reopen retained Title and optional note. Shopify Admin Staging readback found the attempted restoration had not persisted; the disposable QA entry was restored through metaobjectUpdate and independently read back as handle qa-guide, Title Cotton size guide, optional note null and Draft. Raw browser request, public/tier transitions and read-to-mutation race remain; see docs/evidence/metafields-metaobject-restoration-2026-10-16.json.",
+        "2026-10-17: installed staging private QA definition with one entry rejected removal ('Definition still contains entries'). Starter public access control remained disabled. Entry switched Draft→Active→Draft, then Title edit preserved the optional QA note after re-edit; clearing the note and restoring Title read back as qa-guide, Cotton size guide, empty optional note, Draft. Public/tier transition, raw omitted-field request and read-to-mutation race remain unverified; see docs/evidence/metafields-metaobject-lifecycle-2026-10-17.json."
       ],
       "acceptance_criteria": [
         "Metaobject lifecycle verified against representative staging data",
@@ -351,7 +352,8 @@
         "docs/evidence/metafields-metaobject-optional-clear-2026-10-15.json",
         "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
         "docs/evidence/metafields-metaobject-metadata-only-2026-10-16.json",
-        "docs/evidence/metafields-metaobject-restoration-2026-10-16.json"
+        "docs/evidence/metafields-metaobject-restoration-2026-10-16.json",
+        "docs/evidence/metafields-metaobject-lifecycle-2026-10-17.json"
       ]
     },
     {
