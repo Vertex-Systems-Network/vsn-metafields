@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-17",
+  "work_unit": "META-004",
+  "environment": "VSN | Metafields (Staging), staging-oath3rth.myshopify.com",
+  "acceptance_basis": "Type-aware value editor verified against representative staging data; existing product data and billing invariants preserved.",
+  "installed_ui_cases": [
+    {
+      "owner": "PRODUCT",
+      "resource": "The Complete Snowboard",
+      "coverage": "Text minimum-length rejection, scalar false/0/decimal/date/JSON/measurement, list.link, page/file reference save/reload/remove, stale page-reference conflict; see linked prior evidence."
+    },
+    {
+      "owner": "PRODUCTVARIANT",
+      "resource": "The Complete Snowboard / Ice",
+      "definition": "vsn_qa_20261017.variant_qa_20261017",
+      "type": "single_line_text_field",
+      "invalid": "ab rejected: Text violates min length 3; Remove remained disabled.",
+      "valid": "Variant QA pass 20261017 saved and explicit Reload value displayed same string.",
+      "cleanup": "Value removed; editor empty/Remove disabled; disposable definition removed and 0 of 0 definitions shown."
+    },
+    {
+      "owner": "COLLECTION",
+      "resource": "Hydrogen",
+      "definition": "vsn_qa_20261017.collection_qa_20261017",
+      "type": "number_integer",
+      "invalid": "abc rejected: Enter a whole number within the supported range; Remove remained disabled.",
+      "valid": "0 saved and explicit Reload value displayed 0.",
+      "cleanup": "Value removed; editor empty/Remove disabled; disposable definition removed and 0 of 0 definitions shown."
+    }
+  ],
+  "local_contract": {
+    "editable_scalar_and_list_variants": 45,
+    "valid_and_semantically_invalid_cases": "tests/value-types.test.mjs",
+    "owner_identity": "tests/metafield-values.test.mjs",
+    "source_pull_requests": [
+      "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/345",
+      "https://github.com/Vertex-Systems-Network/vsn-metafields/pull/346"
+    ],
+    "ci": "PR345 and PR346 App Validation and AI Native Quality Gates passed."
+  },
+  "prior_evidence": [
+    "docs/evidence/metafields-value-roundtrip-2026-10-10.json",
+    "docs/evidence/metafields-value-boolean-integer-2026-10-15.json",
+    "docs/evidence/metafields-value-matrix-2026-10-16.json",
+    "docs/evidence/metafields-value-semantic-invalid-2026-10-16.json"
+  ],
+  "decision": "Representative installed UI acceptance across product, variant and collection now passes. Exhaustive 45-variant installed-browser permutations are not the work unit's acceptance criterion; the codec contract covers them locally. Broader cross-type browser regression remains in META-011 release preflight.",
+  "limitations": [
+    "No claim that all 45 editable variants were saved through the installed browser.",
+    "No Live deployment or production Shopify data change.",
+    "A transient browser screenshot of the collection cleanup exists outside the repository; repository evidence records observable state."
+  ],
+  "live_deployed": false
+}
