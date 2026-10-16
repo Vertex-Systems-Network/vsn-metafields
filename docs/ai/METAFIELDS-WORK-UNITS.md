@@ -34,7 +34,7 @@ The latest conversation table maps 3 to META-004, 5 to META-007/008/009, and 6 t
 
 | Work | Verified | Still required |
 | --- | --- | --- |
-| META-004 typed values | Development CI and representative staging scalar/list/reference round-trips; stale write rejected without overwrite | Authenticated merchant editor acceptance and unsupported/native paths |
+| META-004 typed values | Complete: representative installed Staging Product, ProductVariant and Collection editor validation/save/reload/cleanup plus product scalar/list/reference/structured and stale conflict; 45 editable codec variants tested locally. See docs/evidence/metafields-value-owner-acceptance-2026-10-17.json. | No META-004 acceptance work remains; broader browser type permutations are in META-011 release preflight. |
 | META-007 metaobjects | Representative staging definition/entry lifecycle and omitted-field preservation | Authenticated merchant flow (actual empty-only cleanup passed) |
 | META-008 bulk values | Durable SQLite regression coverage and representative Neon preview/apply, mixed outcomes, isolation/resume | Authenticated CSV UI acceptance |
 | META-009 specialized blocks | Three new blocks plus existing two pass extension build/contracts | Two-theme editor/storefront/media and accessibility; exact-source release evidence is linked in the truth report |
@@ -44,4 +44,4 @@ The latest conversation table maps 3 to META-004, 5 to META-007/008/009, and 6 t
 
 The detailed chronological truth report is `docs/ai/METAFIELDS-BATCH-356-REPORT.md`. `verification_required` means implementation exists but its full acceptance evidence is incomplete. User authorization to self-review does not bypass GitHub required checks or protected production release.
 
-The next combined merchant/theme batch uses `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md`. It records the shipped-JavaScript race/recovery and safe-link findings, fixes, test boundaries and actual browser tasks. Contract evidence does not close the pending browser work units.
+The remaining merchant/theme batch uses `docs/ai/METAFIELDS-MERCHANT-THEME-ACCEPTANCE.md`. It records the shipped-JavaScript race/recovery and safe-link findings, fixes, test boundaries and actual browser tasks. Representative installed-browser evidence closes META-004; the other browser work units remain pending.
