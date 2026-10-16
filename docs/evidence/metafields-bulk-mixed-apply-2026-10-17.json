@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-17",
+  "environment": "Shopify Staging / VSN | Metafields (Staging)",
+  "work_unit": "META-008",
+  "job_created_at": "2026-10-16T23:46:02.772Z",
+  "job_status": "complete",
+  "processed": "2/2",
+  "revision": 4,
+  "rows": [
+    {
+      "row": 2,
+      "owner": "gid://shopify/Product/15336402485620",
+      "field": "vsn_qa_20261004.care",
+      "before": "Newer native edit must stay",
+      "proposed": "Newer native edit must stay",
+      "result": "unchanged"
+    },
+    {
+      "row": 3,
+      "owner": "gid://shopify/Product/0",
+      "result": "invalid",
+      "message": "Resource was not found for this owner."
+    }
+  ],
+  "actions": [
+    "CSV entered in Staging bulk workspace; Validate and preview yielded one valid and one invalid row.",
+    "Explicitly checked Apply only valid rows from preview ccf4e731fdc7, then Apply / resume next chunk.",
+    "Saved job readback showed complete, 2/2 processed, valid row unchanged and invalid row invalid.",
+    "Prior completed job Proposed values CSV inline readback contained its existing QA value."
+  ],
+  "limitations": [
+    "Export proposed values download event timed out in cloud browser; no durable downloaded file verified.",
+    "CSV input file chooser event timed out; upload path unverified. Textarea import path passed."
+  ],
+  "data_impact": "No QA value changed; invalid owner did not create a value. No Live change."
+}
