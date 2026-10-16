@@ -187,7 +187,8 @@
         "2026-10-14: 46-type local malformed codec matrix and four representative Staging editor rejection/readback cases passed. PR307 stale feedback fix verified on deploy98. Complete supported-type browser acceptance remains pending.",
         "2026-10-14: Reload value unsaved-draft and rejected-save recovery verified on Staging99. Full type/browser acceptance remains pending; new in-app help capture/test update is draft PR310, independent review required.",
         "2026-10-15: Installed Staging app Boolean False, integer 0, list.link HTTPS array, and disposable decimal 1.25 save/reload/remove passed; malformed integer abc, link without URL, and decimal comma rejected. Full supported-type browser acceptance and independent release evidence remain pending.",
-        "2026-10-16: decimal equivalence fix merged and Staging #108/#109 exact-source acceptance passed. Full supported-type browser matrix remains open."
+        "2026-10-16: decimal equivalence fix merged and Staging #108/#109 exact-source acceptance passed. Full supported-type browser matrix remains open.",
+        "2026-10-16: 45 editable scalar/list codec variants now have exhaustive local valid/invalid contract coverage; Node 22.13 release check passed. Staging Date invalid/save/reload/cleanup passed. Full installed-browser type matrix remains unverified; see docs/evidence/metafields-value-matrix-2026-10-16.json."
       ],
       "acceptance_criteria": [
         "Type-aware value editor verified against representative staging data",
@@ -215,7 +216,8 @@
         "docs/evidence/metafields-value-feedback-2026-10-14.json",
         "docs/evidence/metafields-value-reload-2026-10-14.json",
         "docs/evidence/metafields-value-boolean-integer-2026-10-15.json",
-        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
+        "docs/evidence/metafields-value-matrix-2026-10-16.json"
       ]
     },
     {
