@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-16",
+  "environment": "Installed VSN | Metafields (Staging), staging-oath3rth",
+  "scope": "META-008 browser import/export controls",
+  "checks": [
+    {
+      "case": "CSV template",
+      "result": "download_observed",
+      "evidence": "Download CSV template clicked; new metafields-template (3).csv 160-byte file appeared in browser shared files and main scratch. Header ownerType,ownerId,namespace,key,type,value_json; one template row."
+    },
+    {
+      "case": "Saved complete job",
+      "result": "readback_passed",
+      "evidence": "Selected 2026-10-14T00:56:00.120Z complete/1 processed; Show before CSV revealed prior PRODUCT care value. Export before snapshot and Export proposed values controls were clickable; 183-byte browser files appeared briefly but disappeared before durable shared-file readback."
+    },
+    {
+      "case": "CSV file chooser",
+      "result": "not_verified",
+      "evidence": "CSV file button and direct input[type=file] click each timed out waiting for filechooser event; no file selected and Validate and preview remained disabled."
+    }
+  ],
+  "limitations": [
+    "No new import job or Apply action.",
+    "No durable before/proposed export artifact; download persistence remains open.",
+    "No Live or production changes."
+  ]
+}
