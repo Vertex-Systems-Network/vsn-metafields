@@ -37,12 +37,40 @@ test("every advertised editable scalar and list has a valid roundtrip and reject
   };
   assert.deepEqual(Object.keys(values).sort(), [...SCALAR_TYPES].sort());
   const listExcluded = new Set(["boolean", "json", "rich_text_field", "money", "multi_line_text_field"]);
+  const invalid = {
+    single_line_text_field: "line one\nline two",
+    multi_line_text_field: "",
+    number_integer: "1.2",
+    number_decimal: "1,2",
+    boolean: "yes",
+    date: "2026-02-30",
+    date_time: "2026-10-16T12:30:00",
+    url: "http://example.com",
+    color: "red",
+    json: "{",
+    rich_text_field: '{"type":"root","children":[{"type":"script","children":[]}]}',
+    dimension: '{"value":1,"unit":"evil"}',
+    volume: '{"value":-1,"unit":"liters"}',
+    weight: '{"value":1,"unit":"evil"}',
+    rating: '{"value":6,"scale_min":1,"scale_max":5}',
+    money: '{"amount":"10","currency_code":"US"}',
+    link: '{"text":"Docs","url":"javascript:alert(1)"}',
+    product_reference: "gid://shopify/Collection/123",
+    variant_reference: "gid://shopify/Product/123",
+    collection_reference: "gid://shopify/Product/123",
+    page_reference: "gid://shopify/Product/123",
+    article_reference: "gid://shopify/Product/123",
+    file_reference: "gid://shopify/Page/123",
+    metaobject_reference: "gid://shopify/Product/123",
+    mixed_reference: "gid://shopify/Product/123",
+  };
+  assert.deepEqual(Object.keys(invalid).sort(), [...SCALAR_TYPES].sort());
   let covered = 0;
   for (const type of SCALAR_TYPES) {
     const raw = values[type];
     const encoded = encodeValue(type, raw);
     assert.equal(valuesEquivalent(type, raw, encoded), true, type);
-    assert.throws(() => encodeValue(type, ""), RangeError, type);
+    assert.throws(() => encodeValue(type, invalid[type]), RangeError, type);
     covered++;
     const listType = `list.${type}`;
     if (listExcluded.has(type)) {
@@ -54,6 +82,7 @@ test("every advertised editable scalar and list has a valid roundtrip and reject
     const listEncoded = encodeValue(listType, listRaw);
     assert.equal(valuesEquivalent(listType, listRaw, listEncoded), true, listType);
     assert.throws(() => encodeValue(listType, "{}"), RangeError, listType);
+    assert.throws(() => encodeValue(listType, JSON.stringify([invalid[type]])), RangeError, listType);
     covered++;
   }
   assert.equal(covered, 45);
