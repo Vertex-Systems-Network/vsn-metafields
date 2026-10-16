@@ -24,5 +24,13 @@
     "The 45-type matrix is a local codec contract, not 45 installed Shopify browser roundtrips.",
     "Types requiring unavailable Shopify references and full browser invalid/save/reload coverage remain unverified."
   ],
-  "live_deployed": false
+  "live_deployed": false,
+  "browser_case_measurement": {
+    "resource": "The Complete Snowboard",
+    "definition": "test_data.snowboard_length",
+    "type": "dimension",
+    "before": "{\"value\":159.0,\"unit\":\"CENTIMETERS\"}",
+    "invalid": "{\"value\":1,\"unit\":\"evil\"}",
+    "result": "Invalid measurement value or unit; Reload value restored original 159.0 CENTIMETERS, so invalid draft did not overwrite saved data."
+  }
 }
