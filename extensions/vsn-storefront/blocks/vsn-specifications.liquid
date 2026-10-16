@@ -49,14 +49,23 @@
     assign field_identity = block.settings[key_setting] | split: '.'
     assign field_namespace = block.settings.namespace
     assign field_key = field_identity | first
-    if field_identity.size > 1
+    assign valid_identity = true
+    if field_identity.size == 2
       assign field_namespace = field_identity | first
       assign field_key = field_identity | last
+    elsif field_identity.size > 2
+      assign valid_identity = false
     endif
-    assign field = owner.metafields[field_namespace][field_key]
+    if field_namespace == blank or field_key == blank
+      assign valid_identity = false
+    endif
+    assign field = nil
+    if valid_identity
+      assign field = owner.metafields[field_namespace][field_key]
+    endif
   -%}
   {%- capture value_output -%}{%- render 'vsn-field-value', field: field, settings: block.settings -%}{%- endcapture -%}
-  {%- if field_key != blank -%}
+  {%- if valid_identity -%}
     {%- if value_output != blank or block.settings.hide_empty == false -%}
       <div class="vsn-metafield-block__row"><dt>{{ block.settings[label_setting] | default: field_key | escape }}</dt><dd>{% if value_output != blank %}{{ value_output }}{% else %}{{ block.settings.empty_text | default: '—' | escape }}{% endif %}</dd></div>
     {%- endif -%}

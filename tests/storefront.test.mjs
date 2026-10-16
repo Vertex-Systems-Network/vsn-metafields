@@ -224,6 +224,24 @@ test("specifications preserve configured order and hide empty fields", async () 
   assert.match(output, />0</);
   assert.doesNotMatch(output, /<dt>missing/);
 });
+test("specifications reject malformed namespace.key identities", async () => {
+  const product = { id: 1, metafields: {
+    custom: { material: { type: "single_line_text_field", value: "Public value" } },
+  } };
+  const output = await renderBlock("vsn-specifications", {
+    namespace: "custom",
+    key_1: "custom.material.extra",
+    label_1: "Malformed",
+    key_2: ".material",
+    label_2: "Empty namespace",
+    key_3: "custom.material",
+    label_3: "Valid",
+    hide_empty: false,
+  }, { product });
+  assert.doesNotMatch(output, /Malformed|Empty namespace/);
+  assert.match(output, /<dt>Valid<\/dt><dd>Public value<\/dd>/);
+});
+
 test("specifications show the configured placeholder when empty rows are allowed", async () => {
   const output = await renderBlock(
     "vsn-specifications",
