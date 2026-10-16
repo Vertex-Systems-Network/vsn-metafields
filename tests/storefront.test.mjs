@@ -239,7 +239,7 @@ test("specifications reject malformed namespace.key identities", async () => {
     hide_empty: false,
   }, { product });
   assert.doesNotMatch(output, /Malformed|Empty namespace/);
-  assert.match(output, /<dt>Valid<\\/dt><dd>Public value<\\/dd>/);
+  assert.match(output, /<dt>Valid<\/dt><dd>Public value<\/dd>/);
 });
 
 test("specifications show the configured placeholder when empty rows are allowed", async () => {
