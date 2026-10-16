@@ -369,7 +369,8 @@
       "status": "verification_required",
       "blockers": [
         "Same-value one-row preview/apply/history completed on Staging; mixed preview separates valid/invalid rows. Mixed browser Apply rejected by automatic approval review; file chooser/export downloads unverified. Disposable service mixed/conflict/resume/isolation passed in deploy #97.",
-        "2026-10-16: installed Staging CSV template download and saved-job before snapshot UI readback passed. File chooser still timed out for button/direct input; export files appeared briefly in browser but durable artifact did not persist. Import/upload, export retrieval and mixed Apply remain open; see docs/evidence/metafields-bulk-browser-export-2026-10-16.json."
+        "2026-10-16: installed Staging CSV template download and saved-job before snapshot UI readback passed. File chooser still timed out for button/direct input; export files appeared briefly in browser but durable artifact did not persist. Import/upload, export retrieval and mixed Apply remain open; see docs/evidence/metafields-bulk-browser-export-2026-10-16.json.",
+        "2026-10-17: installed Staging mixed CSV preview/apply passed with unchanged Product QA row and invalid nonexistent Product row. Saved job completed 2/2; valid row unchanged, invalid row skipped. Inline proposed CSV readback present. Browser download event and file chooser timed out, so file transfer remains unverified; see docs/evidence/metafields-bulk-mixed-apply-2026-10-17.json."
       ],
       "acceptance_criteria": [
         "Previewed bulk value operations verified against representative staging data",
@@ -395,7 +396,8 @@
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-staging-batch-2026-10-14.json",
         "docs/ai/STAGING-BATCH-REPORT-2026-10-14.md",
-        "docs/evidence/metafields-bulk-browser-export-2026-10-16.json"
+        "docs/evidence/metafields-bulk-browser-export-2026-10-16.json",
+        "docs/evidence/metafields-bulk-mixed-apply-2026-10-17.json"
       ]
     },
     {
