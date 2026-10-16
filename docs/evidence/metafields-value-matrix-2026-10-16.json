@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-16",
+  "work_unit": "META-004",
+  "environment": "VSN | Metafields (Staging), staging-oath3rth.myshopify.com",
+  "local_matrix": {
+    "editable_type_variants": 45,
+    "coverage": "Every SCALAR_TYPES entry and its editable list variant has a valid codec roundtrip and malformed input rejection; excluded list variants assert native-editor routing.",
+    "release_check": "npm run check:release passed under Node 22.13.0: lint, typecheck, DB contract, contract suite, and production build."
+  },
+  "browser_case": {
+    "resource": "The Complete Snowboard",
+    "definition": "vsn_qa_20261016.date_qa_20261016",
+    "type": "date",
+    "invalid": "2026-02-30 rejected with Enter a valid date as YYYY-MM-DD; no value was saved.",
+    "valid": "2026-10-16 saved, explicitly reloaded and read back as 2026-10-16.",
+    "cleanup": "Value removed and empty editor verified; disposable definition removed and filtered list showed 0 of 9 definitions."
+  },
+  "prior_browser_cases": [
+    "docs/evidence/metafields-value-roundtrip-2026-10-10.json",
+    "docs/evidence/metafields-value-feedback-2026-10-14.json",
+    "docs/evidence/metafields-value-boolean-integer-2026-10-15.json"
+  ],
+  "limitations": [
+    "The 45-type matrix is a local codec contract, not 45 installed Shopify browser roundtrips.",
+    "Types requiring unavailable Shopify references and full browser invalid/save/reload coverage remain unverified."
+  ],
+  "live_deployed": false,
+  "browser_case_measurement": {
+    "resource": "The Complete Snowboard",
+    "definition": "test_data.snowboard_length",
+    "type": "dimension",
+    "before": "{\"value\":159.0,\"unit\":\"CENTIMETERS\"}",
+    "invalid": "{\"value\":1,\"unit\":\"evil\"}",
+    "result": "Invalid measurement value or unit; Reload value restored original 159.0 CENTIMETERS, so invalid draft did not overwrite saved data."
+  },
+  "browser_case_json": {
+    "resource": "The Complete Snowboard",
+    "definition": "vsn_qa_20261016.json_qa_20261016",
+    "type": "json",
+    "invalid": "{ rejected with Enter valid JSON; no value existed",
+    "valid": "{\"a\":false,\"n\":0} saved and explicitly reloaded unchanged",
+    "cleanup": "Value removed; definition removed; filtered list returned 0 of 9 definitions."
+  }
+}
