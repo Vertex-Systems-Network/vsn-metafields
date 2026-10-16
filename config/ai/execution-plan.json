@@ -269,8 +269,8 @@
       "priority": 6,
       "status": "verification_required",
       "blockers": [
-        "Horizon and Tinker unpublished drafts both render the public Material value in Specifications after saving/reloading. Two-theme public-value rendering is verified. Reordering, multiple instances, full 45-setting usability and broader automated acceptance remain open. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json.",
-        "2026-10-16: unsupported rendered Specifications row fix shipped in staging-only Shopify extension release #28; ordering, multiple instances and complete setting usability still require browser acceptance."
+        "Horizon and Tinker unpublished drafts both render the public Material value after save/reload. See docs/evidence/metafields-tinker-theme-preview-2026-10-10.json.",
+        "2026-10-16: unsupported rendered row fix shipped in staging-only extension release #28. Horizon second Specifications instance saved and rendered the same public value ahead of the original; temporary instance removed and draft saved clean. Targeted mobile preview wrapped Material/value without clipping. Remaining: row ordering beyond block placement, full 45-setting usability, broader automated and responsive/accessibility acceptance. See docs/evidence/metafields-specifications-multiple-instances-2026-10-16.json."
       ],
       "acceptance_criteria": [
         "Specifications block verified against representative staging data",
@@ -296,7 +296,8 @@
         "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
         "docs/evidence/metafields-theme-preview-2026-10-10.json",
         "docs/evidence/metafields-tinker-theme-preview-2026-10-10.json",
-        "docs/evidence/metafields-staging-reconcile-2026-10-16.json"
+        "docs/evidence/metafields-staging-reconcile-2026-10-16.json",
+        "docs/evidence/metafields-specifications-multiple-instances-2026-10-16.json"
       ]
     },
     {
