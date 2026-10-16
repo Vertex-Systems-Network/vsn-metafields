@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-16",
+  "environment": "staging-oath3rth; Tinker unpublished default product; The Complete Snowboard",
+  "installed_extension": "Shopify Staging Release #30, exact source 0b0bbb19a41815f6c88cb40090620190a39edb33",
+  "setup": "Created disposable PUBLIC_READ Product definitions vsn_theme_qa_20261016.enabled (boolean) and .count (number_integer), set false and 0 on Product 15327310348660; existing public Material retained.",
+  "browser_acceptance": {
+    "desktop": "Saved Specifications rows Material, Enabled QA, Count QA in order. Preview definitions were exact Material text, No, 0.",
+    "mobile": "365px editor storefront viewport. Three rows retained exact values. Block width 333px and scrollWidth 331px; each row width and scrollWidth 307px, no measured horizontal overflow.",
+    "scope_limit": "One Tinker product/theme, three types. Does not establish all supported types, 45 settings, screen reader, zoom or full responsive matrix."
+  },
+  "cleanup": {
+    "theme": "Cleared row 2 and 3 keys/labels, restored desktop preview, saved unpublished draft; Save disabled and only Material remained.",
+    "shopify": "Deleted two QA metafields, then both exact QA definition IDs. Fresh GraphQL readback found no vsn_theme_qa_20261016 values or definitions, and original Material value persisted."
+  },
+  "production_changed": false
+}
