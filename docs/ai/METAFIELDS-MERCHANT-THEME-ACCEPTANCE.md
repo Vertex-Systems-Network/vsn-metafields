@@ -1,6 +1,6 @@
 # Merchant and theme acceptance batch
 
-This is the execution checklist for the remaining META-004/005/006/007/008/009/010/011 acceptance. Implementation and representative Shopify API evidence exist; these browser tasks are still pending. META-012 remains a separate reviewed production release. No production customer data may be copied into staging.
+This is the execution checklist for META-004 closure and remaining META-005/006/007/008/009/010/011 acceptance. Implementation and representative Shopify API evidence exist; these browser tasks are still pending. META-012 remains a separate reviewed production release. No production customer data may be copied into staging.
 
 PR167 fixes passed113 local/CI contracts and were merged as development e90b9f764865f4d10ee7add4bc7de3941bf50a68. Exact-source runtime37066444570 and active staging extension37066820946 passed; all disposable fixture cleanup succeeded. Proof: `docs/evidence/metafields-storefront-qa-2026-10-03.json`. The following browser rows remain pending.
 
@@ -39,7 +39,7 @@ Use the isolated staging app and staging shop. Record the runtime SHA, active ex
 
 | Work unit | Task / observable success | Current evidence boundary |
 | --- | --- | --- |
-| META-004 | Open a product, variant and collection value editor; save scalar, zero/false, structured/list and accessible reference values; reopen and verify; reject invalid values; show conflict after another edit | API/contract evidence passed; authenticated merchant UI pending |
+| META-004 | Open a product, variant and collection value editor; save scalar, zero/false, structured/list and accessible reference values; reopen and verify; reject invalid values; show conflict after another edit | Passed representative installed Staging owner UI on 2026-10-17: product scalar/list/reference/structured cases and stale conflict, variant text invalid/save/reload/cleanup, collection integer invalid/zero/reload/cleanup. 45 editable variants have local codec coverage; broader installed-browser permutations remain META-011 release regression. See docs/evidence/metafields-value-owner-acceptance-2026-10-17.json. |
 | META-007 | Create a private merchant definition and draft entry; edit one field while preserving others; inspect exact public-access/publish confirmation; verify populated-definition removal is refused | API lifecycle passed; actual confirmation, validation and error UI pending |
 | META-008 | Upload quoted CSV; inspect immutable preview and mixed saved/invalid/conflict rows; resume from history; export before snapshots; retry only eligible failures | Durable/API evidence passed; CSV UI/task completion pending |
 | META-010 | Follow setup guide; verify actual scope/plan/database diagnostics; optional media/page picker gaps must be visible; preserve native unsupported paths | API diagnostics passed; merchant onboarding pending |
