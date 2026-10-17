@@ -410,3 +410,17 @@ test("Metafields uses Stock Down Sort content width and top-level Shopify approv
   assert.ok(packages.includes("openBillingApproval(response.confirmationUrl, window.open.bind(window))"));
   assert.equal(packages.includes("reserveBillingApproval"), false);
 });
+
+test("META-010 successful metaobject mutation returns editor to Draft, never inherits Active", () => {
+  const source = readFileSync("app/routes/app.metaobjects.jsx", "utf8");
+  const effect = source.match(/if \(mutation\.data\?\.success\) \{([\s\S]*?)\n    \}/)?.[1];
+  assert.ok(effect, "Metaobject success effect must remain explicit");
+  for (const reset of [
+    'setEditing(null)', 'setValues({})', 'setHandle("")',
+    'setStatus("DRAFT")', 'setPublicConfirm(false)',
+  ]) assert.ok(effect.includes(reset), reset);
+  assert.match(source, /const \[editing, setEditing\] = useState\(null\),/);
+  assert.match(source, /\[status, setStatus\] = useState\("DRAFT"\)/);
+  const guard = source.match(/if \(mutation\.data\?\.success\) \{([\s\S]*?)\n    \}/)?.[0] || "";
+  assert.doesNotMatch(guard, /setStatus\("ACTIVE"\)/);
+});
