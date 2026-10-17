@@ -142,7 +142,7 @@ def main() -> None:
     elif args.check:
         raise SystemExit("README acceptance-bar markers missing. Run --write.")
     elif START not in content and END not in content:
-        anchor = "## Previous engineering checkpoint — 2026-10-14"
+        anchor = "**META-007 verified:**"
         if anchor not in content:
             raise SystemExit("README progress section anchor missing.")
         README.write_text(
