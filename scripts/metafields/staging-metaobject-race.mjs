@@ -128,6 +128,13 @@ try {
   try {
     await Promise.race([
       firstMutationEntered,
+      // Observe a failed transaction immediately instead of waiting for the
+      // Shopify-mutation timeout. Attaching this handler also prevents an
+      // early rejection from escaping before the cleanup block settles it.
+      first.then(
+        () => { throw new Error("First locked write exited before Shopify mutation."); },
+        (error) => { throw error; },
+      ),
       new Promise((_, reject) => {
         timeoutId = setTimeout(() =>
           reject(new Error("First locked mutation did not start")), 15000);
@@ -153,11 +160,14 @@ try {
       confirm: "DELETE_ENTRY:" + createdId + ":" + handle,
     }));
   pendingWriters.push(racingDelete);
+  // Attach rejection handlers before the intentional overlapping pause, so
+  // a rapidly failed contender cannot become an unhandled rejection.
+  const allWritersSettled = Promise.allSettled([first, second, racingDelete]);
   // The queued save and delete both begin while the first Shopify mutation
   // is paused. The separate staging transaction probe is not a browser test.
   await new Promise(resolve => setTimeout(resolve, 180));
   releaseFirstMutation();
-  const settled = await Promise.allSettled([first, second, racingDelete]);
+  const settled = await allWritersSettled;
   assert.equal(settled[0].status, "fulfilled",
     "First writer did not complete: " + settled[0]?.reason?.message);
   assert.equal(settled[1].status, "rejected");
