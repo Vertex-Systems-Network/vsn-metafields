@@ -44,12 +44,14 @@
 {%- assign field = owner.metafields[block.settings.namespace][block.settings.field_key] -%}
 {%- capture content -%}
 {%- if field.type == 'list.metaobject_reference' or field.type == 'list.mixed_reference' -%}
+  {%- assign first_visible_answer = true -%}
   {%- for entry in field.value limit: 20 -%}
     {%- assign question = entry[block.settings.question_key] -%}
     {%- assign answer = entry[block.settings.answer_key] -%}
     {%- capture answer_output -%}{%- render 'vsn-field-value', field: answer, settings: block.settings -%}{%- endcapture -%}
     {%- if question.type == 'single_line_text_field' and question.value != blank and answer_output != blank -%}
-      <details class="vsn-faq-item" {% if forloop.first and block.settings.open_first %}open{% endif %}><summary>{{ question.value | escape }}</summary><div>{{ answer_output }}</div></details>
+      <details class="vsn-faq-item" {% if first_visible_answer and block.settings.open_first %}open{% endif %}><summary>{{ question.value | escape }}</summary><div>{{ answer_output }}</div></details>
+      {%- assign first_visible_answer = false -%}
     {%- endif -%}
   {%- endfor -%}
 {%- endif -%}
