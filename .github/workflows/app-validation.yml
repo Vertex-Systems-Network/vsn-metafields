@@ -94,6 +94,9 @@ jobs:
       - name: Contract smoke tests
         run: npm run test:contracts
 
+      - name: Verify staging META-007 acceptance script syntax
+        run: node --check scripts/metafields/staging-metaobject-race.mjs
+
       - name: Build Shopify theme extension
         run: npx --yes @shopify/cli@4.8.2 app build --config cloudflare-staging
 
