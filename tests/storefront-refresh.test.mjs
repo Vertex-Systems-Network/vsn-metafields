@@ -60,6 +60,10 @@ function harness(configs = [{}], rejectOnAbort = false) {
     emit(variant, product = "10", type = "variant:change") {
       for (const callback of listeners.get(type) || []) callback({ detail: { variant: { id: variant, product_id: product } } });
     },
+    emitDeselection(product = "10") {
+      for (const callback of listeners.get("variant:change") || [])
+        callback({ detail: { variant: null, product: product == null ? null : { id: product } } });
+    },
     emitForm(variant, product = "10") {
       const form = { dataset: { productId: product }, querySelector: () => ({ value: variant }) };
       for (const callback of listeners.get("change") || []) callback({ target: { closest: () => form } });
@@ -111,11 +115,12 @@ test("rapid choices debounce to the latest snapshot and preserve locale/query/se
   request.respond(h.makeBlock({ variant: "4" })); await settle();
 });
 
-test("mismatched products, product overrides and invalid variant IDs leave current blocks alone", async () => {
+test("mismatched products and product overrides are isolated; invalid selection fails closed", async () => {
   const h = harness([{ id: "main" }, { id: "override", track: "false", product: "20" }]);
   h.emit("2", "20"); h.emit("oops"); await h.fire(80);
   assert.equal(h.requests.length, 0);
-  assert.ok(h.blocks.every(block => !block.hidden));
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.blocks[1].hidden, false);
   h.emit("2"); await h.fire(80);
   assert.equal(h.requests.length, 1);
   assert.equal(h.blocks[1].hidden, false);
@@ -264,4 +269,78 @@ test("META-009 ambiguous unscoped theme events do not mutate unrelated product b
   }));
   await settle();
   assert.equal(single.blocks[0].dataset.vsnVariant, "5");
+});
+
+test("META-009 Shopify variant:null hides stale data and aborts in-flight refresh", async () => {
+  const h = harness([{}]);
+  h.emit("2"); await h.fire(80);
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.blocks[0].getAttribute("aria-busy"), "true");
+  h.emitDeselection("10");
+  assert.equal(h.requests[0].options.signal.aborted, true);
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.blocks[0].getAttribute("aria-busy"), undefined);
+  assert.equal(h.timers.size, 1); // Only the canceled request's timeout remains.
+  h.requests[0].respond(h.makeBlock({ variant: "2" }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "1");
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.timers.size, 0);
+  h.emit("3"); await h.fire(80);
+  assert.equal(h.requests.length, 2);
+  h.requests[1].respond(h.makeBlock({ variant: "3" }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "3");
+  assert.equal(h.blocks[0].hidden, false);
+});
+
+test("META-009 null deselection only hides matching product, never unrelated blocks", async () => {
+  const h = harness([
+    { id: "main", product: "10", variant: "1" },
+    { id: "related", product: "20", variant: "1" },
+  ]);
+  h.emit("2", "10");
+  h.emit("3", "20");
+  h.emitDeselection("10");
+  await h.fire(80);
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.requests[0].url.searchParams.get("variant"), "3");
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.blocks[1].hidden, true);
+  h.requests[0].respond(h.makeBlock({ id: "related", variant: "3", product: "20" }));
+  await settle();
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.blocks[1].hidden, false);
+  h.emitDeselection(null);
+  assert.equal(h.blocks[1].hidden, false);
+  assert.equal(h.blocks[0].hidden, true);
+});
+
+test("META-009 explicit variant:null never falls back to URL or form's stale variant", async () => {
+  const h = harness();
+  h.emitDeselection("10");
+  await h.fire(80);
+  assert.equal(h.requests.length, 0);
+  assert.equal(h.blocks[0].hidden, true);
+  // A later form event with a real variant is still valid.
+  h.emitForm("7"); await h.fire(80);
+  assert.equal(h.requests.length, 1);
+  h.requests[0].respond(h.makeBlock({ variant: "7" }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "7");
+  assert.equal(h.blocks[0].hidden, false);
+});
+
+test("META-009 an explicit variant object with null ID never displays stale values", async () => {
+  const h = harness();
+  h.emit(null, "10");
+  await h.fire(80);
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.requests.length, 0);
+  h.emit("12");
+  await h.fire(80);
+  assert.equal(h.requests.length, 1);
+  h.requests[0].respond(h.makeBlock({ variant: "12" }));
+  await settle();
+  assert.equal(h.blocks[0].hidden, false);
 });

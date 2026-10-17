@@ -5,9 +5,18 @@
   const debounceTimers = new Map();
   function selection(event) {
     const form = event.target?.closest?.('form[action*="/cart/add"]');
+    const product = event.detail?.product?.id || event.detail?.variant?.product_id || form?.dataset?.productId;
+    // An explicit unavailable/invalid variant means no valid selection.
+    // Never silently use the old form input or URL when the theme provides
+    // a variant key but does not provide a usable numeric variant ID.
+    if (event.detail && Object.prototype.hasOwnProperty.call(event.detail, 'variant')) {
+      const detailId = event.detail.variant?.id;
+      if (!/^\d+$/.test(String(detailId ?? '')))
+        return { variant: null, product };
+    }
     const variant = event.detail?.variant?.id || form?.querySelector('[name="id"]')?.value || new URL(location.href).searchParams.get('variant');
     if (!/^\d+$/.test(String(variant || ''))) return null;
-    return { variant: String(variant), product: event.detail?.product?.id || event.detail?.variant?.product_id || form?.dataset?.productId };
+    return { variant: String(variant), product };
   }
   function eligibleBlocks(product) {
     return [...document.querySelectorAll('[data-vsn-source="variant"]')].filter(block => {
@@ -65,6 +74,11 @@
       controllers.get(block.id)?.abort();
       controllers.delete(block.id);
       block.removeAttribute('aria-busy');
+      if (next.variant === null) {
+        block.hidden = true;
+        debounceTimers.delete(block.id);
+        continue;
+      }
       if (block.dataset.vsnVariant !== next.variant) block.hidden = true;
       debounceTimers.set(block.id, setTimeout(() => {
         debounceTimers.delete(block.id);
