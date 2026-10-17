@@ -311,3 +311,32 @@ test("specifications hide unsupported rendered values instead of showing empty r
   assert.match(output, /<dd>0<\/dd>/);
   assert.match(output, /<dd>No<\/dd>/);
 });
+
+test("META-009 FAQ open-first applies to first rendered valid answer, not first raw item", async () => {
+  const list = [
+    { question: { type: "single_line_text_field", value: "Missing answer" } },
+    { question: { type: "single_line_text_field", value: "First valid question" }, answer: { type: "multi_line_text_field", value: "First answer" } },
+    { question: { type: "single_line_text_field", value: "Second valid question" }, answer: { type: "multi_line_text_field", value: "Second answer" } },
+  ];
+  const product = { id: 1, metafields: { custom: {
+    faq: { type: "list.metaobject_reference", value: list },
+  } } };
+  for (const open_first of [true, false]) {
+    const html = await renderBlock("vsn-faq", {
+      namespace: "custom", field_key: "faq", open_first,
+    }, { product });
+    assert.doesNotMatch(html, /Missing answer/);
+    const disclosures = [...html.matchAll(/<details\b([^>]*)><summary>([^<]+)<\/summary>/g)];
+    assert.equal(disclosures.length, 2);
+    assert.equal(disclosures[0][2], "First valid question");
+    assert.equal(disclosures[1][2], "Second valid question");
+    assert.equal(/\bopen\b/.test(disclosures[0][1]), open_first);
+    assert.equal(/\bopen\b/.test(disclosures[1][1]), false);
+  }
+});
+
+test("META-006 Specifications retains exactly 45 merchant-editable settings", () => {
+  const specificationSettings = schema("vsn-specifications").settings.filter((item) => item.id);
+  assert.equal(specificationSettings.length, 45);
+  assert.equal(new Set(specificationSettings.map((item) => item.id)).size, 45);
+});
