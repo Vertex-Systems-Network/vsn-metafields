@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "observed_date": "2026-10-17",
+  "task": "META-007",
+  "scope": "read-only staging preflight; no Shopify entries changed, no Worker deployment",
+  "shopify": {
+    "connection": "Staging",
+    "shop": "staging-oath3rth.myshopify.com",
+    "app": {
+      "title": "VSN | Metafields (Staging)",
+      "installed": true,
+      "installation_source": "Shopify Admin GraphQL appByKey app installation ID read",
+      "entitlement": {
+        "verified": false,
+        "reason": "Shopify Admin GraphQL installation.activeSubscriptions returned access denied when queried through the connected Shopify account",
+        "consequence": "Cannot claim VSN app Pro subscription or public/tier transition acceptance"
+      }
+    },
+    "existing_metaobject_fixture": {
+      "type": "vsn_qa_20261004",
+      "name": "Size guide (QA)",
+      "access_storefront": "NONE",
+      "metaobjectsCount": 1,
+      "fields": [
+        {
+          "key": "title",
+          "type": "single_line_text_field",
+          "required": true
+        },
+        {
+          "key": "optional_qa_note",
+          "type": "single_line_text_field",
+          "required": false
+        }
+      ],
+      "destructive_actions_taken": false
+    }
+  },
+  "cloudflare": {
+    "worker": "vsn-metafields-staging",
+    "latest_deployment_at": "2026-10-16T10:14:35.103105Z",
+    "deployed_source_sha": "ee13cae8cbb721710ee3469b7d4155ab01d3a2de",
+    "source": "Cloudflare Workers deployments and version-binding API reads",
+    "source_is_current_development": false,
+    "deployment_action_taken": false
+  },
+  "github": {
+    "development_merge": "bbf350b3163c5485bf569d090a95f0ed13b07eba",
+    "merged_prs": [
+      392,
+      393,
+      394
+    ],
+    "pr_394_gates": {
+      "app_validation": "PASS",
+      "app_validation_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/39051580694",
+      "quality_gates": "PASS",
+      "quality_gates_run": "https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/39051580637"
+    }
+  },
+  "acceptance": {
+    "verified_checks": 4,
+    "defined_checks": 9,
+    "percent": 44,
+    "complete": false,
+    "pending": [
+      "Deploy exact latest development SHA to guarded isolated staging via manual workflow_dispatch",
+      "Execute disposable Neon+Shopify staging race probe and confirm cleanup",
+      "Capture authenticated VSN app browser request with omitted fields",
+      "Run installed Cloudflare Worker overlapping save/delete browser E2E",
+      "Verify VSN app Pro public/tier transitions with app-authorized Shopify billing"
+    ]
+  },
+  "overall": {
+    "completed": 6,
+    "total": 12,
+    "percentage": 50
+  },
+  "production_untouched": true,
+  "qualifications": [
+    "Read-only Shopify connector cannot establish VSN app billing entitlement due provider access denied",
+    "Existing QA fixture is merchant data and was not modified",
+    "Connected staging deployment still precedes merged concurrency fixes",
+    "Staging runtime E2E and browser acceptance are not complete"
+  ]
+}
