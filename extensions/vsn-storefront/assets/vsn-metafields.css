@@ -30,7 +30,7 @@
   }
 }
 @container (max-width: 560px) {
-  .vsn-reference-cards__grid { grid-template-columns: minmax(0, 1fr); }
+  .vsn-reference-cards[data-vsn-columns] .vsn-reference-cards__grid { grid-template-columns: minmax(0, 1fr); }
   .vsn-metafield-block__row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .vsn-metafield-block--cards .vsn-metafield-block__rows {
     grid-template-columns: minmax(0, 1fr) !important;
