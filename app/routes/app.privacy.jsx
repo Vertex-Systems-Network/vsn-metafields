@@ -61,9 +61,14 @@ export default function PrivacyRequests() {
               <h3>Request {requestId}{overdue ? " · OVERDUE" : ""}</h3>
               <p>Received {new Date(item.createdAt).toLocaleString()} · Customer ID: {item.customerId || "not provided"} · Email: {item.customerEmail || "not provided"} · Phone: {item.customerPhone || "not provided"} · Order IDs: {item.orders.join(", ") || "none"}</p>
               <p>Likely matches: {item.candidateJobIds.length}. Review every saved job because free text can contain personal information without an identifier match.</p>
+              {!!item.unreadableJobIds?.length && (
+                <s-banner tone="critical">
+                  {item.unreadableJobIds.length} retained import snapshot(s) are unreadable. Review these jobs and recover relevant personal data before recording fulfillment; an unreadable snapshot is not proof that no personal data exists.
+                </s-banner>
+              )}
               <ul>{item.allJobIds.map((id) =>
                 <li key={id}><Link to={{pathname:"/app/import",search:`?${new URLSearchParams({...Object.fromEntries(new URLSearchParams(search)), id})}`}}>
-                  Import {id}{item.candidateJobIds.includes(id) ? " (identifier match)" : " (manual review)"}
+                  Import {id}{item.unreadableJobIds?.includes(id) ? " (unreadable snapshot — manual recovery required)" : item.candidateJobIds.includes(id) ? " (identifier match)" : " (manual review)"}
                 </Link></li>)}</ul>
               <s-switch label={`I provided the relevant retained app data for request ${requestId} to the store owner`}
                 checked={confirmed === item.id}
