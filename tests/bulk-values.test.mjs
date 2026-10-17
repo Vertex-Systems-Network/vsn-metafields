@@ -399,3 +399,47 @@ test("customer redaction also removes matching legacy result snapshots", async (
   }), 1);
   assert.equal(await db.metafieldJob.findUnique({ where: { id: "result-snapshot" } }), null);
 });
+
+test("META-011 verified customer redaction removes malformed same-shop snapshots without blocking valid jobs", async () => {
+  const target = "privacy-redaction-recovery.myshopify.com";
+  const unrelatedShop = "privacy-redaction-unrelated.myshopify.com";
+  const expiry = new Date(Date.now() + 60000);
+  const fixtures = [
+    ["privacy-corrupt-json", target, "{unclosed", "[]"],
+    ["privacy-corrupt-result", target, "[]", "{unclosed"],
+    ["privacy-corrupt-shape", target, "null", "[]"],
+    ["privacy-corrupt-row", target, "[null]", "[]"],
+    ["privacy-customer-match", target, JSON.stringify([
+      { ownerType: "CUSTOMER", ownerId: "gid://shopify/Customer/42" },
+    ]), "[]"],
+    ["privacy-valid-unrelated", target, JSON.stringify([
+      { ownerType: "PRODUCT", ownerId: "gid://shopify/Product/999", value: "No personal data" },
+    ]), "[]"],
+    ["privacy-corrupt-other-shop", unrelatedShop, "{unclosed", "[]"],
+  ];
+  await db.metafieldJob.createMany({
+    data: fixtures.map(([id, jobShop, rowsJson, resultsJson]) => ({
+      id, shop: jobShop, rowsJson, resultsJson,
+      inputHash: "legacy", expiresAt: expiry,
+    })),
+  });
+  await assert.rejects(
+    redactCustomerJobs(db, target, {
+      customer: { id: 42 }, orders_to_redact: { malformed: true },
+    }),
+    /Invalid redaction order IDs/,
+  );
+  assert.equal(await db.metafieldJob.count({ where: { shop: target } }), 6);
+  const removed = await redactCustomerJobs(db, target, {
+    customer: { id: 42 }, orders_to_redact: [],
+  });
+  assert.equal(removed, 5);
+  assert.ok(await db.metafieldJob.findUnique({
+    where: { id: "privacy-valid-unrelated" },
+  }));
+  assert.ok(await db.metafieldJob.findUnique({
+    where: { id: "privacy-corrupt-other-shop" },
+  }));
+  for (const id of fixtures.slice(0, 5).map(([id]) => id))
+    assert.equal(await db.metafieldJob.findUnique({ where: { id } }), null, id);
+});
