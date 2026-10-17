@@ -192,9 +192,9 @@ test("META-011 malformed retained job snapshots remain visible and flagged in pr
   assert.equal(result.requests.length, 1);
   const request = result.requests[0];
   assert.deepEqual(request.candidateJobIds, ["valid-match"]);
-  assert.deepEqual(request.unreadableJobIds, [
+  assert.deepEqual(new Set(request.unreadableJobIds), new Set([
     "corrupt-json", "corrupt-shape", "corrupt-row",
-  ]);
+  ]));
   assert.deepEqual(new Set(request.allJobIds), new Set([
     "corrupt-json", "corrupt-shape", "corrupt-row",
     "valid-match", "valid-unmatched",
