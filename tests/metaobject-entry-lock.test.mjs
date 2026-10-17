@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { withMetaobjectEntryLock } from "../app/metaobject-entry-lock.server.js";
-import { saveMetaobjectEntry } from "../app/metaobjects.server.js";
+import { saveMetaobjectEntry, removeMetaobjectEntry } from "../app/metaobjects.server.js";
 
 const SHOP = "staging-oath3rth.myshopify.com";
 const ENTRY = "gid://shopify/Metaobject/1007";
@@ -148,4 +148,65 @@ test("META-007 invalid key, DB lock failure and unsupported target fail closed",
   );
   assert.equal(mutations, 0);
   assert.equal(disconnected, 1);
+});
+
+
+test("META-007 concurrent edit and delete serialize: stale delete cannot remove newly edited entry", async () => {
+  let updatedAt = "v1";
+  let question = "Original";
+  let deleted = false;
+  let updates = 0;
+  let deletes = 0;
+  let openMutation;
+  const holdMutation = new Promise((resolve) => { openMutation = resolve; });
+  let signalEntered;
+  const enteredMutation = new Promise((resolve) => { signalEntered = resolve; });
+  const admin = {
+    graphql: async (operation, { variables } = {}) => {
+      if (operation.includes("SelectedMetaobject")) {
+        return Response.json({ data: { metaobject: deleted ? null : {
+          id: ENTRY,
+          type: definition.type,
+          handle: "qa",
+          updatedAt,
+          fields: [{ key: "question", value: question }, { key: "answer", value: "Keep" }],
+        } } });
+      }
+      if (operation.includes("UpdateMerchantMetaobject")) {
+        updates++;
+        signalEntered();
+        await holdMutation;
+        question = variables.metaobject.fields[0].value;
+        updatedAt = "v2";
+        return Response.json({ data: { metaobjectUpdate: { userErrors: [], metaobject: {
+          id: ENTRY, type: definition.type, handle: "qa",
+          fields: [{ key: "question", value: question }, { key: "answer", value: "Keep" }],
+        } } } });
+      }
+      assert.match(operation, /DeleteMerchantMetaobject/);
+      deletes++;
+      deleted = true;
+      return Response.json({ data: { metaobjectDelete: { userErrors: [], deletedId: ENTRY } } });
+    },
+  };
+  const options = { target: "local-sqlite" };
+  const edit = withMetaobjectEntryLock(SHOP, ENTRY, () => saveMetaobjectEntry(admin, definition, {
+    id: ENTRY,
+    handle: "qa",
+    updatedAt: "v1",
+    values: { question: "Fresh" },
+  }), options);
+  await enteredMutation; // Make the two calls overlap inside the first mutation.
+  const deletion = withMetaobjectEntryLock(SHOP, ENTRY, () => removeMetaobjectEntry(admin, definition, {
+    id: ENTRY,
+    updatedAt: "v1",
+    confirm: "DELETE_ENTRY:" + ENTRY + ":qa",
+  }), options);
+  openMutation();
+  await edit;
+  await assert.rejects(deletion, /Reload and confirm/);
+  assert.equal(updates, 1);
+  assert.equal(deletes, 0);
+  assert.equal(deleted, false);
+  assert.equal(question, "Fresh");
 });
