@@ -94,6 +94,9 @@ jobs:
       - name: Contract smoke tests
         run: npm run test:contracts
 
+      - name: Real PostgreSQL metaobject entry lock integration
+        run: node --test tests/metaobject-postgres-lock.integration.mjs
+
       - name: Verify staging META-007 acceptance script syntax
         run: node --check scripts/metafields/staging-metaobject-race.mjs
 
