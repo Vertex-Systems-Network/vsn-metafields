@@ -1,4 +1,4 @@
-.vsn-metafield-block { box-sizing: border-box; width: 100%; max-width: var(--vsn-width, 100%); margin: var(--vsn-top, 0px) auto var(--vsn-bottom, 0px); padding: var(--vsn-padding, 16px); border: var(--vsn-border-width, 0px) solid var(--vsn-border, transparent); border-radius: var(--vsn-radius, 0px); background: var(--vsn-background, transparent); color: var(--vsn-color, inherit); text-align: var(--vsn-align, left); overflow-wrap: anywhere; }
+.vsn-metafield-block { box-sizing: border-box; container-type: inline-size; width: 100%; max-width: var(--vsn-width, 100%); margin: var(--vsn-top, 0px) auto var(--vsn-bottom, 0px); padding: var(--vsn-padding, 16px); border: var(--vsn-border-width, 0px) solid var(--vsn-border, transparent); border-radius: var(--vsn-radius, 0px); background: var(--vsn-background, transparent); color: var(--vsn-color, inherit); text-align: var(--vsn-align, left); overflow-wrap: anywhere; }
 .vsn-metafield-block[hidden] { display: none !important; }
 .vsn-metafield-block a { color: inherit; text-decoration: underline; text-underline-offset: .15em; }
 .vsn-metafield-block a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
@@ -20,4 +20,19 @@
 .vsn-metafield-image { width: min(100%,var(--vsn-image-width,400px)); height: auto; display: block; }
 @media (min-width: 601px) { .vsn-visibility--mobile { display: none; } }
 @media (max-width: 600px) { .vsn-visibility--desktop { display: none; } .vsn-metafield-block { padding: var(--vsn-mobile-padding,12px); } .vsn-metafield-block__value { font-size: var(--vsn-mobile-size,16px); } .vsn-metafield-block__row { grid-template-columns: minmax(0,1fr); gap: 2px; } .vsn-metafield-block--cards .vsn-metafield-block__rows { grid-template-columns: minmax(0,1fr) !important; } }
-.vsn-reference-cards{display:grid;grid-template-columns:repeat(var(--vsn-columns,3),minmax(0,1fr))}.vsn-reference-card{border:var(--vsn-border-width,1px) solid var(--vsn-border);border-radius:var(--vsn-radius);padding:var(--vsn-padding)}.vsn-reference-card h3{margin:0 0 0.5em;font:inherit;font-weight:600}.vsn-reference-card img,.vsn-media img,.vsn-media video{max-width:100%;height:auto;display:block}.vsn-faq-item{border-bottom:var(--vsn-border-width,1px) solid var(--vsn-border);padding:0.75em 0}.vsn-faq-item summary{cursor:pointer;min-height:44px;padding:0.5em}.vsn-faq-item summary:focus-visible,.vsn-reference-card a:focus-visible{outline:2px solid currentColor;outline-offset:3px}.vsn-faq-item>div{padding:0.5em 0}@media(max-width:600px){.vsn-reference-cards{grid-template-columns:1fr}}
+.vsn-reference-cards__grid{display:grid;grid-template-columns:repeat(var(--vsn-columns,3),minmax(0,1fr));gap:var(--vsn-gap,8px)}.vsn-reference-card{border:var(--vsn-border-width,1px) solid var(--vsn-border);border-radius:var(--vsn-radius);padding:var(--vsn-padding)}.vsn-reference-card h3{margin:0 0 0.5em;font:inherit;font-weight:600}.vsn-reference-card img,.vsn-media img,.vsn-media video{max-width:100%;height:auto;display:block}.vsn-faq-item{border-bottom:var(--vsn-border-width,1px) solid var(--vsn-border);padding:0.75em 0}.vsn-faq-item summary{cursor:pointer;min-height:44px;padding:0.5em}.vsn-faq-item summary:focus-visible,.vsn-reference-card a:focus-visible{outline:2px solid currentColor;outline-offset:3px}.vsn-faq-item>div{padding:0.5em 0}@media(max-width:600px){.vsn-reference-cards__grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Use the block's actual Shopify column width, not the browser viewport:
+   desktop product layouts can embed a 320px section in a 1440px window. */
+@container (max-width: 800px) {
+  .vsn-reference-cards[data-vsn-columns="3"] .vsn-reference-cards__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container (max-width: 560px) {
+  .vsn-reference-cards__grid { grid-template-columns: minmax(0, 1fr); }
+  .vsn-metafield-block__row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .vsn-metafield-block--cards .vsn-metafield-block__rows {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
