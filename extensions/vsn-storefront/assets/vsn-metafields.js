@@ -2,7 +2,7 @@
   if (window.vsnMetafieldsInitialized) return;
   window.vsnMetafieldsInitialized = true;
   const controllers = new Map();
-  let timer;
+  const debounceTimers = new Map();
   function selection(event) {
     const form = event.target?.closest?.('form[action*="/cart/add"]');
     const variant = event.detail?.variant?.id || form?.querySelector('[name="id"]')?.value || new URL(location.href).searchParams.get('variant');
@@ -15,9 +15,9 @@
       return block.dataset.vsnTrack === 'true' && (!product || String(product) === block.dataset.vsnProduct);
     });
   }
-  async function refresh({ variant, product }) {
-    await Promise.all(eligibleBlocks(product).map(async block => {
-      if (block.dataset.vsnVariant === variant && !block.hidden) return;
+  async function refresh({ variant }, block) {
+      // The block may have been detached by a theme-editor section swap.
+      if (!block.isConnected || (block.dataset.vsnVariant === variant && !block.hidden)) return;
       const url = new URL(location.href);
       url.searchParams.set('variant', String(variant));
       url.searchParams.set('section_id', block.dataset.vsnSection);
@@ -47,21 +47,30 @@
           block.removeAttribute('aria-busy');
         }
       }
-    }));
   }
   const schedule = event => {
     const next = selection(event);
-    if (!next || !eligibleBlocks(next.product).length) return;
-    clearTimeout(timer);
-    for (const block of eligibleBlocks(next.product)) {
+    if (!next) return;
+    const blocks = eligibleBlocks(next.product);
+    if (!blocks.length) return;
+    // A theme event with no product identity cannot safely select variants
+    // across unrelated products. Preserve single-product theme compatibility.
+    if (!next.product && new Set(blocks.map(block => block.dataset.vsnProduct)).size > 1) return;
+    for (const block of blocks) {
+      // Each block owns its debounce, so different product cards or forms
+      // cannot cancel one another's pending variant refresh.
+      clearTimeout(debounceTimers.get(block.id));
       // Invalidate at selection time, even when returning to the currently rendered variant.
       // An earlier response must not win during the debounce delay or clear a newer busy state.
       controllers.get(block.id)?.abort();
       controllers.delete(block.id);
       block.removeAttribute('aria-busy');
       if (block.dataset.vsnVariant !== next.variant) block.hidden = true;
+      debounceTimers.set(block.id, setTimeout(() => {
+        debounceTimers.delete(block.id);
+        refresh(next, block);
+      }, 80));
     }
-    timer = setTimeout(() => refresh(next), 80);
   };
   document.addEventListener('change', event => { if (event.target.closest?.('form[action*="/cart/add"]')) schedule(event); });
   document.addEventListener('variant:change', schedule);

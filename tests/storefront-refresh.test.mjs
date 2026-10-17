@@ -182,3 +182,86 @@ test("a response cannot replace a block removed by the theme editor", async () =
   assert.equal(h.blocks[0], old);
   assert.equal(old.getAttribute("aria-busy"), undefined);
 });
+
+test("META-009 variant selections for different product forms keep independent debounces", async () => {
+  const h = harness([
+    { id: "product-ten", product: "10", variant: "1" },
+    { id: "product-twenty", product: "20", variant: "1" },
+  ]);
+  h.emitForm("2", "10");
+  h.emitForm("3", "20");
+  // Both blocks must refresh; a global timer used to cancel the first.
+  await h.fire(80);
+  assert.equal(h.requests.length, 2);
+  const pending = new Map(h.requests.map(request => [
+    request.url.searchParams.get("variant"), request,
+  ]));
+  assert.equal(pending.get("2").url.searchParams.get("section_id"), "product-section");
+  assert.equal(pending.get("3").url.searchParams.get("section_id"), "product-section");
+  pending.get("3").respond(h.makeBlock({
+    id: "product-twenty", variant: "3", product: "20",
+  }));
+  pending.get("2").respond(h.makeBlock({
+    id: "product-ten", variant: "2", product: "10",
+  }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "2");
+  assert.equal(h.blocks[1].dataset.vsnVariant, "3");
+  assert.equal(h.blocks[0].hidden, false);
+  assert.equal(h.blocks[1].hidden, false);
+});
+
+test("META-009 latest choice wins independently for each product, including in-flight responses", async () => {
+  const h = harness([
+    { id: "first", product: "10", variant: "1" },
+    { id: "second", product: "20", variant: "1" },
+  ]);
+  h.emit("2", "10");
+  h.emit("3", "20");
+  h.emit("4", "10");
+  await h.fire(80);
+  assert.equal(h.requests.length, 2);
+  const ten = h.requests.find(request => request.url.searchParams.get("variant") === "4");
+  const twenty = h.requests.find(request => request.url.searchParams.get("variant") === "3");
+  assert.ok(ten);
+  assert.ok(twenty);
+  h.emit("5", "10");
+  assert.equal(ten.options.signal.aborted, true);
+  assert.equal(twenty.options.signal.aborted, false);
+  ten.respond(h.makeBlock({ id: "first", variant: "4", product: "10" }));
+  twenty.respond(h.makeBlock({ id: "second", variant: "3", product: "20" }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "1");
+  assert.equal(h.blocks[1].dataset.vsnVariant, "3");
+  await h.fire(80);
+  const fresh = h.requests.at(-1);
+  assert.equal(fresh.url.searchParams.get("variant"), "5");
+  fresh.respond(h.makeBlock({ id: "first", variant: "5", product: "10" }));
+  await settle();
+  assert.equal(h.blocks[0].dataset.vsnVariant, "5");
+  assert.equal(h.blocks[1].dataset.vsnVariant, "3");
+  assert.ok(h.blocks.every(block => !block.hidden));
+});
+
+test("META-009 ambiguous unscoped theme events do not mutate unrelated product blocks", async () => {
+  const h = harness([
+    { id: "main-product", product: "10", variant: "1" },
+    { id: "related-product", product: "20", variant: "1" },
+  ]);
+  h.emit("5", null);
+  await h.fire(80);
+  assert.equal(h.requests.length, 0);
+  assert.ok(h.blocks.every(block => !block.hidden));
+
+  // Missing product identity is still allowed when the entire section has
+  // only one eligible product, preserving simpler theme event contracts.
+  const single = harness([{ id: "only-product", product: "10", variant: "1" }]);
+  single.emit("5", null);
+  await single.fire(80);
+  assert.equal(single.requests.length, 1);
+  single.requests[0].respond(single.makeBlock({
+    id: "only-product", product: "10", variant: "5",
+  }));
+  await settle();
+  assert.equal(single.blocks[0].dataset.vsnVariant, "5");
+});
