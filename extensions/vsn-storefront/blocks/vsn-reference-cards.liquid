@@ -51,8 +51,8 @@
 {%- endif -%}
 {%- endcapture -%}
 {%- if content != blank or request.design_mode or source == 'variant' -%}
-<div id="vsn-{{ block.id }}" class="vsn-metafield-block vsn-reference-cards vsn-visibility--{{ block.settings.visibility }}" data-vsn-block data-vsn-track="{{ track_variant }}" data-vsn-source="{{ source }}" data-vsn-section="{{ section.id }}" data-vsn-product="{{ product_owner.id }}" data-vsn-variant="{{ product_owner.selected_or_first_available_variant.id }}" style="{% render 'vsn-block-style', settings: block.settings %} --vsn-columns: {{ block.settings.columns | default: 1 }};" {{ block.shopify_attributes }} {% if content == blank and request.design_mode == false %}hidden{% endif %}>
-  {%- if content != blank -%}{{ content }}{%- elsif request.design_mode -%}{{ 'vsn.empty_specialized' | t }}{%- endif -%}
+<div id="vsn-{{ block.id }}" class="vsn-metafield-block vsn-reference-cards vsn-visibility--{{ block.settings.visibility }}" data-vsn-block data-vsn-track="{{ track_variant }}" data-vsn-source="{{ source }}" data-vsn-section="{{ section.id }}" data-vsn-product="{{ product_owner.id }}" data-vsn-variant="{{ product_owner.selected_or_first_available_variant.id }}" style="{% render 'vsn-block-style', settings: block.settings %} --vsn-columns: {{ block.settings.columns | default: 1 }};" data-vsn-columns="{{ block.settings.columns | default: 1 }}" {{ block.shopify_attributes }} {% if content == blank and request.design_mode == false %}hidden{% endif %}>
+  {%- if content != blank -%}<div class="vsn-reference-cards__grid">{{ content }}</div>{%- elsif request.design_mode -%}{{ 'vsn.empty_specialized' | t }}{%- endif -%}
 </div>
 {%- endif -%}
 {% schema %}
