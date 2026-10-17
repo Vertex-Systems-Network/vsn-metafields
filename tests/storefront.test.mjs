@@ -409,7 +409,7 @@ test("META-006 theme grids reflow for the real section width rather than viewpor
   const specSource = readFileSync("extensions/vsn-storefront/blocks/vsn-specifications.liquid", "utf8");
   assert.match(css, /\.vsn-metafield-block\s*\{[^}]*container-type:\s*inline-size/);
   assert.match(css, /@container \(max-width: 800px\)\s*\{[\s\S]*?data-vsn-columns="3"/);
-  assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-reference-cards__grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-reference-cards\[data-vsn-columns\] \.vsn-reference-cards__grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-metafield-block__row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-metafield-block--cards \.vsn-metafield-block__rows\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(css, /@media\(max-width:600px\)\s*\{\s*\.vsn-reference-cards__grid/);
