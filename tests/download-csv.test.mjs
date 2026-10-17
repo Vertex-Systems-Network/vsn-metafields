@@ -96,3 +96,24 @@ test("CSV download revokes URL immediately if timer scheduling is unavailable", 
   downloadCsv("qa.csv", "csv", host);
   assert.deepEqual(calls, ["remove", "revoke"]);
 });
+
+test("CSV download still schedules Blob URL cleanup if anchor removal throws", () => {
+  let revoked = false;
+  const host = {
+    Blob,
+    URL: {
+      createObjectURL: () => "blob:temp",
+      revokeObjectURL: (url) => { assert.equal(url, "blob:temp"); revoked = true; },
+    },
+    document: {
+      createElement: () => ({
+        click() {},
+        remove() { throw new Error("Sandbox blocked removal"); },
+      }),
+      body: { append() {} },
+    },
+    setTimeout(callback) { callback(); },
+  };
+  assert.throws(() => downloadCsv("qa.csv", "csv", host), /Sandbox blocked removal/);
+  assert.equal(revoked, true);
+});
