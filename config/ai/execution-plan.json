@@ -460,7 +460,8 @@
       "priority": 10,
       "status": "verification_required",
       "blockers": [
-        "Staging title/menu/diagnostics remain verified. Local Dev HTTP health title and granted page/file picker readbacks verified on 2026-10-14. Installed Dev-app UI, lower-control screenshots, actual tier transitions and non-granted consent-session acceptance remain pending."
+        "Staging title/menu/diagnostics remain verified. Local Dev HTTP health title and granted page/file picker readbacks verified on 2026-10-14. Installed Dev-app UI, lower-control screenshots, actual tier transitions and non-granted consent-session acceptance remain pending.",
+        "2026-10-17: PR #386 merged at a72c028f98c570a780f239c82ba1e515f66361ef with App Validation #39048158833 and AI Native Quality Gates #39048158829 PASS on exact PR head. Metaobject editor successful mutation now clears editing/handle/values AND resets publish status to DRAFT before the next create form, preventing an Active entry from silently preselecting Active on the next entry. Workspace UI regression guards the reset. This is code/CI verification only; installed Dev app merchant onboarding, permission-denial and provider subscription tier transitions remain unverified. META-010 stays verification_required 2/6 (33%). Live untouched."
       ],
       "acceptance_criteria": [
         "Onboarding, permissions and diagnostics verified against representative staging data",
