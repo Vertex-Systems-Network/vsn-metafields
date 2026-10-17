@@ -115,11 +115,12 @@ test("rapid choices debounce to the latest snapshot and preserve locale/query/se
   request.respond(h.makeBlock({ variant: "4" })); await settle();
 });
 
-test("mismatched products, product overrides and invalid variant IDs leave current blocks alone", async () => {
+test("mismatched products and product overrides are isolated; invalid selection fails closed", async () => {
   const h = harness([{ id: "main" }, { id: "override", track: "false", product: "20" }]);
   h.emit("2", "20"); h.emit("oops"); await h.fire(80);
   assert.equal(h.requests.length, 0);
-  assert.ok(h.blocks.every(block => !block.hidden));
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.blocks[1].hidden, false);
   h.emit("2"); await h.fire(80);
   assert.equal(h.requests.length, 1);
   assert.equal(h.blocks[1].hidden, false);
@@ -327,5 +328,19 @@ test("META-009 explicit variant:null never falls back to URL or form's stale var
   h.requests[0].respond(h.makeBlock({ variant: "7" }));
   await settle();
   assert.equal(h.blocks[0].dataset.vsnVariant, "7");
+  assert.equal(h.blocks[0].hidden, false);
+});
+
+test("META-009 an explicit variant object with null ID never displays stale values", async () => {
+  const h = harness();
+  h.emit(null, "10");
+  await h.fire(80);
+  assert.equal(h.blocks[0].hidden, true);
+  assert.equal(h.requests.length, 0);
+  h.emit("12");
+  await h.fire(80);
+  assert.equal(h.requests.length, 1);
+  h.requests[0].respond(h.makeBlock({ variant: "12" }));
+  await settle();
   assert.equal(h.blocks[0].hidden, false);
 });
