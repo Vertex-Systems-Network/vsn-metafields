@@ -1,6 +1,7 @@
 import { graph, parseValidations } from "./definitions.server.js";
 import { encodeValue, editableValueType } from "./value-types.js";
 import { verifyReferences } from "./metafield-values.server.js";
+import { verifyMetaobjectEntryFingerprint } from "./metaobject-entry-fingerprint.js";
 
 export function merchantMetaobjectType(type) {
   if (
@@ -264,6 +265,8 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     );
     if (!input.updatedAt || existing.updatedAt !== input.updatedAt)
       throw new RangeError("Entry changed. Reload before editing.");
+    if (input.expectedDigest !== undefined)
+      await verifyMetaobjectEntryFingerprint(existing, input.expectedDigest);
     // An explicit blank for an optional text field is a patch of that key.
     // Never switch to the full-replacement values input: it could erase
     // simultaneously updated siblings that were omitted by this client.
@@ -333,6 +336,8 @@ export async function removeMetaobjectEntry(admin, definition, input) {
     throw new RangeError(
       "Reload and confirm the selected entry deletion. References may become empty.",
     );
+  if (input.expectedDigest !== undefined)
+    await verifyMetaobjectEntryFingerprint(entry, input.expectedDigest);
   const data = await graph(
     admin,
     `#graphql
