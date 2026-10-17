@@ -168,20 +168,22 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
                 id,
                 type: "vsn_faq",
                 handle: mutation.handle,
-                fields:
-                  mutation.fields ||
-                  (mutation.values
-                    ? Object.entries(mutation.values).map(([key, value]) => ({
-                        key,
-                        value,
-                      }))
-                    : [
-                        { key: "question", value: "Old question" },
-                        { key: "answer", value: "Old answer" },
-                      ]),
-                values: mutation.values
-                  ? { question: mutation.values.question, answer: null }
-                  : undefined,
+                fields: mutation.fields
+                  ? [
+                      { key: "question", value: "Old question" },
+                      { key: "answer", value: "Old answer" },
+                    ].map((field) => {
+                      const changed = mutation.fields.find(
+                        (item) => item.key === field.key,
+                      );
+                      return changed
+                        ? { ...field, value: changed.value === "" ? null : changed.value }
+                        : field;
+                    })
+                  : [
+                      { key: "question", value: "Old question" },
+                      { key: "answer", value: "Old answer" },
+                    ],
               },
               userErrors: [],
             },
@@ -221,8 +223,11 @@ test("metadata entry edits preserve omitted fields and reject stale timestamps",
     handle: "one",
     values: { question: "Q", answer: "" },
   });
-  assert.equal(mutation.fields, undefined);
-  assert.deepEqual(mutation.values, { question: "Q" });
+  assert.deepEqual(mutation.fields, [
+    { key: "question", value: "Q" },
+    { key: "answer", value: "" },
+  ]);
+  assert.equal(mutation.values, undefined);
   await assert.rejects(
     saveMetaobjectEntry(
       admin,
