@@ -83,7 +83,7 @@ export default function PrivacyRequests() {
               <s-switch label={`I provided the relevant retained app data for request ${requestId} to the store owner`}
                 checked={confirmed === item.id}
                 onChange={(event) => setConfirmed(event.currentTarget.checked ? item.id : "")} />
-              <ActionButton disabled={item.ordersUnreadable || confirmed !== item.id || fetcher.state !== "idle"}
+              <ActionButton disabled={item.ordersUnreadable || !!item.unreadableJobIds?.length || confirmed !== item.id || fetcher.state !== "idle"}
                 loading={fetcher.state !== "idle"}
                 onClick={() => {
                   fetcher.submit({

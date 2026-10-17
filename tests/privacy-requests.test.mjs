@@ -288,6 +288,7 @@ test("META-011 privacy fulfillment compare-and-set rejects order scope changed b
   });
   let updateAttempted = false;
   const adversarialDb = {
+    metafieldJob: { findMany: (args) => db.metafieldJob.findMany(args) },
     privacyRequest: {
       findFirst: (args) => db.privacyRequest.findFirst(args),
       updateMany: async (args) => {
@@ -340,6 +341,7 @@ test("META-011 concurrent change to any reviewed customer identity rejects stale
     });
     let updateAttempted = false;
     const adversarialDb = {
+      metafieldJob: { findMany: (args) => db.metafieldJob.findMany(args) },
       privacyRequest: {
         findFirst: (args) => db.privacyRequest.findFirst(args),
         updateMany: async (args) => {
@@ -408,4 +410,53 @@ test("META-011 privacy route submits merchant-displayed review version", () => {
   const page = readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8");
   assert.match(page, /reviewVersion:\s*item\.reviewVersion/);
   assert.match(page, /form\.get\("reviewVersion"\)/);
+});
+
+test("META-011 unreadable retained imports block fulfillment without deleting unrelated merchant data", async () => {
+  const target = "privacy-unreadable-block.myshopify.com";
+  const otherShop = "privacy-other-merchant.myshopify.com";
+  const requestId = target + ":8801";
+  await db.privacyRequest.create({
+    data: {
+      id: requestId, shop: target, status: "pending",
+      ordersJson: "[]", customerEmail: "person@example.com",
+    },
+  });
+  const expiry = new Date(Date.now() + 86_400_000);
+  const corrupt = (id, shop, expiresAt = expiry) => ({
+    id, shop, inputHash: "hash", rowsJson: "{broken",
+    resultsJson: "[]", expiresAt,
+  });
+  await db.metafieldJob.createMany({ data: [
+    corrupt("blocked-unreadable", target),
+    corrupt("ignored-other-shop", otherShop),
+    corrupt("ignored-expired", target, new Date(Date.now() - 3_600_000)),
+  ] });
+  const initial = (await listDataRequests(db, target)).requests[0];
+  assert.deepEqual(initial.unreadableJobIds, ["blocked-unreadable"]);
+  await assert.rejects(
+    completeDataRequest(db, target, requestId, "FULFILLED:" + requestId, initial.reviewVersion),
+    /Unreadable retained import snapshots need recovery/,
+  );
+  const unchanged = await db.privacyRequest.findUnique({ where: { id: requestId } });
+  assert.equal(unchanged.status, "pending");
+  assert.equal(unchanged.customerEmail, "person@example.com");
+  assert.equal(unchanged.completedAt, null);
+  // Recovery updates only the broken snapshot for the requested merchant.
+  await db.metafieldJob.update({
+    where: { id: "blocked-unreadable" },
+    data: { rowsJson: "[]", resultsJson: "[]" },
+  });
+  const fresh = (await listDataRequests(db, target)).requests[0];
+  assert.deepEqual(fresh.unreadableJobIds, []);
+  await completeDataRequest(db, target, requestId, "FULFILLED:" + requestId, fresh.reviewVersion);
+  assert.equal((await db.privacyRequest.findUnique({ where: { id: requestId } })).status, "fulfilled");
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "ignored-other-shop" } }));
+  assert.ok(await db.metafieldJob.findUnique({ where: { id: "ignored-expired" } }));
+});
+
+test("META-011 privacy UI disables fulfillment for unreadable retained snapshots", () => {
+  const page = readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8");
+  assert.match(page, /disabled=\{item\.ordersUnreadable \|\| !!item\.unreadableJobIds\?\.length/);
+  assert.match(page, /an unreadable snapshot is not proof/i);
 });
