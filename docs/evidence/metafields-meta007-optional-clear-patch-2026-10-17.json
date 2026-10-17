@@ -1,0 +1,46 @@
+{
+  "work_unit": "META-007",
+  "environment": "isolated_staging",
+  "date": "2026-10-17",
+  "store": "staging-oath3rth.myshopify.com",
+  "shopify_connector": "staging",
+  "shopify_app_server_api_version": "2026-07",
+  "evidence_type": "direct_Shopify_Admin_GraphQL_create_patch_readback_cleanup",
+  "disposable": {
+    "id": "gid://shopify/Metaobject/376995152244",
+    "type": "vsn_qa_20261004",
+    "handle": "meta007-clear-contract-20261017",
+    "created_fields": {
+      "title": "META007 clear field test",
+      "optional_qa_note": "Remove this note"
+    },
+    "mutation_variables": {
+      "id": "gid://shopify/Metaobject/376995152244",
+      "metaobject": {
+        "fields": [
+          {
+            "key": "optional_qa_note",
+            "value": ""
+          }
+        ]
+      }
+    },
+    "direct_readback": {
+      "title": "META007 clear field test",
+      "optional_qa_note": null,
+      "updatedAt": "2026-10-17T08:47:02Z"
+    },
+    "cleanup": {
+      "metaobjectDelete_deletedId": "gid://shopify/Metaobject/376995152244",
+      "readback": null
+    }
+  },
+  "result": "PASS - empty optional text field patch yielded null readback and preserved required sibling",
+  "purpose": "Avoid full values replacement for optional text clear in META-007; mixed-type clearing remains native until separately verified",
+  "boundaries": [
+    "Mutation exercised via connected staging Shopify Admin GraphQL, not authenticated installed VSN app browser",
+    "Existing production store, production app billing and Live Worker untouched",
+    "META-007 retains verification_required pending deployed Worker cross-instance race, browser request capture and provider-verified Pro/public transition"
+  ],
+  "documentation": "https://shopify.dev/docs/api/admin-graphql/2026-07/input-objects/MetaobjectUpdateInput"
+}
