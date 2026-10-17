@@ -79,6 +79,9 @@ jobs:
       - name: Validate Prisma schema
         run: npx prisma validate
 
+      - name: Verify staging Neon GitHub environment formatting
+        run: python -m unittest discover -s tests -p 'test_staging_neon_env.py'
+
       - name: Validate migrations
         run: npx prisma migrate deploy
 
