@@ -65,6 +65,9 @@ export default function Metaobjects() {
       setEditing(null);
       setValues({});
       setHandle("");
+      // A saved Active entry must never preselect Active on the next
+      // create form. Every new reusable entry starts as a private draft.
+      setStatus("DRAFT");
       setPublicConfirm(false);
     }
   }, [mutation.data, load, url]);
