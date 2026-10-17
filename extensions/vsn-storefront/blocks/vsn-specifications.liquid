@@ -4,7 +4,7 @@
   assign source = block.settings.source
   assign owner = nil
   assign track_variant = false
-  if request.page_type == 'product' and product_owner.id == product.id
+  if source == 'variant' and request.page_type == 'product' and product_owner.id == product.id
     assign track_variant = true
   endif
   if source == 'auto'
