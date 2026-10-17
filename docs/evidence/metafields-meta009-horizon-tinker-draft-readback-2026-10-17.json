@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "work_units": [
+    "META-009",
+    "META-006"
+  ],
+  "date": "2026-10-17",
+  "environment": "existing Shopify staging store",
+  "shop": "staging-oath3rth.myshopify.com",
+  "source": "authenticated connected Shopify Admin GraphQL read-only queries: themes(first:20), theme(id){files(filenames:[\"templates/product.json\"])}",
+  "live_touched": false,
+  "theme_writes_performed": false,
+  "themes": [
+    {
+      "name": "Horizon",
+      "id": "gid://shopify/OnlineStoreTheme/194100724084",
+      "role": "UNPUBLISHED",
+      "product_template_checksum_md5": "05b1ac9328f6d55596af91d3f519e538",
+      "saved_vsn_blocks": [
+        {
+          "type": "vsn-single-field",
+          "source": "product",
+          "namespace": "vsn_theme_smoke_20261009",
+          "field_key": "material"
+        },
+        {
+          "type": "vsn-specifications",
+          "source": "auto",
+          "namespace": "vsn_theme_smoke_20261009",
+          "key_1": "material",
+          "layout": "rows"
+        }
+      ]
+    },
+    {
+      "name": "Tinker",
+      "id": "gid://shopify/OnlineStoreTheme/194546532724",
+      "role": "UNPUBLISHED",
+      "product_template_checksum_md5": "d5f4c3958faaa19d42bb0144b8fb3f87",
+      "saved_vsn_blocks": [
+        {
+          "type": "vsn-specifications",
+          "source": "product",
+          "namespace": "vsn_theme_smoke_20261009",
+          "key_1": "material",
+          "layout": "rows"
+        },
+        {
+          "type": "vsn-single-field",
+          "source": "product",
+          "namespace": "vsn_theme_smoke_20261009",
+          "field_key": "material"
+        }
+      ]
+    }
+  ],
+  "verified": [
+    "Both expected draft theme identities exist in the staging Shopify account",
+    "Each actual Shopify product.json template contains exactly two VSN staging app blocks: Specifications and Single Field",
+    "Saved namespace/key for both draft themes references vsn_theme_smoke_20261009.material",
+    "Both templates are unpublished; no live/published theme setting changed"
+  ],
+  "not_verified": [
+    "Real browser rendering of populated storefront on both themes",
+    "Horizon and Tinker variant-selection refresh/recovery",
+    "All five extension block types across both themes",
+    "Mobile, zoom, keyboard, screen-reader or performance acceptance",
+    "Merchant-facing current staging Worker code (the Worker has not been redeployed since 2026-10-16)"
+  ],
+  "scope_note": "This is backend Shopify Admin readback of EXISTING draft templates, not a public storefront test; do not mark META-009 or META-006 complete or increase their 2/6 acceptance percentages."
+}
