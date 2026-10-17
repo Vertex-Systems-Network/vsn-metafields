@@ -41,13 +41,9 @@ jobs:
           ref: development
           persist-credentials: false
 
-      - name: Bind checked-out development source SHA
+      - name: Bind exactly dispatched development SHA before secrets or migrations
         shell: bash
-        run: |
-          set -euo pipefail
-          SOURCE_SHA="$(git rev-parse --verify HEAD)"
-          echo "APP_COMMIT_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
-          echo "staging_source_sha=$SOURCE_SHA"
+        run: python scripts/cloudflare/verify-staging-source-sha.py
 
       - name: Setup Node 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
