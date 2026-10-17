@@ -6,10 +6,14 @@
   function selection(event) {
     const form = event.target?.closest?.('form[action*="/cart/add"]');
     const product = event.detail?.product?.id || event.detail?.variant?.product_id || form?.dataset?.productId;
-    // An explicit Shopify variant:null means no selected variant. Never
-    // substitute an old form input or URL parameter in that situation.
-    if (event.detail && Object.prototype.hasOwnProperty.call(event.detail, 'variant') && event.detail.variant == null)
-      return { variant: null, product };
+    // An explicit unavailable/invalid variant means no valid selection.
+    // Never silently use the old form input or URL when the theme provides
+    // a variant key but does not provide a usable numeric variant ID.
+    if (event.detail && Object.prototype.hasOwnProperty.call(event.detail, 'variant')) {
+      const detailId = event.detail.variant?.id;
+      if (!/^\d+$/.test(String(detailId ?? '')))
+        return { variant: null, product };
+    }
     const variant = event.detail?.variant?.id || form?.querySelector('[name="id"]')?.value || new URL(location.href).searchParams.get('variant');
     if (!/^\d+$/.test(String(variant || ''))) return null;
     return { variant: String(variant), product };
