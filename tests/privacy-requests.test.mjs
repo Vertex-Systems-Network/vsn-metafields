@@ -22,6 +22,11 @@ before(async () => {
 });
 after(async () => { await db?.$disconnect(); rmSync(folder,{recursive:true,force:true}); });
 const shop = "privacy-test.myshopify.com";
+// Existing direct-service tests simulate a freshly loaded merchant review.
+async function reviewedCompleteDataRequest(database, targetShop, id, confirmation) {
+  const row = await db.privacyRequest.findUnique({ where: { id } });
+  return completeDataRequest(database, targetShop, id, confirmation, row?.updatedAt?.toISOString());
+}
 const payload = {shop_domain:shop,data_request:{id:42},customer:{id:null,email:"Person@Example.COM",phone:null},orders_requested:[]};
 test("Shopify CLI placeholder mismatch is acknowledged only for signed test delivery", () => {
   const fixture = { ...payload, shop_domain: "{shop}.myshopify.com" };
@@ -51,8 +56,8 @@ test("identifiers find legacy snapshots, while all jobs remain reviewable", asyn
 });
 test("merchant confirmation clears contact data; completed record expires", async () => {
   const id = `${shop}:42`;
-  await assert.rejects(()=>completeDataRequest(db,shop,id,"wrong"),/confirmation/);
-  await completeDataRequest(db,shop,id,`FULFILLED:${id}`);
+  await assert.rejects(()=>reviewedCompleteDataRequest(db,shop,id,"wrong"),/confirmation/);
+  await reviewedCompleteDataRequest(db,shop,id,`FULFILLED:${id}`);
   const completed=await db.privacyRequest.findUnique({where:{id}});
   assert.equal(completed.status,"fulfilled");
   assert.equal(completed.customerEmail,null);
@@ -80,7 +85,7 @@ test("completed history cannot hide an older pending privacy backlog", async () 
   assert.equal(first.requests.length, 50);
   assert.equal(first.requests[0].id, `${shop}:100`);
 
-  await completeDataRequest(db, shop, first.requests[0].id, `FULFILLED:${first.requests[0].id}`);
+  await reviewedCompleteDataRequest(db, shop, first.requests[0].id, `FULFILLED:${first.requests[0].id}`);
   const next = await listDataRequests(db, shop);
   assert.equal(next.pendingCount, 54);
   assert.equal(next.completedCount, 61);
@@ -131,7 +136,10 @@ test("fulfillment conflict returns a page-level error and releases the database"
     return dependencies[id];
   }, route, route.exports);
   const request = () => new Request("https://example.invalid/app/privacy", {
-    method: "POST", body: new URLSearchParams({ id: `${shop}:42`, confirm: `FULFILLED:${shop}:42` }),
+    method: "POST", body: new URLSearchParams({
+      id: `${shop}:42`, confirm: `FULFILLED:${shop}:42`,
+      reviewVersion: "2026-10-17T10:00:00.000Z",
+    }),
   });
 
   const response = await route.exports.action({ request: request() });
@@ -238,7 +246,7 @@ test("META-011 malformed retained privacy order IDs keep review visible and bloc
   assert.deepEqual(result.requests[0].orders, []);
   assert.deepEqual(result.requests[0].candidateJobIds, ["bad-order-email-match"]);
   await assert.rejects(
-    completeDataRequest(db, isolated, id, "FULFILLED:" + id),
+    reviewedCompleteDataRequest(db, isolated, id, "FULFILLED:" + id),
     /Stored order IDs are unreadable/,
   );
   assert.equal((await db.privacyRequest.findUnique({ where: { id } })).status, "pending");
@@ -248,7 +256,7 @@ test("META-011 malformed retained privacy order IDs keep review visible and bloc
   const recovered = await listDataRequests(db, isolated);
   assert.equal(recovered.requests[0].ordersUnreadable, false);
   assert.deepEqual(recovered.requests[0].orders, ["998"]);
-  await completeDataRequest(db, isolated, id, "FULFILLED:" + id);
+  await reviewedCompleteDataRequest(db, isolated, id, "FULFILLED:" + id);
   assert.equal((await db.privacyRequest.findUnique({ where: { id } })).status, "fulfilled");
 });
 
@@ -299,7 +307,7 @@ test("META-011 privacy fulfillment compare-and-set rejects order scope changed b
     },
   };
   await assert.rejects(
-    completeDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
+    reviewedCompleteDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
     /already fulfilled or not found/,
   );
   assert.equal(updateAttempted, true);
@@ -309,7 +317,7 @@ test("META-011 privacy fulfillment compare-and-set rejects order scope changed b
   assert.equal(pending.ordersJson, changed);
   assert.equal(pending.customerEmail, "owner@example.com");
   // A later, freshly reviewed scope may be completed normally.
-  await completeDataRequest(db, isolated, id, "FULFILLED:" + id);
+  await reviewedCompleteDataRequest(db, isolated, id, "FULFILLED:" + id);
   const completed = await db.privacyRequest.findUnique({ where: { id } });
   assert.equal(completed.status, "fulfilled");
   assert.equal(completed.ordersJson, "[]");
@@ -346,7 +354,7 @@ test("META-011 concurrent change to any reviewed customer identity rejects stale
       },
     };
     await assert.rejects(
-      completeDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
+      reviewedCompleteDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
       /already fulfilled or not found/,
     );
     assert.equal(updateAttempted, true);
@@ -355,4 +363,49 @@ test("META-011 concurrent change to any reviewed customer identity rejects stale
     assert.equal(row.completedAt, null);
     assert.equal(row[field], value);
   }
+});
+
+test("META-011 merchant screen reviewVersion rejects outdated request before fulfillment", async () => {
+  const isolated = "privacy-stale-page.myshopify.com";
+  const id = isolated + ":7709";
+  await db.privacyRequest.create({
+    data: {
+      id, shop: isolated, status: "pending",
+      ordersJson: JSON.stringify(["111"]),
+      customerEmail: "review@example.com",
+    },
+  });
+  const shown = (await listDataRequests(db, isolated)).requests[0];
+  assert.match(shown.reviewVersion, /^\d{4}-/);
+  await assert.rejects(
+    completeDataRequest(db, isolated, id, "FULFILLED:" + id, ""),
+    /Reload the privacy request/,
+  );
+  const firstVersion = shown.reviewVersion;
+  await db.privacyRequest.update({
+    where: { id },
+    data: {
+      customerEmail: "updated@example.com",
+      ordersJson: JSON.stringify(["111", "222"]),
+      updatedAt: new Date(Date.parse(firstVersion) + 10000),
+    },
+  });
+  await assert.rejects(
+    completeDataRequest(db, isolated, id, "FULFILLED:" + id, firstVersion),
+    /changed after review/,
+  );
+  const stillPending = await db.privacyRequest.findUnique({ where: { id } });
+  assert.equal(stillPending.status, "pending");
+  assert.equal(stillPending.customerEmail, "updated@example.com");
+  assert.deepEqual(JSON.parse(stillPending.ordersJson), ["111", "222"]);
+  const fresh = (await listDataRequests(db, isolated)).requests[0];
+  assert.notEqual(fresh.reviewVersion, firstVersion);
+  await completeDataRequest(db, isolated, id, "FULFILLED:" + id, fresh.reviewVersion);
+  assert.equal((await db.privacyRequest.findUnique({ where: { id } })).status, "fulfilled");
+});
+
+test("META-011 privacy route submits merchant-displayed review version", () => {
+  const page = readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8");
+  assert.match(page, /reviewVersion:\s*item\.reviewVersion/);
+  assert.match(page, /form\.get\("reviewVersion"\)/);
 });
