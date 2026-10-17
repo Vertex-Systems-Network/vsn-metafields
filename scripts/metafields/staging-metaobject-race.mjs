@@ -40,6 +40,7 @@ const handle = "meta007-race-" + nonce;
 let createdId = null;
 let success = false;
 let cleanupConfirmed = false;
+const pendingWriters = [];
 let firstMutationReached;
 let releaseFirstMutation;
 const firstMutationGate = new Promise(resolve => { releaseFirstMutation = resolve; });
@@ -122,6 +123,7 @@ try {
       values: { title: "META007 first writer " + nonce },
       status: "DRAFT",
     }));
+  pendingWriters.push(first);
   let timeoutId;
   try {
     await Promise.race([
@@ -141,6 +143,7 @@ try {
       values: { title: "META007 stale second writer " + nonce },
       status: "DRAFT",
     }));
+  pendingWriters.push(second);
   // Ensure the second call overlaps with the first-held PostgreSQL lock.
   await new Promise(resolve => setTimeout(resolve, 180));
   releaseFirstMutation();
@@ -186,10 +189,13 @@ try {
       expectedDigest: freshDigest,
       confirm: "DELETE_ENTRY:" + createdId + ":" + handle,
     }));
+  // Deletion is already confirmed by metaobjectDelete. Do not attempt a
+  // second delete if the subsequent readback fails or is delayed.
+  const removedId = createdId;
+  createdId = null;
   assert.equal((await graph(admin,
     "#graphql\nquery Meta007Gone($id: ID!) { metaobject(id:$id) { id } }",
-    { id: createdId })).metaobject, null);
-  createdId = null;
+    { id: removedId })).metaobject, null);
   cleanupConfirmed = true;
   success = true;
   console.log(JSON.stringify({
@@ -206,7 +212,10 @@ try {
   }));
 } finally {
   releaseFirstMutation?.();
-  if (createdId) {
+  try {
+    // Let any in-flight mutation/lock release before deleting the QA entry.
+    await Promise.allSettled(pendingWriters);
+    if (createdId) {
     // Exception cleanup is restricted to the exact disposable ID minted above.
     // Keep original error visible if Shopify cleanup itself also fails.
     try {
@@ -234,11 +243,13 @@ try {
         throw new Error("Unconfirmed disposable QA cleanup");
       cleanupConfirmed = true;
     } catch {
-      console.error("META-007 disposable QA entry cleanup failed; exact ID must be reviewed in staging.");
+      console.error("META-007 disposable QA entry cleanup failed for " + createdId + "; review exact staging entry.");
       throw new Error("META-007 cleanup failed after probe; manual staging review required.");
     }
+    }
+    if (!success && cleanupConfirmed)
+      console.error("META-007 acceptance failed but disposable QA entry cleanup was confirmed.");
+  } finally {
+    await prisma.$disconnect();
   }
-  await prisma.$disconnect();
-  if (!success && cleanupConfirmed)
-    console.error("META-007 acceptance failed but disposable QA entry cleanup was confirmed.");
 }
