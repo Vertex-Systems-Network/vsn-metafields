@@ -128,6 +128,8 @@ function serverRoute(file, deps) {
   const module = { exports: {} };
   new Function("require", "module", "exports", code)(
     (id) => {
+      if (id === "../metaobject-entry-lock.server")
+        return { withMetaobjectEntryLock: async (_, __, mutate) => mutate() };
       if (!(id in deps)) throw new Error(`Unmocked dependency: ${id}`);
       return deps[id];
     },
