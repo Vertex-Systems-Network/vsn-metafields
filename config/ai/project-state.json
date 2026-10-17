@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
   "lifecycle_stage": "engineering",
-  "current_phase": "META-PHASE-04",
-  "current_module": "MOD-META-OPERATIONS",
-  "current_work_unit": "META-011",
-  "last_verified_completion": "PR #318 merged development 0bb0b1914644882cbda40fd0eb6a1b8f5af3260d; Staging #103/run38645117846 succeeded with runtime health, staging reads and disposable lifecycle cleanup. Optional text-field clear contract and local release189/189 pass. Actual installed Staging app saved then cleared private QA optional text field; Shopify Admin readback returned null and required title unchanged. Full acceptance 3/12.",
-  "next_valid_work_unit": "Close remaining META-011 gates: independent PR #298 review and runtime SHA attestation, explicit mixed CSV browser Apply approval, file-transfer acceptance, matching signed privacy delivery/fulfillment and complete accessibility/performance evidence. Then run fresh Shopify install and both full theme-draft matrices in the requested sequence. Live explicitly held.",
+  "current_phase": "META-PHASE-03",
+  "current_module": "MOD-META-METAOBJECTS",
+  "current_work_unit": "META-007",
+  "last_verified_completion": "META-008 complete: disposable Shopify staging bulk write then restoration read back the exact original value; docs/evidence/metafields-bulk-write-restore-2026-10-17.json. META-004 also complete with Product, ProductVariant and Collection staging roundtrips; docs/evidence/metafields-value-owner-acceptance-2026-10-17.json. META-007 remains verification_required despite separate passing QA evidence.",
+  "next_valid_work_unit": "META-007: staging deployment of exact development SHA under existing guarded workflow, installed cross-Worker update race, authenticated VSN-app browser omitted-field payload, and genuine VSN-app Pro public/tier entitlement acceptance. Direct Shopify Admin GraphQL omitted-field preservation and disposable cleanup already passed; avoid duplicate manual QA and never touch Live. Once these pass, proceed META-009, META-006, META-010, META-011. Keep META-012 held.",
   "progress": {
     "scope": "metafield_expansion_META-001_through_META-012",
     "total_work_units": 12,
-    "complete": 3,
-    "verification_required": 7,
+    "complete": 6,
+    "verification_required": 4,
     "in_progress": 1,
     "not_started": 1
   },
   "outstanding_updates": [
+    "2026-10-17 META-007 progress: PR #352 and #353 merged development; direct connected staging Shopify QA title-only patch preserved omitted optional sibling through independent readback, disposable entry deleted/readback null; source docs/evidence/metafields-meta007-staging-readback-2026-10-17.json merged via PR #354. Quality/App Validation green on PR #353 and merged development. Staging Worker still previous 2026-10-16 deployment; installed cross-Worker race, VSN-app raw browser request, and authorized public/Pro-tier transitions remain unverified; do not close META-007 or deploy production.",
     "Optional text-field clear: docs/evidence/metafields-metaobject-optional-clear-2026-10-15.json. Staging103 and actual browser/Shopify readback pass for private two-text-field case; mixed-type clear stays in native editor, broader acceptance pending.",
     "Current metaobject entry reload evidence: docs/evidence/metafields-metaobject-entry-reload-2026-10-14.json. Staging101 browser rejected-edit recovery passed; public/tier/omitted-field and broader race acceptance pending.",
     "Current metaobject feedback evidence: docs/evidence/metafields-metaobject-feedback-2026-10-14.json. Recovery/private QA and two-tab stale timestamp rejection pass; public/tier/omitted-field and broader race acceptance pending. New screenshot attachment unavailable; no broken image or gallery change published.",
@@ -22,7 +23,7 @@
     "Current value editor evidence: docs/evidence/metafields-value-feedback-2026-10-14.json; four representative browser rejection cases passed, stale feedback fixed; full supported-type UI acceptance remains open.",
     "Current batch evidence: docs/evidence/metafields-staging-batch-2026-10-14.json",
     "Historical failed development audit is superseded by zero-vulnerability full audit. Manual Neon restore/schema/count check passed; automatic backups/RTO/RPO/outage/ownership remain pending.",
-    "META004..010 remain verification_required: complete merchant/theme matrices, lower-control images, real tier/permission transitions and installed Dev-app UI incomplete. Local Dev HTTP health title is verified only.",
+    "Current pending acceptance units are META-006, META-007, META-009 and META-010. META-004 and META-008 are complete in the execution plan; never list them as pending.",
     "Mixed browser Apply rejected by automatic approval review; chooser/download events timed out. Canonical Shopify CLI self-review fetch failed with EAI_AGAIN. No full mobile/zoom/screen-reader certification."
   ],
   "outstanding_removals": [
@@ -38,8 +39,8 @@
   "critical_defects": [],
   "qa_readiness": "staging_service_passed_browser_acceptance_partial",
   "security_readiness": "full_dependency_audit_passed_independent_review_pending",
-  "last_reconciled_repository_ref": "0bb0b1914644882cbda40fd0eb6a1b8f5af3260d",
-  "last_reconciled_at": "2026-10-14T22:18:57Z",
+  "last_reconciled_repository_ref": "cb0639f3c8a5eeaadb147f2042eafc0982be43e4",
+  "last_reconciled_at": "2026-10-17T08:23:03Z",
   "notes": "Plan ID remains pro-plan. Live demo/test subscriptions are now intentionally entitled when Shopify reports them ACTIVE, while newly created production subscriptions remain test=false. Hotfix deployment and acceptance are complete; the rollback window was reset from successful acceptance. Certification is read-only; cleanup was not performed. The closed window is a recorded release-state transition, and the manual rollback workflow rejects closed windows. Current feature queue counts are scoped to META-001..012; prior migration/rollback certification remains preserved in last_verified_completion and release evidence.",
   "previous_production_completion": "Production Rollback Window Certification run 36926166869 passed on protected main 6fb39e14592d8aec75740385e2b247021690f73f at 2026-10-01T21:05:13Z. Two offline tokens refreshed and verified; Cloudflare health/source/billing, exact 2-shop / 2-active-subscription digest, four Session rows and certified previous Worker version all passed. The 24-hour window is recorded closed at 2026-10-01T21:08:53Z. No Cloudflare version or Supabase deletion was performed."
 }
