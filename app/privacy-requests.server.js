@@ -1,3 +1,5 @@
+import { parseRetainedJobRows } from "./retained-job-snapshots.js";
+
 const numericId = (value) => /^\d+$/.test(String(value ?? "")) ? String(value) : "";
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
@@ -38,25 +40,8 @@ export async function recordDataRequest(db, shop, payload) {
   });
 }
 
-// Legacy/import snapshots may be incomplete or malformed after an interrupted
-// migration. A corrupt snapshot must not crash the entire privacy review or be
-// misrepresented as an identifier match. Keep its job ID visible for manual review.
-function retainedJobRows(job) {
-  try {
-    const rows = JSON.parse(job.rowsJson);
-    const results = JSON.parse(job.resultsJson);
-    if (!Array.isArray(rows) || !Array.isArray(results)) return null;
-    const combined = [...rows, ...results];
-    if (combined.some((row) => !row || typeof row !== "object" || Array.isArray(row)))
-      return null;
-    return combined;
-  } catch {
-    return null;
-  }
-}
-
 export function unreadableJobIds(jobs) {
-  return jobs.filter((job) => retainedJobRows(job) === null).map((job) => job.id);
+  return jobs.filter((job) => parseRetainedJobRows(job) === null).map((job) => job.id);
 }
 
 export function matchingJobIds(request, jobs) {
@@ -65,7 +50,7 @@ export function matchingJobIds(request, jobs) {
   const email = request.customerEmail?.toLowerCase();
   const phone = request.customerPhone?.toLowerCase();
   return jobs.filter((job) => {
-    const rows = retainedJobRows(job);
+    const rows = parseRetainedJobRows(job);
     if (!rows) return false; // separately flagged as unreadable, never silently excluded
     return rows.some((row) => {
       const text = JSON.stringify(row).toLowerCase();
