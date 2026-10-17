@@ -144,14 +144,27 @@ try {
       status: "DRAFT",
     }));
   pendingWriters.push(second);
-  // Ensure the second call overlaps with the first-held PostgreSQL lock.
+  // Queue a stale deletion while the first save is still holding the
+  // cross-Worker PostgreSQL lock. A racing delete must not remove that save.
+  const racingDelete = withMetaobjectEntryLock(SHOP, createdId, () =>
+    removeMetaobjectEntry(admin, definition, {
+      id: createdId, updatedAt: initial.updatedAt,
+      expectedDigest: originalDigest,
+      confirm: "DELETE_ENTRY:" + createdId + ":" + handle,
+    }));
+  pendingWriters.push(racingDelete);
+  // The queued save and delete both begin while the first Shopify mutation
+  // is paused. The separate staging transaction probe is not a browser test.
   await new Promise(resolve => setTimeout(resolve, 180));
   releaseFirstMutation();
-  const settled = await Promise.allSettled([first, second]);
+  const settled = await Promise.allSettled([first, second, racingDelete]);
   assert.equal(settled[0].status, "fulfilled",
     "First writer did not complete: " + settled[0]?.reason?.message);
   assert.equal(settled[1].status, "rejected");
   assert.match(settled[1].reason?.message || "", /Entry changed.*Reload/);
+  assert.equal(settled[2].status, "rejected",
+    "Overlapping stale delete must never remove the first writer.");
+  assert.match(settled[2].reason?.message || "", /Entry changed.*Reload|Reload and confirm/);
 
   const updated = await readMetaobjectEntry(admin, createdId, TYPE);
   assert.equal(updated.fields.find(x => x.key === "title")?.value,
@@ -205,7 +218,8 @@ try {
       "staging_shop_and_app_identity", "dedicated_neon_endpoint",
       "separate_postgres_transaction_lock_contenders",
       "first_write_persisted", "stale_second_writer_rejected",
-      "stale_delete_rejected", "omitted_sibling_preserved",
+      "overlapping_stale_delete_rejected", "stale_delete_rejected",
+      "omitted_sibling_preserved",
       "optional_clear_readback", "disposable_QA_cleanup",
     ],
     qualification: "This validates distinct Neon transactions with direct Shopify staging APIs; not Cloudflare cross-instance browser E2E.",
