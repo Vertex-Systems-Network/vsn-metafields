@@ -3,6 +3,19 @@ import { parseRetainedJobRows } from "./retained-job-snapshots.js";
 const numericId = (value) => /^\d+$/.test(String(value ?? "")) ? String(value) : "";
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
+// Historical requests may contain malformed ordersJson after partial writes or
+// legacy migrations. Treat those IDs as unreadable, never as "no orders".
+export function parseStoredPrivacyOrderIds(ordersJson) {
+  try {
+    const orders = JSON.parse(ordersJson);
+    if (!Array.isArray(orders) || orders.length > 1000 ||
+        orders.some((id) => !numericId(id))) return null;
+    return orders.map((id) => String(id));
+  } catch {
+    return null;
+  }
+}
+
 // Shopify CLI's signed sample may have a placeholder shop_domain.
 // Acknowledge a test-only mismatch without creating a merchant request.
 export function isSyntheticShopMismatch(shop, payload, testHeader) {
@@ -46,7 +59,8 @@ export function unreadableJobIds(jobs) {
 
 export function matchingJobIds(request, jobs) {
   const customerGid = request.customerId ? `gid://shopify/Customer/${request.customerId}` : null;
-  const orderGids = new Set(JSON.parse(request.ordersJson).map((id) => `gid://shopify/Order/${id}`));
+  const orderGids = new Set((parseStoredPrivacyOrderIds(request.ordersJson) || [])
+    .map((id) => `gid://shopify/Order/${id}`));
   const email = request.customerEmail?.toLowerCase();
   const phone = request.customerPhone?.toLowerCase();
   return jobs.filter((job) => {
@@ -82,7 +96,8 @@ export async function listDataRequests(db, shop) {
     customerId: request.customerId,
     customerEmail: request.customerEmail,
     customerPhone: request.customerPhone,
-    orders: JSON.parse(request.ordersJson),
+    orders: parseStoredPrivacyOrderIds(request.ordersJson) || [],
+    ordersUnreadable: parseStoredPrivacyOrderIds(request.ordersJson) === null,
     status: request.status,
     createdAt: request.createdAt,
     completedAt: request.completedAt,
@@ -94,6 +109,15 @@ export async function listDataRequests(db, shop) {
 
 export async function completeDataRequest(db, shop, id, confirmation) {
   if (confirmation !== `FULFILLED:${id}`) throw new RangeError("Explicit fulfillment confirmation required.");
+  // Never record fulfillment when the original order scope is unreadable.
+  // Recover and review it first. Customer/contact matches alone are not proof
+  // that every Shopify order in the request has been accounted for.
+  const request = await db.privacyRequest.findFirst({
+    where: { id, shop, status: "pending" },
+    select: { ordersJson: true },
+  });
+  if (request && parseStoredPrivacyOrderIds(request.ordersJson) === null)
+    throw new RangeError("Stored order IDs are unreadable. Recover and review them before fulfillment.");
   const result = await db.privacyRequest.updateMany({
     where: { id, shop, status: "pending" },
     data: { status: "fulfilled", completedAt: new Date(), customerId: null, customerEmail: null, customerPhone: null, ordersJson: "[]" },
