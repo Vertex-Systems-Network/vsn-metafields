@@ -378,3 +378,44 @@ test("META-009 only variant-owned blocks opt in to product variant AJAX refresh"
       block + " must not refresh another product's explicitly overridden variant");
   }
 });
+
+test("META-006 reference-card columns render in an inner responsive grid", async () => {
+  const cards = ["Oak", "Pine", "Maple"].map((name) => ({
+    title: { type: "single_line_text_field", value: name },
+  }));
+  const product = {
+    id: 71,
+    metafields: { custom: { cards: { type: "list.metaobject_reference", value: cards } } },
+  };
+  for (const columns of [1, 2, 3]) {
+    const html = await renderBlock("vsn-reference-cards", {
+      source: "product",
+      namespace: "custom",
+      field_key: "cards",
+      columns,
+    }, { product });
+    assert.match(html, new RegExp('data-vsn-columns="' + columns + '"'));
+    assert.match(html, /class="vsn-reference-cards__grid"/);
+    assert.equal((html.match(/<article class="vsn-reference-card">/g) || []).length, 3);
+    assert.ok(html.indexOf("Oak") < html.indexOf("Pine"));
+    assert.ok(html.indexOf("Pine") < html.indexOf("Maple"));
+    assert.equal((html.match(/class="vsn-reference-cards__grid"/g) || []).length, 1);
+  }
+});
+
+test("META-006 theme grids reflow for the real section width rather than viewport only", () => {
+  const css = readFileSync("extensions/vsn-storefront/assets/vsn-metafields.css", "utf8");
+  const refSource = readFileSync("extensions/vsn-storefront/blocks/vsn-reference-cards.liquid", "utf8");
+  const specSource = readFileSync("extensions/vsn-storefront/blocks/vsn-specifications.liquid", "utf8");
+  assert.match(css, /\.vsn-metafield-block\s*\{[^}]*container-type:\s*inline-size/);
+  assert.match(css, /@container \(max-width: 800px\)\s*\{[\s\S]*?data-vsn-columns="3"/);
+  assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-reference-cards__grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-metafield-block__row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /@container \(max-width: 560px\)\s*\{[\s\S]*?\.vsn-metafield-block--cards \.vsn-metafield-block__rows\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /@media\(max-width:600px\)\s*\{\s*\.vsn-reference-cards__grid/);
+  assert.match(refSource, /data-vsn-columns="\{\{ block\.settings\.columns/);
+  assert.match(specSource, /data-vsn-columns="\{\{ block\.settings\.columns/);
+  // The outer block must not itself be a grid: container-query rules cannot
+  // query and resize the originating container, only its descendants.
+  assert.doesNotMatch(css, /\.vsn-reference-cards\s*\{\s*display:\s*grid/);
+});
