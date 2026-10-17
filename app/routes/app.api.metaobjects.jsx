@@ -145,9 +145,13 @@ export const action = async ({ request }) => {
               () => saveMetaobjectEntry(admin, definition, input),
             )
           : await saveMetaobjectEntry(admin, definition, input);
-      } else if (input.action === "deleteEntry")
-        await removeMetaobjectEntry(admin, definition, input);
-      else if (input.action === "deleteDefinition")
+      } else if (input.action === "deleteEntry") {
+        await withMetaobjectEntryLock(
+          session?.shop,
+          input.id,
+          () => removeMetaobjectEntry(admin, definition, input),
+        );
+      } else if (input.action === "deleteDefinition")
         await removeEmptyMetaobjectDefinition(admin, definition, input.confirm);
       else throw new RangeError("Unsupported metaobject action.");
     }
