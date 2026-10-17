@@ -419,7 +419,8 @@
       "blockers": [
         "All typed blocks registered and retained after Horizon draft save/reload; empty-source editor guidance observed. Real public Shopify filters/variant refresh/recovery in two themes remain required.",
         "2026-10-17: PR #369 merged at e4608d9 after App Validation 39028585183 and AI Native Quality Gates 39028585110 PASS. Shipped variant refresh no longer uses a single global debounce timer; independent product blocks cannot cancel each other's queued variant updates. Unscoped ambiguous multi-product events fail closed, while single-product events still work. Three new deterministic shipped-JS DOM/network regression tests cover separate product forms, in-flight stale responses and ambiguous events. These are development/CI contracts only; no authenticated Horizon/Tinker two-theme populated storefront browser acceptance performed, so META-009 remains verification_required and its evidence-check coverage remains 2/6 (33%).",
-        "2026-10-17: PR #371 merged at 42ae26c2 with App Validation #39030292709 and AI Native Quality Gates #39030292678 PASS. Specialized FAQ block now opens first actually-rendered valid answer (instead of first raw list entry) when merchant enables 'Open first answer', preserving keyboard-native details/summary and hiding incomplete entries. Three-state Liquid contract asserts invalid-first plus two valid answers, enabled and disabled. Specifications 45 editable settings regression also passed. These are shipped Liquid/contract tests only; authenticated Horizon/Tinker two-theme render/accessibility remain pending; META-009 stays verification_required 2/6=33%."
+        "2026-10-17: PR #371 merged at 42ae26c2 with App Validation #39030292709 and AI Native Quality Gates #39030292678 PASS. Specialized FAQ block now opens first actually-rendered valid answer (instead of first raw list entry) when merchant enables 'Open first answer', preserving keyboard-native details/summary and hiding incomplete entries. Three-state Liquid contract asserts invalid-first plus two valid answers, enabled and disabled. Specifications 45 editable settings regression also passed. These are shipped Liquid/contract tests only; authenticated Horizon/Tinker two-theme render/accessibility remain pending; META-009 stays verification_required 2/6=33%.",
+        "2026-10-17: Connected staging Shopify Admin GraphQL read-only inspected existing Horizon and Tinker UNPUBLISHED themes; templates/product.json includes VSN Single Field and Specifications blocks on both; identical QA namespace/key vsn_theme_smoke_20261009.material. Details/checksums in docs/evidence/metafields-meta009-horizon-tinker-draft-readback-2026-10-17.json. This is draft config persistence, NOT populated public render, variant, typed media, accessibility, or performance. META-009 stays verification_required; 2/6=33%."
       ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
@@ -441,7 +442,8 @@
         "docs/evidence/metafields-sidebar-help-2026-10-03.json",
         "docs/evidence/metafields-sidebar-collapse-2026-10-03.json",
         "docs/evidence/metafields-dashboard-navigation-2026-10-03.json",
-        "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+        "docs/evidence/metafields-meta009-horizon-tinker-draft-readback-2026-10-17.json"
       ]
     },
     {
