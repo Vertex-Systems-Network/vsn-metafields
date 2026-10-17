@@ -1,6 +1,23 @@
 # Shopify Metafields Builder
 
-## Current engineering checkpoint — 2026-10-14
+## Current engineering checkpoint — 2026-10-17
+
+**Verified work-unit completion: 6/12 (50%).** Source of truth: [execution plan](config/ai/execution-plan.json) and [project state](config/ai/project-state.json). Completed work units are excluded from the active queue. **Live remains held.**
+
+| Phase | Verified-complete progress | Current status |
+| --- | --- | --- |
+| META-PHASE-01 — capability and definitions | ███ 3/3 | Complete |
+| META-PHASE-02 — values and storefront | ██░ 2/3 | META-006 verification required |
+| META-PHASE-03 — metaobjects, bulk, storefront blocks | █░░ 1/3 | META-007 and META-009 verification required |
+| META-PHASE-04 — operations and release | ░░░ 0/3 | META-010 verification required; META-011 in progress; META-012 Live held |
+
+**META-007 verified:** [PR #352](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/352) covered omitted-field preservation and stale editor rejection. [PR #353](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/353) merged the Neon cross-Worker transaction advisory-lock implementation; App Validation, Quality Gates, dependency audit and staging readiness checks passed on merged `development`. Connected staging Shopify Admin GraphQL separately created a disposable QA entry, patched only Title, preserved the omitted optional note in independent direct readback, then deleted the entry and verified a null result. See [real staging evidence](docs/evidence/metafields-meta007-staging-readback-2026-10-17.json) merged in [PR #354](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/354).
+
+**Still open (do not mark META-007 complete):** the isolated Cloudflare staging Worker last deployed **2026-10-16 10:14 UTC**, before the merged concurrent-writer fix. Required next: guarded deployment of exact `development` SHA to staging, authenticated VSN app raw browser payload capture, cross-Worker update race E2E, and real VSN-app-authorized Pro public/tier transitions. The Shopify connector's own subscription read cannot establish VSN app entitlement. Native Shopify admin writes remain outside the app-level advisory lock. **No production app, billing or database change was made.**
+
+**Open queue (sequence):** META-007 → META-009 → META-006 → META-010 → META-011; META-012 remains on hold. Fresh install and broad two-theme draft acceptance stay deferred until their prerequisites close.
+
+## Previous engineering checkpoint — 2026-10-14
 
 Optional text-field clear: [PR #318](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/318) merged; [Staging #103](https://github.com/Vertex-Systems-Network/vsn-metafields/actions/runs/38645117846) passed from `0bb0b1914644882cbda40fd0eb6a1b8f5af3260d` with runtime health and lifecycle cleanup. Actual Staging browser saved then cleared a private optional QA text field; Shopify Admin readback confirmed `null` while required title stayed `Cotton size guide`. [Report](docs/ai/STAGING-METAOBJECT-OPTIONAL-CLEAR-2026-10-15.md). Accepted work stays **3/12**; Live held.
 
