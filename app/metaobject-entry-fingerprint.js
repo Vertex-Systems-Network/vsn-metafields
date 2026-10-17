@@ -12,7 +12,7 @@ export async function metaobjectEntryFingerprint(entry) {
         (field.value !== null && typeof field.value !== "string"))
       throw new RangeError("Reload the selected entry before editing.");
     return [field.key, field.type || "", field.value];
-  }).sort((a, b) => a[0].localeCompare(b[0]));
+  }).sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
   if (new Set(fields.map((f) => f[0])).size !== fields.length)
     throw new RangeError("Duplicate fields require a fresh entry reload.");
 
