@@ -101,24 +101,34 @@ export async function listDataRequests(db, shop) {
     status: request.status,
     createdAt: request.createdAt,
     completedAt: request.completedAt,
+    // Server-generated review identity. A merchant must reload after an
+    // intervening correction, even if the later update is now syntactically valid.
+    reviewVersion: request.updatedAt.toISOString(),
     candidateJobIds: matchingJobIds(request, jobs),
     unreadableJobIds: unreadable,
     allJobIds: jobs.map((job) => job.id),
   })), pendingCount, completedCount };
 }
 
-export async function completeDataRequest(db, shop, id, confirmation) {
+export async function completeDataRequest(db, shop, id, confirmation, reviewVersion) {
   if (confirmation !== `FULFILLED:${id}`) throw new RangeError("Explicit fulfillment confirmation required.");
+  if (typeof reviewVersion !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(reviewVersion) ||
+      Number.isNaN(Date.parse(reviewVersion))) {
+    throw new RangeError("Reload the privacy request and review its current data before fulfillment.");
+  }
   // Never record fulfillment when the original order scope is unreadable.
   // Recover and review it first. Customer/contact matches alone are not proof
   // that every Shopify order in the request has been accounted for.
   const request = await db.privacyRequest.findFirst({
     where: { id, shop, status: "pending" },
     select: {
-      ordersJson: true, customerId: true, customerEmail: true, customerPhone: true,
+      ordersJson: true, customerId: true, customerEmail: true, customerPhone: true, updatedAt: true,
     },
   });
   if (!request) throw new RangeError("Request was already fulfilled or not found.");
+  if (request.updatedAt.toISOString() !== reviewVersion)
+    throw new RangeError("Privacy request changed after review. Reload and review it again.");
   if (parseStoredPrivacyOrderIds(request.ordersJson) === null)
     throw new RangeError("Stored order IDs are unreadable. Recover and review them before fulfillment.");
   const result = await db.privacyRequest.updateMany({
@@ -127,6 +137,7 @@ export async function completeDataRequest(db, shop, id, confirmation) {
     where: {
       id, shop, status: "pending",
       ordersJson: request.ordersJson,
+      updatedAt: request.updatedAt,
       customerId: request.customerId,
       customerEmail: request.customerEmail,
       customerPhone: request.customerPhone,
