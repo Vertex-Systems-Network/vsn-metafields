@@ -11,7 +11,7 @@
     if (event.detail && Object.prototype.hasOwnProperty.call(event.detail, 'variant') && event.detail.variant == null)
       return { variant: null, product };
     const variant = event.detail?.variant?.id || form?.querySelector('[name="id"]')?.value || new URL(location.href).searchParams.get('variant');
-    if (!/^\\d+$/.test(String(variant || ''))) return null;
+    if (!/^\d+$/.test(String(variant || ''))) return null;
     return { variant: String(variant), product };
   }
   function eligibleBlocks(product) {
