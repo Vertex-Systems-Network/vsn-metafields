@@ -417,7 +417,8 @@
       "priority": 9,
       "status": "verification_required",
       "blockers": [
-        "All typed blocks registered and retained after Horizon draft save/reload; empty-source editor guidance observed. Real public Shopify filters/variant refresh/recovery in two themes remain required."
+        "All typed blocks registered and retained after Horizon draft save/reload; empty-source editor guidance observed. Real public Shopify filters/variant refresh/recovery in two themes remain required.",
+        "2026-10-17: PR #369 merged at e4608d9 after App Validation 39028585183 and AI Native Quality Gates 39028585110 PASS. Shipped variant refresh no longer uses a single global debounce timer; independent product blocks cannot cancel each other's queued variant updates. Unscoped ambiguous multi-product events fail closed, while single-product events still work. Three new deterministic shipped-JS DOM/network regression tests cover separate product forms, in-flight stale responses and ambiguous events. These are development/CI contracts only; no authenticated Horizon/Tinker two-theme populated storefront browser acceptance performed, so META-009 remains verification_required and its evidence-check coverage remains 2/6 (33%)."
       ],
       "acceptance_criteria": [
         "Specialized typed storefront blocks verified against representative staging data",
