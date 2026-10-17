@@ -8,6 +8,7 @@ import {
 } from "./metafield-values.server.js";
 import { valuesEquivalent } from "./value-types.js";
 import { parseImportCsv } from "./bulk-csv.js";
+import { parseRetainedJobRows } from "./retained-job-snapshots.js";
 import { assertPlanCount, assertListValue } from "./plan-limits.server.js";
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
@@ -306,7 +307,9 @@ export async function purgeExpiredJobs(db, now = new Date()) {
 // Remove the whole matching job so preview and result snapshots disappear together.
 export async function redactCustomerJobs(db, shop, payload) {
   const customerId = String(payload?.customer?.id ?? "");
-  const orders = new Set((payload?.orders_to_redact ?? []).map(String));
+  const orderList = payload?.orders_to_redact ?? [];
+  if (!Array.isArray(orderList)) throw new RangeError("Invalid redaction order IDs.");
+  const orders = new Set(orderList.map(String));
   const email = String(payload?.customer?.email ?? "").trim().toLowerCase();
   const phone = String(payload?.customer?.phone ?? "").trim();
   const hasPhone = /^\+?[0-9 ()-]{7,}$/.test(phone);
@@ -320,10 +323,17 @@ export async function redactCustomerJobs(db, shop, payload) {
   });
   let removed = 0;
   for (const job of jobs) {
-    const rows = [
-      ...JSON.parse(job.rowsJson),
-      ...JSON.parse(job.resultsJson),
-    ];
+    const rows = parseRetainedJobRows(job);
+    // No reliable inspection is possible for a corrupted legacy snapshot.
+    // After verified Shopify customer redaction, remove that shop's unreadable
+    // snapshot conservatively rather than block erasure of other matching jobs.
+    if (rows === null) {
+      const deleted = await db.metafieldJob.deleteMany({
+        where: { id: job.id, shop },
+      });
+      removed += deleted.count;
+      continue;
+    }
     if (!rows.some((row) => {
       const snapshot = JSON.stringify(row).toLowerCase();
       return (row.ownerType === "CUSTOMER" && row.ownerId === customerGid) ||
