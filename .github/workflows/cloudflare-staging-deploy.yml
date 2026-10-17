@@ -355,3 +355,9 @@ jobs:
         env:
           STAGING_SHOP: ${{ steps.staging-shop.outputs.shop }}
         run: node scripts/metafields/staging-probe.mjs
+      - name: META-007 isolated Neon and Shopify same-second race acceptance
+        env:
+          STAGING_SHOP: ${{ steps.staging-shop.outputs.shop }}
+        run: |
+          node --check scripts/metafields/staging-metaobject-race.mjs
+          node scripts/metafields/staging-metaobject-race.mjs
