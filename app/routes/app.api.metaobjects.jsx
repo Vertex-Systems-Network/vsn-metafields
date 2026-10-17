@@ -18,6 +18,7 @@ import {
   removeEmptyMetaobjectDefinition,
 } from "../metaobjects.server";
 import { withMetaobjectEntryLock } from "../metaobject-entry-lock.server";
+import { assertExpectedEntryFingerprint } from "../metaobject-entry-fingerprint";
 import {
   featureJson,
   featureError,
@@ -138,6 +139,7 @@ export const action = async ({ request }) => {
           )
             assertListValue(plan, field.type.name, input.values[field.key]);
         }
+        if (input.id) assertExpectedEntryFingerprint(input.expectedDigest);
         saved = input.id
           ? await withMetaobjectEntryLock(
               session?.shop,
@@ -146,6 +148,7 @@ export const action = async ({ request }) => {
             )
           : await saveMetaobjectEntry(admin, definition, input);
       } else if (input.action === "deleteEntry") {
+        assertExpectedEntryFingerprint(input.expectedDigest);
         await withMetaobjectEntryLock(
           session?.shop,
           input.id,
