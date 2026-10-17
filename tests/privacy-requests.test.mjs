@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { transformSync } from "esbuild";
 import { featureError } from "../app/feature-request.server.js";
-import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests, matchingJobIds, unreadableJobIds } from "../app/privacy-requests.server.js";
+import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests, matchingJobIds, unreadableJobIds, parseStoredPrivacyOrderIds } from "../app/privacy-requests.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-privacy-"));
 let db;
 before(async () => {
@@ -213,4 +213,56 @@ test("META-011 privacy screen distinguishes corrupt manual-review jobs from iden
   assert.match(page, /unreadableJobIds/);
   assert.match(page, /unreadable snapshot — manual recovery required/);
   assert.match(page, /an unreadable snapshot is not proof/i);
+});
+
+test("META-011 malformed retained privacy order IDs keep review visible and block premature fulfillment", async () => {
+  const isolated = "privacy-bad-orders-test.myshopify.com";
+  const id = isolated + ":9037";
+  await db.privacyRequest.create({
+    data: {
+      id, shop: isolated, status: "pending",
+      ordersJson: "{not-json", customerEmail: "owner@example.com",
+    },
+  });
+  await db.metafieldJob.create({
+    data: {
+      id: "bad-order-email-match", shop: isolated, inputHash: "hash",
+      rowsJson: JSON.stringify([{ row: 1, value: "owner@example.com" }]),
+      resultsJson: "[]", expiresAt: new Date(Date.now() + 86400000),
+    },
+  });
+  const result = await listDataRequests(db, isolated);
+  assert.equal(result.pendingCount, 1);
+  assert.equal(result.requests.length, 1);
+  assert.equal(result.requests[0].ordersUnreadable, true);
+  assert.deepEqual(result.requests[0].orders, []);
+  assert.deepEqual(result.requests[0].candidateJobIds, ["bad-order-email-match"]);
+  await assert.rejects(
+    completeDataRequest(db, isolated, id, "FULFILLED:" + id),
+    /Stored order IDs are unreadable/,
+  );
+  assert.equal((await db.privacyRequest.findUnique({ where: { id } })).status, "pending");
+  await db.privacyRequest.update({
+    where: { id }, data: { ordersJson: JSON.stringify(["998"]) },
+  });
+  const recovered = await listDataRequests(db, isolated);
+  assert.equal(recovered.requests[0].ordersUnreadable, false);
+  assert.deepEqual(recovered.requests[0].orders, ["998"]);
+  await completeDataRequest(db, isolated, id, "FULFILLED:" + id);
+  assert.equal((await db.privacyRequest.findUnique({ where: { id } })).status, "fulfilled");
+});
+
+test("META-011 stored privacy order decoding rejects incomplete and invalid shapes", () => {
+  for (const invalid of [
+    "{", "null", "{}", "false", "\"\"", "[null]", "[true]",
+    "[-1]", "[\"bad\"]", "[{}]", JSON.stringify(Array(1001).fill("3")),
+  ]) {
+    assert.equal(parseStoredPrivacyOrderIds(invalid), null, invalid.slice(0, 20));
+  }
+  assert.deepEqual(parseStoredPrivacyOrderIds("[]"), []);
+  assert.deepEqual(parseStoredPrivacyOrderIds("[\"123\",\"999\"]"), ["123", "999"]);
+  const ui = readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8");
+  assert.match(ui, /item\.ordersUnreadable/);
+  assert.match(ui, /Recover the original order scope/);
+  assert.match(ui, /disabled=\{item\.ordersUnreadable \|\|/);
 });
