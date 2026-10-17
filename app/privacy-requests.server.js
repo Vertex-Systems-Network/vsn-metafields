@@ -119,7 +119,9 @@ export async function completeDataRequest(db, shop, id, confirmation) {
   if (request && parseStoredPrivacyOrderIds(request.ordersJson) === null)
     throw new RangeError("Stored order IDs are unreadable. Recover and review them before fulfillment.");
   const result = await db.privacyRequest.updateMany({
-    where: { id, shop, status: "pending" },
+    // Match the exact order scope read above: if another worker repairs or
+    // changes it during merchant review, fulfillment must not silently commit.
+    where: { id, shop, status: "pending", ordersJson: request?.ordersJson ?? "" },
     data: { status: "fulfilled", completedAt: new Date(), customerId: null, customerEmail: null, customerPhone: null, ordersJson: "[]" },
   });
   if (result.count !== 1) throw new RangeError("Request was already fulfilled or not found.");
