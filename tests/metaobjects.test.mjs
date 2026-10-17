@@ -6,6 +6,7 @@ import {
   merchantMetaobjectType,
   createMetaobjectDefinition,
   saveMetaobjectEntry,
+  removeMetaobjectEntry,
   removeEmptyMetaobjectDefinition,
   updateMetaobjectDefinition,
 } from "../app/metaobjects.server.js";
