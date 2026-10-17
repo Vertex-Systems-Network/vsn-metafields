@@ -1,0 +1,56 @@
+{
+  "work_unit": "META-007",
+  "date": "2026-10-17",
+  "environment": "staging",
+  "staging_store": "staging-oath3rth.myshopify.com",
+  "live_touched": false,
+  "verified_by": "connected Shopify Admin GraphQL with staging-linked account",
+  "qa_definition_type": "vsn_qa_20261004",
+  "disposable_entry": {
+    "id": "gid://shopify/Metaobject/376898683252",
+    "handle": "meta007-preserve-test-20261017",
+    "created": {
+      "title": "META007 ephemeral initial title",
+      "optional_qa_note": "META007 sibling must stay"
+    },
+    "patch_input": {
+      "fields": [
+        {
+          "key": "title",
+          "value": "META007 changed title, note omitted"
+        }
+      ]
+    },
+    "direct_shopify_readback": {
+      "title": "META007 changed title, note omitted",
+      "optional_qa_note": "META007 sibling must stay",
+      "updatedAt": "2026-10-17T08:10:31Z"
+    },
+    "cleanup": {
+      "metaobjectDelete_deletedId": "gid://shopify/Metaobject/376898683252",
+      "readback": null
+    },
+    "result": "PASS — direct Shopify field patch omitted unchanged key and readback preserved it"
+  },
+  "concurrency": {
+    "lock_design": "per authenticated shop+entry, Neon transaction-scoped PostgreSQL advisory lock around Shopify preflight + update",
+    "neon_staging_read_only_lock_probe": "pg_try_advisory_xact_lock returned true",
+    "pr": 353,
+    "merge_sha": "7f87dcb364dcb586c357d71444e25b5aaa2c2889",
+    "code_contract_CI": "PASS before merge",
+    "cross_worker_installed_staging_race": "NOT TESTED",
+    "native_shopify_admin_external_writer": "NOT COVERED"
+  },
+  "public_tier": {
+    "connected_shopify_app_installation_active_subscriptions": [],
+    "note": "Connector install subscription is not VSN Metafields app entitlement. No Pro entitlement demonstrated; no public access widening performed",
+    "result": "PENDING"
+  },
+  "pending": [
+    "Raw authenticated VSN app browser payload capture not observed (direct Shopify patch verified)",
+    "Installed Worker cross-instance request race E2E validation",
+    "Authorized Pro/public access and tier transition acceptance",
+    "Independent staging deployment and UI verification"
+  ],
+  "status": "verification_required"
+}
