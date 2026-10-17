@@ -50,8 +50,13 @@
   }
   const schedule = event => {
     const next = selection(event);
-    if (!next || !eligibleBlocks(next.product).length) return;
-    for (const block of eligibleBlocks(next.product)) {
+    if (!next) return;
+    const blocks = eligibleBlocks(next.product);
+    if (!blocks.length) return;
+    // A theme event with no product identity cannot safely select variants
+    // across unrelated products. Preserve single-product theme compatibility.
+    if (!next.product && new Set(blocks.map(block => block.dataset.vsnProduct)).size > 1) return;
+    for (const block of blocks) {
       // Each block owns its debounce, so different product cards or forms
       // cannot cancel one another's pending variant refresh.
       clearTimeout(debounceTimers.get(block.id));
