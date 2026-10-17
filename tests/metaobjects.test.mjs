@@ -408,3 +408,118 @@ test("entry edit sends only changed fields and preserves intentional clears", ()
     title: "New",
   });
 });
+
+
+test("META-007: raw edited-field payload patches one key and preserves omitted sibling after Shopify readback", async () => {
+  const id = "gid://shopify/Metaobject/1007";
+  const savedState = {
+    id,
+    type: "vsn_faq",
+    handle: "qa-guide",
+    updatedAt: "version-1",
+    fields: [
+      { key: "question", value: "Original title" },
+      { key: "answer", value: "Keep the optional note" },
+    ],
+  };
+  const sent = [];
+  const admin = {
+    graphql: async (query, { variables } = {}) => {
+      if (query.includes("SelectedMetaobject"))
+        return Response.json({ data: { metaobject: { ...savedState, fields: [...savedState.fields] } } });
+      assert.match(query, /UpdateMerchantMetaobject/);
+      const input = variables.metaobject;
+      sent.push(structuredClone(input));
+      assert.equal(input.values, undefined, "Never replace all values for omitted field patches");
+      if (input.fields)
+        for (const field of input.fields) {
+          const current = savedState.fields.find((f) => f.key === field.key);
+          if (current) current.value = field.value;
+        }
+      savedState.handle = input.handle;
+      savedState.updatedAt = "version-2";
+      return Response.json({
+        data: {
+          metaobjectUpdate: {
+            metaobject: {
+              id,
+              type: savedState.type,
+              handle: savedState.handle,
+              fields: savedState.fields,
+            },
+            userErrors: [],
+          },
+        },
+      });
+    },
+  };
+  const initial = structuredClone(savedState);
+  const raw = entryValuesForSave(initial, {
+    question: "Updated title",
+    answer: "Keep the optional note",
+  });
+  assert.deepEqual(raw, { question: "Updated title" });
+  await saveMetaobjectEntry(admin, definition, {
+    id,
+    updatedAt: initial.updatedAt,
+    handle: initial.handle,
+    values: raw,
+    status: "DRAFT",
+  });
+  assert.deepEqual(sent[0].fields, [
+    { key: "question", value: "Updated title" },
+  ]);
+  const readback = await (await admin.graphql("SelectedMetaobject")).json();
+  assert.equal(readback.data.metaobject.fields.find((f) => f.key === "answer").value, "Keep the optional note");
+
+  // A handle-only edit sends no field list or wholesale replacement object.
+  await saveMetaobjectEntry(admin, definition, {
+    id,
+    updatedAt: savedState.updatedAt,
+    handle: "qa-guide-new",
+    values: {},
+    status: "DRAFT",
+  });
+  assert.equal(sent[1].fields, undefined);
+  assert.equal(sent[1].values, undefined);
+  assert.equal(savedState.fields.find((f) => f.key === "answer").value, "Keep the optional note");
+});
+
+test("META-007: a stale second editor is rejected before Shopify mutation and preserves first writer", async () => {
+  const id = "gid://shopify/Metaobject/1008";
+  let updatedAt = "version-1";
+  let question = "Original title";
+  let mutations = 0;
+  const admin = {
+    graphql: async (query, { variables } = {}) => {
+      if (query.includes("SelectedMetaobject"))
+        return Response.json({
+          data: { metaobject: { id, type: "vsn_faq", handle: "qa-guide", updatedAt, fields: [
+            { key: "question", value: question },
+            { key: "answer", value: "Untouched" },
+          ] } },
+        });
+      assert.match(query, /UpdateMerchantMetaobject/);
+      mutations++;
+      question = variables.metaobject.fields[0].value;
+      updatedAt = "version-2";
+      return Response.json({
+        data: { metaobjectUpdate: { metaobject: { id, type: "vsn_faq", handle: "qa-guide", fields: [
+          { key: "question", value: question },
+          { key: "answer", value: "Untouched" },
+        ] }, userErrors: [] } },
+      });
+    },
+  };
+  const first = { id, updatedAt: "version-1", handle: "qa-guide", values: { question: "First writer" } };
+  await saveMetaobjectEntry(admin, definition, first);
+  await assert.rejects(
+    saveMetaobjectEntry(admin, definition, { ...first, values: { question: "Stale second writer" } }),
+    /Entry changed\. Reload before editing\./,
+  );
+  assert.equal(mutations, 1);
+  assert.equal(question, "First writer");
+  assert.equal(updatedAt, "version-2");
+  // This is stale-preflight coverage, NOT atomic write concurrency: Shopify
+  // metaobjectUpdate has no expected-updatedAt/compare-digest argument.
+});
