@@ -128,6 +128,8 @@ function serverRoute(file, deps) {
   const module = { exports: {} };
   new Function("require", "module", "exports", code)(
     (id) => {
+      if (id === "../metaobject-entry-lock.server" && !(id in deps))
+        return { withMetaobjectEntryLock: async (_, __, mutate) => mutate() };
       if (!(id in deps)) throw new Error(`Unmocked dependency: ${id}`);
       return deps[id];
     },
@@ -579,4 +581,55 @@ test("actual file picker excludes IDs rejected by the file-reference codec", asy
   assert.equal(response.status, 200);
   const result = await response.json();
   assert.deepEqual(result.references.map(row => row.id), ids.slice(0, 3));
+});
+
+test("META-007 route obtains Shopify session shop and locks existing-entry edit before save", async () => {
+  const shop = "staging-oath3rth.myshopify.com";
+  const id = "gid://shopify/Metaobject/1007";
+  const definition = {
+    id: "gid://shopify/MetaobjectDefinition/1007",
+    type: "vsn_qa_guide",
+    editable: true,
+    access: { storefront: "NONE" },
+    capabilities: { publishable: { enabled: true } },
+    fieldDefinitions: [],
+  };
+  const calls = [];
+  const route = serverRoute("app.api.metaobjects.jsx", {
+    "../shopify.server": {
+      authenticate: { admin: async () => ({
+        admin: adminFor([{ name: "starter-plan", status: "ACTIVE" }]),
+        session: { shop },
+      }) },
+    },
+    "../active-plan.server": {},
+    "../plan-limits.server": limits,
+    "../definitions.server": {},
+    "../metaobjects.server": {
+      listMetaobjectDefinitions: async () => [definition],
+      saveMetaobjectEntry: async () => { calls.push("mutation"); return { id }; },
+    },
+    "../metaobject-entry-lock.server": {
+      withMetaobjectEntryLock: async (shopArg, idArg, fn) => {
+        assert.equal(shopArg, shop);
+        assert.equal(idArg, id);
+        calls.push("lock");
+        return fn();
+      },
+    },
+    "../feature-request.server": helpers,
+  });
+  const response = await route.action({
+    request: jsonRequest({
+      action: "saveEntry",
+      definitionId: definition.id,
+      type: definition.type,
+      id,
+      handle: "qa",
+      updatedAt: "old",
+      values: {},
+    }),
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(calls, ["lock", "mutation"]);
 });

@@ -17,6 +17,7 @@ import {
   removeMetaobjectEntry,
   removeEmptyMetaobjectDefinition,
 } from "../metaobjects.server";
+import { withMetaobjectEntryLock } from "../metaobject-entry-lock.server";
 import {
   featureJson,
   featureError,
@@ -72,7 +73,7 @@ export const loader = async ({ request }) => {
   }
 };
 export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   if (request.method !== "POST")
     return featureJson({ ok: false, error: "Use POST." }, 405);
   try {
@@ -137,7 +138,13 @@ export const action = async ({ request }) => {
           )
             assertListValue(plan, field.type.name, input.values[field.key]);
         }
-        saved = await saveMetaobjectEntry(admin, definition, input);
+        saved = input.id
+          ? await withMetaobjectEntryLock(
+              session?.shop,
+              input.id,
+              () => saveMetaobjectEntry(admin, definition, input),
+            )
+          : await saveMetaobjectEntry(admin, definition, input);
       } else if (input.action === "deleteEntry")
         await removeMetaobjectEntry(admin, definition, input);
       else if (input.action === "deleteDefinition")
