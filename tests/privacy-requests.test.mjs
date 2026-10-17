@@ -286,6 +286,9 @@ test("META-011 privacy fulfillment compare-and-set rejects order scope changed b
         updateAttempted = true;
         assert.equal(args.where.ordersJson, original,
           "Fulfillment must match the exact order scope read for review");
+        assert.equal(args.where.customerEmail, "owner@example.com");
+        assert.equal(args.where.customerId, null);
+        assert.equal(args.where.customerPhone, null);
         // An independent worker recovered another requested order after
         // our initial read but before our conditional fulfillment update.
         await db.privacyRequest.update({
@@ -311,4 +314,45 @@ test("META-011 privacy fulfillment compare-and-set rejects order scope changed b
   assert.equal(completed.status, "fulfilled");
   assert.equal(completed.ordersJson, "[]");
   assert.equal(completed.customerEmail, null);
+});
+
+test("META-011 concurrent change to any reviewed customer identity rejects stale fulfillment", async () => {
+  const isolated = "privacy-customer-cas.myshopify.com";
+  const initial = {
+    ordersJson: JSON.stringify(["101"]), customerId: "123",
+    customerEmail: "old@example.com", customerPhone: "+18005550100",
+  };
+  for (const [index, [field, value]] of Object.entries({
+    customerId: "456", customerEmail: "new@example.com",
+    customerPhone: "+18005550101",
+  }).entries()) {
+    const id = isolated + ":" + (9019 + index);
+    await db.privacyRequest.create({
+      data: { id, shop: isolated, status: "pending", ...initial },
+    });
+    let updateAttempted = false;
+    const adversarialDb = {
+      privacyRequest: {
+        findFirst: (args) => db.privacyRequest.findFirst(args),
+        updateMany: async (args) => {
+          updateAttempted = true;
+          for (const key of ["ordersJson", "customerId", "customerEmail", "customerPhone"])
+            assert.equal(args.where[key], initial[key], key);
+          await db.privacyRequest.update({
+            where: { id }, data: { [field]: value },
+          });
+          return db.privacyRequest.updateMany(args);
+        },
+      },
+    };
+    await assert.rejects(
+      completeDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
+      /already fulfilled or not found/,
+    );
+    assert.equal(updateAttempted, true);
+    const row = await db.privacyRequest.findUnique({ where: { id } });
+    assert.equal(row.status, "pending");
+    assert.equal(row.completedAt, null);
+    assert.equal(row[field], value);
+  }
 });
