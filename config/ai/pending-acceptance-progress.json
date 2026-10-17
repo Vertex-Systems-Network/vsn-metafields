@@ -80,10 +80,13 @@
           "evidence": "docs/evidence/metafields-brand-ui-plans-2026-10-03.json"
         },
         {
-          "id": "horizon_editor_persist",
-          "label": "Horizon draft retains five blocks after save/reopen",
+          "id": "two_theme_draft_persist",
+          "label": "Existing Horizon and Tinker product draft templates retain VSN Single Field and Specifications blocks",
           "verified": true,
-          "evidence": "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+          "evidence": [
+            "docs/evidence/metafields-authenticated-ui-2026-10-03.json",
+            "docs/evidence/metafields-meta009-horizon-tinker-draft-readback-2026-10-17.json"
+          ]
         },
         {
           "id": "two_theme_public_render",
