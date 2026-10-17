@@ -242,3 +242,26 @@ test("META-009 latest choice wins independently for each product, including in-f
   assert.equal(h.blocks[1].dataset.vsnVariant, "3");
   assert.ok(h.blocks.every(block => !block.hidden));
 });
+
+test("META-009 ambiguous unscoped theme events do not mutate unrelated product blocks", async () => {
+  const h = harness([
+    { id: "main-product", product: "10", variant: "1" },
+    { id: "related-product", product: "20", variant: "1" },
+  ]);
+  h.emit("5", null);
+  await h.fire(80);
+  assert.equal(h.requests.length, 0);
+  assert.ok(h.blocks.every(block => !block.hidden));
+
+  // Missing product identity is still allowed when the entire section has
+  // only one eligible product, preserving simpler theme event contracts.
+  const single = harness([{ id: "only-product", product: "10", variant: "1" }]);
+  single.emit("5", null);
+  await single.fire(80);
+  assert.equal(single.requests.length, 1);
+  single.requests[0].respond(single.makeBlock({
+    id: "only-product", product: "10", variant: "5",
+  }));
+  await settle();
+  assert.equal(single.blocks[0].dataset.vsnVariant, "5");
+});
