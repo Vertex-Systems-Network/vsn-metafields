@@ -266,3 +266,49 @@ test("META-011 stored privacy order decoding rejects incomplete and invalid shap
   assert.match(ui, /Recover the original order scope/);
   assert.match(ui, /disabled=\{item\.ordersUnreadable \|\|/);
 });
+
+test("META-011 privacy fulfillment compare-and-set rejects order scope changed between read and update", async () => {
+  const isolated = "privacy-order-cas.myshopify.com";
+  const id = isolated + ":9018";
+  const original = JSON.stringify(["101"]);
+  const changed = JSON.stringify(["101", "202"]);
+  await db.privacyRequest.create({
+    data: {
+      id, shop: isolated, status: "pending",
+      ordersJson: original, customerEmail: "owner@example.com",
+    },
+  });
+  let updateAttempted = false;
+  const adversarialDb = {
+    privacyRequest: {
+      findFirst: (args) => db.privacyRequest.findFirst(args),
+      updateMany: async (args) => {
+        updateAttempted = true;
+        assert.equal(args.where.ordersJson, original,
+          "Fulfillment must match the exact order scope read for review");
+        // An independent worker recovered another requested order after
+        // our initial read but before our conditional fulfillment update.
+        await db.privacyRequest.update({
+          where: { id }, data: { ordersJson: changed },
+        });
+        return db.privacyRequest.updateMany(args);
+      },
+    },
+  };
+  await assert.rejects(
+    completeDataRequest(adversarialDb, isolated, id, "FULFILLED:" + id),
+    /already fulfilled or not found/,
+  );
+  assert.equal(updateAttempted, true);
+  const pending = await db.privacyRequest.findUnique({ where: { id } });
+  assert.equal(pending.status, "pending");
+  assert.equal(pending.completedAt, null);
+  assert.equal(pending.ordersJson, changed);
+  assert.equal(pending.customerEmail, "owner@example.com");
+  // A later, freshly reviewed scope may be completed normally.
+  await completeDataRequest(db, isolated, id, "FULFILLED:" + id);
+  const completed = await db.privacyRequest.findUnique({ where: { id } });
+  assert.equal(completed.status, "fulfilled");
+  assert.equal(completed.ordersJson, "[]");
+  assert.equal(completed.customerEmail, null);
+});
