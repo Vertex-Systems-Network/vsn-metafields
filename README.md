@@ -11,6 +11,25 @@
 | META-PHASE-03 — metaobjects, bulk, storefront blocks | █░░ 1/3 | META-007 and META-009 verification required |
 | META-PHASE-04 — operations and release | ░░░ 0/3 | META-010 verification required; META-011 in progress; META-012 Live held |
 
+<!-- META_PENDING_ACCEPTANCE_PROGRESS_START -->
+## Pending task acceptance progress — evidence-based
+
+Each percentage = **verified acceptance checks / defined checks**, rounded to the nearest whole percent. This measures acceptance evidence coverage, **not engineering effort or deployment readiness**. Closed units are excluded. Live remains held.
+
+| Task | Verified checks | Progress bar | % | Next unverified gate |
+| --- | ---: | --- | ---: | --- |
+| META-007 — Metaobject lifecycle | 4/9 | `████░░░░░░` | **44%** | Deploy exact latest development SHA to isolated staging using authorized workflow_dispatch |
+| META-009 — Specialized storefront blocks | 2/6 | `███░░░░░░░` | **33%** | Two-theme real populated public storefront render acceptance |
+| META-006 — Specifications block | 2/6 | `███░░░░░░░` | **33%** | Two themes populated Specifications real storefront acceptance |
+| META-010 — Onboarding, permissions and diagnostics | 2/6 | `███░░░░░░░` | **33%** | Installed existing Development/local Shopify app complete merchant onboarding |
+| META-011 — Staging E2E and release assurance | 3/8 | `████░░░░░░` | **38%** | Current development SHA deployed with health/session/billing checks |
+| META-012 — Production/Live rollout (held) | 0/5 | `░░░░░░░░░░` | **0%** | META-011 complete and exact staging release certified |
+
+**Overall verified complete: 6/12 (50%).** This overall figure counts only fully closed units; pending-gate progress must not be added to it.
+
+Full gate definitions and evidence references: [pending acceptance progress](config/ai/pending-acceptance-progress.json).
+<!-- META_PENDING_ACCEPTANCE_PROGRESS_END -->
+
 **META-007 verified:** [PR #352](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/352) covered omitted-field preservation and stale editor rejection. [PR #353](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/353) merged the Neon cross-Worker transaction advisory-lock implementation; App Validation, Quality Gates, dependency audit and staging readiness checks passed on merged `development`. Connected staging Shopify Admin GraphQL separately created a disposable QA entry, patched only Title, preserved the omitted optional note in independent direct readback, then deleted the entry and verified a null result. See [real staging evidence](docs/evidence/metafields-meta007-staging-readback-2026-10-17.json) merged in [PR #354](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/354).
 
 **Still open (do not mark META-007 complete):** the isolated Cloudflare staging Worker last deployed **2026-10-16 10:14 UTC**, before the merged concurrent-writer fix. Required next: guarded deployment of exact `development` SHA to staging, authenticated VSN app raw browser payload capture, cross-Worker update race E2E, and real VSN-app-authorized Pro public/tier transitions. The Shopify connector's own subscription read cannot establish VSN app entitlement. Native Shopify admin writes remain outside the app-level advisory lock. **No production app, billing or database change was made.**
