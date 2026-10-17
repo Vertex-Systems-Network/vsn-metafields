@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { transformSync } from "esbuild";
 import { featureError } from "../app/feature-request.server.js";
-import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests } from "../app/privacy-requests.server.js";
+import { isSyntheticShopMismatch, parseDataRequest, recordDataRequest, listDataRequests, completeDataRequest, purgeCompletedRequests, matchingJobIds, unreadableJobIds } from "../app/privacy-requests.server.js";
 const folder = mkdtempSync(join(tmpdir(), "vsn-privacy-"));
 let db;
 before(async () => {
@@ -148,4 +148,69 @@ test("fulfillment conflict returns a page-level error and releases the database"
   failure = new Error("Database unavailable");
   await assert.rejects(() => route.exports.action({ request: request() }), /Database unavailable/);
   assert.equal(disconnected, 3);
+});
+
+test("META-011 malformed retained job snapshots remain visible and flagged in privacy review", async () => {
+  const isolated = "privacy-corrupt-test.myshopify.com";
+  await recordDataRequest(db, isolated, {
+    shop_domain: isolated,
+    data_request: { id: 9001 },
+    customer: { id: null, email: "owner@example.com", phone: null },
+    orders_requested: [],
+  });
+  await db.metafieldJob.createMany({ data: [
+    {
+      id: "corrupt-json", shop: isolated, inputHash: "hash",
+      rowsJson: "{unclosed", resultsJson: "[]",
+      expiresAt: new Date(Date.now() + 86400000),
+    },
+    {
+      id: "corrupt-shape", shop: isolated, inputHash: "hash",
+      rowsJson: "null", resultsJson: "[]",
+      expiresAt: new Date(Date.now() + 86400000),
+    },
+    {
+      id: "corrupt-row", shop: isolated, inputHash: "hash",
+      rowsJson: "[null]", resultsJson: "[]",
+      expiresAt: new Date(Date.now() + 86400000),
+    },
+    {
+      id: "valid-match", shop: isolated, inputHash: "hash",
+      rowsJson: JSON.stringify([{ row: 1, value: "owner@example.com" }]),
+      resultsJson: "[]",
+      expiresAt: new Date(Date.now() + 86400000),
+    },
+    {
+      id: "valid-unmatched", shop: isolated, inputHash: "hash",
+      rowsJson: JSON.stringify([{ row: 1, value: "nothing here" }]),
+      resultsJson: "[]",
+      expiresAt: new Date(Date.now() + 86400000),
+    },
+  ] });
+  const result = await listDataRequests(db, isolated);
+  assert.equal(result.pendingCount, 1);
+  assert.equal(result.requests.length, 1);
+  const request = result.requests[0];
+  assert.deepEqual(request.candidateJobIds, ["valid-match"]);
+  assert.deepEqual(new Set(request.unreadableJobIds), new Set([
+    "corrupt-json", "corrupt-shape", "corrupt-row",
+  ]));
+  assert.deepEqual(new Set(request.allJobIds), new Set([
+    "corrupt-json", "corrupt-shape", "corrupt-row",
+    "valid-match", "valid-unmatched",
+  ]));
+  assert.deepEqual(unreadableJobIds([
+    { id: "bad", rowsJson: "{}", resultsJson: "[]" },
+  ]), ["bad"]);
+  assert.deepEqual(matchingJobIds({
+    customerId: null, ordersJson: "[]",
+    customerEmail: "owner@example.com", customerPhone: null,
+  }, [{ id: "bad", rowsJson: "{", resultsJson: "[]" }]), []);
+});
+
+test("META-011 privacy screen distinguishes corrupt manual-review jobs from identifier matches", () => {
+  const page = readFileSync(resolve("app/routes/app.privacy.jsx"), "utf8");
+  assert.match(page, /unreadableJobIds/);
+  assert.match(page, /unreadable snapshot — manual recovery required/);
+  assert.match(page, /an unreadable snapshot is not proof/i);
 });

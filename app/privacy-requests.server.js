@@ -1,3 +1,5 @@
+import { parseRetainedJobRows } from "./retained-job-snapshots.js";
+
 const numericId = (value) => /^\d+$/.test(String(value ?? "")) ? String(value) : "";
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
@@ -38,19 +40,24 @@ export async function recordDataRequest(db, shop, payload) {
   });
 }
 
+export function unreadableJobIds(jobs) {
+  return jobs.filter((job) => parseRetainedJobRows(job) === null).map((job) => job.id);
+}
+
 export function matchingJobIds(request, jobs) {
   const customerGid = request.customerId ? `gid://shopify/Customer/${request.customerId}` : null;
   const orderGids = new Set(JSON.parse(request.ordersJson).map((id) => `gid://shopify/Order/${id}`));
   const email = request.customerEmail?.toLowerCase();
-  const phone = request.customerPhone;
+  const phone = request.customerPhone?.toLowerCase();
   return jobs.filter((job) => {
-    const rows = [...JSON.parse(job.rowsJson), ...JSON.parse(job.resultsJson)];
+    const rows = parseRetainedJobRows(job);
+    if (!rows) return false; // separately flagged as unreadable, never silently excluded
     return rows.some((row) => {
       const text = JSON.stringify(row).toLowerCase();
       return (customerGid && row.ownerType === "CUSTOMER" && row.ownerId === customerGid) ||
         (row.ownerType === "ORDER" && orderGids.has(row.ownerId)) ||
         (email && text.includes(email)) ||
-        (phone && text.includes(phone.toLowerCase()));
+        (phone && text.includes(phone));
     });
   }).map((job) => job.id);
 }
@@ -69,6 +76,7 @@ export async function listDataRequests(db, shop) {
       select: { id: true, rowsJson: true, resultsJson: true },
     }),
   ]);
+  const unreadable = unreadableJobIds(jobs);
   return { requests: requests.map((request) => ({
     id: request.id,
     customerId: request.customerId,
@@ -79,6 +87,7 @@ export async function listDataRequests(db, shop) {
     createdAt: request.createdAt,
     completedAt: request.completedAt,
     candidateJobIds: matchingJobIds(request, jobs),
+    unreadableJobIds: unreadable,
     allJobIds: jobs.map((job) => job.id),
   })), pendingCount, completedCount };
 }
