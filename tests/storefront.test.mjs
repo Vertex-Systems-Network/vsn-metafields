@@ -340,3 +340,41 @@ test("META-006 Specifications retains exactly 45 merchant-editable settings", ()
   assert.equal(specificationSettings.length, 45);
   assert.equal(new Set(specificationSettings.map((item) => item.id)).size, 45);
 });
+
+test("META-009 only variant-owned blocks opt in to product variant AJAX refresh", async () => {
+  const product = {
+    id: 101,
+    selected_or_first_available_variant: { id: 202, metafields: {} },
+    metafields: {},
+  };
+  const otherProduct = {
+    id: 303,
+    selected_or_first_available_variant: { id: 404, metafields: {} },
+    metafields: {},
+  };
+  for (const block of blocks) {
+    for (const source of ["auto", "product", "collection", "shop", "page"]) {
+      const html = await renderBlock(block, { source }, {
+        product,
+        request: { page_type: "product", design_mode: true },
+      });
+      assert.match(html, /data-vsn-block/, block + " must render QA markup");
+      assert.match(html, /data-vsn-track="false"/, block + " must not refresh non-variant " + source + " data");
+    }
+    const variantHtml = await renderBlock(block, { source: "variant" }, {
+      product,
+      request: { page_type: "product", design_mode: true },
+    });
+    assert.match(variantHtml, /data-vsn-track="true"/, block + " should track selected variant");
+
+    const unrelated = await renderBlock(block, {
+      source: "variant",
+      source_product: otherProduct,
+    }, {
+      product,
+      request: { page_type: "product", design_mode: true },
+    });
+    assert.match(unrelated, /data-vsn-track="false"/,
+      block + " must not refresh another product's explicitly overridden variant");
+  }
+});
