@@ -130,6 +130,13 @@ function serverRoute(file, deps) {
     (id) => {
       if (id === "../metaobject-entry-lock.server" && !(id in deps))
         return { withMetaobjectEntryLock: async (_, __, mutate) => mutate() };
+      if (id === "../metaobject-entry-fingerprint" && !(id in deps))
+        return {
+          assertExpectedEntryFingerprint(value) {
+            if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value))
+              throw new RangeError("Reload the selected entry before editing.");
+          },
+        };
       if (!(id in deps)) throw new Error(`Unmocked dependency: ${id}`);
       return deps[id];
     },
@@ -371,6 +378,7 @@ test("public metaobject writes require provider-verified Pro; drafts, metadata a
     values: {},
     id: "gid://shopify/Metaobject/1",
     plan: "pro-plan",
+    expectedDigest: "a".repeat(64),
   };
   assert.equal(
     (await route.action({ request: jsonRequest(entry) })).status,
@@ -629,6 +637,7 @@ test("META-007 route obtains Shopify session shop and locks existing-entry edit 
       id,
       handle: "qa",
       updatedAt: "old",
+      expectedDigest: "a".repeat(64),
       values: {},
     }),
   });
@@ -682,6 +691,7 @@ test("META-007 delete route shares existing-entry lock and fails closed when the
     id,
     confirm: "DELETE_ENTRY:" + id + ":qa",
     updatedAt: "version-1",
+    expectedDigest: "a".repeat(64),
   });
   let response = await route.action({ request: request() });
   assert.equal(response.status, 200);
