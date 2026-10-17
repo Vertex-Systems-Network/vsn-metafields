@@ -90,5 +90,37 @@ class TestStagingGitHubEnv(unittest.TestCase):
             })
 
 
+    def test_staging_source_dispatch_sha_must_match_checked_out_development(self):
+        source_helper = Path(__file__).resolve().parents[1] / (
+            "scripts/cloudflare/verify-staging-source-sha.py"
+        )
+        spec = importlib.util.spec_from_file_location("verify_staging_sha", source_helper)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        sha = "a" * 40
+        self.assertEqual(module.verify_source_sha(sha, sha, "refs/heads/development"), sha)
+        with self.assertRaisesRegex(ValueError, "Development HEAD changed"):
+            module.verify_source_sha("b" * 40, sha, "refs/heads/development")
+        with self.assertRaisesRegex(ValueError, "development branch"):
+            module.verify_source_sha(sha, sha, "refs/heads/main")
+        for malformed in ("", "x" * 40, "a" * 39, sha + "\\nEXTRA=1"):
+            with self.subTest(malformed=malformed[:10]):
+                with self.assertRaisesRegex(ValueError, "Invalid"):
+                    module.verify_source_sha(sha, malformed, "refs/heads/development")
+
+    def test_staging_deploy_guard_runs_before_credentials_or_mutations(self):
+        workflow = (
+            Path(__file__).resolve().parents[1]
+            / ".github/workflows/cloudflare-staging-deploy.yml"
+        ).read_text(encoding="utf-8")
+        guard = "python scripts/cloudflare/verify-staging-source-sha.py"
+        self.assertEqual(workflow.count(guard), 1)
+        self.assertLess(workflow.index(guard), workflow.index("Pin staging database SSL mode"))
+        self.assertLess(workflow.index(guard), workflow.index("Apply staging database migrations"))
+        self.assertLess(workflow.index(guard), workflow.index("Deploy isolated Cloudflare staging Worker"))
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("  push:", workflow)
+
+
 if __name__ == "__main__":
     unittest.main()
