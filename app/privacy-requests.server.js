@@ -131,6 +131,18 @@ export async function completeDataRequest(db, shop, id, confirmation, reviewVers
     throw new RangeError("Privacy request changed after review. Reload and review it again.");
   if (parseStoredPrivacyOrderIds(request.ordersJson) === null)
     throw new RangeError("Stored order IDs are unreadable. Recover and review them before fulfillment.");
+  // An unreadable retained import can still contain personal information.
+  // Do not allow completion just because a merchant dismissed the UI warning.
+  // Only examine this shop's currently retained snapshots; other shops must
+  // never influence this request's fulfillment decision.
+  const retained = await db.metafieldJob.findMany({
+    where: { shop, expiresAt: { gt: new Date() } },
+    select: { id: true, rowsJson: true, resultsJson: true },
+  });
+  if (unreadableJobIds(retained).length)
+    throw new RangeError(
+      "Unreadable retained import snapshots need recovery before privacy fulfillment.",
+    );
   const result = await db.privacyRequest.updateMany({
     // Compare all reviewed scope and identifiers atomically. A concurrent
     // correction must require the operator to reload before fulfillment.
