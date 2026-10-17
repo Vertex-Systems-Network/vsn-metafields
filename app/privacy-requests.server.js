@@ -114,14 +114,23 @@ export async function completeDataRequest(db, shop, id, confirmation) {
   // that every Shopify order in the request has been accounted for.
   const request = await db.privacyRequest.findFirst({
     where: { id, shop, status: "pending" },
-    select: { ordersJson: true },
+    select: {
+      ordersJson: true, customerId: true, customerEmail: true, customerPhone: true,
+    },
   });
-  if (request && parseStoredPrivacyOrderIds(request.ordersJson) === null)
+  if (!request) throw new RangeError("Request was already fulfilled or not found.");
+  if (parseStoredPrivacyOrderIds(request.ordersJson) === null)
     throw new RangeError("Stored order IDs are unreadable. Recover and review them before fulfillment.");
   const result = await db.privacyRequest.updateMany({
-    // Match the exact order scope read above: if another worker repairs or
-    // changes it during merchant review, fulfillment must not silently commit.
-    where: { id, shop, status: "pending", ordersJson: request?.ordersJson ?? "" },
+    // Compare all reviewed scope and identifiers atomically. A concurrent
+    // correction must require the operator to reload before fulfillment.
+    where: {
+      id, shop, status: "pending",
+      ordersJson: request.ordersJson,
+      customerId: request.customerId,
+      customerEmail: request.customerEmail,
+      customerPhone: request.customerPhone,
+    },
     data: { status: "fulfilled", completedAt: new Date(), customerId: null, customerEmail: null, customerPhone: null, ordersJson: "[]" },
   });
   if (result.count !== 1) throw new RangeError("Request was already fulfilled or not found.");
