@@ -1,3 +1,4 @@
+import { metaobjectEntryFingerprint, verifyMetaobjectEntryFingerprint } from "../app/metaobject-entry-fingerprint.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { entryValuesForSave } from "../app/metaobject-entry-values.js";
@@ -527,4 +528,97 @@ test("META-007: a stale second editor is rejected before Shopify mutation and pr
   assert.equal(updatedAt, "version-2");
   // This is stale-preflight coverage, NOT atomic write concurrency: Shopify
   // metaobjectUpdate has no expected-updatedAt/compare-digest argument.
+});
+
+
+test("META-007 fingerprint is order-independent, tracks nulls and handle, and prevents same-second stale edits", async () => {
+  const id = "gid://shopify/Metaobject/101";
+  const at = "2026-10-17T08:40:00Z";
+  let current = {
+    id,
+    type: "vsn_faq",
+    handle: "qa",
+    updatedAt: at,
+    capabilities: { publishable: { status: "DRAFT" } },
+    fields: [
+      { key: "question", type: "single_line_text_field", value: "Before" },
+      { key: "answer", type: "multi_line_text_field", value: null },
+    ],
+  };
+  const firstDigest = await metaobjectEntryFingerprint(current);
+  const reorderedDigest = await metaobjectEntryFingerprint({
+    ...current,
+    fields: [...current.fields].reverse(),
+  });
+  assert.equal(firstDigest, reorderedDigest);
+  assert.notEqual(firstDigest, await metaobjectEntryFingerprint({
+    ...current, handle: "renamed",
+  }));
+  assert.notEqual(firstDigest, await metaobjectEntryFingerprint({
+    ...current,
+    fields: current.fields.map((f) =>
+      f.key === "answer" ? { ...f, value: "" } : f),
+  }));
+
+  let writes = 0;
+  const admin = {
+    graphql: async (query, { variables } = {}) => {
+      if (query.includes("SelectedMetaobject"))
+        return Response.json({ data: { metaobject: current } });
+      assert.match(query, /UpdateMerchantMetaobject/);
+      writes++;
+      const patch = variables.metaobject.fields[0];
+      current = {
+        ...current,
+        // Deliberately leave updatedAt unchanged: Shopify second precision.
+        fields: current.fields.map((f) =>
+          f.key === patch.key ? { ...f, value: patch.value } : f),
+      };
+      return Response.json({ data: { metaobjectUpdate: {
+        metaobject: {
+          id, type: current.type, handle: current.handle,
+          fields: current.fields.map(({ key, value }) => ({ key, value })),
+        },
+        userErrors: [],
+      } } });
+    },
+  };
+  await saveMetaobjectEntry(admin, definition, {
+    id, handle: "qa", status: "DRAFT",
+    updatedAt: at, expectedDigest: firstDigest,
+    values: { question: "First writer" },
+  });
+  assert.equal(current.updatedAt, at);
+  assert.equal(writes, 1);
+  await assert.rejects(
+    saveMetaobjectEntry(admin, definition, {
+      id, handle: "qa", status: "DRAFT",
+      updatedAt: at, expectedDigest: firstDigest,
+      values: { question: "Stale same-second writer" },
+    }),
+    /changed.*Reload/,
+  );
+  assert.equal(writes, 1);
+  assert.equal(current.fields[0].value, "First writer");
+  await assert.rejects(
+    removeMetaobjectEntry(admin, definition, {
+      id, updatedAt: at,
+      expectedDigest: firstDigest,
+      confirm: "DELETE_ENTRY:" + id + ":qa",
+    }),
+    /changed.*Reload/,
+  );
+});
+
+test("META-007 missing or invalid snapshot fails closed", async () => {
+  const original = {
+    id: "gid://shopify/Metaobject/101",
+    type: "vsn_faq",
+    handle: "qa",
+    fields: [{ key: "question", type: "single_line_text_field", value: "OK" }],
+  };
+  await assert.rejects(
+    verifyMetaobjectEntryFingerprint(original, "bad"),
+    /Reload/,
+  );
 });
