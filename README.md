@@ -15,6 +15,8 @@
 
 **Still open (do not mark META-007 complete):** the isolated Cloudflare staging Worker last deployed **2026-10-16 10:14 UTC**, before the merged concurrent-writer fix. Required next: guarded deployment of exact `development` SHA to staging, authenticated VSN app raw browser payload capture, cross-Worker update race E2E, and real VSN-app-authorized Pro public/tier transitions. The Shopify connector's own subscription read cannot establish VSN app entitlement. Native Shopify admin writes remain outside the app-level advisory lock. **No production app, billing or database change was made.**
 
+**New 17 October fixes:** [PR #356](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/356) makes delete-entry share update-entry's advisory lock, rejecting stale delete in deterministic overlapping-mutation tests. [PR #357](https://github.com/Vertex-Systems-Network/vsn-metafields/pull/357) replaces wholesale optional-text-field clearing with a single-key `fields` patch. Connected staging Shopify Admin API saved an empty optional note, independently returned `null` with the required Title unchanged, and confirmed disposable entry cleanup. [Readback evidence](docs/evidence/metafields-meta007-optional-clear-patch-2026-10-17.json). Both changes passed App Validation and Quality Gates before merging to `development`. **This is not evidence that the newly merged source has been deployed on the staging Worker.**
+
 **Open queue (sequence):** META-007 → META-009 → META-006 → META-010 → META-011; META-012 remains on hold. Fresh install and broad two-theme draft acceptance stay deferred until their prerequisites close.
 
 ## Previous engineering checkpoint — 2026-10-14
