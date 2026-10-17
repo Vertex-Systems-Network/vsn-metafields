@@ -12,13 +12,16 @@ export function downloadCsv(name, source, host = window) {
   } finally {
     // A blocked embedded-app document or click may throw before the anchor is
     // inserted. Either way, the temporary element and Blob URL must be freed.
-    link?.remove();
     try {
-      // Browsers can read the Blob after the click handler has returned.
-      host.setTimeout(() => host.URL.revokeObjectURL(url), 60_000);
-    } catch {
-      // A failed timer registration must not leave an unbounded Blob URL leak.
-      host.URL.revokeObjectURL(url);
+      link?.remove();
+    } finally {
+      try {
+        // Browsers can read the Blob after the click handler has returned.
+        host.setTimeout(() => host.URL.revokeObjectURL(url), 60_000);
+      } catch {
+        // A failed timer registration must not leave an unbounded Blob URL leak.
+        host.URL.revokeObjectURL(url);
+      }
     }
   }
 }
