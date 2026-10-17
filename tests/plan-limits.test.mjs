@@ -337,6 +337,7 @@ test("public metaobject writes require provider-verified Pro; drafts, metadata a
       authenticate: {
         admin: async () => ({
           admin: adminFor([{ name: planName, status: "ACTIVE" }]),
+          session: { shop: "staging-oath3rth.myshopify.com" },
         }),
       },
     },
@@ -368,6 +369,7 @@ test("public metaobject writes require provider-verified Pro; drafts, metadata a
     type: "guide",
     status: "ACTIVE",
     values: {},
+    id: "gid://shopify/Metaobject/1",
     plan: "pro-plan",
   };
   assert.equal(
@@ -632,4 +634,60 @@ test("META-007 route obtains Shopify session shop and locks existing-entry edit 
   });
   assert.equal(response.status, 200);
   assert.deepEqual(calls, ["lock", "mutation"]);
+});
+
+
+test("META-007 delete route shares existing-entry lock and fails closed when the lock fails", async () => {
+  const shop = "staging-oath3rth.myshopify.com";
+  const id = "gid://shopify/Metaobject/1007";
+  const definition = {
+    id: "gid://shopify/MetaobjectDefinition/1007",
+    type: "vsn_qa_guide",
+    editable: true,
+    access: { storefront: "NONE" },
+    capabilities: { publishable: { enabled: true } },
+    fieldDefinitions: [],
+  };
+  const calls = [];
+  let deny = false;
+  const route = serverRoute("app.api.metaobjects.jsx", {
+    "../shopify.server": {
+      authenticate: { admin: async () => ({
+        admin: adminFor([{ name: "starter-plan", status: "ACTIVE" }]),
+        session: { shop },
+      }) },
+    },
+    "../active-plan.server": {},
+    "../plan-limits.server": limits,
+    "../definitions.server": {},
+    "../metaobjects.server": {
+      listMetaobjectDefinitions: async () => [definition],
+      removeMetaobjectEntry: async () => { calls.push("delete"); },
+    },
+    "../metaobject-entry-lock.server": {
+      withMetaobjectEntryLock: async (shopArg, idArg, fn) => {
+        assert.equal(shopArg, shop);
+        assert.equal(idArg, id);
+        calls.push("lock");
+        if (deny) throw new Error("Lock acquisition failed");
+        return fn();
+      },
+    },
+    "../feature-request.server": helpers,
+  });
+  const request = () => jsonRequest({
+    action: "deleteEntry",
+    definitionId: definition.id,
+    type: definition.type,
+    id,
+    confirm: "DELETE_ENTRY:" + id + ":qa",
+    updatedAt: "version-1",
+  });
+  let response = await route.action({ request: request() });
+  assert.equal(response.status, 200);
+  assert.deepEqual(calls, ["lock", "delete"]);
+  deny = true;
+  response = await route.action({ request: request() });
+  assert.notEqual(response.status, 200);
+  assert.deepEqual(calls, ["lock", "delete", "lock"]);
 });
