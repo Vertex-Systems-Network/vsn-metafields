@@ -60,6 +60,11 @@ export default function PrivacyRequests() {
             <div key={item.id} className="vsn-notice warning">
               <h3>Request {requestId}{overdue ? " · OVERDUE" : ""}</h3>
               <p>Received {new Date(item.createdAt).toLocaleString()} · Customer ID: {item.customerId || "not provided"} · Email: {item.customerEmail || "not provided"} · Phone: {item.customerPhone || "not provided"} · Order IDs: {item.orders.join(", ") || "none"}</p>
+              {item.ordersUnreadable && (
+                <s-banner tone="critical">
+                  The saved requested order IDs are unreadable. Recover the original order scope and review all relevant records before recording fulfillment.
+                </s-banner>
+              )}
               <p>Likely matches: {item.candidateJobIds.length}. Review every saved job because free text can contain personal information without an identifier match.</p>
               {!!item.unreadableJobIds?.length && (
                 <s-banner tone="critical">
@@ -73,7 +78,7 @@ export default function PrivacyRequests() {
               <s-switch label={`I provided the relevant retained app data for request ${requestId} to the store owner`}
                 checked={confirmed === item.id}
                 onChange={(event) => setConfirmed(event.currentTarget.checked ? item.id : "")} />
-              <ActionButton disabled={confirmed !== item.id || fetcher.state !== "idle"}
+              <ActionButton disabled={item.ordersUnreadable || confirmed !== item.id || fetcher.state !== "idle"}
                 loading={fetcher.state !== "idle"}
                 onClick={() => {
                   fetcher.submit({id:item.id, confirm:`FULFILLED:${item.id}`}, {method:"post"});
