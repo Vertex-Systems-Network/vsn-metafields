@@ -22,7 +22,12 @@ export const action = async ({ request }) => {
   const form = await request.formData();
   const db = createPrismaClient();
   try {
-    await completeDataRequest(db, session.shop, String(form.get("id") || ""), String(form.get("confirm") || ""));
+    await completeDataRequest(
+      db, session.shop,
+      String(form.get("id") || ""),
+      String(form.get("confirm") || ""),
+      String(form.get("reviewVersion") || ""),
+    );
     return { ok: true };
   } catch (error) {
     if (error instanceof RangeError) return featureError(error);
@@ -81,7 +86,10 @@ export default function PrivacyRequests() {
               <ActionButton disabled={item.ordersUnreadable || confirmed !== item.id || fetcher.state !== "idle"}
                 loading={fetcher.state !== "idle"}
                 onClick={() => {
-                  fetcher.submit({id:item.id, confirm:`FULFILLED:${item.id}`}, {method:"post"});
+                  fetcher.submit({
+                    id: item.id, confirm: `FULFILLED:${item.id}`,
+                    reviewVersion: item.reviewVersion,
+                  }, {method:"post"});
                   setConfirmed("");
                 }}>Record fulfilled</ActionButton>
             </div>
