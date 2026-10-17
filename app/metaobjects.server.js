@@ -234,7 +234,12 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     }
     if (raw === "") {
       if (field.required) throw new RangeError(`${field.name} is required.`);
-      if (input.id) cleared.push(field.key);
+      if (input.id) {
+        cleared.push(field.key);
+        // Shopify 2026-07 fields patch clears optional text on empty string,
+        // without full-replacing untouched keys in a concurrent native edit.
+        fields.push({ key: field.key, value: "" });
+      }
       continue;
     }
     const value = encodeValue(field.type.name, raw, field.validations);
@@ -259,28 +264,21 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     );
     if (!input.updatedAt || existing.updatedAt !== input.updatedAt)
       throw new RangeError("Entry changed. Reload before editing.");
-    // Shopify's fields input patches keys; values replaces the whole set and
-    // clears omitted keys. Use replacement only for an explicit blank value.
-    if (cleared.length) {
-      if (
-        definition.fieldDefinitions.some(
-          (field) =>
-            !["single_line_text_field", "multi_line_text_field"].includes(
-              field.type.name,
-            ),
-        )
+    // An explicit blank for an optional text field is a patch of that key.
+    // Never switch to the full-replacement values input: it could erase
+    // simultaneously updated siblings that were omitted by this client.
+    if (
+      cleared.length &&
+      definition.fieldDefinitions.some(
+        (field) =>
+          !["single_line_text_field", "multi_line_text_field"].includes(
+            field.type.name,
+          ),
       )
-        throw new RangeError(
-          "Clear optional fields in Shopify’s native editor when this definition contains other value types.",
-        );
-      const allValues = Object.fromEntries(
-        existing.fields.map((field) => [field.key, field.value]),
+    )
+      throw new RangeError(
+        "Clear optional fields in Shopify’s native editor when this definition contains other value types.",
       );
-      for (const field of fields) allValues[field.key] = field.value;
-      for (const key of cleared) delete allValues[key];
-      delete entry.fields;
-      entry.values = allValues;
-    }
     const data = await graph(
       admin,
       `#graphql
@@ -309,13 +307,18 @@ export async function saveMetaobjectEntry(admin, definition, input) {
     saved.type !== definition.type ||
     saved.handle !== handle ||
     (input.id && saved.id !== input.id) ||
-    fields.some(
+    fields.filter((field) => !cleared.includes(field.key)).some(
       (field) =>
         !saved.fields?.some(
           (f) => f.key === field.key && f.value === field.value,
         ),
     ) ||
-    cleared.some((key) => saved.values?.[key] != null)
+    cleared.some(
+      (key) =>
+        !saved.fields?.some(
+          (field) => field.key === key && field.value == null,
+        ),
+    )
   )
     throw new Error("Shopify did not confirm the entry and field values.");
   return saved;
