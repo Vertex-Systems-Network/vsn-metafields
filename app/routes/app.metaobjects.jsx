@@ -9,6 +9,7 @@ import SearchableSelect from "../components/SearchableSelect";
 import ValidationEditor from "../components/ValidationEditor";
 import { fieldTypeOption } from "../field-presentation";
 import { entryValuesForSave } from "../metaobject-entry-values";
+import { metaobjectEntryFingerprint } from "../metaobject-entry-fingerprint";
 const initialField = () => ({
   key: "title",
   name: "Title",
@@ -474,21 +475,25 @@ export default function Metaobjects() {
                 definition.access?.storefront === "PUBLIC_READ" &&
                 !publicConfirm)
             }
-            onClick={() =>
+            onClick={async () => {
+              const expectedDigest = editing
+                ? await metaobjectEntryFingerprint(editing)
+                : undefined;
               submit({
                 action: "saveEntry",
                 definitionId,
                 type: definition.type,
                 id: editing?.id,
                 updatedAt: editing?.updatedAt,
+                expectedDigest,
                 handle,
                 values: entryValuesForSave(editing, values),
                 status,
                 confirmPublic: publicConfirm
                   ? `PUBLISH:${definition.type}:${handle}`
                   : "",
-              })
-            }
+              });
+            }}
           >
             Save entry
           </ActionButton>
@@ -603,20 +608,24 @@ export default function Metaobjects() {
                         freshEntry.state !== "idle" ||
                         !definition.editable
                       }
-                      onClick={() => {
+                      onClick={async () => {
                         if (
                           window.confirm(
                             `Remove ${entry.handle}? References may become empty.`,
                           )
-                        )
+                        ) {
+                          const expectedDigest =
+                            await metaobjectEntryFingerprint(entry);
                           submit({
                             action: "deleteEntry",
                             definitionId,
                             type: definition.type,
                             id: entry.id,
                             updatedAt: entry.updatedAt,
+                            expectedDigest,
                             confirm: `DELETE_ENTRY:${entry.id}:${entry.handle}`,
                           });
+                        }
                       }}
                     >
                       Remove
