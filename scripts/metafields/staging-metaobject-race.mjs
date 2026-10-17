@@ -122,11 +122,18 @@ try {
       values: { title: "META007 first writer " + nonce },
       status: "DRAFT",
     }));
-  await Promise.race([
-    firstMutationEntered,
-    new Promise((_, reject) => setTimeout(() =>
-      reject(new Error("First locked mutation did not start")), 15000)),
-  ]);
+  let timeoutId;
+  try {
+    await Promise.race([
+      firstMutationEntered,
+      new Promise((_, reject) => {
+        timeoutId = setTimeout(() =>
+          reject(new Error("First locked mutation did not start")), 15000);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
   const second = withMetaobjectEntryLock(SHOP, createdId, () =>
     saveMetaobjectEntry(admin, definition, {
       id: createdId, handle, updatedAt: initial.updatedAt,
