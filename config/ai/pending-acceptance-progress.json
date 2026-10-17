@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-17",
+  "scope": "VSN Metafields META-001..META-012",
+  "methodology": "Per-unit percentage is count of explicitly verified acceptance checks divided by all defined checks, rounded to nearest whole number; not code-completion or release readiness. No passed check without a repo evidence path. Completed work units are intentionally excluded. Live held.",
+  "overall_verified_complete": 6,
+  "overall_total": 12,
+  "units": [
+    {
+      "id": "META-007",
+      "title": "Metaobject lifecycle",
+      "checks": [
+        {
+          "id": "private_lifecycle",
+          "label": "Installed staging private definition/entry edit, status and removal guard",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-metaobject-lifecycle-2026-10-17.json"
+        },
+        {
+          "id": "omitted_field_preservation",
+          "label": "Direct staging Shopify title-only update preserves omitted field",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-meta007-staging-readback-2026-10-17.json"
+        },
+        {
+          "id": "optional_text_clear",
+          "label": "Direct staging Shopify optional clear and independent readback",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-meta007-optional-clear-patch-2026-10-17.json"
+        },
+        {
+          "id": "postgres_conflict_guard",
+          "label": "Real PostgreSQL two-client advisory lock CI plus stale editor digest",
+          "verified": true,
+          "evidence": [
+            "tests/metaobject-postgres-lock.integration.mjs",
+            "tests/metaobjects.test.mjs"
+          ]
+        },
+        {
+          "id": "current_worker_deployment",
+          "label": "Deploy exact latest development SHA to isolated staging using authorized workflow_dispatch",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "real_staging_db_shopify_race",
+          "label": "Execute disposable Neon+Shopify staging contention probe and verify cleanup",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "cross_worker_e2e",
+          "label": "Authenticated installed Cloudflare Worker overlapping save/delete race",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "raw_browser_payload",
+          "label": "Capture authenticated VSN app request that omits unchanged fields",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "public_tier_transitions",
+          "label": "Provider-verified VSN app Pro subscription and authorized public-access transitions",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "META-009",
+      "title": "Specialized storefront blocks",
+      "checks": [
+        {
+          "id": "five_blocks_built",
+          "label": "Five typed storefront blocks built and registered on staging",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-brand-ui-plans-2026-10-03.json"
+        },
+        {
+          "id": "horizon_editor_persist",
+          "label": "Horizon draft retains five blocks after save/reopen",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        },
+        {
+          "id": "two_theme_public_render",
+          "label": "Two-theme real populated public storefront render acceptance",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "variant_refresh",
+          "label": "Variant selection, rapid updates, stale response and recovery in real browser",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "typed_media_references",
+          "label": "Media, reference and FAQ typed data and fallback acceptance",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "accessibility_perf",
+          "label": "Responsive accessibility and measured storefront performance",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "META-006",
+      "title": "Specifications block",
+      "checks": [
+        {
+          "id": "tinker_layout_roundtrip",
+          "label": "Tinker Rows/Table/Cards layouts saved and reopened",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-tinker-specifications-layout-2026-10-16.json"
+        },
+        {
+          "id": "tinker_mixed_mobile",
+          "label": "Tinker text/boolean/integer rows and 365px overflow measured",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-specifications-mixed-types-2026-10-16.json"
+        },
+        {
+          "id": "two_theme_populated",
+          "label": "Two themes populated Specifications real storefront acceptance",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "settings_45",
+          "label": "All 45 settings, ordering, formatting, multiple instances and persistence",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "responsive_matrix",
+          "label": "320px mobile, tablet, desktop, zoom 200%/400% acceptance",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "wcag_keyboard_screenreader",
+          "label": "Keyboard, accessible labels, screen reader and error-recovery checks",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "META-010",
+      "title": "Onboarding, permissions and diagnostics",
+      "checks": [
+        {
+          "id": "staging_embedded_navigation",
+          "label": "Authenticated staging embedded app, menus and plans displayed",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-authenticated-ui-2026-10-03.json"
+        },
+        {
+          "id": "staging_scope_diagnostics",
+          "label": "Staging granted page/file picker and diagnostic readbacks",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-staging-batch-2026-10-14.json"
+        },
+        {
+          "id": "installed_dev_app",
+          "label": "Installed existing Development/local Shopify app complete merchant onboarding",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "authorized_tier_transitions",
+          "label": "Shopify-confirmed Starter/Growth/Pro subscription and feature changes",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "permission_denials",
+          "label": "Non-granted permission and consent-session failure/recovery flows",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "responsive_a11y",
+          "label": "Remaining dashboard controls, narrow/zoom and assistive technology acceptance",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "META-011",
+      "title": "Staging E2E and release assurance",
+      "checks": [
+        {
+          "id": "historic_staging_runtime",
+          "label": "Prior isolated staging runtime lifecycle, health and migration evidence",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-staging-batch-2026-10-14.json"
+        },
+        {
+          "id": "value_owner_staging",
+          "label": "Representative installed staging value owner flows and restoration",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-value-owner-acceptance-2026-10-17.json"
+        },
+        {
+          "id": "bulk_staging_restore",
+          "label": "Bulk staging mutate-and-restore with direct Shopify readback",
+          "verified": true,
+          "evidence": "docs/evidence/metafields-bulk-write-restore-2026-10-17.json"
+        },
+        {
+          "id": "exact_sha_deployed",
+          "label": "Current development SHA deployed with health/session/billing checks",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "full_installed_e2e",
+          "label": "Full installed staging merchant and two-theme E2E",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "csv_file_transport",
+          "label": "Real CSV file chooser/import and export download events",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "a11y_performance",
+          "label": "Zoom, keyboard/screen-reader, browser responsiveness and performance",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "security_privacy_rollback",
+          "label": "Full privacy webhook delivery, security, disaster recovery and rollback preflight",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "META-012",
+      "title": "Production/Live rollout (held)",
+      "checks": [
+        {
+          "id": "staging_release_certified",
+          "label": "META-011 complete and exact staging release certified",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "rollback_certified",
+          "label": "Independent protected production rollback and stop criteria certified",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "authorized_promotion",
+          "label": "Reviewed development-to-main release and explicit production gate",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "progressive_deploy",
+          "label": "Guarded progressive production deployment",
+          "verified": false,
+          "evidence": []
+        },
+        {
+          "id": "live_postrelease",
+          "label": "Billing/subscriptions, health, privacy and rollback watch readbacks",
+          "verified": false,
+          "evidence": []
+        }
+      ]
+    }
+  ]
+}
