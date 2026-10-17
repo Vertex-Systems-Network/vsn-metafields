@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "operation": "deploy",
   "target": "vsn-metafields-staging",
   "source_branch": "development",
